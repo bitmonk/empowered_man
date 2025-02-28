@@ -258,7 +258,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   Widget _buildDatePicker(String label) {
     return AppTextFormField(
-      labelText: 'Select Date',
+      labelText: 'Date',
       enabledBorderSide: const BorderSide(color: AppColors.color354451),
       controller: dateController,
       isReadOnly: true,
