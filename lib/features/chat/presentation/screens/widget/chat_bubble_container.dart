@@ -178,10 +178,11 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                           ),
                           if (isLiked)
                             Positioned(
-                                right: -10,
-                                bottom: -10,
-                                child: Assets.images.chatBubbleLike
-                                    .image(width: 32),),
+                              right: -10,
+                              bottom: -10,
+                              child:
+                                  Assets.images.chatBubbleLike.image(width: 32),
+                            ),
                         ],
                       ),
                       Text(

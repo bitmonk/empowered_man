@@ -1,7 +1,10 @@
 import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/common/app_spacing.dart';
 import 'package:empowered/features/common/themed_container.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/app_text_styles.dart';
 import 'package:flutter/material.dart';
@@ -9,8 +12,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
-  const ProgressGoalWidget({required this.title, super.key});
+  const ProgressGoalWidget(
+      {required this.title, required this.selectedTent, super.key,});
   final String title;
+  final String selectedTent;
 
   @override
   _ProgressGoalWidgetState createState() => _ProgressGoalWidgetState();
@@ -52,7 +57,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
               const Spacer(),
               InkWell(
                 onTap: () {
-                  Get.toNamed(AppRoutes.reflectionScreen);
+                  initJournalWithNavigate(widget.selectedTent);
                 },
                 child: Assets.images.goalAdd.image(width: 32),
               ),
@@ -61,12 +66,15 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
             ],
           ),
           const VerticalSpacing(4),
-          Text(
-            'View full reflection',
-            style: AppTextStyles.textBodyB2.copyWith(
-              color: AppColors.primary400,
-              decoration: TextDecoration.underline,
-              decorationColor: AppColors.primary400,
+          InkWell(
+            onTap: () {},
+            child: Text(
+              'View full reflection',
+              style: AppTextStyles.textBodyB2.copyWith(
+                color: AppColors.primary400,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.primary400,
+              ),
             ),
           ),
           const VerticalSpacing(16),
@@ -220,4 +228,36 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
       ),
     );
   }
+}
+
+void initJournalWithNavigate(String title) {
+  JournalChatInitializer.initialize();
+  Get.find<JournalChatController>().title.value = '$title Tent';
+  var chatConversationList = [
+    ChatConversationModel(
+      isMine: false,
+      timeStamp: '10:30 AM',
+      profileImageUrl: '',
+      name: '',
+      message:
+          '''A new week has arrived! Take a moment to review the insights from the past week in the Mind domain and create your updated fire map for the week ahead.''',
+      dateTime: '2024-02-10 10:30:00',
+    ),
+    ChatConversationModel(
+      isMine: true,
+      timeStamp: '11:00 AM',
+      hide: true,
+      profileImageUrl: '',
+      name: '',
+      message: 'Angry!',
+      dateTime: '2024-02-10 11:00:00',
+    ),
+  ].obs;
+  Get.find<JournalChatController>().chatConversationList.value =
+      chatConversationList;
+  Get.to(
+    () => const JournalChatScreen(
+      isFromGoals: true,
+    ),
+  );
 }

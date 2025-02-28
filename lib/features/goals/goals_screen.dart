@@ -29,10 +29,17 @@ class GoalsScreen extends StatefulWidget {
 class _GoalsScreenState extends State<GoalsScreen> {
   DateTime _startDate = DateTime.now();
   final Random _random = Random();
-  late List<bool>
-      _goalStates; // Stores whether to show ProgressGoalWidget or EmptyGoalWidget
-  late List<bool>
-      _showButtonStates; // Stores whether to show button for EmptyGoalWidget
+  late List<bool> _goalStates;
+  late List<bool> _showButtonStates;
+
+  int _selectedGoalIndex = 0; // Store selected goal index
+
+  final List<String> goalTypes = [
+    'Body',
+    'Mind',
+    'Balance',
+    'Wealth',
+  ];
 
   @override
   void initState() {
@@ -40,32 +47,20 @@ class _GoalsScreenState extends State<GoalsScreen> {
     _randomizeGoals();
   }
 
-  /// **Randomize goals for the current date range**
   void _randomizeGoals() {
     _goalStates = List.generate(
-      GoalDurationEnum.values.length,
-      (_) => _random.nextBool(),
-    );
+        GoalDurationEnum.values.length, (_) => _random.nextBool(),);
     _showButtonStates = List.generate(
-      GoalDurationEnum.values.length,
-      (_) => _random.nextBool(),
-    );
+        GoalDurationEnum.values.length, (_) => _random.nextBool(),);
   }
 
-  /// **Get the first day (Sunday) of the current week**
-  DateTime _getWeekStart(DateTime date) {
-    return date.subtract(Duration(days: date.weekday % 7));
-  }
-
-  /// **Change week and reload data**
   void _changeWeek(int days) {
     setState(() {
       _startDate = _startDate.add(Duration(days: days));
-      _randomizeGoals(); // Randomize again when date changes
+      _randomizeGoals();
     });
   }
 
-  /// **Get formatted date range**
   String _getDateRange() {
     var endDate = _startDate.add(const Duration(days: 6));
     return "${DateFormat("dd.MM").format(_startDate)} - ${DateFormat("dd.MM").format(endDate)}";
@@ -73,8 +68,6 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var currentWeekStart = _getWeekStart(_startDate);
-
     return SafeArea(
       bottom: false,
       child: Padding(
@@ -84,8 +77,19 @@ class _GoalsScreenState extends State<GoalsScreen> {
           children: [
             const GoalsHeader(),
             const VerticalSpacing(26),
-            const GoalTypeScroll(),
+
+            // Pass selected index and callback to GoalTypeScroll
+            GoalTypeScroll(
+              selectedIndex: _selectedGoalIndex,
+              onSelected: (index) {
+                setState(() {
+                  _selectedGoalIndex = index;
+                });
+              },
+            ),
+
             const VerticalSpacing(16),
+
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -106,8 +110,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
                 ),
               ],
             ),
+
             const VerticalSpacing(24),
             const GoalsButtons(),
+
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.only(top: 12),
@@ -116,6 +122,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                     ...List.generate(GoalDurationEnum.values.length, (index) {
                       if (_goalStates[index]) {
                         return ProgressGoalWidget(
+                          selectedTent: goalTypes[
+                              _selectedGoalIndex], // Pass selected goal type
                           title: GoalDurationEnum
                                   .values[index].name.capitalizeFirst ??
                               '',
@@ -126,6 +134,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                   .values[index].name.capitalizeFirst ??
                               '',
                           showStart: _showButtonStates[index],
+                          selectedTent: goalTypes[_selectedGoalIndex], //
                         );
                       }
                     }),
