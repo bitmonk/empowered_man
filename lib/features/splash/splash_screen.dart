@@ -46,8 +46,6 @@ class _SplashScreenState extends State<SplashScreen> {
               children: [
                 const SizedBox().animate(
                   onComplete: (controller) async {
-                    Get.offAllNamed(AppRoutes.main);
-                    return;
                     var sharedPreferences =
                         await SharedPreferences.getInstance();
                     final isFirstRun = sharedPreferences
