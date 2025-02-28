@@ -1,0 +1,34 @@
+import 'package:empowered/core/dio_provider/dio_api_client.dart';
+
+class DeleteAccountRemoteSource {
+  const DeleteAccountRemoteSource(this._client);
+  // final DioApiClient _client;
+  final DioApiClient _client;
+
+  // Future<Either<AppError, ApiResponse<dynamic>>> fetchData({
+  //   required int pageKey,
+  //   String? searchQuery,
+  // }) async {
+  //   try {
+  //     // final param = <String, dynamic>{'page': pageKey};
+  //     // final url = searchQuery == null
+  //     //     ? AppEndpoints.countries
+  //     //     : AppEndpoints.countries + searchQuery;
+
+  //     // final response =
+  //     //     await _client.httpGet<dynamic>(url, queryParameters: param);
+  //     // return right(
+  //     //   ApiResponse(
+  //     //     data: null
+  //     //   ,)
+  //     // );
+  //     throw UnimplementedError();
+  //   } catch (e) {
+  //     if (e is ApiErrorResponse) {
+  //       return left(e);
+  //     } else {
+  //       return left(InternalAppError(message: e.toString()));
+  //     }
+  //   }
+  // }
+}

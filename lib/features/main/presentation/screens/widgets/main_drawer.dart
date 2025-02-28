@@ -1,0 +1,202 @@
+import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/features/common/app_divider.dart';
+import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/features/courses/courses_screen.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
+import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
+import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
+import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
+import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
+import 'package:empowered/gen/assets.gen.dart';
+import 'package:empowered/utlis/app_text_styles.dart';
+import 'package:empowered/utlis/app_widget_key.dart';
+import 'package:empowered/utlis/navigation_helper.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+class MainDrawer extends GetView<MainController> {
+  const MainDrawer({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Obx(
+      () => Container(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            VerticalSpacing(MediaQuery.of(context).viewPadding.top),
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                    child: Assets.images.drawerBack.svg(),
+                  ),
+                ),
+                const HorizontalSpacing(6),
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary500,
+                  ),
+                  child: ClipOval(
+                    child: Assets.images.homeProfile.image(
+                      width: 48,
+                      height: 48,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+                ),
+                const HorizontalSpacing(16),
+                Text(
+                  'Allen Jhon',
+                  style: AppTextStyles.textBodyB3.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+            const VerticalSpacing(20),
+            Text(
+              'Menu',
+              style: AppTextStyles.textBodyB1.copyWith(
+                color: AppColors.white,
+              ),
+            ),
+            const VerticalSpacing(12),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                controller.changetab(0);
+              },
+              title: 'Dashboard',
+              image: Assets.images.dashboard.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.dashboard,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                Get.to(() => const CoursesScreen());
+              },
+              title: 'Course',
+              image: Assets.images.courses.path,
+              isSelected:
+                  controller.selectedDrawerItem.value == DrawerItemEnum.course,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                controller.changetab(2);
+              },
+              title: 'Chat',
+              image: Assets.images.chat.path,
+              isSelected:
+                  controller.selectedDrawerItem.value == DrawerItemEnum.chat,
+            ),
+            DrawerTile(
+              onTap: () async {
+                Navigator.pop(context);
+                JournalChatInitializer.destroy();
+                JournalChatInitializer.initialize();
+                Get.to(() => const JournalChatScreen());
+                await Future.delayed(Durations.short4);
+                AppWidgetKey.journalKey.currentState!.openDrawer();
+              },
+              title: 'Journal',
+              image: Assets.images.journalSvg.path,
+              isSelected:
+                  controller.selectedDrawerItem.value == DrawerItemEnum.journal,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                controller.changetab(4);
+              },
+              title: 'Habit Tracker',
+              image: Assets.images.habits.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.habitTracker,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                controller.changetab(1);
+              },
+              title: 'Task Management',
+              image: Assets.images.task.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.taskManagement,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                controller.changetab(3);
+              },
+              title: 'Goals and Targets',
+              image: Assets.images.drawerGame.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.goalsAndTargets,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+
+                NavigationHelper.navigateWithFadeTransition(
+                  AppWidgetKey.home.currentContext!,
+                  const PowerScoreStatsScreen(),
+                  index: 0,
+                );
+              },
+              title: 'Power Score Stats',
+              image: Assets.images.statistic.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.powerScoreStats,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                Get.toNamed(AppRoutes.assesmentsScreen);
+              },
+              title: 'Assessment',
+              image: Assets.images.assessment.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.assessment,
+            ),
+            DrawerTile(
+              onTap: () {
+                Navigator.pop(context);
+                Get.to(() => const ProfileScreen());
+              },
+              title: 'Settings',
+              image: Assets.images.setting.path,
+              isSelected: controller.selectedDrawerItem.value ==
+                  DrawerItemEnum.settings,
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: AppDivider(
+                color: AppColors.bgBorder,
+              ),
+            ),
+            DrawerTile(
+              onTap: () {
+                Get.offAllNamed(AppRoutes.loginPage);
+              },
+              title: 'Logout',
+              image: Assets.images.logout.path,
+            ),
+            const BottomSpacing(),
+          ],
+        ),
+      ),
+    );
+  }
+}
