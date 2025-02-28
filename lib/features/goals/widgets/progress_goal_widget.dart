@@ -12,8 +12,11 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get/get.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
-  const ProgressGoalWidget(
-      {required this.title, required this.selectedTent, super.key,});
+  const ProgressGoalWidget({
+    required this.title,
+    required this.selectedTent,
+    super.key,
+  });
   final String title;
   final String selectedTent;
 

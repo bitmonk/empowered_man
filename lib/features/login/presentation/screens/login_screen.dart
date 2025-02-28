@@ -48,7 +48,7 @@ class LoginScreen extends GetView<LoginController> {
                 Center(child: Assets.images.appLogo.image(width: 120)),
                 VerticalSpacing(16.h),
                 AppTextFormField(
-                  labelText: 'Email Address',
+                  labelText: 'Enter email',
                   controller: controller.emailController,
                   validator: ValidationBuilder()
                       .email('Invalid email address')
@@ -58,7 +58,7 @@ class LoginScreen extends GetView<LoginController> {
                 VerticalSpacing(16.h),
                 Obx(
                   () => AppTextFormField(
-                    labelText: 'Enter Password',
+                    labelText: 'Enter password',
                     controller: controller.passwordController,
                     obscureText: !controller.showPassword.value,
                     textInputType: TextInputType.visiblePassword,

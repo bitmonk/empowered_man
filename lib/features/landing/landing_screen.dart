@@ -81,7 +81,7 @@ class LandingScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 76),
                 child: AppOutlinedButton(
                   safePadding: true,
-                  text: 'Get Started',
+                  text: 'Create an account',
                   onPressed: () {
                     Get.toNamed(AppRoutes.signup);
                   },
@@ -95,7 +95,7 @@ class LandingScreen extends StatelessWidget {
                     style: AppTextStyles.textBodyB2,
                   ),
                   AppTextButton(
-                    label: 'Sign In',
+                    label: 'Log In',
                     onTap: () {
                       Get.toNamed(AppRoutes.loginPage);
                     },

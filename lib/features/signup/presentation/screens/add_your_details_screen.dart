@@ -6,6 +6,7 @@ import 'package:empowered/features/common/app_spacing.dart';
 import 'package:empowered/features/common/app_text_form_field.dart';
 import 'package:empowered/features/common/custom_app_bar.dart';
 import 'package:empowered/features/signup/presentation/widgets/dots_indicator.dart';
+import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
 import 'package:get/get.dart';
@@ -26,6 +27,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
   bool containsNumber = false;
   bool containsSymbol = false;
   bool hasMinLength = false;
+  bool showPassword = false; // Added for password visibility
 
   void _validatePassword(String value) {
     setState(() {
@@ -63,9 +65,19 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
             AppTextFormField(
               controller: passwordController,
               labelText: 'Enter password',
-              obscureText: true,
+              obscureText: !showPassword,
               onChanged: _validatePassword,
               validator: ValidationBuilder().required().build(),
+              suffixIcon: IconButton(
+                onPressed: () {
+                  setState(() {
+                    showPassword = !showPassword;
+                  });
+                },
+                icon: showPassword
+                    ? Assets.images.eyeClose.svg()
+                    : Assets.images.eyeOpen.svg(),
+              ),
             ),
             const VerticalSpacing(16),
             SizedBox(
@@ -91,7 +103,9 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 _buildValidationItem('8 characters minimum', hasMinLength),
+                const VerticalSpacing(2),
                 _buildValidationItem('a number', containsNumber),
+                const VerticalSpacing(2),
                 _buildValidationItem('a symbol', containsSymbol),
               ],
             ),
@@ -114,14 +128,15 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
     return Row(
       children: [
         Container(
-          padding: const EdgeInsets.all(2),
-          decoration: const BoxDecoration(
+          padding: EdgeInsets.all(2),
+          decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: AppColors.color279627, // Background color
+            border: isValid ? null : Border.all(color: AppColors.textColor100),
+            color: isValid ? AppColors.color279627 : null, // Background color
           ),
-          child: const Icon(
+          child: Icon(
             Icons.check,
-            color: Colors.white, // Tick color
+            color: isValid ? Colors.white : Colors.transparent, // Tick color
             size: 12,
           ),
         ),
