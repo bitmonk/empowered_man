@@ -128,7 +128,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(2),
+          padding: const EdgeInsets.all(2),
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: isValid ? null : Border.all(color: AppColors.textColor100),
