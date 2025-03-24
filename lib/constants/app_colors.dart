@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppColors {
   static const neutral = Color(0xFFCFD4D9);

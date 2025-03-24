@@ -1,15 +1,7 @@
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_form_field.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/edit_profile/presentation/controllers/edit_profile_controller.dart';
-import 'package:empowered/utlis/app_utils.dart';
 import 'package:empowered/utlis/uihelper.dart';
-
-import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
-import 'package:get/get.dart';
 
 class EditProfileScreen extends StatefulWidget {
   const EditProfileScreen({super.key});

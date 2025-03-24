@@ -1,21 +1,16 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_details.dart';
 import 'package:empowered/features/chat/presentation/screens/customize_chat.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ChatCoversationScreen extends StatefulWidget {
   const ChatCoversationScreen({
     required this.isGroupChat,
-    required this.isSoloChat, super.key,
+    required this.isSoloChat,
+    super.key,
   });
   final bool isGroupChat;
   final bool isSoloChat;

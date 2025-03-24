@@ -1,12 +1,9 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/drawer_header.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_drawer.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class JournalChatScreen extends StatefulWidget {
   const JournalChatScreen({super.key, this.isFromGoals = false});

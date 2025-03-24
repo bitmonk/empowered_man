@@ -1,12 +1,12 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppDivider extends StatelessWidget {
-  const AppDivider(
-      {this.indent = 1,
-      this.endent = 1,
-      super.key,
-      this.color = AppColors.dividerGrey,});
+  const AppDivider({
+    this.indent = 1,
+    this.endent = 1,
+    super.key,
+    this.color = AppColors.dividerGrey,
+  });
   final Color color;
   final double indent;
   final double endent;

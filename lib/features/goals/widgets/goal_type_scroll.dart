@@ -1,11 +1,10 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class GoalTypeScroll extends StatefulWidget {
-
   const GoalTypeScroll({
-    required this.selectedIndex, required this.onSelected, super.key,
+    required this.selectedIndex,
+    required this.onSelected,
+    super.key,
   });
   final int selectedIndex;
   final Function(int) onSelected;

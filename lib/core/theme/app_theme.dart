@@ -1,6 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/fonts.gen.dart';
-import 'package:flutter/material.dart';
 
 class AppTheme {
   static ThemeData appTheme(BuildContext context) => ThemeData(

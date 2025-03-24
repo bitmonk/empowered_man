@@ -1,6 +1,6 @@
 import 'package:chewie/chewie.dart';
-import 'package:empowered/constants/app_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
+
 import 'package:video_player/video_player.dart';
 
 class AppVideoPlayer extends StatefulWidget {

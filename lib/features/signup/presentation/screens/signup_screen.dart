@@ -1,13 +1,6 @@
-import 'package:empowered/core/routes/app_routes.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_form_field.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/signup/presentation/widgets/dots_indicator.dart';
-import 'package:flutter/material.dart';
 import 'package:form_validator/form_validator.dart';
-import 'package:get/get.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});

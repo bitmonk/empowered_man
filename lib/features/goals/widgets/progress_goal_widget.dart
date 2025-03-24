@@ -1,15 +1,10 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/themed_container.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/get.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
   const ProgressGoalWidget({

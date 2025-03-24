@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/contact_us/data/source/contact_us_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ContactUsController extends GetxController {
   ContactUsController({required this.remoteSource});

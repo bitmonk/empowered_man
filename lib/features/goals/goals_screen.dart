@@ -1,15 +1,12 @@
 import 'dart:math';
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
+
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/widgets/empty_goal.dart';
 import 'package:empowered/features/goals/widgets/goal_type_scroll.dart';
 import 'package:empowered/features/goals/widgets/goals_buttons.dart';
 import 'package:empowered/features/goals/widgets/goals_header.dart';
 import 'package:empowered/features/goals/widgets/progress_goal_widget.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 enum GoalDurationEnum {
@@ -49,9 +46,13 @@ class _GoalsScreenState extends State<GoalsScreen> {
 
   void _randomizeGoals() {
     _goalStates = List.generate(
-        GoalDurationEnum.values.length, (_) => _random.nextBool(),);
+      GoalDurationEnum.values.length,
+      (_) => _random.nextBool(),
+    );
     _showButtonStates = List.generate(
-        GoalDurationEnum.values.length, (_) => _random.nextBool(),);
+      GoalDurationEnum.values.length,
+      (_) => _random.nextBool(),
+    );
   }
 
   void _changeWeek(int days) {

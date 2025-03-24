@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/change_password/data/source/change_password_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ChangePasswordController extends GetxController {
   ChangePasswordController({required this.remoteSource});

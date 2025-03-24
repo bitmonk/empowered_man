@@ -1,4 +1,4 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/goals_screen.dart';
@@ -11,10 +11,7 @@ import 'package:empowered/features/profile/presentation/controllers/profile_bind
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class MainScreen extends StatefulWidget {

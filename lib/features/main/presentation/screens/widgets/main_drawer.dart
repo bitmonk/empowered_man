@@ -1,7 +1,4 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/core/routes/app_routes.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
@@ -10,11 +7,8 @@ import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile
 import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
 import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class MainDrawer extends GetView<MainController> {
   const MainDrawer({super.key});

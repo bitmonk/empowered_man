@@ -1,14 +1,9 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/task_menu_dialog.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class TaskTile extends StatefulWidget {
   const TaskTile({required this.showNote, super.key});

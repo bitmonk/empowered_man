@@ -1,6 +1,4 @@
-import 'package:empowered/constants/app_constant.dart';
-import 'package:empowered/features/common/app_text_button.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppErrorWidget extends StatelessWidget {
   const AppErrorWidget({

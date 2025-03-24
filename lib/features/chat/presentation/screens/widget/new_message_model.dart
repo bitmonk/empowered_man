@@ -1,9 +1,6 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/features/common/app_spacing.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class NewMessageModal extends StatefulWidget {
   const NewMessageModal({super.key});
@@ -57,8 +54,11 @@ class _NewMessageModalState extends State<NewMessageModal> {
                       ),
                     ),
                     IconButton(
-                      icon: const Icon(Icons.close,
-                          color: Colors.white, size: 24,),
+                      icon: const Icon(
+                        Icons.close,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                       onPressed: () => Navigator.pop(context),
                     ),
                   ],
@@ -80,8 +80,9 @@ class _NewMessageModalState extends State<NewMessageModal> {
                               .asMap()
                               .entries
                               .where((entry) => entry.value)
-                              .map((entry) => userNames[entry.key]
-                                  .split(' ')[0],) // Only first name
+                              .map(
+                                (entry) => userNames[entry.key].split(' ')[0],
+                              ) // Only first name
                               .join(', '), // Separate names with commas
                           style: AppTextStyles.textBodyB3.copyWith(),
                         ),

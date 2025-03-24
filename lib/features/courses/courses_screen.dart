@@ -1,13 +1,6 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_form_field.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/course_details_screen.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class Course {
   Course({

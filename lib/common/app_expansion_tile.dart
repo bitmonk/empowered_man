@@ -1,7 +1,4 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppExpansionTile extends StatefulWidget {
   const AppExpansionTile({

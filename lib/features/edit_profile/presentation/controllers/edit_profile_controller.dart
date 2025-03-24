@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/edit_profile/data/source/edit_profile_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class EditProfileController extends GetxController {
   EditProfileController({required this.remoteSource});

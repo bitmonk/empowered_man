@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/data/source/home_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HomeController extends GetxController {
   HomeController({required this.remoteSource});

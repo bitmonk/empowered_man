@@ -1,13 +1,10 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/controllers/home_controller.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/daily_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/monthly_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/weekly_widget.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});

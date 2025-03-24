@@ -1,10 +1,7 @@
-import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/theme/app_theme.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_utils.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get/route_manager.dart';
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});

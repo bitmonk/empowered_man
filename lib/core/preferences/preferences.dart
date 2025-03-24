@@ -1,6 +1,6 @@
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-class Preference {
+class PreferenceKeys {
   static const String isFirstRun = 'isFirstRun';
   static const String isLoggedIn = 'isLoggedIn';
   static const String accessToken = 'ACCESS_TOKEN';

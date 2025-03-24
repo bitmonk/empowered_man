@@ -1,10 +1,10 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppCircularProgressIndicator extends StatelessWidget {
-
   const AppCircularProgressIndicator({
-    required this.progress, required this.count, super.key,
+    required this.progress,
+    required this.count,
+    super.key,
     this.strokeWidth = 6,
     this.progressColor = AppColors.primary500,
     this.backgroundColor = const Color(0xff1C2934),
@@ -60,7 +60,6 @@ class AppCircularProgressIndicator extends StatelessWidget {
 }
 
 class CirclePainter extends CustomPainter {
-
   CirclePainter({
     required this.progress,
     required this.strokeWidth,

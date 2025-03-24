@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/forgot_password/data/source/forgot_password_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ForgotPasswordController extends GetxController {
   ForgotPasswordController({required this.remoteSource});

@@ -1,6 +1,4 @@
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/help/presentation/controller/help_binding.dart';
 import 'package:empowered/features/help/presentation/screen/help_screen.dart';
 import 'package:empowered/features/help_support/presentation/controllers/help_support_controller.dart';
@@ -8,8 +6,6 @@ import 'package:empowered/features/help_support/presentation/screens/widget/cont
 import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
 import 'package:empowered/utlis/url_launcher_utls.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HelpSupportScreen extends GetView<HelpSupportController> {
   const HelpSupportScreen({super.key});

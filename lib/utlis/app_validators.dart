@@ -1,4 +1,4 @@
-import 'package:empowered/extensions/string_extension.dart';
+import 'package:empowered/core/extension/string_extension.dart';
 
 class AppValidators {
   static String? required(String? value) {

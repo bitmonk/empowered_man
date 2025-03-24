@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -5,180 +6,252 @@ import 'package:empowered/core/config/environment_helper.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/preferences/preferences.dart';
-import 'package:empowered/extensions/string_extension.dart';
-import 'package:flutter/foundation.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/utlis/app_widget_key.dart';
+import 'package:flutter/widgets.dart';
+import 'package:get/get.dart' as getx;
+
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+
+export 'package:dio/dio.dart';
+
+Map<String, dynamic> getQuery({int? pageKey, String? searchText}) {
+  return searchText != null
+      ? {'page': pageKey ?? 1, 'keyword': searchText}
+      : {'page': pageKey ?? 1};
+}
 
 class DioApiClient {
   DioApiClient(
     this._dio,
     this._environmentHelper,
     this._preference,
-    this._externalDio,
   ) {
-    _dio.interceptors.add(AppInterceptor());
-    _dio.interceptors.add(PrettyDioLogger(requestBody: true));
-    _externalDio.interceptors.add(AppInterceptor());
-    _externalDio.interceptors.add(PrettyDioLogger(requestBody: true));
-    _dio.options.baseUrl =
-        _environmentHelper.getValue(EnvironmentKey.baseUrl) ?? '';
-
-    _dio.options.headers = {
-      'Accept': 'application/json',
-      'responseType': ResponseType.json,
-    };
-
-    _dio.options.connectTimeout = const Duration(seconds: 30);
-    _dio.options.receiveTimeout = const Duration(seconds: 30);
+    var baseUrl = _environmentHelper.getValue(EnvironmentKey.baseUrl) ?? '';
+    _configureDio(_dio, baseUrl, _preference);
   }
+
+  void updateBaseUrl(String baseUrl) {
+    _dio.options.baseUrl = baseUrl;
+  }
+
   final Dio _dio;
-  final Dio _externalDio;
   final EnvironmentHelper _environmentHelper;
-  final Preferences _preference;
+  final AppSharedPref _preference;
 
-  Future<T> httpGet<T>(
-    String url, {
-    Map<String, dynamic>? queryParameters,
-  }) async {
-    try {
-      Response<dynamic>? response;
-      final token = await _preference.getString(Preference.accessToken);
-      if (!token.isNullOrEmpty()) {
-        _dio.options.headers = {
+  void _configureDio(Dio dio, String baseUrl, AppSharedPref preference) {
+    dio
+      ..options = BaseOptions(
+        baseUrl: baseUrl,
+        headers: {
           'Accept': 'application/json',
-          'responseType': ResponseType.json,
-          'Authorization': 'Bearer $token',
-        };
-      }
-
-      response = await _dio.get(
-        url,
-        queryParameters: queryParameters,
-      );
-
-      return response.data as T;
-    } catch (e) {
-      _handleRequestError(e);
-      rethrow;
-    }
+        },
+        connectTimeout: const Duration(seconds: 50),
+        receiveTimeout: const Duration(seconds: 50),
+      )
+      ..interceptors.addAll([
+        AppInterceptor(preference, baseUrl),
+        PrettyDioLogger(requestBody: true, requestHeader: true),
+      ]);
   }
 
-  Future<T> externalHttpGet<T>(
+  Future<Map<String, dynamic>> get(
     String url, {
     Map<String, dynamic>? queryParameters,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
   }) async {
-    try {
-      Response<dynamic>? response;
-
-      _dio.options.headers = {
-        'Accept': 'application/json',
-        'responseType': ResponseType.json,
-      };
-
-      response = await _externalDio.get(
+    return _request(
+      () => _dio.get(
         url,
         queryParameters: queryParameters,
-      );
-
-      return response.data as T;
-    } catch (e) {
-      _handleRequestError(e);
-      rethrow;
-    }
+        cancelToken: cancelToken,
+      ),
+    );
   }
 
-  Future<T> post<T>(
+  Future<Map<String, dynamic>> search(
     String url, {
     Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? body,
+    String? searchText,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
   }) async {
-    try {
-      final response = await _dio.post(
+    return _request(
+      () => _dio.get(
+        url,
+        queryParameters: {'keyword': searchText},
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> post(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.post(
         url,
         queryParameters: queryParameters,
         data: body,
-      );
-      return response.data as T;
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> put(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.put(
+        url,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> delete(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.delete(
+        url,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> _request(
+    Future<dynamic> Function() requestFunction,
+  ) async {
+    if (AppInterceptor.isUnauthorized) {
+      throw ApiErrorResponse(message: 'Skipped due to 401 error.');
+    }
+    try {
+      final response = await requestFunction();
+      return response.data is Map<String, dynamic>
+          ? response.data as Map<String, dynamic>
+          : {'data': response.data};
     } catch (e) {
       _handleRequestError(e);
       rethrow;
     }
-  }
-
-  Future<T> patch<T>(
-    String url, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? body,
-  }) async {
-    Response<dynamic>? response;
-
-    response =
-        await _dio.patch(url, queryParameters: queryParameters, data: body);
-
-    return response.data as T;
-  }
-
-  Future<T> delete<T>(
-    String url, {
-    Map<String, dynamic>? queryParameters,
-    Map<String, dynamic>? body,
-  }) async {
-    Response<dynamic>? response;
-
-    response = await _dio.delete(
-      url,
-      data: body,
-      queryParameters: queryParameters,
-    );
-
-    return response.data as T;
   }
 
   void _handleRequestError(dynamic error) {
     debugPrint(error.toString());
 
     if (error is SocketException) {
-      final errorCode = error.osError!.errorCode;
-      if (errorCode == 61 ||
-          errorCode == 60 ||
-          errorCode == 111 ||
-          errorCode == 101 ||
-          errorCode == 104 ||
-          errorCode == 51 ||
-          errorCode == 8 ||
-          errorCode == 113 ||
-          errorCode == 7 ||
-          errorCode == 64) {
-        throw ApiConnectionRefusedError(error);
-      }
+      _handleSocketException(error);
+    } else if (error is DioException) {
+      _handleDioException(error);
+    } else {
+      throw error;
     }
-    if (error is DioException) {
-      try {
-        final errors = error.response?.data['error'] as Map<String, dynamic>;
-        final firstError = errors.values.firstOrNull[0];
+  }
 
-        throw ApiErrorResponse(message: firstError);
-      } catch (e) {
-        if (e is ApiErrorResponse) {
-          rethrow;
-        } else {
-          try {
-            final errorMsg = error.response?.data['message'] as String;
-            throw ApiErrorResponse(message: errorMsg);
-          } catch (e) {
-            rethrow;
+  void _handleSocketException(SocketException error) {
+    final recoverableErrorCodes = [61, 60, 111, 101, 104, 51, 8, 113, 7, 64];
+    if (recoverableErrorCodes.contains(error.osError?.errorCode)) {
+      throw ApiConnectionRefusedError(error);
+    }
+  }
+
+  void _handleDioException(DioException error) {
+    try {
+      if (error.type == DioExceptionType.unknown ||
+          error.type == DioExceptionType.badResponse) {
+        if (error.response?.statusCode == 500) {
+          throw ApiErrorResponse(
+            message: 'Internal server error. Please try again after sometime.',
+          );
+        }
+        if (error.response?.data['message'] is Map<String, dynamic>) {
+          final errors =
+              error.response?.data['message'] as Map<String, dynamic>?;
+          final firstError = errors?.values.firstOrNull?[0];
+          if (firstError != null) {
+            throw ApiErrorResponse(message: firstError);
           }
         }
+        final errorMsg = error.response?.data['message'] as String?;
+        if (errorMsg != null) {
+          throw ApiErrorResponse(message: errorMsg);
+        }
       }
+      var msg = DioErrorHandler.handle(error);
+      throw ApiErrorResponse(message: msg);
+    } catch (_) {
+      rethrow;
     }
-    throw error;
   }
 }
 
 class AppInterceptor extends Interceptor {
+  AppInterceptor(this._preference, this.baseUrl);
+
+  final AppSharedPref _preference;
+  final String baseUrl;
+  final List<String> _noAuthEndpoints = [
+    // ExternalEndpoints.privacyPolicy,
+    // ExternalEndpoints.termsAndCondition,
+    // ExternalEndpoints.faq,
+    // ExternalEndpoints.faqCategory,
+  ];
+
+  static bool isUnauthorized = false;
+
   @override
-  void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
-    handler.next(options);
+  Future<void> onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
+    try {
+      if (isUnauthorized) {
+        // Skip requests if 401 was encountered
+        handler.reject(
+          DioException(
+            requestOptions: options,
+            error: 'Skipped due to 401 error.',
+          ),
+        );
+        return;
+      }
+      final requiresAuth = !_noAuthEndpoints.any(
+        (endpoint) => options.path.contains(endpoint),
+      );
+
+      if (requiresAuth) {
+        final accessToken = await _preference.getAccessToken();
+        if (accessToken != null) {
+          options.headers['Authorization'] = 'Bearer $accessToken';
+        }
+      }
+
+      options.baseUrl = baseUrl;
+
+      debugPrint('Request: ${options.method} ${options.uri}');
+      handler.next(options);
+    } catch (e) {
+      handler.reject(
+        DioException(
+          requestOptions: options,
+          error: 'Failed to retrieve token',
+        ),
+      );
+    }
   }
 
   @override
@@ -186,21 +259,44 @@ class AppInterceptor extends Interceptor {
     Response<dynamic> response,
     ResponseInterceptorHandler handler,
   ) {
-    debugPrint(response.data.toString());
-    _checkResponseIsOk(response);
+    debugPrint('Response: ${response.statusCode} ${response.data}');
+    if (!_isSuccessStatusCode(response.statusCode)) {
+      throw ApiError(response);
+    }
     handler.next(response);
   }
 
   @override
-  void onError(
+  Future<void> onError(
     DioException err,
     ErrorInterceptorHandler handler,
-  ) {
+  ) async {
+    if (err.response?.statusCode == 401) {
+      isUnauthorized = true;
+      await _preference.removeAll();
+      // getx.Get.offAllNamed(AppRoutes.loginPage);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (getx.Get.currentRoute != AppRoutes.loginPage) {
+          try {
+            getx.Get.find<Preferences>().removeAll();
+            AppWidgetKey.bottomBarController.jumpToTab(0);
+            getx.Get.offAllNamed(AppRoutes.loginPage);
+          } catch (e) {
+            debugPrint('Navigation failed: $e');
+          }
+        }
+      });
+    }
+
+    debugPrint('Error: ${err.message}');
     handler.next(err);
   }
 
-  void _checkResponseIsOk(Response<dynamic> response) {
-    if (response.statusCode! >= 200 && response.statusCode! < 300) return;
-    throw ApiError(response);
+  bool _isSuccessStatusCode(int? statusCode) {
+    return statusCode != null && statusCode >= 200 && statusCode < 300;
   }
+}
+
+void resetUnauthorizedFlag() {
+  AppInterceptor.isUnauthorized = false;
 }

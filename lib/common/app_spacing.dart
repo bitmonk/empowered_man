@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class VerticalSpacing extends StatelessWidget {
   const VerticalSpacing(

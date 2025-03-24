@@ -1,14 +1,8 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/assesment_summary.dart';
 import 'package:empowered/features/assesments/widgets/assesment_history.dart';
 import 'package:empowered/features/assesments/widgets/assesment_pop_up.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_form_field.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class AssessmentsScreen extends StatefulWidget {
   const AssessmentsScreen({super.key});

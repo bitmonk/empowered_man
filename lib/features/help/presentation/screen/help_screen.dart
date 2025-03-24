@@ -1,16 +1,8 @@
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_button.dart';
-import 'package:empowered/features/common/app_text_form_field.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/faq/presentation/controllers/faq_support_bindings.dart';
 import 'package:empowered/features/faq/presentation/screens/faq_support_screen.dart';
 import 'package:empowered/features/help/presentation/controller/help_controller.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class HelpScreen extends GetView<HelpController> {
   const HelpScreen({super.key});

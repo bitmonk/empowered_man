@@ -1,13 +1,9 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/themed_container.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/habits_container.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_journal_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/important_tasks_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/my_memory_bottom_sheet.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class DailyWidget extends StatelessWidget {
   const DailyWidget({super.key});

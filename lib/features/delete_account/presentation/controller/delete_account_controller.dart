@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/delete_account/data/source/delete_account_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class DeleteAccountController extends GetxController {
   DeleteAccountController({required this.remoteSource});

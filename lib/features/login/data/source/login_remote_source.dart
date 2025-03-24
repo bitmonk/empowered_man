@@ -15,7 +15,7 @@ class LoginRemoteSource {
     required String password,
   }) async {
     try {
-      final response = await _client.post<dynamic>(
+      final response = await _client.post(
         AppEndpoints.login,
         body: {
           'email': email,
@@ -23,7 +23,8 @@ class LoginRemoteSource {
         },
       );
       final token = response['token'] as String;
-      await Get.find<Preferences>().saveString(Preference.accessToken, token);
+      await Get.find<Preferences>()
+          .saveString(PreferenceKeys.accessToken, token);
       return right(
         ApiResponse(
           data: token,

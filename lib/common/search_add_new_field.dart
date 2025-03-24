@@ -1,9 +1,5 @@
-import 'package:empowered/features/common/app_checkbox.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_text_field_wthout_label.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class SearchAddNewField extends StatefulWidget {
   const SearchAddNewField({

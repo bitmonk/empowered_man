@@ -1,11 +1,8 @@
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/extension/string_extension.dart';
 import 'package:empowered/core/preferences/preferences.dart';
-import 'package:empowered/core/routes/app_routes.dart';
-import 'package:empowered/extensions/string_extension.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -62,7 +59,7 @@ class _SplashScreenState extends State<SplashScreen> {
                     }
                     await Future.delayed(const Duration(seconds: 2));
                     final accessToken = await Get.find<Preferences>()
-                        .getString(Preference.accessToken);
+                        .getString(PreferenceKeys.accessToken);
 
                     Future.delayed(
                       Durations.long2,

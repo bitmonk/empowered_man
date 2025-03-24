@@ -1,13 +1,9 @@
 import 'dart:io';
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/core/routes/app_routes.dart';
+
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/app_directory/presentation/screens/app_directory_screen.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
 import 'package:empowered/features/contact_us/presentation/controllers/contact_us_bindings.dart';
 import 'package:empowered/features/contact_us/presentation/screens/contact_us_screen.dart';
 import 'package:empowered/features/delete_account/presentation/controller/delete_account_bindings.dart';
@@ -20,12 +16,8 @@ import 'package:empowered/features/notification/presentation/controller/notifica
 import 'package:empowered/features/notification/presentation/screen/notification_screen.dart';
 import 'package:empowered/features/profile/presentation/screens/widgets/setting_tile.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:empowered/utlis/app_utils.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
 import 'package:empowered/utlis/uihelper.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

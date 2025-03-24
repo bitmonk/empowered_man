@@ -1,7 +1,5 @@
-import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/app_circular_indicator.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class PowerScoreCircle extends StatelessWidget {
   const PowerScoreCircle({

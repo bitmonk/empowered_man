@@ -1,11 +1,4 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_dropdown.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class ShareScoreDialog extends StatefulWidget {
@@ -17,9 +10,11 @@ class ShareScoreDialog extends StatefulWidget {
 
 class _ShareScoreDialogState extends State<ShareScoreDialog> {
   final quill.QuillController _controller = quill.QuillController.basic(
-      configurations: const quill.QuillControllerConfigurations(
-          editorConfigurations:
-              quill.QuillEditorConfigurations(minHeight: 150, maxHeight: 300),),);
+    configurations: const quill.QuillControllerConfigurations(
+      editorConfigurations:
+          quill.QuillEditorConfigurations(minHeight: 150, maxHeight: 300),
+    ),
+  );
   final FocusNode _focusNode = FocusNode();
   @override
   void dispose() {

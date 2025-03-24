@@ -1,11 +1,7 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/themed_container.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_pie_chart.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/power_score_chip_text.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/power_score_circle.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class WeeklyWidget extends StatelessWidget {
   const WeeklyWidget({super.key});

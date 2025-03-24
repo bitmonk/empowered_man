@@ -1,8 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/themed_container.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class MonthlyWidget extends StatelessWidget {
   const MonthlyWidget({super.key});
@@ -166,7 +163,9 @@ class _TaskRowState extends State<TaskRow> {
                     alignment: Alignment.centerLeft,
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4,),
+                        horizontal: 12,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: status == 'Started'
                             ? const Color(0xff0E2B1D)

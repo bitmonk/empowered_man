@@ -1,9 +1,8 @@
 import 'dart:async';
 
 import 'package:empowered/core/config/app_config.dart';
-import 'package:empowered/features/app/app_initializer.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/app/my_app.dart';
-import 'package:flutter/material.dart';
 
 class AppEntryPoint {
   AppEntryPoint(AppConfiguration buildVariant) {

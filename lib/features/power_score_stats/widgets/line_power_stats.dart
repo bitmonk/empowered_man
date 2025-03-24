@@ -1,10 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/themed_container.dart';
-import 'package:empowered/features/common/weekly_chip.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 
 class LinePowerStats extends StatelessWidget {
   const LinePowerStats({super.key});
@@ -94,10 +89,8 @@ class LinePowerStats extends StatelessWidget {
                 },
               ),
             ),
-            rightTitles:
-                const AxisTitles(),
-            topTitles:
-                const AxisTitles(),
+            rightTitles: const AxisTitles(),
+            topTitles: const AxisTitles(),
           ),
           borderData: FlBorderData(show: false),
           lineBarsData: _getLines(),

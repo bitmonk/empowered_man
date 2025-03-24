@@ -1,11 +1,4 @@
-import 'package:empowered/core/routes/app_routes.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/app_video_player.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class GettingStartedScreen extends StatelessWidget {
   const GettingStartedScreen({super.key});

@@ -1,13 +1,6 @@
-import 'package:empowered/core/routes/app_routes.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/notification/presentation/controller/notification_controller.dart';
 import 'package:empowered/features/notification/presentation/screen/widget/app_switch_tile.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class NotificationScreen extends GetView<NotificationController> {
   const NotificationScreen(this.showDone, {super.key});

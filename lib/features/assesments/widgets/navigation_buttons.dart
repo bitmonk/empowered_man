@@ -1,9 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
 class NavigationButtons extends StatelessWidget {
   const NavigationButtons({
@@ -81,7 +77,10 @@ class NavigationButtons extends StatelessWidget {
                       style: AppTextStyles.textBodyB1,
                     ),
                     const SizedBox(width: 8),
-                    const Icon(Icons.arrow_forward, color: AppColors.textColor50),
+                    const Icon(
+                      Icons.arrow_forward,
+                      color: AppColors.textColor50,
+                    ),
                   ],
                 ),
               ),

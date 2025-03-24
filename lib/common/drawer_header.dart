@@ -1,8 +1,6 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class DrawerHeaderWithBack extends StatelessWidget {
   const DrawerHeaderWithBack({required this.title, super.key});

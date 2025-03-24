@@ -1,5 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
 
 class AppLogo extends StatelessWidget {
   const AppLogo({super.key, this.width = 82});

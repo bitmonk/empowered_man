@@ -1,7 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
 
 class AverageScorePieChart extends StatelessWidget {
   const AverageScorePieChart({super.key});

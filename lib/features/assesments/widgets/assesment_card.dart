@@ -1,13 +1,7 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/assesment_trailer.dart';
 import 'package:empowered/features/assesments/widgets/assesment_graph.dart';
-import 'package:empowered/features/common/app_divider.dart';
-import 'package:empowered/features/common/app_outlined_button.dart';
-import 'package:empowered/features/common/app_spacing.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class AssessmentCard extends StatefulWidget {
   const AssessmentCard({

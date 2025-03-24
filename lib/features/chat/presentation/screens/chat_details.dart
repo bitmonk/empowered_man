@@ -1,9 +1,6 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/add_member.dart'; // Import the AddMember screen
-import 'package:empowered/features/common/app_spacing.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 
 class ChatDetails extends StatefulWidget {
   const ChatDetails({super.key});
@@ -101,7 +98,9 @@ class _ChatDetailsState extends State<ChatDetails> {
                             : 'This space is designed to empower individuals to share their thoughts, offer support, and build a positive community.\n\n'
                                 'Our focus is on personal growth, mutual respect, and meaningful connections...',
                         style: const TextStyle(
-                            fontSize: 12, color: AppColors.textColor100,),
+                          fontSize: 12,
+                          color: AppColors.textColor100,
+                        ),
                       ),
                       const VerticalSpacing(6),
                       Padding(
@@ -128,8 +127,10 @@ class _ChatDetailsState extends State<ChatDetails> {
                         style: AppTextStyles.textBodyB1,
                       ),
                       const VerticalSpacing(12),
-                      Text('Total Members (${selectedMembers.length})',
-                          style: AppTextStyles.textBodyB4,),
+                      Text(
+                        'Total Members (${selectedMembers.length})',
+                        style: AppTextStyles.textBodyB4,
+                      ),
                       const VerticalSpacing(8),
 
                       // Add Member Button
@@ -151,7 +152,10 @@ class _ChatDetailsState extends State<ChatDetails> {
                                 const EdgeInsets.symmetric(vertical: 8),
                             leading: ClipOval(
                               child: Assets.images.profilePic.image(
-                                  width: 40, height: 40, fit: BoxFit.cover,),
+                                width: 40,
+                                height: 40,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                             title: Row(
                               children: [

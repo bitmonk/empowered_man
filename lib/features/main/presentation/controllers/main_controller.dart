@@ -1,12 +1,9 @@
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/extension/string_extension.dart';
 import 'package:empowered/core/preferences/preferences.dart';
-import 'package:empowered/enum/the_states.dart';
-import 'package:empowered/extensions/string_extension.dart';
 import 'package:empowered/features/main/data/source/main_remote_source.dart';
-import 'package:empowered/utlis/app_utils.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:get/get.dart';
 
 enum DrawerItemEnum {
   dashboard,
@@ -67,7 +64,7 @@ class MainController extends GetxController {
 
   Future<void> initialize() async {
     final token =
-        await Get.find<Preferences>().getString(Preference.accessToken);
+        await Get.find<Preferences>().getString(PreferenceKeys.accessToken);
     if (token?.isNullOrEmpty() ?? true) {
       isUserLoggedIn.value = false;
     } else {

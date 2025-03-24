@@ -1,8 +1,6 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/login/data/source/login_remote_source.dart';
-import 'package:empowered/utlis/app_utils.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class LoginController extends GetxController {
   LoginController({required this.remoteSource});

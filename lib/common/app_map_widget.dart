@@ -1,6 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
 
 class AppMapWidget extends StatelessWidget {
   const AppMapWidget({super.key});

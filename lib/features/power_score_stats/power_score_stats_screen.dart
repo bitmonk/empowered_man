@@ -1,15 +1,9 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
-import 'package:empowered/features/common/themed_container.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
 import 'package:empowered/features/power_score_stats/widgets/average_score_pie_chart.dart';
 import 'package:empowered/features/power_score_stats/widgets/average_weekly_score.dart';
 import 'package:empowered/features/power_score_stats/widgets/line_power_stats.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 

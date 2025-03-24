@@ -1,13 +1,11 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_loading_widget.dart';
-import 'package:empowered/utlis/app_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class AppOutlinedButton extends StatelessWidget {
   const AppOutlinedButton({
-    required this.text, this.textStyle,
+    required this.text,
+    this.textStyle,
     super.key,
     this.onPressed,
     this.textColor = AppColors.colorWhite,
@@ -22,7 +20,8 @@ class AppOutlinedButton extends StatelessWidget {
     this.leading,
   });
   const AppOutlinedButton.lightBlue({
-    required this.text, this.textStyle,
+    required this.text,
+    this.textStyle,
     super.key,
     this.onPressed,
     this.textColor = AppColors.textColor50,
@@ -38,7 +37,8 @@ class AppOutlinedButton extends StatelessWidget {
   });
   // old app buttonWhite
   const AppOutlinedButton.white({
-    required this.text, this.textStyle,
+    required this.text,
+    this.textStyle,
     super.key,
     this.onPressed,
     this.textColor = AppColors.textColor50,
@@ -53,7 +53,8 @@ class AppOutlinedButton extends StatelessWidget {
     this.leading,
   });
   const AppOutlinedButton.withOutlined({
-    required this.text, this.textStyle,
+    required this.text,
+    this.textStyle,
     super.key,
     this.onPressed,
     this.textColor = AppColors.primary500,
@@ -69,7 +70,8 @@ class AppOutlinedButton extends StatelessWidget {
   });
 
   const AppOutlinedButton.orange({
-    required this.text, this.textStyle,
+    required this.text,
+    this.textStyle,
     super.key,
     this.onPressed,
     this.textColor = Colors.white,

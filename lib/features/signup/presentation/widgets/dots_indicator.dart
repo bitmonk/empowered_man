@@ -1,10 +1,10 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class DotsIndicator extends StatelessWidget {
-
   const DotsIndicator({
-    required this.itemCount, required this.currentIndex, super.key,
+    required this.itemCount,
+    required this.currentIndex,
+    super.key,
     this.activeColor = AppColors.textColor50,
     this.inactiveColor = AppColors.color3E4953,
   });

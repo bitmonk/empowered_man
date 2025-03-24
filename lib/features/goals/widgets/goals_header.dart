@@ -1,5 +1,4 @@
-import 'package:empowered/features/common/drawer_header.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class GoalsHeader extends StatelessWidget {
   const GoalsHeader({super.key});

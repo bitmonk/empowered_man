@@ -1,8 +1,6 @@
-import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/onboarding/data/source/onboarding_remote_source.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class OnboardingController extends GetxController {
   OnboardingController({required this.remoteSource});

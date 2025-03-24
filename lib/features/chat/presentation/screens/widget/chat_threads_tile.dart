@@ -1,12 +1,8 @@
-import 'package:empowered/constants/app_colors.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/features/common/app_divider.dart';
 import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ChatThreadsTile extends StatelessWidget {
   const ChatThreadsTile({super.key});

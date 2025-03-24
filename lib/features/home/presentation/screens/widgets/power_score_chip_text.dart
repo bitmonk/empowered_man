@@ -1,10 +1,11 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class PowerScoreChipText extends StatelessWidget {
-  const PowerScoreChipText(
-      {required this.color, required this.title, super.key,});
+  const PowerScoreChipText({
+    required this.color,
+    required this.title,
+    super.key,
+  });
   final Color color;
   final String title;
 
@@ -23,7 +24,10 @@ class PowerScoreChipText extends StatelessWidget {
         const HorizontalSpacing(12),
         Text(
           title,
-          style: const TextStyle(color: AppColors.white, fontWeight: FontWeight.w500),
+          style: const TextStyle(
+            color: AppColors.white,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ],
     );

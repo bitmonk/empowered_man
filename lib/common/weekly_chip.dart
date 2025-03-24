@@ -1,6 +1,4 @@
-import 'package:empowered/features/common/app_spacing.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class WeeklyChip extends StatelessWidget {
   const WeeklyChip({required this.label, required this.color, super.key});

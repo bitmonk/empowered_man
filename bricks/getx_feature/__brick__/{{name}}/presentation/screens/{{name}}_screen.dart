@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:empowered/core/extension/extensions.dart';
+
 
 class {{name.pascalCase()}}Screen extends {{#isStateless}} StatelessWidget {{/isStateless}} {{^isStateless}} StatefulWidget {{/isStateless}}{
   const {{name.pascalCase()}}Screen({super.key});

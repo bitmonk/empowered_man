@@ -1,6 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/data/source/chat_remote_source.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class ChatController extends GetxController {
   ChatController({required this.remoteSource});

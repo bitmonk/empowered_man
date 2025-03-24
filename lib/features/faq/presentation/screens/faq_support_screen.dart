@@ -1,10 +1,5 @@
-import 'package:empowered/constants/app_colors.dart';
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/faq/presentation/controllers/faq_support_controller.dart';
-import 'package:empowered/utlis/app_text_styles.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class FaqScreen extends GetView<FaqController> {
   const FaqScreen({super.key});

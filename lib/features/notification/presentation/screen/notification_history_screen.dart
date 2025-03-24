@@ -1,7 +1,5 @@
-import 'package:empowered/features/common/app_scaffold.dart';
-import 'package:empowered/features/common/custom_app_bar.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/notification/presentation/screen/widget/notification_tile.dart';
-import 'package:flutter/material.dart';
 
 class NotificationHistoryScreen extends StatelessWidget {
   const NotificationHistoryScreen({super.key});

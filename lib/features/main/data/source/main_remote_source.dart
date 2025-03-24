@@ -10,7 +10,7 @@ class MainRemoteSource {
 
   Future<Either<AppError, ApiResponse<dynamic>>> getUser() async {
     try {
-      await _client.httpGet<dynamic>(
+      await _client.get(
         AppEndpoints.login,
       );
 
@@ -28,7 +28,7 @@ class MainRemoteSource {
 
   Future<Either<AppError, bool>> deleteUser() async {
     try {
-      await _client.post<dynamic>(
+      await _client.post(
         AppEndpoints.login,
       );
 
