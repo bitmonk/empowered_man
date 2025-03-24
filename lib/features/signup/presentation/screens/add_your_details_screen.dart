@@ -45,6 +45,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
             AppTextFormField(
               controller: mobileController,
               labelText: 'Enter mobile number',
+              maxLength: 11,
               validator: ValidationBuilder().required().phone().build(),
             ),
             const VerticalSpacing(16),

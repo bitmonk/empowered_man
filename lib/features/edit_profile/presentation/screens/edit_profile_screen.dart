@@ -44,6 +44,7 @@ class _MyWidgetState extends State<EditProfileScreen> {
                 controller: controller.mobileNumberController,
                 hintText: '+01 234 567 89',
                 labelText: 'Mobile number',
+                maxLength: 11,
                 validator: ValidationBuilder().required().build(),
               ),
               const VerticalSpacing(20),

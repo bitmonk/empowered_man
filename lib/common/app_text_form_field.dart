@@ -113,6 +113,7 @@ class AppTextFormField extends StatelessWidget {
               );
             },
       decoration: InputDecoration(
+        counterText: '',
         // suffixIcon: suffixIcon,
         floatingLabelBehavior: FloatingLabelBehavior.auto,
         labelText: labelText,
