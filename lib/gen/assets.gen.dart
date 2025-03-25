@@ -297,6 +297,10 @@ class $AssetsImagesGen {
   SvgGenImage get circleArrowForward =>
       const SvgGenImage('assets/images/circle_arrow_forward.svg');
 
+  /// File path: assets/images/circle_three_dot.svg
+  SvgGenImage get circleThreeDot =>
+      const SvgGenImage('assets/images/circle_three_dot.svg');
+
   /// File path: assets/images/cirlce_arrow_back.svg
   SvgGenImage get cirlceArrowBack =>
       const SvgGenImage('assets/images/cirlce_arrow_back.svg');
@@ -945,6 +949,7 @@ class $AssetsImagesGen {
         chatUserPicOne,
         chatUserPicTwo,
         circleArrowForward,
+        circleThreeDot,
         cirlceArrowBack,
         cirlceThreeDot,
         classImage,
