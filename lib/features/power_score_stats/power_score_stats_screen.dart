@@ -42,48 +42,46 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           Navigator.pop(context);
         },
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HomeHeaderWidgets(
-                hideControls: true,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => _changeWeek(-7),
-                    child: Assets.images.cirlceArrowBack.svg(),
-                  ),
-                  const HorizontalSpacing(20),
-                  Text(
-                    _getDateRange(),
-                    style: AppTextStyles.textBodyB3
-                        .copyWith(color: AppColors.textColor200),
-                  ),
-                  const HorizontalSpacing(20),
-                  GestureDetector(
-                    onTap: () => _changeWeek(7),
-                    child: Assets.images.circleArrowForward.svg(),
-                  ),
-                ],
-              ),
-              const VerticalSpacing(22),
-              _buildAverageScore(),
-              const VerticalSpacing(20),
-              _buildScoreBreakdown(),
-              const VerticalSpacing(20),
-              _buildSummaryBreakdown(),
-              const VerticalSpacing(20),
-              const AverageWeeklyScore(),
-              const VerticalSpacing(20),
-              const LinePowerStats(),
-              const BottomSpacing(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const HomeHeaderWidgets(
+              hideControls: true,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () => _changeWeek(-7),
+                  child: Assets.images.cirlceArrowBack.svg(),
+                ),
+                const HorizontalSpacing(20),
+                Text(
+                  _getDateRange(),
+                  style: AppTextStyles.textBodyB3
+                      .copyWith(color: AppColors.textColor200),
+                ),
+                const HorizontalSpacing(20),
+                GestureDetector(
+                  onTap: () => _changeWeek(7),
+                  child: Assets.images.circleArrowForward.svg(),
+                ),
+              ],
+            ),
+            const VerticalSpacing(22),
+            _buildAverageScore(),
+            const VerticalSpacing(20),
+            _buildScoreBreakdown(),
+            const VerticalSpacing(20),
+            _buildSummaryBreakdown(),
+            const VerticalSpacing(20),
+            const AverageWeeklyScore(),
+            const VerticalSpacing(20),
+            const LinePowerStats(),
+            const BottomSpacing(),
+          ],
         ),
       ),
     );
@@ -94,6 +92,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
             'Average Score',
@@ -103,7 +102,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           const AverageScorePieChart(),
           const VerticalSpacing(8),
           _buildCategoryScores(),
-          const BottomSpacing(),
+          // const BottomSpacing(),
         ],
       ),
     );
@@ -208,6 +207,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
 
   Widget _buildScoreBreakdown() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
@@ -227,6 +227,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
 
   Widget _buildSummaryBreakdown() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
