@@ -1,3 +1,4 @@
+import 'package:empowered/common/material_2_switch.dart';
 import 'package:empowered/core/extension/extensions.dart';
 
 class AppSwitchTile extends StatelessWidget {
@@ -17,7 +18,7 @@ class AppSwitchTile extends StatelessWidget {
   final String? subtitle;
   @override
   Widget build(BuildContext context) {
-    return SwitchListTile.adaptive(
+    return M2SwitchListTile.adaptive(
       contentPadding: EdgeInsets.zero,
       subtitle: subtitle != null
           ? Text(
