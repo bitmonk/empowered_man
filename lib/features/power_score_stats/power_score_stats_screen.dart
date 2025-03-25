@@ -115,25 +115,25 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
         'name': 'Journal',
         'score': '45',
         'color': AppColors.color5CE0A0,
-        'increment': '35',
+        'increment': '+35,5%',
       },
       {
         'name': 'Habit',
         'score': '32',
         'color': AppColors.primary300,
-        'increment': '12',
+        'increment': '+12,5%',
       },
       {
         'name': 'Door',
         'score': '28',
         'color': AppColors.colorF5CA41,
-        'increment': '10',
+        'increment': '+10,5%',
       },
       {
         'name': 'Goals',
         'score': '87',
         'color': AppColors.primary500,
-        'increment': '40',
+        'increment': '+40,5%',
       },
     ];
 
@@ -236,19 +236,19 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       children: [
         _summaryCard(
           'Previous week',
-          '28/54',
+          '27.5',
         ),
         _summaryCard(
           '4 weeks averagee',
-          '54/100',
+          '54.5',
         ),
         _summaryCard(
           'Year average',
-          '28/54',
+          '28.5',
         ),
         _summaryCard(
           'Overall average',
-          '10/20',
+          '10.5',
         ),
       ],
     );
