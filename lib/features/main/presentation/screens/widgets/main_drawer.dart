@@ -182,7 +182,7 @@ class MainDrawer extends GetView<MainController> {
             ),
             DrawerTile(
               onTap: () {
-                Get.offAllNamed(AppRoutes.loginPage);
+                Get.offAllNamed(AppRoutes.landingScreen);
               },
               title: 'Logout',
               image: Assets.images.logout.path,
