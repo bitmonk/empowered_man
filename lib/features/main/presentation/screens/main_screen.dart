@@ -175,7 +175,7 @@ class _MainScreenState extends State<MainScreen>
               Positioned(
                 left: 174, // Adjust to center it horizontally
                 right: 174, // Adjust to center it horizontally
-                bottom: -20,
+                bottom: -65,
                 child: Container(
                   height: 154, // Adjust height for oval shape
                   width: 100, // Adjust width for oval shape
