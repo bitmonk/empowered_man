@@ -18,7 +18,7 @@ class AppSwitchTile extends StatelessWidget {
   final String? subtitle;
   @override
   Widget build(BuildContext context) {
-    return M2SwitchListTile.adaptive(
+    return M2SwitchListTile(
       activeTrackColor: AppColors.primary400,
       inactiveTrackColor: AppColors.toggleInactiveTrack,
       dense: true,
