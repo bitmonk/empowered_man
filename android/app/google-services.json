@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "5996932463",
+    "project_id": "empoweredman-40f5b",
+    "storage_bucket": "empoweredman-40f5b.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:5996932463:android:80f6a5b2a59dee7b6ecc9a",
+        "android_client_info": {
+          "package_name": "com.empoweredman.empoweredman"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDQdy8L_d23e3UHolplDGMrjVjvpfSDAQk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

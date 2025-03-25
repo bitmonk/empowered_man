@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/push_notification/firebase_notification_service.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/goals_screen.dart';
@@ -35,11 +36,14 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+    FirebaseNotificationService().requestPermission();
+    FirebaseNotificationService().init();
     HomeInitializer.initialize();
     ChatInitializer.initialize();
 
     TasksInitializer.initialize();
     ProfileInitializer.initialize();
+    NotificationInitializer.initialize();
   }
 
   @override
