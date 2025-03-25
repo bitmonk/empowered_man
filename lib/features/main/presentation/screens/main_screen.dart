@@ -124,7 +124,7 @@ class _MainScreenState extends State<MainScreen>
                 textStyle: AppTextStyles.captionMedium,
                 inactiveForegroundColor: AppColors.bgBorder,
                 inactiveIcon: _buildChatIcon(),
-                activeForegroundColor: AppColors.primary500,
+                activeForegroundColor: AppColors.bgBorder,
                 icon: _buildChatIcon(),
               ),
             ),
@@ -206,13 +206,13 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildChatIcon() {
     return Container(
-      padding: const EdgeInsets.all(16), // Adjust padding as needed
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        shape: BoxShape.circle, // Makes the container circular
-        color: AppColors.primary500, // Background color
+        shape: BoxShape.circle,
+        color: AppColors.primary500,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary500.withOpacity(0.5), // Glow color
+            color: AppColors.primary500.withOpacity(0.4), // Glow color
             blurRadius: 10, // How much blur effect
             spreadRadius: 2,
             // ignore: prefer_const_constructors
@@ -220,7 +220,10 @@ class _MainScreenState extends State<MainScreen>
           ),
         ],
       ),
-      child: Assets.images.chat.svg(width: 32),
+      child: Container(
+        // margin: const EdgeInsets.all(20), // Adjust padding as needed
+        child: Assets.images.chat.svg(width: 28),
+      ),
     );
   }
 
