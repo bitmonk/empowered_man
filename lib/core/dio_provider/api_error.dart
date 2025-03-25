@@ -60,7 +60,6 @@ class DioErrorHandler {
             default:
               errorMessage =
                   'Error: ${dioError.response?.statusCode} - ${dioError.response?.statusMessage}';
-              break;
           }
         } else {
           errorMessage = 'Received invalid response from the server.';

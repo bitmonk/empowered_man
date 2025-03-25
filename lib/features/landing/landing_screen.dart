@@ -87,7 +87,7 @@ class LandingScreen extends StatelessWidget {
                     style: AppTextStyles.textBodyB2,
                   ),
                   AppTextButton(
-                    label: 'Log In',
+                    label: 'Sign In',
                     onTap: () {
                       Get.toNamed(AppRoutes.loginPage);
                     },
