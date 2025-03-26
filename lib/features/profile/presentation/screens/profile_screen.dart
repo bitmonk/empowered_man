@@ -45,13 +45,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: const CustomAppBar(),
-      body: Stack(
+      body: Column(
         children: [
           Column(
             children: [
               Container(
                 color: AppColors.bgDark,
-                height: 317,
+                // height: 317,
                 width: double.infinity,
                 child: Padding(
                   padding: EdgeInsets.zero,
@@ -89,6 +89,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           ),
                         ],
                       ),
+                      const VerticalSpacing(6),
                       Text(
                         'James Goldie',
                         style: AppTextStyles.titleMd.copyWith(fontSize: 20),
@@ -119,144 +120,149 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ),
               child: SafeArea(
                 top: false,
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Account Settings',
-                        style: AppTextStyles.titleMd,
-                      ),
-                      const VerticalSpacing(18),
-                      SettingTile(
-                        title: 'Profile',
-                        onTap: () {
-                          EditProfileInitializer.destroy();
-                          EditProfileInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const EditProfileScreen(),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'Notification',
-                        onTap: () {
-                          NotificationInitializer.destroy();
-                          NotificationInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const NotificationScreen(false),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'Change Password',
-                        onTap: () {
-                          ChangePasswordInitializer.destroy();
-                          ChangePasswordInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const ChangePasswordScreen(),
-                          );
-                        },
-                      ),
-                      const AppDivider(),
-                      const VerticalSpacing(20),
-                      const Text(
-                        'More',
-                        style: AppTextStyles.titleMd,
-                      ),
-                      const VerticalSpacing(18),
-                      SettingTile(
-                        title: 'Privacy policy',
-                        onTap: () {
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const AppDirectoryScreen(
-                              appDirectoryEnum: AppDirectoryEnum.privacyPolicy,
-                            ),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'Terms and conditions',
-                        onTap: () {
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const AppDirectoryScreen(
-                              appDirectoryEnum:
-                                  AppDirectoryEnum.termsAndConditions,
-                            ),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'FAQ',
-                        onTap: () {
-                          FaqInitializer.destroy();
-                          FaqInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const FaqScreen(),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'Community Guidelines',
-                        onTap: () {
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const AppDirectoryScreen(
-                              appDirectoryEnum:
-                                  AppDirectoryEnum.communityGuidelines,
-                            ),
-                          );
-                        },
-                      ),
-                      SettingTile(
-                        title: 'Contact Us',
-                        onTap: () {
-                          ContactUsInitializer.destroy();
-                          ContactUsInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const ContactUsScreen(),
-                          );
-                        },
-                      ),
-                      const AppDivider(),
-                      const VerticalSpacing(20),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          'Logout',
-                          style: AppTextStyles.titleMd
-                              .copyWith(color: AppColors.primary500),
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 24)
+                        .copyWith(bottom: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Account Settings',
+                          style: AppTextStyles.titleMd,
                         ),
-                        onTap: () {
-                          Get.offAllNamed(AppRoutes.loginPage);
-                        },
-                      ),
-                      ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(
-                          'Delete Account',
-                          style: AppTextStyles.titleMd.copyWith(
-                            color: AppColors.appRed,
+                        const VerticalSpacing(18),
+                        SettingTile(
+                          title: 'Profile',
+                          onTap: () {
+                            EditProfileInitializer.destroy();
+                            EditProfileInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const EditProfileScreen(),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'Notification',
+                          onTap: () {
+                            NotificationInitializer.destroy();
+                            NotificationInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const NotificationScreen(false),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'Change Password',
+                          onTap: () {
+                            ChangePasswordInitializer.destroy();
+                            ChangePasswordInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const ChangePasswordScreen(),
+                            );
+                          },
+                        ),
+                        const AppDivider(),
+                        const VerticalSpacing(20),
+                        const Text(
+                          'More',
+                          style: AppTextStyles.titleMd,
+                        ),
+                        const VerticalSpacing(18),
+                        SettingTile(
+                          title: 'Privacy policy',
+                          onTap: () {
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const AppDirectoryScreen(
+                                appDirectoryEnum:
+                                    AppDirectoryEnum.privacyPolicy,
+                              ),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'Terms and conditions',
+                          onTap: () {
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const AppDirectoryScreen(
+                                appDirectoryEnum:
+                                    AppDirectoryEnum.termsAndConditions,
+                              ),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'FAQ',
+                          onTap: () {
+                            FaqInitializer.destroy();
+                            FaqInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const FaqScreen(),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'Community Guidelines',
+                          onTap: () {
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const AppDirectoryScreen(
+                                appDirectoryEnum:
+                                    AppDirectoryEnum.communityGuidelines,
+                              ),
+                            );
+                          },
+                        ),
+                        SettingTile(
+                          title: 'Contact Us',
+                          onTap: () {
+                            ContactUsInitializer.destroy();
+                            ContactUsInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const ContactUsScreen(),
+                            );
+                          },
+                        ),
+                        const AppDivider(),
+                        const VerticalSpacing(20),
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            'Logout',
+                            style: AppTextStyles.titleMd
+                                .copyWith(color: AppColors.primary500),
                           ),
+                          onTap: () {
+                            Get.offAllNamed(AppRoutes.loginPage);
+                          },
                         ),
-                        onTap: () {
-                          DeleteAccountInitializer.destroy();
-                          DeleteAccountInitializer.initialize();
-                          NavigationHelper.navigateWithFadeTransition(
-                            context,
-                            const DeleteAccountScreen(),
-                          );
-                        },
-                      ),
-                    ],
+                        ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          title: Text(
+                            'Delete Account',
+                            style: AppTextStyles.titleMd.copyWith(
+                              color: AppColors.appRed,
+                            ),
+                          ),
+                          onTap: () {
+                            DeleteAccountInitializer.destroy();
+                            DeleteAccountInitializer.initialize();
+                            NavigationHelper.navigateWithFadeTransition(
+                              context,
+                              const DeleteAccountScreen(),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

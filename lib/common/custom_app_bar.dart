@@ -35,6 +35,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     Widget appBar = AppBar(
+      surfaceTintColor: Colors.transparent,
       systemOverlayStyle: systemOverlayStyle,
       foregroundColor: color,
       backgroundColor: backgroundColor,

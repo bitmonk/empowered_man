@@ -1,5 +1,5 @@
-import 'package:empowered/common/material_2_switch.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:material_2_switch/material_2_switch_list_tile.dart';
 
 class AppSwitchTile extends StatelessWidget {
   const AppSwitchTile({

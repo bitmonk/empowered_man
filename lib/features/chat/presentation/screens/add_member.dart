@@ -75,7 +75,9 @@ class _AddMemberState extends State<AddMember> {
               ),
             ],
           ),
-          const VerticalSpacing(24),
+          const VerticalSpacing(12),
+          const GreyDivider(),
+          const VerticalSpacing(12),
 
           // Display already selected members
           if (selectedMembers.isNotEmpty) ...[
@@ -110,9 +112,10 @@ class _AddMemberState extends State<AddMember> {
                 }).toList(),
               ),
             ),
-            const VerticalSpacing(24),
+            const VerticalSpacing(12),
+            const GreyDivider(),
+            const VerticalSpacing(12),
           ],
-
           // Add More Members Section
           const Align(
             alignment: Alignment.centerLeft,

@@ -14,7 +14,6 @@ class LoginScreen extends GetView<LoginController> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: AppBar(
-        automaticallyImplyLeading: true,
         backgroundColor: AppColors.bgDark,
         scrolledUnderElevation: 0,
         title: const Text(

@@ -8,7 +8,11 @@ class JournalLibraryPopUp extends StatelessWidget {
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),
-      icon: Assets.images.cirlceThreeDot.svg(), // Uses the three-dot icon
+      icon: SizedBox(
+        height: 33,
+        width: 33,
+        child: Assets.images.circleThreeDot.svg(),
+      ), // Uses the three-dot icon
       color: AppColors.bgBorder, // Background color matching the UI
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
