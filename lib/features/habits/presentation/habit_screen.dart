@@ -81,7 +81,7 @@ class _HabitScreenState extends State<HabitScreen> {
           ),
           HabitModel(
             name: 'Journal',
-            icon: Assets.images.journalPng.path,
+            icon: Assets.images.journalpng.path,
             completionStatus: _generateRandomCompletion(),
           ),
         ],

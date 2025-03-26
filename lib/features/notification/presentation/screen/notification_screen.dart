@@ -25,7 +25,9 @@ class NotificationScreen extends GetView<NotificationController> {
                   controller.allNotification.value = value;
                 },
               ),
-              const AppDivider(),
+              const AppDivider(
+                color: Color(0xff313C45),
+              ),
               AppSwitchTile(
                 title: 'Check-in reminder',
                 value: controller.checkInReminderNotification.value,

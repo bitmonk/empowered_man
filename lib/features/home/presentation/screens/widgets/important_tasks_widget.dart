@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/task_status_widget.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class ImportantTasksWidget extends StatefulWidget {
   const ImportantTasksWidget({super.key});
@@ -51,22 +50,9 @@ class _ImportantTasksWidgetState extends State<ImportantTasksWidget> {
                 children: [
                   Padding(
                     padding: EdgeInsets.symmetric(vertical: 8),
-                    child: Row(
-                      children: [
-                        Text(
-                          'Type : ',
-                          style: AppTextStyles.textBodyB3,
-                        ),
-                        Text(
-                          'Type1',
-                          style: AppTextStyles.textBodyB3,
-                        ),
-                        HorizontalSpacing(6),
-                        Icon(
-                          Icons.keyboard_arrow_down,
-                          color: AppColors.textColor200,
-                        ),
-                      ],
+                    child: Text(
+                      'Task',
+                      style: AppTextStyles.textBodyB3,
                     ),
                   ),
                   Padding(
@@ -88,9 +74,9 @@ class _ImportantTasksWidgetState extends State<ImportantTasksWidget> {
               // Divider Row (Optional)
               const TableRow(
                 children: [
-                  Divider(color: AppColors.textColor200),
-                  Divider(color: AppColors.textColor200),
-                  Divider(color: AppColors.textColor200),
+                  Divider(color: AppColors.color132534),
+                  Divider(color: AppColors.color132534),
+                  Divider(color: AppColors.color132534),
                 ],
               ),
               // Tasks Rows
@@ -103,13 +89,13 @@ class _ImportantTasksWidgetState extends State<ImportantTasksWidget> {
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       child: Row(
                         children: [
-                          GestureDetector(
-                            onTap: () => toggleTaskStatus(index),
-                            child: isCompleted[index]
-                                ? Assets.images.tickCircle.svg()
-                                : Assets.images.emptyCirlce.svg(),
-                          ),
-                          const HorizontalSpacing(12),
+                          // GestureDetector(
+                          //   onTap: () => toggleTaskStatus(index),
+                          //   child: isCompleted[index]
+                          //       ? Assets.images.tickCircle.svg()
+                          //       : Assets.images.emptyCirlce.svg(),
+                          // ),
+                          const HorizontalSpacing(2),
                           Text(
                             'Activity ${index + 1}',
                             style: AppTextStyles.textBodyB4,

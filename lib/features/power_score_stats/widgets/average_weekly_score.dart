@@ -30,6 +30,9 @@ class AverageWeeklyScore extends StatelessWidget {
             ),
           ),
           const VerticalSpacing(16),
+          const AppDivider(
+            color: AppColors.bgBorderVLight,
+          ),
           _buildBarChart(),
         ],
       ),
