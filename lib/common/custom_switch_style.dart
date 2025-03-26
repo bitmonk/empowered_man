@@ -13,17 +13,15 @@
 /// @docImport 'scaffold.dart';
 library;
 
+import 'package:empowered/common/list_tile.dart';
+import 'package:empowered/common/list_tile_theme.dart';
+import 'package:empowered/common/material_state.dart';
+import 'package:empowered/common/switch.dart';
+import 'package:empowered/common/switch_theme.dart';
+import 'package:empowered/common/theme.dart';
+import 'package:empowered/common/theme_data.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
-
-import 'list_tile.dart';
-import 'list_tile_theme.dart';
-import 'material_state.dart';
-import 'switch.dart';
-import 'switch_theme.dart';
-import 'theme.dart';
-import 'theme_data.dart';
 
 // Examples can assume:
 // void setState(VoidCallback fn) { }
@@ -173,9 +171,7 @@ class SwitchListTile extends StatelessWidget {
   /// * [value] determines whether this switch is on or off.
   /// * [onChanged] is called when the user toggles the switch on or off.
   const SwitchListTile({
-    super.key,
-    required this.value,
-    required this.onChanged,
+    required this.value, required this.onChanged, super.key,
     this.activeColor,
     this.activeTrackColor,
     this.inactiveThumbColor,
@@ -230,9 +226,7 @@ class SwitchListTile extends StatelessWidget {
   /// ignored: [activeTrackColor], [inactiveThumbColor], [inactiveTrackColor],
   /// [activeThumbImage], [inactiveThumbImage].
   const SwitchListTile.adaptive({
-    super.key,
-    required this.value,
-    required this.onChanged,
+    required this.value, required this.onChanged, super.key,
     this.activeColor,
     this.activeTrackColor,
     this.inactiveThumbColor,
@@ -355,7 +349,7 @@ class SwitchListTile extends StatelessWidget {
   /// and [inactiveThumbColor] in the default state. If that is also null, then
   /// the value of [SwitchThemeData.thumbColor] is used. If that is also null,
   /// The default value is used.
-  final MaterialStateProperty<Color?>? thumbColor;
+  final WidgetStateProperty<Color?>? thumbColor;
 
   /// The color of this switch's track.
   ///
@@ -368,7 +362,7 @@ class SwitchListTile extends StatelessWidget {
   /// state and [inactiveTrackColor] in the default state. If that is also null,
   /// then the value of [SwitchThemeData.trackColor] is used. If that is also
   /// null, then the default value is used.
-  final MaterialStateProperty<Color?>? trackColor;
+  final WidgetStateProperty<Color?>? trackColor;
 
   /// {@macro flutter.material.switch.trackOutlineColor}
   ///
@@ -378,7 +372,7 @@ class SwitchListTile extends StatelessWidget {
   /// In Material 3, the outline color defaults to transparent in the selected
   /// state and [ColorScheme.outline] in the unselected state. In Material 2,
   /// the [Switch] track has no outline.
-  final MaterialStateProperty<Color?>? trackOutlineColor;
+  final WidgetStateProperty<Color?>? trackOutlineColor;
 
   /// The icon to use on the thumb of this switch
   ///
@@ -389,7 +383,7 @@ class SwitchListTile extends StatelessWidget {
   ///
   /// If null, then the value of [SwitchThemeData.thumbIcon] is used. If this is
   /// also null, then the [Switch] does not have any icons on the thumb.
-  final MaterialStateProperty<Icon?>? thumbIcon;
+  final WidgetStateProperty<Icon?>? thumbIcon;
 
   /// {@macro flutter.material.switch.materialTapTargetSize}
   ///
@@ -424,7 +418,7 @@ class SwitchListTile extends StatelessWidget {
   /// and [hoverColor] is used in the pressed and hovered state. If that is also
   /// null, the value of [SwitchThemeData.overlayColor] is used. If that is
   /// also null, then the default value is used in the pressed and hovered state.
-  final MaterialStateProperty<Color?>? overlayColor;
+  final WidgetStateProperty<Color?>? overlayColor;
 
   /// {@macro flutter.material.switch.splashRadius}
   ///
@@ -586,19 +580,20 @@ class SwitchListTile extends StatelessWidget {
         );
     }
 
-    final ListTileThemeData listTileTheme = ListTileTheme.of(context);
-    final ListTileControlAffinity effectiveControlAffinity =
+    final listTileTheme = ListTileTheme.of(context);
+    final effectiveControlAffinity =
         controlAffinity ?? listTileTheme.controlAffinity ?? ListTileControlAffinity.platform;
-    Widget? leading, trailing;
+    Widget? leading;
+    Widget? trailing;
     (leading, trailing) = switch (effectiveControlAffinity) {
       ListTileControlAffinity.leading => (control, secondary),
       ListTileControlAffinity.trailing || ListTileControlAffinity.platform => (secondary, control),
     };
 
-    final ThemeData theme = Theme.of(context);
-    final SwitchThemeData switchTheme = SwitchTheme.of(context);
-    final Set<MaterialState> states = <MaterialState>{if (selected) MaterialState.selected};
-    final Color effectiveActiveColor =
+    final theme = Theme.of(context);
+    final switchTheme = SwitchTheme.of(context);
+    final states = <WidgetState>{if (selected) WidgetState.selected};
+    final effectiveActiveColor =
         activeColor ?? switchTheme.thumbColor?.resolve(states) ?? theme.colorScheme.secondary;
     return MergeSemantics(
       child: ListTile(

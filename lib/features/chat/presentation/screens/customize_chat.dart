@@ -72,8 +72,9 @@ class _CustomizeChatState extends State<CustomizeChat> {
                 ),
               ],
             ),
-            const VerticalSpacing(26),
-
+            const VerticalSpacing(12),
+            const GreyDivider(),
+            const VerticalSpacing(24),
             // Input Fields
             const AppTextFormField(
               labelText: 'Title',
