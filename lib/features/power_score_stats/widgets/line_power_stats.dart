@@ -13,7 +13,7 @@ class LinePowerStats extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Total Score by Weekday',
+            'Total Score by Month',
             style: AppTextStyles.textHeadingH3,
           ),
           const VerticalSpacing(16),
@@ -58,8 +58,8 @@ class LinePowerStats extends StatelessWidget {
             leftTitles: AxisTitles(
               sideTitles: SideTitles(
                 showTitles: true,
-                reservedSize: 30,
-                interval: 1, // Ensures values appear at 0, 1, 2, 3, 4
+                reservedSize: 20,
+                interval: 1,
                 getTitlesWidget: (value, meta) {
                   if (value < 0 || value > 4) {
                     return Container(); // Hide unwanted labels
@@ -79,10 +79,24 @@ class LinePowerStats extends StatelessWidget {
               sideTitles: SideTitles(
                 showTitles: true,
                 reservedSize: 30,
+                interval: 1,
                 getTitlesWidget: (value, meta) {
-                  const days = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+                  const months = [
+                    'J',
+                    'F',
+                    'M',
+                    'A',
+                    'M',
+                    'J',
+                    'J',
+                    'A',
+                    'S',
+                    'O',
+                    'N',
+                    'D',
+                  ];
                   return Text(
-                    days[value.toInt()],
+                    months[value.toInt()],
                     style: AppTextStyles.textCaptionC2
                         .copyWith(color: Colors.white.withOpacity(0.5)),
                   );
@@ -100,11 +114,11 @@ class LinePowerStats extends StatelessWidget {
   }
 
   List<LineChartBarData> _getLines() {
-    final weeklyData = <List<double>>[
-      [3.0, 2.5, 2.0, 2.8, 2.2, 2.7, 3.5], // Journal
-      [2.0, 2.2, 2.8, 3.0, 3.2, 3.8, 4.0], // Habit
-      [0.9, 1.8, 0.6, 2.5, 3.0, 2.2, 1.7], // Task
-      [3.5, 3.0, 3.2, 3.8, 3.5, 4.2, 4], // Goals
+    final monthlyData = <List<double>>[
+      [3.0, 2.5, 2.0, 2.8, 2.2, 2.7, 3.5, 3.0, 2.8, 2.5, 2.2, 2.9], // Journal
+      [2.0, 2.2, 2.8, 3.0, 3.2, 3.8, 4.0, 3.5, 3.2, 3.0, 2.8, 3.1], // Habit
+      [0.9, 1.8, 0.6, 2.5, 3.0, 2.2, 1.7, 1.5, 1.2, 2.0, 1.8, 2.3], // Task
+      [3.5, 3.0, 3.2, 3.8, 3.5, 4.2, 4.0, 3.7, 3.5, 3.8, 3.6, 4.1], // Goals
     ];
 
     final colors = <Color>[
@@ -114,10 +128,10 @@ class LinePowerStats extends StatelessWidget {
       AppColors.primary500, // Goals (Dark Blue)
     ];
 
-    return List.generate(weeklyData.length, (index) {
+    return List.generate(monthlyData.length, (index) {
       return LineChartBarData(
-        spots: List.generate(weeklyData[index].length, (i) {
-          return FlSpot(i.toDouble(), weeklyData[index][i]);
+        spots: List.generate(monthlyData[index].length, (i) {
+          return FlSpot(i.toDouble(), monthlyData[index][i]);
         }),
         isCurved: true,
         color: colors[index],

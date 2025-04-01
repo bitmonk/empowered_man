@@ -36,10 +36,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
                 GestureDetector(
                   onTap: () => _showJournalTypeMenu(context),
                   child: ThemedContainer(
+                    color: AppColors.bgBorder,
                     padding:
                         const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                     child: Row(
-                      children: [
+                       children: [
                         Text(
                           selectedJournalType,
                           style: AppTextStyles.textBodyB2.copyWith(

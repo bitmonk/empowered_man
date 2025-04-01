@@ -64,6 +64,7 @@ class AppColors {
   static const Color memorySecondary = Color(0xFFFDF4FF);
   static const Color splashBackground = Color(0xFFEDF1F1);
   static const Color d9d9d9 = Color(0xFFD9D9D9);
+  static const Color toggleInactiveTrack = Color(0xFFC8CFD4);
 
   // static const Color appBlue = Color(0xFF154EBA);
   static const Color neutralLight = Color(0xFFA3ADB5);

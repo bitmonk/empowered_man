@@ -8,7 +8,9 @@ class DeleteBottomSheet extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.bgMedium,
+        color: const Color(
+          0xff132534,
+        ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -37,7 +39,7 @@ class DeleteBottomSheet extends StatelessWidget {
               style: AppTextStyles.titleHeading,
             ),
             const VerticalSpacing(20),
-            const AppDivider(),
+            const GreyDivider(),
             const VerticalSpacing(20),
             Text(
               textAlign: TextAlign.center,
@@ -59,6 +61,9 @@ class DeleteBottomSheet extends StatelessWidget {
             AppOutlinedButton.withOutlined(
               safePadding: true,
               hasShadow: false,
+              backgroundColor: const Color(
+                0xff132534,
+              ),
               text: 'Cancel',
               onPressed: () {
                 Navigator.pop(context);

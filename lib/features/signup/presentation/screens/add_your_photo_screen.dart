@@ -104,12 +104,12 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
                         Container(
                           width: 91, // Circular width
                           height: 91, // Circular height
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.grey, // Optional border color
-                              width: 2, // Optional border width
-                            ),
+                            // border: Border.all(
+                            //   color: Colors.grey, // Optional border color
+                            //   width: 2, // Optional border width
+                            // ),
                           ),
                           child: ClipOval(
                             child: Image.file(
@@ -133,6 +133,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
                         style: AppTextStyles.textBodyB2,
                       ),
                       AppTextButton(
+                        color: AppColors.primary500,
                         label: 'Upload from library',
                         onTap: _uploadFromLibrary, // Upload from library
                       ),

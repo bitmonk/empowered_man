@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/push_notification/firebase_notification_service.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/goals_screen.dart';
@@ -35,11 +36,14 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+    FirebaseNotificationService().requestPermission();
+    FirebaseNotificationService().init();
     HomeInitializer.initialize();
     ChatInitializer.initialize();
 
     TasksInitializer.initialize();
     ProfileInitializer.initialize();
+    NotificationInitializer.initialize();
   }
 
   @override
@@ -124,7 +128,7 @@ class _MainScreenState extends State<MainScreen>
                 textStyle: AppTextStyles.captionMedium,
                 inactiveForegroundColor: AppColors.bgBorder,
                 inactiveIcon: _buildChatIcon(),
-                activeForegroundColor: AppColors.primary500,
+                activeForegroundColor: AppColors.bgBorder,
                 icon: _buildChatIcon(),
               ),
             ),
@@ -175,7 +179,7 @@ class _MainScreenState extends State<MainScreen>
               Positioned(
                 left: 174, // Adjust to center it horizontally
                 right: 174, // Adjust to center it horizontally
-                bottom: -20,
+                bottom: -65,
                 child: Container(
                   height: 154, // Adjust height for oval shape
                   width: 100, // Adjust width for oval shape
@@ -206,13 +210,13 @@ class _MainScreenState extends State<MainScreen>
 
   Widget _buildChatIcon() {
     return Container(
-      padding: const EdgeInsets.all(16), // Adjust padding as needed
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        shape: BoxShape.circle, // Makes the container circular
-        color: AppColors.primary500, // Background color
+        shape: BoxShape.circle,
+        color: AppColors.primary500,
         boxShadow: [
           BoxShadow(
-            color: AppColors.primary500.withOpacity(0.5), // Glow color
+            color: AppColors.primary500.withOpacity(0.4), // Glow color
             blurRadius: 10, // How much blur effect
             spreadRadius: 2,
             // ignore: prefer_const_constructors
@@ -220,7 +224,10 @@ class _MainScreenState extends State<MainScreen>
           ),
         ],
       ),
-      child: Assets.images.chat.svg(width: 32),
+      child: Container(
+        // margin: const EdgeInsets.all(20), // Adjust padding as needed
+        child: Assets.images.chat.svg(width: 28),
+      ),
     );
   }
 

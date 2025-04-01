@@ -116,9 +116,9 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     if (selectedGoals[index])
-                      Assets.images.goalsSelected.image(width: 28)
+                      Assets.images.goalsSelectedSvg.svg()
                     else
-                      Assets.images.goalsUnselected.image(width: 28),
+                      Assets.images.goalsUnselectedSvg.svg(),
                     const HorizontalSpacing(14),
                     const Text(
                       'Squat 140kg 5 5',

@@ -42,48 +42,46 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           Navigator.pop(context);
         },
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const HomeHeaderWidgets(
-                hideControls: true,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => _changeWeek(-7),
-                    child: Assets.images.cirlceArrowBack.svg(),
-                  ),
-                  const HorizontalSpacing(20),
-                  Text(
-                    _getDateRange(),
-                    style: AppTextStyles.textBodyB3
-                        .copyWith(color: AppColors.textColor200),
-                  ),
-                  const HorizontalSpacing(20),
-                  GestureDetector(
-                    onTap: () => _changeWeek(7),
-                    child: Assets.images.circleArrowForward.svg(),
-                  ),
-                ],
-              ),
-              const VerticalSpacing(22),
-              _buildAverageScore(),
-              const VerticalSpacing(20),
-              _buildScoreBreakdown(),
-              const VerticalSpacing(20),
-              _buildSummaryBreakdown(),
-              const VerticalSpacing(20),
-              const AverageWeeklyScore(),
-              const VerticalSpacing(20),
-              const LinePowerStats(),
-              const BottomSpacing(),
-            ],
-          ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const HomeHeaderWidgets(
+              hideControls: true,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GestureDetector(
+                  onTap: () => _changeWeek(-7),
+                  child: Assets.images.cirlceArrowBack.svg(),
+                ),
+                const HorizontalSpacing(20),
+                Text(
+                  _getDateRange(),
+                  style: AppTextStyles.textBodyB3
+                      .copyWith(color: AppColors.textColor200),
+                ),
+                const HorizontalSpacing(20),
+                GestureDetector(
+                  onTap: () => _changeWeek(7),
+                  child: Assets.images.circleArrowForward.svg(),
+                ),
+              ],
+            ),
+            const VerticalSpacing(22),
+            _buildAverageScore(),
+            const VerticalSpacing(20),
+            _buildScoreBreakdown(),
+            const VerticalSpacing(20),
+            _buildSummaryBreakdown(),
+            const VerticalSpacing(20),
+            const AverageWeeklyScore(),
+            const VerticalSpacing(20),
+            const LinePowerStats(),
+            const BottomSpacing(),
+          ],
         ),
       ),
     );
@@ -94,6 +92,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
           const Text(
             'Average Score',
@@ -103,7 +102,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           const AverageScorePieChart(),
           const VerticalSpacing(8),
           _buildCategoryScores(),
-          const BottomSpacing(),
+          // const BottomSpacing(),
         ],
       ),
     );
@@ -115,25 +114,25 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
         'name': 'Journal',
         'score': '45',
         'color': AppColors.color5CE0A0,
-        'increment': '35',
+        'increment': '+35,5%',
       },
       {
         'name': 'Habit',
         'score': '32',
         'color': AppColors.primary300,
-        'increment': '12',
+        'increment': '+12,5%',
       },
       {
         'name': 'Door',
         'score': '28',
         'color': AppColors.colorF5CA41,
-        'increment': '10',
+        'increment': '+10,5%',
       },
       {
         'name': 'Goals',
         'score': '87',
         'color': AppColors.primary500,
-        'increment': '40',
+        'increment': '+40,5%',
       },
     ];
 
@@ -208,6 +207,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
 
   Widget _buildScoreBreakdown() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
@@ -227,6 +227,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
 
   Widget _buildSummaryBreakdown() {
     return GridView.count(
+      padding: EdgeInsets.zero,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
@@ -236,19 +237,19 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       children: [
         _summaryCard(
           'Previous week',
-          '28/54',
+          '27.5',
         ),
         _summaryCard(
           '4 weeks averagee',
-          '54/100',
+          '54.5',
         ),
         _summaryCard(
           'Year average',
-          '28/54',
+          '28.5',
         ),
         _summaryCard(
           'Overall average',
-          '10/20',
+          '10.5',
         ),
       ],
     );

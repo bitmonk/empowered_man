@@ -20,6 +20,10 @@ class LoginScreen extends GetView<LoginController> {
           'Log into account',
           style: AppTextStyles.textHeadingH3,
         ),
+        centerTitle: true,
+        iconTheme: const IconThemeData(
+          color: Colors.white,
+        ),
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -35,7 +39,7 @@ class LoginScreen extends GetView<LoginController> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Center(child: Assets.images.appLogo.image(width: 120)),
+                // Center(child: Assets.images.appLogo.image(width: 120)),
                 VerticalSpacing(16.h),
                 AppTextFormField(
                   labelText: 'Enter email',
@@ -74,13 +78,13 @@ class LoginScreen extends GetView<LoginController> {
                     Get.offAllNamed(AppRoutes.main);
                   },
                 ),
-                VerticalSpacing(16.h),
-                AppOutlinedButton.withOutlined(
-                  text: 'Sign up',
-                  onPressed: () async {
-                    Get.toNamed(AppRoutes.signup);
-                  },
-                ),
+                // VerticalSpacing(16.h),
+                // AppOutlinedButton.withOutlined(
+                //   text: 'Sign up',
+                //   onPressed: () async {
+                //     Get.toNamed(AppRoutes.signup);
+                //   },
+                // ),
                 VerticalSpacing(12.h),
                 AppTextButton.grey(
                   label: 'Forgot password?',

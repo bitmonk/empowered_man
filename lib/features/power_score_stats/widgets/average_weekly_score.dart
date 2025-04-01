@@ -13,7 +13,7 @@ class AverageWeeklyScore extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           const Text(
-            'Average Score by Weekday',
+            'Score by Weekday',
             style: AppTextStyles.textHeadingH3,
           ),
           const VerticalSpacing(16),
@@ -30,6 +30,9 @@ class AverageWeeklyScore extends StatelessWidget {
             ),
           ),
           const VerticalSpacing(16),
+          const AppDivider(
+            color: AppColors.bgBorderVLight,
+          ),
           _buildBarChart(),
         ],
       ),

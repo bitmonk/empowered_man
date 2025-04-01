@@ -33,11 +33,11 @@ class WeeklyWidget extends StatelessWidget {
                         children: [
                           PowerScoreChipText(
                             color: AppColors.primary50,
-                            title: 'Journal',
+                            title: 'Journal (12)',
                           ),
                           PowerScoreChipText(
                             color: AppColors.colorF5CA41,
-                            title: 'Tasks',
+                            title: 'Tasks (2)',
                           ),
                         ],
                       ),
@@ -47,11 +47,11 @@ class WeeklyWidget extends StatelessWidget {
                         children: [
                           PowerScoreChipText(
                             color: AppColors.primary300,
-                            title: 'Habit',
+                            title: 'Habit (8)',
                           ),
                           PowerScoreChipText(
                             color: AppColors.color5CE0A0,
-                            title: 'Score',
+                            title: 'Goals (0)',
                           ),
                         ],
                       ),

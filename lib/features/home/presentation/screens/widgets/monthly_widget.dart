@@ -22,14 +22,14 @@ class MonthlyWidget extends StatelessWidget {
               TableRow(
                 children: [
                   TableHeader(
-                    title: 'Task',
+                    title: 'Targets',
                     child: Padding(
                       padding: const EdgeInsets.only(left: 8),
                       child: Assets.images.arrowsDownUp.svg(),
                     ),
                   ),
-                  const TableHeader(title: 'Date'),
-                  const TableHeader(title: 'Header'),
+                  const TableHeader(title: 'Type'),
+                  const TableHeader(title: 'Status'),
                 ],
               ),
               TableRow(
@@ -46,7 +46,7 @@ class MonthlyWidget extends StatelessWidget {
             children: List.generate(4, (index) {
               return TaskRow(
                 taskName: 'Activity ${index + 1}',
-                date: 'Apr 24, 2024',
+                date: 'Body',
               );
             }),
           ),
@@ -113,10 +113,10 @@ class _TaskRowState extends State<TaskRow> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: GestureDetector(
                   onTap: () {
-                    if (status == 'Started') {
+                    if (status == 'Completed') {
                       status = 'Not Started';
                     } else {
-                      status = 'Started';
+                      status = 'Completed';
                     }
                     setState(() {});
                   },
@@ -124,13 +124,13 @@ class _TaskRowState extends State<TaskRow> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(
-                        status == 'Not Started'
-                            ? Icons.radio_button_off
-                            : Icons.radio_button_on,
-                        color: Colors.white38,
-                      ),
-                      const SizedBox(width: 8),
+                      // Icon(
+                      //   status == 'Not Started'
+                      //       ? Icons.radio_button_off
+                      //       : Icons.radio_button_on,
+                      //   color: Colors.white38,
+                      // ),
+                      //const SizedBox(width: 8),
                       Text(
                         widget.taskName,
                         style: AppTextStyles.textBodyB4
@@ -152,10 +152,10 @@ class _TaskRowState extends State<TaskRow> {
                 padding: const EdgeInsets.symmetric(vertical: 8),
                 child: GestureDetector(
                   onTap: () {
-                    if (status == 'Started') {
+                    if (status == 'Completed') {
                       status = 'Not Started';
                     } else {
-                      status = 'Started';
+                      status = 'Completed';
                     }
                     setState(() {});
                   },
@@ -167,7 +167,7 @@ class _TaskRowState extends State<TaskRow> {
                         vertical: 4,
                       ),
                       decoration: BoxDecoration(
-                        color: status == 'Started'
+                        color: status == 'Completed'
                             ? const Color(0xff0E2B1D)
                             : const Color(0xff3D3834),
                         borderRadius: BorderRadius.circular(16),

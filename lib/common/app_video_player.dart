@@ -51,9 +51,9 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
         aspectRatio: _videoController.value.aspectRatio,
         child: _chewieController != null && _videoController.value.isInitialized
             ? Chewie(controller: _chewieController!)
-            : Container(
+            : const ColoredBox(
                 color: Colors.black,
-                child: const Center(
+                child: Center(
                   child: CircularProgressIndicator(color: Colors.white),
                 ),
               ),

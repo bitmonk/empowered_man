@@ -297,6 +297,10 @@ class $AssetsImagesGen {
   SvgGenImage get circleArrowForward =>
       const SvgGenImage('assets/images/circle_arrow_forward.svg');
 
+  /// File path: assets/images/circle_three_dot.svg
+  SvgGenImage get circleThreeDot =>
+      const SvgGenImage('assets/images/circle_three_dot.svg');
+
   /// File path: assets/images/cirlce_arrow_back.svg
   SvgGenImage get cirlceArrowBack =>
       const SvgGenImage('assets/images/cirlce_arrow_back.svg');
@@ -442,12 +446,20 @@ class $AssetsImagesGen {
       const AssetGenImage('assets/images/goal_three_dot.png');
 
   /// File path: assets/images/goals_selected.png
-  AssetGenImage get goalsSelected =>
+  AssetGenImage get goalsSelectedPng =>
       const AssetGenImage('assets/images/goals_selected.png');
 
+  /// File path: assets/images/goals_selected.svg
+  SvgGenImage get goalsSelectedSvg =>
+      const SvgGenImage('assets/images/goals_selected.svg');
+
   /// File path: assets/images/goals_unselected.png
-  AssetGenImage get goalsUnselected =>
+  AssetGenImage get goalsUnselectedPng =>
       const AssetGenImage('assets/images/goals_unselected.png');
+
+  /// File path: assets/images/goals_unselected.svg
+  SvgGenImage get goalsUnselectedSvg =>
+      const SvgGenImage('assets/images/goals_unselected.svg');
 
   /// File path: assets/images/green_check.svg
   SvgGenImage get greenCheck =>
@@ -525,6 +537,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/jason.png
   AssetGenImage get jason => const AssetGenImage('assets/images/jason.png');
+
+  /// File path: assets/images/journalpng.png
+  AssetGenImage get journalpng =>
+      const AssetGenImage('assets/images/journalpng.png');
 
   /// File path: assets/images/kebab.svg
   SvgGenImage get kebab => const SvgGenImage('assets/images/kebab.svg');
@@ -945,6 +961,7 @@ class $AssetsImagesGen {
         chatUserPicOne,
         chatUserPicTwo,
         circleArrowForward,
+        circleThreeDot,
         cirlceArrowBack,
         cirlceThreeDot,
         classImage,
@@ -984,8 +1001,10 @@ class $AssetsImagesGen {
         gift,
         goalAdd,
         goalThreeDot,
-        goalsSelected,
-        goalsUnselected,
+        goalsSelectedPng,
+        goalsSelectedSvg,
+        goalsUnselectedPng,
+        goalsUnselectedSvg,
         greenCheck,
         group,
         groupActive,
@@ -1008,6 +1027,7 @@ class $AssetsImagesGen {
         increaseArrow,
         info,
         jason,
+        journalpng,
         kebab,
         lead,
         leaderProfile,
