@@ -1154,6 +1154,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.12.16+1"
+  material_2_switch:
+    dependency: "direct main"
+    description:
+      name: material_2_switch
+      sha256: "2eca057321ae11b625d4c7da2b5ff3baaf854ff4cce4e2a180e5c46e43aedb85"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.0"
   material_color_utilities:
     dependency: transitive
     description:
