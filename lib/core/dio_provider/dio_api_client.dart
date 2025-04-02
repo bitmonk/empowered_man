@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:empowered/core/config/environment_helper.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
-import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/core/routes/app_routes.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
@@ -229,16 +228,16 @@ class AppInterceptor extends Interceptor {
         );
         return;
       }
-      final requiresAuth = !_noAuthEndpoints.any(
-        (endpoint) => options.path.contains(endpoint),
-      );
+      // final requiresAuth = !_noAuthEndpoints.any(
+      //   (endpoint) => options.path.contains(endpoint),
+      // );
 
-      if (requiresAuth) {
-        final accessToken = await _preference.getAccessToken();
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
+      // if (requiresAuth) {
+      final accessToken = await _preference.getRefreshToken();
+      if (accessToken != null) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
       }
+      // }
 
       options.baseUrl = baseUrl;
 
@@ -274,13 +273,12 @@ class AppInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       isUnauthorized = true;
       await _preference.removeAll();
-      // getx.Get.offAllNamed(AppRoutes.loginPage);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (getx.Get.currentRoute != AppRoutes.loginPage) {
+        if (getx.Get.currentRoute != AppRoutes.landingScreen) {
           try {
-            getx.Get.find<Preferences>().removeAll();
+            getx.Get.find<AppSharedPref>().removeAll();
             AppWidgetKey.bottomBarController.jumpToTab(0);
-            getx.Get.offAllNamed(AppRoutes.loginPage);
+            getx.Get.offAllNamed(AppRoutes.landingScreen);
           } catch (e) {
             debugPrint('Navigation failed: $e');
           }

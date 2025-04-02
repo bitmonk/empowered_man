@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class AssesmentPopUp extends StatelessWidget {
   const AssesmentPopUp({super.key});

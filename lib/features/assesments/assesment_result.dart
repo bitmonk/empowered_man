@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/widgets/navigation_buttons.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class AssesmentResult extends StatelessWidget {
   const AssesmentResult({super.key});

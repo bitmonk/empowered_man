@@ -3,7 +3,6 @@ import 'package:empowered/features/home/presentation/screens/widgets/habits_cont
 import 'package:empowered/features/home/presentation/screens/widgets/home_journal_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/important_tasks_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/my_memory_bottom_sheet.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class DailyWidget extends StatelessWidget {
   const DailyWidget({super.key});

@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
 
 class DrawerHeaderWithBack extends StatelessWidget {

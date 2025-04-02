@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/features/onboarding/presentation/controllers/onboarding_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 
@@ -100,6 +100,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 AppTextButton(
                   label: 'Sign In',
                   onTap: () {
+                    Get.find<Preferences>().saveIsFirstRun();
                     Get.offAllNamed(AppRoutes.loginPage);
                   },
                 ),
@@ -142,6 +143,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             top: MediaQuery.of(context).viewPadding.top + 12,
             child: InkWell(
               onTap: () {
+                Get.find<Preferences>().saveIsFirstRun();
                 Get.offAllNamed(AppRoutes.landingScreen);
               },
               child: Container(

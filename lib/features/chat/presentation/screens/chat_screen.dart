@@ -4,7 +4,6 @@ import 'package:empowered/features/chat/presentation/screens/widget/chat_list.da
 import 'package:empowered/features/chat/presentation/screens/widget/chat_threads_tile.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/new_message_model.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChatScreen extends GetView<ChatController> {

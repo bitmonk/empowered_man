@@ -3,7 +3,6 @@ import 'package:empowered/features/group/presentation/screens/widgets/colored_pa
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/task_menu_dialog.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class TaskTile extends StatefulWidget {
   const TaskTile({required this.showNote, super.key});

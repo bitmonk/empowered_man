@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class ChatInputField extends StatelessWidget {
   ChatInputField({super.key, this.isNewMessage = false});

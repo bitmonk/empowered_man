@@ -2,7 +2,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/assesment_summary.dart';
 import 'package:empowered/features/assesments/widgets/assesment_history.dart';
 import 'package:empowered/features/assesments/widgets/assesment_pop_up.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class AssessmentsScreen extends StatefulWidget {
   const AssessmentsScreen({super.key});

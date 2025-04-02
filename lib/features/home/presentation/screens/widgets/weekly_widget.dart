@@ -25,7 +25,7 @@ class WeeklyWidget extends StatelessWidget {
                 const HomePieChart(),
                 const VerticalSpacing(16),
                 const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 54),
+                  padding: EdgeInsets.symmetric(),
                   child: Column(
                     children: [
                       Row(

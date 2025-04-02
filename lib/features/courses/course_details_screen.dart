@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/course_module_video_screen.dart';
 import 'package:empowered/features/courses/courses_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class CourseDetailScreen extends StatelessWidget {
   const CourseDetailScreen({required this.course, super.key});

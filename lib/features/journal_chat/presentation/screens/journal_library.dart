@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class JournalLibrary extends StatefulWidget {
   const JournalLibrary({super.key});

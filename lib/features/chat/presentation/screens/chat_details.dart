@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/add_member.dart'; // Import the AddMember screen
-import 'package:empowered/gen/assets.gen.dart';
 
 class ChatDetails extends StatefulWidget {
   const ChatDetails({super.key});

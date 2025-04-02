@@ -3,7 +3,6 @@ import 'package:empowered/features/chat/presentation/controllers/chat_controller
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProgressGoalWidget extends StatefulWidget {

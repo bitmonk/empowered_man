@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class AddNewTaskScreen extends StatefulWidget {

@@ -2,7 +2,6 @@ import 'dart:math'; // For random selection
 
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/habits/presentation/widgets/share_dialog.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:intl/intl.dart';
 
 /// **Model to store habit details**

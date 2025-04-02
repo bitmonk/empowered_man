@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class ChatList extends StatelessWidget {
   ChatList({required this.isSquad, super.key});

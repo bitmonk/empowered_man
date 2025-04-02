@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:empowered/core/preferences/preferences.dart';
+import 'package:empowered/features/profile/data/model/user_profile_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AppSharedPref {
@@ -29,21 +32,6 @@ class AppSharedPref {
     await sharedPreferences.setString(PreferenceKeys.refreshToken, value);
   }
 
-  Future<void> saveIsFirstRun() async {
-    await sharedPreferences.setBool(PreferenceKeys.isFirstRun, false);
-  }
-
-  Future<bool> getIsFirstRun() async {
-    final value = sharedPreferences.getBool(
-      PreferenceKeys.isFirstRun,
-    );
-    if (value == null) {
-      return true;
-    } else {
-      return false;
-    }
-  }
-
   Future<void> saveString(String key, String val) async {
     await sharedPreferences.setString(key, val);
   }
@@ -51,6 +39,24 @@ class AppSharedPref {
   Future<String?> getString(String val) async {
     final value = sharedPreferences.getString(val);
     return value;
+  }
+
+  Future<void> saveUserModel(UserProfileModel value) async {
+    await sharedPreferences.setString(
+      PreferenceKeys.userProfile,
+      jsonEncode(value),
+    );
+  }
+
+  Future<UserProfileModel?> getUserModel() async {
+    final value = sharedPreferences.getString(
+      PreferenceKeys.userProfile,
+    );
+    if (value != null) {
+      return UserProfileModel.fromJson(jsonDecode(value));
+    } else {
+      return null;
+    }
   }
 
   Future<void> removeAll() async {

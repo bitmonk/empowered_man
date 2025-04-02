@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class NewMessageModal extends StatefulWidget {
   const NewMessageModal({super.key});

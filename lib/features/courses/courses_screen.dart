@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/course_details_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class Course {
   Course({

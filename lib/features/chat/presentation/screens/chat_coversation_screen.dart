@@ -4,7 +4,6 @@ import 'package:empowered/features/chat/presentation/screens/chat_details.dart';
 import 'package:empowered/features/chat/presentation/screens/customize_chat.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class ChatCoversationScreen extends StatefulWidget {
   const ChatCoversationScreen({

@@ -22,6 +22,7 @@ import 'package:empowered/features/onboarding/presentation/screens/onboarding_sc
 import 'package:empowered/features/reset_password/presentation/controllers/reset_password_bindings.dart';
 import 'package:empowered/features/reset_password/presentation/screens/app_success_screen.dart';
 import 'package:empowered/features/reset_password/presentation/screens/reset_password_screen.dart';
+import 'package:empowered/features/signup/presentation/controller/signup_bindings.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_details_screen.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_occupation.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_photo_screen.dart';
@@ -119,6 +120,7 @@ class AppRoutes {
     ),
     GetPage(
       name: signup,
+      binding: SignupBindings(),
       page: () => const SignupScreen(),
     ),
     GetPage(

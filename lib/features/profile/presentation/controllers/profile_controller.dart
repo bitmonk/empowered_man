@@ -1,7 +1,10 @@
+import 'package:empowered/features/profile/data/model/user_profile_model.dart';
 import 'package:empowered/features/profile/data/source/profile_remote_source.dart';
 import 'package:get/get.dart';
 
 class ProfileController extends GetxController {
   ProfileController({required this.remoteSource});
   final ProfileRemoteSource remoteSource;
+
+  Rx<UserProfileModel> userProfile = const UserProfileModel().obs;
 }

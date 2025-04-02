@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/widgets/progress_goal_widget.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class EmptyGoal extends StatelessWidget {
   const EmptyGoal({

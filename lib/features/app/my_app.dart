@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/theme/app_theme.dart';
-import 'package:empowered/gen/assets.gen.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class MyApp extends StatefulWidget {
@@ -31,6 +31,7 @@ class _MyAppState extends State<MyApp> {
         splitScreenMode: true,
         builder: (context, child) {
           return GetMaterialApp(
+            initialBinding: ProfileBindings(),
             debugShowCheckedModeBanner: false,
             theme: AppTheme.appTheme(context),
             getPages: AppRoutes.appPages,

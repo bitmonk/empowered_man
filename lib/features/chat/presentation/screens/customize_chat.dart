@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/add_member.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class CustomizeChat extends StatefulWidget {
   const CustomizeChat({

@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 
 class JournalDrawer extends StatelessWidget {
   const JournalDrawer({super.key});
@@ -38,16 +38,24 @@ class JournalDrawer extends StatelessWidget {
                             color: AppColors.primary500,
                           ),
                           child: ClipOval(
-                            child: Assets.images.homeProfile.image(
-                              width: 48,
-                              height: 48,
-                              fit: BoxFit.cover,
-                            ),
-                          ),
+                              child: AppCachedImage(
+                            width: 48,
+                            height: 48,
+                            errorWid: const Icon(Icons.person),
+                            imgUrl: Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .image ??
+                                '',
+                          ),),
                         ),
                         const HorizontalSpacing(16),
                         Text(
-                          'Allen Jhon',
+                          Get.find<ProfileController>()
+                                  .userProfile
+                                  .value
+                                  .fullName ??
+                              '',
                           style: AppTextStyles.textBodyB3.copyWith(
                             color: AppColors.white,
                           ),

@@ -8,10 +8,8 @@ import 'package:empowered/features/home/presentation/controllers/home_bindings.d
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
@@ -40,9 +38,7 @@ class _MainScreenState extends State<MainScreen>
     FirebaseNotificationService().init();
     HomeInitializer.initialize();
     ChatInitializer.initialize();
-
     TasksInitializer.initialize();
-    ProfileInitializer.initialize();
     NotificationInitializer.initialize();
   }
 
@@ -50,8 +46,6 @@ class _MainScreenState extends State<MainScreen>
   void dispose() {
     HomeInitializer.destroy();
     ChatInitializer.destroy();
-    ProfileInitializer.destroy();
-
     TasksInitializer.destroy();
     super.dispose();
   }
