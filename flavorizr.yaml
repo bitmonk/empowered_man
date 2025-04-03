@@ -1,0 +1,17 @@
+flavors:
+  di:
+    app:
+      name: "Empowered Man DI"
+    android:
+      applicationId: "com.empoweredman.empoweredman"
+    ios:
+      bundleId: "com.empoweredman.empoweredman"
+
+
+  api:
+    app:
+      name: "Empowered Man API"
+    android:
+      applicationId: "com.empoweredman.empoweredman.api"
+    ios:
+      bundleId: "com.empoweredman.empoweredman.api"
