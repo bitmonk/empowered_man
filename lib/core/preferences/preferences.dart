@@ -21,11 +21,11 @@ class Preferences {
   }
 
   Future<String> getIsFirstRun() async {
-    final value = _secureStorage.read(
+    final value = await _secureStorage.read(
       key: PreferenceKeys.isFirstRun,
     );
-    return 'false';
-    }
+    return value ?? 'true';
+  }
 
   // Future<void> saveString(String name, String value) async {
   //   await _secureStorage.write(key: name.toLowerCase(), value: value);

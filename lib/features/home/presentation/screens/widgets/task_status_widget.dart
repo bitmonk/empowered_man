@@ -41,11 +41,11 @@ class _TaskStatusWidgetState extends State<TaskStatusWidget> {
             borderRadius: BorderRadius.circular(16),
           ),
           padding: const EdgeInsets.symmetric(
-            horizontal: 10,
+            horizontal: 8,
             vertical: 3,
           ),
           child: Text(
-            _isAchieved ? 'Achieved' : 'Undo', // Dynamic text
+            _isAchieved ? 'Achieved' : 'Not Achieved', // Dynamic text
             style: const TextStyle(
               color: AppColors.textColor50,
               fontSize: 12,

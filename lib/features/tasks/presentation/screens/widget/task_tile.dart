@@ -64,10 +64,13 @@ class _TaskTileState extends State<TaskTile> {
                     ],
                   ),
                   const VerticalSpacing(12),
-                  const Text(
-                    'Plan convo sith CS Team Task 123',
-                    textAlign: TextAlign.start,
-                    style: AppTextStyles.titleMd,
+                  const Padding(
+                    padding: EdgeInsets.only(right: 20),
+                    child: Text(
+                      'Plan convo sith CS Team Task 123',
+                      textAlign: TextAlign.start,
+                      style: AppTextStyles.titleMd,
+                    ),
                   ),
                   const VerticalSpacing(12),
                   Row(

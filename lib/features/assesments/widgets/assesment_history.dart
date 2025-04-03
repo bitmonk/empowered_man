@@ -18,8 +18,8 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
       child: SingleChildScrollView(
         child: Table(
           columnWidths: const {
-            0: FixedColumnWidth(40), // Selection icon column
-            1: FlexColumnWidth(),
+            0: FixedColumnWidth(35), // Selection icon column
+            1: FlexColumnWidth(1.2),
             2: FlexColumnWidth(),
             3: FlexColumnWidth(),
           },

@@ -447,11 +447,11 @@ mixin _$User {
   @JsonKey(name: 'email')
   String? get email => throw _privateConstructorUsedError;
   @JsonKey(name: 'phone_number')
-  dynamic get phoneNumber => throw _privateConstructorUsedError;
+  String? get phoneNumber => throw _privateConstructorUsedError;
   @JsonKey(name: 'occupation')
-  dynamic get occupation => throw _privateConstructorUsedError;
+  String? get occupation => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
-  dynamic get image => throw _privateConstructorUsedError;
+  String? get image => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -476,9 +476,9 @@ abstract class $UserCopyWith<$Res> {
       @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'slug') String? slug,
       @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') dynamic phoneNumber,
-      @JsonKey(name: 'occupation') dynamic occupation,
-      @JsonKey(name: 'image') dynamic image,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
@@ -528,15 +528,15 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
       phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       occupation: freezed == occupation
           ? _value.occupation
           : occupation // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -561,9 +561,9 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
       @JsonKey(name: 'full_name') String? fullName,
       @JsonKey(name: 'slug') String? slug,
       @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') dynamic phoneNumber,
-      @JsonKey(name: 'occupation') dynamic occupation,
-      @JsonKey(name: 'image') dynamic image,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
@@ -610,15 +610,15 @@ class __$$UserImplCopyWithImpl<$Res>
       phoneNumber: freezed == phoneNumber
           ? _value.phoneNumber
           : phoneNumber // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       occupation: freezed == occupation
           ? _value.occupation
           : occupation // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as String?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -662,13 +662,13 @@ class _$UserImpl implements _User {
   final String? email;
   @override
   @JsonKey(name: 'phone_number')
-  final dynamic phoneNumber;
+  final String? phoneNumber;
   @override
   @JsonKey(name: 'occupation')
-  final dynamic occupation;
+  final String? occupation;
   @override
   @JsonKey(name: 'image')
-  final dynamic image;
+  final String? image;
   @override
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
@@ -691,11 +691,11 @@ class _$UserImpl implements _User {
                 other.fullName == fullName) &&
             (identical(other.slug, slug) || other.slug == slug) &&
             (identical(other.email, email) || other.email == email) &&
-            const DeepCollectionEquality()
-                .equals(other.phoneNumber, phoneNumber) &&
-            const DeepCollectionEquality()
-                .equals(other.occupation, occupation) &&
-            const DeepCollectionEquality().equals(other.image, image) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
+            (identical(other.occupation, occupation) ||
+                other.occupation == occupation) &&
+            (identical(other.image, image) || other.image == image) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -704,17 +704,8 @@ class _$UserImpl implements _User {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      fullName,
-      slug,
-      email,
-      const DeepCollectionEquality().hash(phoneNumber),
-      const DeepCollectionEquality().hash(occupation),
-      const DeepCollectionEquality().hash(image),
-      createdAt,
-      updatedAt);
+  int get hashCode => Object.hash(runtimeType, id, fullName, slug, email,
+      phoneNumber, occupation, image, createdAt, updatedAt);
 
   /// Create a copy of User
   /// with the given fields replaced by the non-null parameter values.
@@ -738,9 +729,9 @@ abstract class _User implements User {
       @JsonKey(name: 'full_name') final String? fullName,
       @JsonKey(name: 'slug') final String? slug,
       @JsonKey(name: 'email') final String? email,
-      @JsonKey(name: 'phone_number') final dynamic phoneNumber,
-      @JsonKey(name: 'occupation') final dynamic occupation,
-      @JsonKey(name: 'image') final dynamic image,
+      @JsonKey(name: 'phone_number') final String? phoneNumber,
+      @JsonKey(name: 'occupation') final String? occupation,
+      @JsonKey(name: 'image') final String? image,
       @JsonKey(name: 'created_at') final DateTime? createdAt,
       @JsonKey(name: 'updated_at') final DateTime? updatedAt}) = _$UserImpl;
 
@@ -760,13 +751,13 @@ abstract class _User implements User {
   String? get email;
   @override
   @JsonKey(name: 'phone_number')
-  dynamic get phoneNumber;
+  String? get phoneNumber;
   @override
   @JsonKey(name: 'occupation')
-  dynamic get occupation;
+  String? get occupation;
   @override
   @JsonKey(name: 'image')
-  dynamic get image;
+  String? get image;
   @override
   @JsonKey(name: 'created_at')
   DateTime? get createdAt;

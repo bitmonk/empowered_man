@@ -7,7 +7,7 @@ part of 'user_profile_model.dart';
 // **************************************************************************
 
 _$UserProfileModelImpl _$$UserProfileModelImplFromJson(
-        Map<String, dynamic> json,) =>
+        Map<String, dynamic> json) =>
     _$UserProfileModelImpl(
       id: (json['id'] as num?)?.toInt(),
       fullName: json['full_name'] as String?,
@@ -25,7 +25,7 @@ _$UserProfileModelImpl _$$UserProfileModelImplFromJson(
     );
 
 Map<String, dynamic> _$$UserProfileModelImplToJson(
-        _$UserProfileModelImpl instance,) =>
+        _$UserProfileModelImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'full_name': instance.fullName,

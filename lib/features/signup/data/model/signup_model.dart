@@ -33,9 +33,9 @@ class User with _$User {
     @JsonKey(name: 'full_name') String? fullName,
     @JsonKey(name: 'slug') String? slug,
     @JsonKey(name: 'email') String? email,
-    @JsonKey(name: 'phone_number') dynamic phoneNumber,
-    @JsonKey(name: 'occupation') dynamic occupation,
-    @JsonKey(name: 'image') dynamic image,
+    @JsonKey(name: 'phone_number') String? phoneNumber,
+    @JsonKey(name: 'occupation') String? occupation,
+    @JsonKey(name: 'image') String? image,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _User;

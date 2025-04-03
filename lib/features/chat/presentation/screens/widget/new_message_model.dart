@@ -140,6 +140,9 @@ class _NewMessageModalState extends State<NewMessageModal> {
                   ),
                 ),
                 ChatInputField(isNewMessage: true),
+                const SizedBox(
+                  height: 10,
+                ),
               ],
             ),
           );

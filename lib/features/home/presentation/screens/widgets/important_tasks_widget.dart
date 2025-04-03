@@ -39,11 +39,11 @@ class _ImportantTasksWidgetState extends State<ImportantTasksWidget> {
           const SizedBox(height: 16),
           // Table for Header + Tasks
           Table(
-            columnWidths: const {
-              0: FlexColumnWidth(6),
-              1: FlexColumnWidth(5),
-              2: FlexColumnWidth(4),
-            },
+            // columnWidths: const {
+            //   0: FlexColumnWidth(5),
+            //   1: FlexColumnWidth(5),
+            //   2: FlexColumnWidth(5),
+            // },
             children: [
               // Header Row
               const TableRow(

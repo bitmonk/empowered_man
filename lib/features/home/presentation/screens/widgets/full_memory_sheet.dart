@@ -105,7 +105,7 @@ class FullMemoryBottomSheet extends StatelessWidget {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                         vertical: 5,
-                        horizontal: 50,
+                        horizontal: 20,
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),

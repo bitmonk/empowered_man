@@ -302,7 +302,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       decoration: BoxDecoration(
         border: Border.all(
           color: badgeColor,

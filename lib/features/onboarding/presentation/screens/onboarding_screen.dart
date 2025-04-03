@@ -209,6 +209,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 controller: controller.pageController,
                 count: controller.titles.length - 1,
                 effect: ExpandingDotsEffect(
+                  expansionFactor: 1.1,
                   dotHeight: 8.h,
                   dotWidth: 8.h,
                   dotColor: AppColors.color9FAAB3,

@@ -31,6 +31,21 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
     });
   }
 
+  Color getPasswordStrengthColor(
+      bool hasMinLength, bool containsNumber, bool containsSymbol,) {
+    var strengthScore = (hasMinLength ? 1 : 0) +
+        (containsNumber ? 1 : 0) +
+        (containsSymbol ? 1 : 0);
+
+    if (strengthScore == 3) {
+      return AppColors.color279627; // Green for strong password
+    } else if (strengthScore == 2) {
+      return AppColors.colorFFB032; // Orange for moderate strength
+    } else {
+      return AppColors.colorC03A31; // Red for weak password
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -50,7 +65,13 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                 labelText: 'Enter mobile number',
                 textInputType: TextInputType.phone,
                 maxLength: 11,
-                validator: ValidationBuilder().required().phone().build(),
+                validator: (value) {
+                  if (value == null ||
+                      (value.length != 10 && value.length != 11)) {
+                    return 'Please enter a valid number';
+                  }
+                  return null;
+                },
               ),
               const VerticalSpacing(16),
               AppTextFormField(
@@ -87,12 +108,8 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                           (containsNumber ? 0.33 : 0.0) +
                           (containsSymbol ? 0.33 : 0.0),
                   backgroundColor: AppColors.colorEDECEF,
-                  color: isPasswordValid
-                      ? AppColors.color279627 // Green for valid password
-                      : hasMinLength && (containsNumber || containsSymbol)
-                          ? AppColors
-                              .colorFFB032 // Orange for partially valid password
-                          : AppColors.colorC03A31, // Red for invalid password
+                  color: getPasswordStrengthColor(hasMinLength, containsNumber,
+                      containsSymbol,), // Red for invalid password
                 ),
               ),
               const VerticalSpacing(12),

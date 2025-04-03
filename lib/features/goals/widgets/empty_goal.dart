@@ -48,9 +48,12 @@ class EmptyGoal extends StatelessWidget {
           ),
           if (showStart)
             Padding(
-              padding: const EdgeInsets.only(top: 18, left: 85, right: 85),
+              padding: const EdgeInsets.only(
+                top: 18,
+              ),
               child: AppOutlinedButton(
                 height: 40,
+                width: 200,
                 text: 'Start $selectedTent Reflection',
                 borderRadius: 12,
                 textStyle: AppTextStyles.textBodyB3,

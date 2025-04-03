@@ -41,9 +41,9 @@ _$UserImpl _$$UserImplFromJson(Map<String, dynamic> json) => _$UserImpl(
       fullName: json['full_name'] as String?,
       slug: json['slug'] as String?,
       email: json['email'] as String?,
-      phoneNumber: json['phone_number'],
-      occupation: json['occupation'],
-      image: json['image'],
+      phoneNumber: json['phone_number'] as String?,
+      occupation: json['occupation'] as String?,
+      image: json['image'] as String?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
