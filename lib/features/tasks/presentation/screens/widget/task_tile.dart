@@ -53,7 +53,9 @@ class _TaskTileState extends State<TaskTile> {
                         onTap: () {
                           showDialog(
                             context: context,
-                            builder: (context) => const TaskMenuDialog(),
+                            builder: (context) => Transform.translate(
+                                offset: const Offset(-60, 0),
+                                child: const TaskMenuDialog(),),
                           );
                         },
                         child: Padding(

@@ -75,7 +75,7 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
               const VerticalSpacing(12),
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
@@ -148,12 +148,10 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
                 ),
               ),
               const VerticalSpacing(32),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 68),
-                child: AppOutlinedButton(
-                  text: 'Share',
-                  onPressed: () {},
-                ),
+              AppOutlinedButton(
+                text: 'Share',
+                width: 200,
+                onPressed: () {},
               ),
             ],
           ),

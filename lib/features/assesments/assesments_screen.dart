@@ -20,7 +20,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
         title: 'Assessments',
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+            .copyWith(bottom: context.devicePaddingBottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

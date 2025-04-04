@@ -35,7 +35,8 @@ class _NewMessageModalState extends State<NewMessageModal> {
               color: AppColors.bgMedium,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16)
+                .copyWith(bottom: context.devicePaddingBottom),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -140,9 +141,6 @@ class _NewMessageModalState extends State<NewMessageModal> {
                   ),
                 ),
                 ChatInputField(isNewMessage: true),
-                const SizedBox(
-                  height: 10,
-                ),
               ],
             ),
           );

@@ -29,7 +29,7 @@ class TaskMenuDialog extends GetView<TasksController> {
             ),
             const VerticalSpacing(5),
             const AppDivider(),
-            const VerticalSpacing(5),
+            const VerticalSpacing(15),
             Padding(
               padding: const EdgeInsets.only(left: 16),
               child: Text(

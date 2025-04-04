@@ -64,7 +64,9 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
           ),
           const VerticalSpacing(4),
           InkWell(
-            onTap: () {},
+            onTap: () {
+              Get.toNamed(AppRoutes.reflectionScreen);
+            },
             child: Text(
               'View full reflection',
               style: AppTextStyles.textBodyB2.copyWith(

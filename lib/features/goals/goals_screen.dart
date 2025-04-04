@@ -124,9 +124,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         return ProgressGoalWidget(
                           selectedTent: goalTypes[
                               _selectedGoalIndex], // Pass selected goal type
-                          title: GoalDurationEnum
-                                  .values[index].name.capitalizeFirst ??
-                              '',
+                          title: '${GoalDurationEnum
+                                  .values[index].name.capitalizeFirst!} Tasks',
                         );
                       } else {
                         return EmptyGoal(

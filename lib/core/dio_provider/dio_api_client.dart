@@ -169,14 +169,15 @@ class DioApiClient {
   }
 
   void _handleDioException(DioException error) {
-    try {
-      if (error.type == DioExceptionType.unknown ||
-          error.type == DioExceptionType.badResponse) {
-        if (error.response?.statusCode == 500) {
-          throw ApiErrorResponse(
-            message: 'Internal server error. Please try again after sometime.',
-          );
-        }
+    if (error.type == DioExceptionType.unknown ||
+        error.type == DioExceptionType.badResponse) {
+      // if (error.response?.statusCode == 500) {
+      //   throw ApiErrorResponse(
+      //     message: 'Internal server error. Please try again after sometime.',
+      //   );
+      // }
+      if (error.response?.data is Map &&
+          error.response?.data.containsKey('message')) {
         if (error.response?.data['message'] is Map<String, dynamic>) {
           final errors =
               error.response?.data['message'] as Map<String, dynamic>?;
@@ -189,12 +190,15 @@ class DioApiClient {
         if (errorMsg != null) {
           throw ApiErrorResponse(message: errorMsg);
         }
+      } else {
+        throw ApiErrorResponse(
+            message:
+                'Status Code: ${error.response?.statusCode} | ${DioErrorHandler.handle(error)}',);
       }
-      var msg = DioErrorHandler.handle(error);
-      throw ApiErrorResponse(message: msg);
-    } catch (_) {
-      rethrow;
     }
+    var msg = DioErrorHandler.handle(error);
+    throw ApiErrorResponse(
+        message: 'Status Code: ${error.response?.statusCode} | $msg',);
   }
 }
 

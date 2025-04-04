@@ -9,7 +9,7 @@ class JournalLibrary extends StatefulWidget {
 }
 
 class _JournalLibraryState extends State<JournalLibrary> {
-  List<bool> _selectedItems = List.generate(8, (index) => false);
+  List<bool> _selectedItems = List.generate(20, (index) => false);
   bool _selectAll = false; // Track the "Select All" state
   String selectedJournalType = 'Select Journal Type'; // Default selection
   final List<String> journalTypes = [
@@ -39,7 +39,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                     padding:
                         const EdgeInsets.symmetric(vertical: 6, horizontal: 16),
                     child: Row(
-                       children: [
+                      children: [
                         Text(
                           selectedJournalType,
                           style: AppTextStyles.textBodyB2.copyWith(
@@ -74,7 +74,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                 },
                 children: [
                   _buildTableHeaderRow(),
-                  ...List.generate(8, (index) => _buildTableRow(index)),
+                  ...List.generate(20, (index) => _buildTableRow(index)),
                 ],
               ),
             ),
@@ -102,7 +102,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
             onTap: () {
               setState(() {
                 _selectAll = !_selectAll;
-                _selectedItems = List.generate(8, (index) => _selectAll);
+                _selectedItems = List.generate(20, (index) => _selectAll);
               });
             },
             child: Icon(

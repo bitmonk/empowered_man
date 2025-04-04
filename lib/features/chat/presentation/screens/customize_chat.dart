@@ -77,10 +77,12 @@ class _CustomizeChatState extends State<CustomizeChat> {
             // Input Fields
             const AppTextFormField(
               labelText: 'Title',
+              hintText: 'Enter Title',
             ),
             const VerticalSpacing(16),
             const AppTextFormField(
               labelText: 'Description',
+              hintText: 'Enter Description',
               minLines: 3,
               maxLines: 5,
               textInputAction: TextInputAction.newline,

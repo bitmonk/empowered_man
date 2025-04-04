@@ -12,7 +12,7 @@ class NotificationScreen extends GetView<NotificationController> {
     return WillPopScope(
       onWillPop: () async {
         if (showDone) {
-          Get.offAllNamed(AppRoutes.main);
+          Get.offAllNamed(AppRoutes.gettingStartedScreen);
         } else {
           Navigator.pop(context);
         }
@@ -23,7 +23,7 @@ class NotificationScreen extends GetView<NotificationController> {
           title: 'Push Notification',
           onTap: () {
             if (showDone) {
-              Get.offAllNamed(AppRoutes.main);
+              Get.offAllNamed(AppRoutes.gettingStartedScreen);
             } else {
               Navigator.pop(context);
             }
@@ -113,9 +113,14 @@ class NotificationScreen extends GetView<NotificationController> {
                     if (showDone)
                       AppOutlinedButton(
                         text: 'Done',
+                        isLoading: controller.updateNotificationState.value ==
+                            TheStates.loading,
                         onPressed: () {
                           controller.updateNotification();
-                          Get.offAllNamed(AppRoutes.main);
+                          if (controller.updateNotificationState.value ==
+                              TheStates.success) {
+                            Get.offAllNamed(AppRoutes.gettingStartedScreen);
+                          }
                         },
                       ),
                   ],

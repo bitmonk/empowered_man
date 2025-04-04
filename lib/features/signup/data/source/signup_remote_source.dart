@@ -51,6 +51,7 @@ class SignupRemoteSource {
       if (e is ApiErrorResponse) {
         return left(e);
       } else {
+        print(e);
         return left(InternalAppError(message: e.toString()));
       }
     }

@@ -64,6 +64,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
               _buildMonthlyMissions(),
               const VerticalSpacing(24),
               _buildSectionTitle('Quarterly Facts & Yearly Targets'),
+              const VerticalSpacing(24),
               _buildFactsAndTargets(),
               const VerticalSpacing(30),
             ],
@@ -220,7 +221,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
           selectedFactCategory,
           (String value) {},
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         _buildCategoryBox(
           'Yearly Targets',
           targetCategories,
