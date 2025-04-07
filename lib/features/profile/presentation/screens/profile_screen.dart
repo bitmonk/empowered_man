@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/features/app_directory/presentation/controllers/app_directory_bindings.dart';
 import 'package:empowered/features/app_directory/presentation/screens/app_directory_screen.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
@@ -180,6 +181,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SettingTile(
                           title: 'Privacy policy',
                           onTap: () {
+                            AppDirectoryInitializer.initialize();
                             NavigationHelper.navigateWithFadeTransition(
                               context,
                               const AppDirectoryScreen(
@@ -192,6 +194,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SettingTile(
                           title: 'Terms and conditions',
                           onTap: () {
+                            AppDirectoryInitializer.initialize();
                             NavigationHelper.navigateWithFadeTransition(
                               context,
                               const AppDirectoryScreen(
@@ -215,6 +218,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         SettingTile(
                           title: 'Community Guidelines',
                           onTap: () {
+                            AppDirectoryInitializer.destroy();
+                            AppDirectoryInitializer.initialize();
                             NavigationHelper.navigateWithFadeTransition(
                               context,
                               const AppDirectoryScreen(
@@ -231,7 +236,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ContactUsInitializer.initialize();
                             NavigationHelper.navigateWithFadeTransition(
                               context,
-                              const ContactUsScreen(),
+                              ContactUsScreen(
+                                email: 'email',
+                                name: 'name',
+                                message: 'message',
+                              ),
                             );
                           },
                         ),
