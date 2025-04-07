@@ -10,6 +10,7 @@ export 'package:empowered/core/dio_provider/api_error.dart';
 export 'package:empowered/core/routes/app_routes.dart';
 export 'package:empowered/enum/the_states.dart';
 export 'package:empowered/features/app/app_initializer.dart';
+export 'package:empowered/gen/assets.gen.dart';
 export 'package:empowered/utlis/app_text_styles.dart';
 export 'package:empowered/utlis/app_utils.dart';
 export 'package:flutter/material.dart';

@@ -1,0 +1,17 @@
+# flutter pub run flutter_flavorizr -p assets:download,assets:extract,android:buildGradle,android:dummyAssets,android:icons,flutter:targets,ios:xcconfig,ios:buildTargets,ios:schema,ios:dummyAssets,ios:icons,ios:plist,ios:launchScreen,macos:xcconfig,macos:configs,macos:buildTargets,macos:schema,macos:dummyAssets,macos:icons,macos:plist,google:firebase,assets:clean,ide:config
+flavors:
+  di:
+    app:
+      name: "Empowered Man DI"
+    android:
+      applicationId: "com.empoweredman.empoweredman"
+    ios:
+      bundleId: "com.empoweredman.empoweredman"
+
+  api:
+    app:
+      name: "Empowered Man API"
+    android:
+      applicationId: "com.empoweredman.empoweredman.api"
+    ios:
+      bundleId: "com.empoweredman.empoweredman.api"

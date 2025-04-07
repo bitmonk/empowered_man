@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/delete_account/presentation/controller/delete_account_controller.dart';
 import 'package:empowered/features/delete_account/presentation/screen/widget/delete_bottom_sheet.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:form_validator/form_validator.dart';
 
 class DeleteAccountScreen extends GetView<DeleteAccountController> {

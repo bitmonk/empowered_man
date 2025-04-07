@@ -8,7 +8,7 @@ class AssesmentHistory extends StatefulWidget {
 }
 
 class _AssesmentHistoryState extends State<AssesmentHistory> {
-  List<bool> _selectedItems = List.generate(8, (index) => false);
+  List<bool> _selectedItems = List.generate(20, (index) => false);
   bool _selectAll = false; // Track the "Select All" state
 
   @override
@@ -18,14 +18,14 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
       child: SingleChildScrollView(
         child: Table(
           columnWidths: const {
-            0: FixedColumnWidth(40), // Selection icon column
-            1: FlexColumnWidth(),
+            0: FixedColumnWidth(35), // Selection icon column
+            1: FlexColumnWidth(1.2),
             2: FlexColumnWidth(),
             3: FlexColumnWidth(),
           },
           children: [
             _buildTableHeaderRow(),
-            ...List.generate(8, (index) => _buildTableRow(index)),
+            ...List.generate(20, (index) => _buildTableRow(index)),
           ],
         ),
       ),
@@ -50,7 +50,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
             onTap: () {
               setState(() {
                 _selectAll = !_selectAll;
-                _selectedItems = List.generate(8, (index) => _selectAll);
+                _selectedItems = List.generate(20, (index) => _selectAll);
               });
             },
             child: Icon(

@@ -1,4 +1,5 @@
 import 'package:empowered/core/build_variants/app_environment_enum.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class AppConfiguration {
   const AppConfiguration({
@@ -10,16 +11,16 @@ class AppConfiguration {
   final AppEnvironment appEnvironment;
 
   static const development = AppConfiguration(
-    baseUrl: 'https://admin.janasamparka.org/api/v1/',
+    baseUrl: AppEndpoints.baseUrl,
     appEnvironment: AppEnvironment.development,
   );
 
   static const production = AppConfiguration(
-    baseUrl: 'https://admin.janasamparka.org/api/v1/',
+    baseUrl: AppEndpoints.baseUrl,
     appEnvironment: AppEnvironment.production,
   );
   static const staging = AppConfiguration(
-    baseUrl: 'https://admin.janasamparka.org/api/v1/',
+    baseUrl: AppEndpoints.baseUrl,
     appEnvironment: AppEnvironment.staging,
   );
 }

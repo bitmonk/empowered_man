@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/course_details_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class Course {
   Course({
@@ -303,7 +302,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 4),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
       decoration: BoxDecoration(
         border: Border.all(
           color: badgeColor,

@@ -3,7 +3,6 @@ import 'package:empowered/features/home/presentation/screens/widgets/home_header
 import 'package:empowered/features/power_score_stats/widgets/average_score_pie_chart.dart';
 import 'package:empowered/features/power_score_stats/widgets/average_weekly_score.dart';
 import 'package:empowered/features/power_score_stats/widgets/line_power_stats.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 

@@ -104,6 +104,12 @@ class $AssetsImagesGen {
   /// File path: assets/images/Courses.svg
   SvgGenImage get courses => const SvgGenImage('assets/images/Courses.svg');
 
+  /// File path: assets/images/Ellipse 1.svg
+  SvgGenImage get ellipse1 => const SvgGenImage('assets/images/Ellipse 1.svg');
+
+  /// File path: assets/images/Group 2.svg
+  SvgGenImage get group2 => const SvgGenImage('assets/images/Group 2.svg');
+
   /// File path: assets/images/Journal.svg
   SvgGenImage get journalSvg => const SvgGenImage('assets/images/Journal.svg');
 
@@ -909,6 +915,8 @@ class $AssetsImagesGen {
   List<dynamic> get values => [
         assessment,
         courses,
+        ellipse1,
+        group2,
         journalSvg,
         journalPng,
         logout,

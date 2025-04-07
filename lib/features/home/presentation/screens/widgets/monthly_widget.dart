@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class MonthlyWidget extends StatelessWidget {
   const MonthlyWidget({super.key});
@@ -102,8 +101,8 @@ class _TaskRowState extends State<TaskRow> {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Table(
         columnWidths: const {
-          0: FlexColumnWidth(6), // Task column
-          1: FlexColumnWidth(5), // Date column
+          0: FlexColumnWidth(5), // Task column
+          1: FlexColumnWidth(4), // Date column
           2: FlexColumnWidth(5), // Status column
         },
         children: [

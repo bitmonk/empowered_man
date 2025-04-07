@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 
 class JournalChatInputField extends StatefulWidget {

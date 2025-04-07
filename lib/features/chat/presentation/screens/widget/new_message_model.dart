@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class NewMessageModal extends StatefulWidget {
   const NewMessageModal({super.key});
@@ -36,7 +35,8 @@ class _NewMessageModalState extends State<NewMessageModal> {
               color: AppColors.bgMedium,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
             ),
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(16)
+                .copyWith(bottom: context.devicePaddingBottom),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [

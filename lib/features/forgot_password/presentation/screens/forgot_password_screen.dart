@@ -38,15 +38,16 @@ class ForgotPasswordScreen extends GetView<ForgotPasswordController> {
               ),
               const VerticalSpacing(32),
               AppOutlinedButton(
-                text: 'Conttinue',
-                onPressed: () {
+                text: 'Continue',
+                isLoading:
+                    controller.forgotPasswordState.value == TheStates.loading,
+                onPressed: () async {
                   if (!AppUtils.validateForm(controller.formKey)) {
                     return;
                   }
-                  AppUtils.showSnackbar(
-                    message: 'Please check your email to reset your password',
-                  );
-                  Navigator.pop(context);
+                  if (await controller.forgotPassword()) {
+                    Navigator.pop(context);
+                  }
                 },
               ),
               const VerticalSpacing(24),

@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class AssessmentGraph extends StatelessWidget {

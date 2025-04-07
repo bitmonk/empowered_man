@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/email_notification_settings/presentation/controllers/notification_settings_controller.dart';
 import 'package:empowered/features/email_notification_settings/presentation/screens/widgets/app_switch_tile.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class NotificationSettingsScreen
     extends GetView<NotificationSettingsController> {

@@ -3,7 +3,6 @@ import 'package:empowered/features/group/presentation/screens/widgets/colored_pa
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/task_menu_dialog.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class TaskTile extends StatefulWidget {
   const TaskTile({required this.showNote, super.key});
@@ -54,7 +53,9 @@ class _TaskTileState extends State<TaskTile> {
                         onTap: () {
                           showDialog(
                             context: context,
-                            builder: (context) => const TaskMenuDialog(),
+                            builder: (context) => Transform.translate(
+                                offset: const Offset(-60, 0),
+                                child: const TaskMenuDialog(),),
                           );
                         },
                         child: Padding(
@@ -65,10 +66,13 @@ class _TaskTileState extends State<TaskTile> {
                     ],
                   ),
                   const VerticalSpacing(12),
-                  const Text(
-                    'Plan convo sith CS Team Task 123',
-                    textAlign: TextAlign.start,
-                    style: AppTextStyles.titleMd,
+                  const Padding(
+                    padding: EdgeInsets.only(right: 20),
+                    child: Text(
+                      'Plan convo sith CS Team Task 123',
+                      textAlign: TextAlign.start,
+                      style: AppTextStyles.titleMd,
+                    ),
                   ),
                   const VerticalSpacing(12),
                   Row(

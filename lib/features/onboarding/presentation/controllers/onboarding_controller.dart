@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/features/onboarding/data/source/onboarding_remote_source.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class OnboardingController extends GetxController {
   OnboardingController({required this.remoteSource});
@@ -40,6 +40,7 @@ class OnboardingController extends GetxController {
         duration: const Duration(milliseconds: 300),
       );
     } else {
+      Get.find<Preferences>().saveIsFirstRun();
       Get.offAllNamed(AppRoutes.signup);
     }
   }

@@ -1,12 +1,13 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/courses/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
 import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
 
@@ -41,16 +42,19 @@ class MainDrawer extends GetView<MainController> {
                     color: AppColors.primary500,
                   ),
                   child: ClipOval(
-                    child: Assets.images.homeProfile.image(
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+                      child: AppCachedImage(
+                    width: 48,
+                    height: 48,
+                    errorWid: const Icon(Icons.person),
+                    imgUrl:
+                        Get.find<ProfileController>().userProfile.value.image ??
+                            '',
+                  ),),
                 ),
                 const HorizontalSpacing(16),
                 Text(
-                  'Allen Jhon',
+                  Get.find<ProfileController>().userProfile.value.fullName ??
+                      '',
                   style: AppTextStyles.textBodyB3.copyWith(
                     color: AppColors.white,
                   ),
@@ -181,7 +185,9 @@ class MainDrawer extends GetView<MainController> {
               ),
             ),
             DrawerTile(
-              onTap: () {
+              onTap: () async {
+                await Get.find<AppSharedPref>().removeAll();
+
                 Get.offAllNamed(AppRoutes.landingScreen);
               },
               title: 'Logout',

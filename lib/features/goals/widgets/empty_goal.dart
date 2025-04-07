@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/widgets/progress_goal_widget.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class EmptyGoal extends StatelessWidget {
   const EmptyGoal({
@@ -49,9 +48,12 @@ class EmptyGoal extends StatelessWidget {
           ),
           if (showStart)
             Padding(
-              padding: const EdgeInsets.only(top: 18, left: 85, right: 85),
+              padding: const EdgeInsets.only(
+                top: 18,
+              ),
               child: AppOutlinedButton(
                 height: 40,
+                width: 200,
                 text: 'Start $selectedTent Reflection',
                 borderRadius: 12,
                 textStyle: AppTextStyles.textBodyB3,

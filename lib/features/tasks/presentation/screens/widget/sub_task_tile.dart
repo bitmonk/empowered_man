@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class SubTaskTile extends StatefulWidget {
   const SubTaskTile({

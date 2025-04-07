@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/app_directory/presentation/screens/app_directory_screen.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
@@ -14,8 +15,8 @@ import 'package:empowered/features/faq/presentation/controllers/faq_support_bind
 import 'package:empowered/features/faq/presentation/screens/faq_support_screen.dart';
 import 'package:empowered/features/notification/presentation/controller/notification_bindings.dart';
 import 'package:empowered/features/notification/presentation/screen/notification_screen.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/widgets/setting_tile.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
 import 'package:empowered/utlis/uihelper.dart';
 
@@ -47,70 +48,73 @@ class _ProfileScreenState extends State<ProfileScreen> {
       appBar: const CustomAppBar(),
       body: Column(
         children: [
-          Column(
-            children: [
-              Container(
-                color: AppColors.bgDark,
-                // height: 317,
-                width: double.infinity,
-                child: Padding(
-                  padding: EdgeInsets.zero,
-                  child: Column(
+          Container(
+            color: AppColors.bgDark,
+            // height: 317,
+            width: double.infinity,
+            child: Padding(
+              padding: EdgeInsets.zero,
+              child: Column(
+                children: [
+                  Stack(
+                    alignment: Alignment.bottomRight,
                     children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              right: 20,
-                              bottom: 5,
-                              left: 20,
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: _image != null
-                                  ? Image.file(
-                                      _image!,
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Assets.images.profilePic.image(
-                                      width: 120,
-                                      height: 120,
-                                      fit: BoxFit.cover,
-                                    ),
-                            ),
-                          ),
-                          InkWell(
-                            onTap: () => _pickImage(context),
-                            child:
-                                Assets.images.editProfilePic.image(width: 46),
-                          ),
-                        ],
+                      Padding(
+                        padding: const EdgeInsets.only(
+                          right: 20,
+                          bottom: 5,
+                          left: 20,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: _image != null
+                              ? Image.file(
+                                  _image!,
+                                  width: 120,
+                                  height: 120,
+                                  fit: BoxFit.cover,
+                                )
+                              : AppCachedImage(
+                                  imgUrl: Get.find<ProfileController>()
+                                          .userProfile
+                                          .value
+                                          .image ??
+                                      '',
+                                  height: 120,
+                                  errorWid: const Icon(
+                                    Icons.person,
+                                    color: AppColors.white,
+                                    size: 60,
+                                  ),
+                                  width: 120,
+                                ),
+                        ),
                       ),
-                      const VerticalSpacing(6),
-                      Text(
-                        'James Goldie',
-                        style: AppTextStyles.titleMd.copyWith(fontSize: 20),
+                      InkWell(
+                        onTap: () => _pickImage(context),
+                        child: Assets.images.editProfilePic.image(width: 46),
                       ),
-                      const VerticalSpacing(8),
-                      const Text(
-                        'james@gmail.com | +01 234 567 89',
-                        style: AppTextStyles.titleSm,
-                      ),
-                      const VerticalSpacing(24),
                     ],
                   ),
-                ),
+                  const VerticalSpacing(6),
+                  Text(
+                    Get.find<ProfileController>().userProfile.value.fullName ??
+                        '',
+                    style: AppTextStyles.titleMd.copyWith(fontSize: 20),
+                  ),
+                  const VerticalSpacing(8),
+                  Text(
+                    '${Get.find<ProfileController>().userProfile.value.fullName ?? ''} | ${Get.find<ProfileController>().userProfile.value.phoneNumber ?? ''}',
+                    style: AppTextStyles.titleSm,
+                  ),
+                  const VerticalSpacing(24),
+                ],
               ),
-            ],
+            ),
           ),
-          Align(
-            alignment: Alignment.bottomCenter,
+          Expanded(
             child: Container(
               width: double.infinity,
-              height: MediaQuery.of(context).size.height * .65,
               decoration: const BoxDecoration(
                 color: AppColors.bgMedium,
                 borderRadius: BorderRadius.only(
@@ -240,8 +244,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             style: AppTextStyles.titleMd
                                 .copyWith(color: AppColors.primary500),
                           ),
-                          onTap: () {
-                            Get.offAllNamed(AppRoutes.loginPage);
+                          onTap: () async {
+                            await Get.find<AppSharedPref>().removeAll();
+
+                            Get.offAllNamed(AppRoutes.landingScreen);
                           },
                         ),
                         ListTile(

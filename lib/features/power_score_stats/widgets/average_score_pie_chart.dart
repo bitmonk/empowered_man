@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class AverageScorePieChart extends StatelessWidget {
   const AverageScorePieChart({super.key});

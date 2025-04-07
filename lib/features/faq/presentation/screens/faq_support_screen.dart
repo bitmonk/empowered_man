@@ -33,6 +33,8 @@ class FaqScreen extends GetView<FaqController> {
                       splashColor: Colors.transparent, // Remove ripple effect
                     ),
                     child: ExpansionTile(
+                      initiallyExpanded:
+                          controller.expandedIndex.value == index,
                       onExpansionChanged: (expanded) {
                         if (expanded) {
                           controller.expandedIndex.value = index;

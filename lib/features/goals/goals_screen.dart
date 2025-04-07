@@ -6,7 +6,6 @@ import 'package:empowered/features/goals/widgets/goal_type_scroll.dart';
 import 'package:empowered/features/goals/widgets/goals_buttons.dart';
 import 'package:empowered/features/goals/widgets/goals_header.dart';
 import 'package:empowered/features/goals/widgets/progress_goal_widget.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:intl/intl.dart';
 
 enum GoalDurationEnum {
@@ -125,9 +124,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
                         return ProgressGoalWidget(
                           selectedTent: goalTypes[
                               _selectedGoalIndex], // Pass selected goal type
-                          title: GoalDurationEnum
-                                  .values[index].name.capitalizeFirst ??
-                              '',
+                          title: '${GoalDurationEnum
+                                  .values[index].name.capitalizeFirst!} Tasks',
                         );
                       } else {
                         return EmptyGoal(

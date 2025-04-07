@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class GoalsOverview extends StatefulWidget {
   const GoalsOverview({super.key});
@@ -65,6 +64,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
               _buildMonthlyMissions(),
               const VerticalSpacing(24),
               _buildSectionTitle('Quarterly Facts & Yearly Targets'),
+              const VerticalSpacing(24),
               _buildFactsAndTargets(),
               const VerticalSpacing(30),
             ],
@@ -221,7 +221,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
           selectedFactCategory,
           (String value) {},
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 24),
         _buildCategoryBox(
           'Yearly Targets',
           targetCategories,

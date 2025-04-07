@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:flutter/services.dart';
 
 class AppTextFormField extends StatelessWidget {
   const AppTextFormField({
@@ -112,6 +113,9 @@ class AppTextFormField extends StatelessWidget {
                 ),
               );
             },
+      inputFormatters: maxLength != null
+          ? [LengthLimitingTextInputFormatter(maxLength)]
+          : [],
       decoration: InputDecoration(
         counterText: '',
         // suffixIcon: suffixIcon,

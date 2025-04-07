@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class NotificationTile extends StatelessWidget {
   const NotificationTile({super.key});
