@@ -4,7 +4,8 @@ import 'package:empowered/features/assesments/assesments_screen.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
-
+import 'package:empowered/features/contact_us/presentation/controllers/contact_us_bindings.dart';
+import 'package:empowered/features/contact_us/presentation/screens/contact_us_screen.dart';
 import 'package:empowered/features/forgot_password/presentation/controllers/forgot_password_bindings.dart';
 import 'package:empowered/features/forgot_password/presentation/screens/forgot_password_screen.dart';
 import 'package:empowered/features/goals/goals_overview.dart';
@@ -18,7 +19,8 @@ import 'package:empowered/features/main/presentation/screens/main_screen.dart';
 import 'package:empowered/features/notification/presentation/screen/notification_history_screen.dart';
 import 'package:empowered/features/onboarding/presentation/controllers/onboarding_bindings.dart';
 import 'package:empowered/features/onboarding/presentation/screens/onboarding_screen.dart';
-
+import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
+import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
 import 'package:empowered/features/reset_password/presentation/controllers/reset_password_bindings.dart';
 import 'package:empowered/features/reset_password/presentation/screens/app_success_screen.dart';
 import 'package:empowered/features/reset_password/presentation/screens/reset_password_screen.dart';
@@ -55,9 +57,15 @@ class AppRoutes {
   static const String assesmentsResult = '/assesmentsResult';
   static const String notificationHistory = '/notificationHistory';
   static const String goalsOverview = '/goalsOverview';
+  static const String profile = '/profile';
   static const String reflectionScreen = '/reflectionScreen';
   static const String journalLibrary = '/journalLibrary';
   static const String addNewTask = '/addNewTask';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String termsAndConditions = '/terms-and-conditions';
+  static const String communityGuidelines = '/community_guide_lines';
+  static const String faqs = '/faq';
+  static const String contactUs = '/user/contact-us';
 
   static List<GetPage<dynamic>>? appPages = [
     GetPage(
@@ -100,6 +108,11 @@ class AppRoutes {
       binding: OnboardingBindings(),
     ),
     GetPage(
+      name: profile,
+      page: () => const ProfileScreen(),
+      binding: ProfileBindings(),
+    ),
+    GetPage(
       name: forgotPassword,
       page: () => const ForgotPasswordScreen(),
       binding: ForgotPasswordBindings(),
@@ -122,6 +135,15 @@ class AppRoutes {
       name: signup,
       binding: SignupBindings(),
       page: () => const SignupScreen(),
+    ),
+    GetPage(
+      name: contactUs,
+      binding: ContactUsBindings(),
+      page: () => ContactUsScreen(
+        name: '',
+        message: '',
+        email: '',
+      ),
     ),
     GetPage(
       name: chatConversationScreen,
