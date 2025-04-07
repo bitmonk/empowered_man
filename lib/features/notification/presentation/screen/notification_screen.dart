@@ -115,8 +115,9 @@ class NotificationScreen extends GetView<NotificationController> {
                         text: 'Done',
                         isLoading: controller.updateNotificationState.value ==
                             TheStates.loading,
-                        onPressed: () {
-                          controller.updateNotification();
+                        onPressed: () async {
+                          await controller.updateNotification();
+
                           if (controller.updateNotificationState.value ==
                               TheStates.success) {
                             Get.offAllNamed(AppRoutes.gettingStartedScreen);

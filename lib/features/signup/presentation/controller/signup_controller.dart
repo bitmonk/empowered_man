@@ -14,6 +14,26 @@ class SignupController extends GetxController {
   Rx<SignupRequestModel> signUpRequestData = SignupRequestModel().obs;
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
   Rx<SignupModel> signUpModel = const SignupModel().obs;
+  TextEditingController mobileController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+  TextEditingController occupationController = TextEditingController();
+  RxBool isPasswordValid = false.obs;
+  RxBool containsNumber = false.obs;
+  RxBool containsSymbol = false.obs;
+  RxBool containsLetter = false.obs;
+  RxBool hasMinLength = false.obs;
+  RxBool showPassword = false.obs;
+  void validatePassword(String value) {
+    hasMinLength.value = value.length >= 8;
+    containsNumber.value = value.contains(RegExp(r'\d'));
+    containsLetter.value = value.contains(RegExp(r'[a-zA-Z]'));
+    containsSymbol.value = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
+    isPasswordValid.value = hasMinLength.value &&
+        containsNumber.value &&
+        containsSymbol.value &&
+        containsLetter.value;
+  }
 
   Future<bool?> register() async {
     signUpState.value = TheStates.loading;
@@ -37,5 +57,16 @@ class SignupController extends GetxController {
       },
     );
     return res;
+  }
+
+  void cancelRequest() {
+    _cancelToken?.cancel();
+    signUpState.value = TheStates.initial;
+  }
+
+  @override
+  void onClose() {
+    _cancelToken?.cancel(); // Cancel any ongoing requests
+    super.onClose();
   }
 }

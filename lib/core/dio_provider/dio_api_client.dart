@@ -192,13 +192,20 @@ class DioApiClient {
         }
       } else {
         throw ApiErrorResponse(
-            message:
-                'Status Code: ${error.response?.statusCode} | ${DioErrorHandler.handle(error)}',);
+          message:
+              'Status Code: ${error.response?.statusCode} | ${DioErrorHandler.handle(error)}',
+        );
       }
     }
     var msg = DioErrorHandler.handle(error);
+    if (error.type == DioExceptionType.cancel) {
+      throw ApiErrorResponse(
+        message: msg,
+      );
+    }
     throw ApiErrorResponse(
-        message: 'Status Code: ${error.response?.statusCode} | $msg',);
+      message: 'Status Code: ${error.response?.statusCode} | $msg',
+    );
   }
 }
 

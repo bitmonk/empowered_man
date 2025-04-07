@@ -47,6 +47,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
   Future<XFile> cropImage(XFile pickedImage) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: pickedImage.path,
+      compressQuality: 100,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Cropper',

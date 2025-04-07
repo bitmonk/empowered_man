@@ -27,7 +27,7 @@ class LoginRemoteSource {
         body: {
           'email': email,
           'password': password,
-          'device_token': deviceToken ?? 'null',
+          'device_token': deviceToken ?? 'test_token',
         },
         cancelToken: cancelToken,
       );
