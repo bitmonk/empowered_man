@@ -16,7 +16,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
   // Added for password visibility
 
   Color getPasswordStrengthColor(bool hasMinLength, bool containsNumber,
-      bool containsSymbol, bool containsLetter) {
+      bool containsSymbol, bool containsLetter,) {
     var strengthScore = (hasMinLength ? 1 : 0) +
         (containsNumber ? 1 : 0) +
         (containsSymbol ? 1 : 0) +
@@ -102,7 +102,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                         controller.containsNumber.value,
                         controller.containsSymbol.value,
                         controller
-                            .containsLetter.value), // Red for invalid password
+                            .containsLetter.value,), // Red for invalid password
                   ),
                 ),
                 const VerticalSpacing(12),
