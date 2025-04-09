@@ -1,4 +1,7 @@
+import 'package:dartz/dartz.dart';
+import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/core/extension/extensions.dart';
 
 class DeleteAccountRemoteSource {
   const DeleteAccountRemoteSource(this._client);
@@ -31,4 +34,29 @@ class DeleteAccountRemoteSource {
   //     }
   //   }
   // }
+  Future<Either<AppError, String>> deleteAccount({
+    required String password,
+    required String reasonForDeletion,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      resetUnauthorizedFlag();
+
+      final response = await _client.delete(
+        AppEndpoints.deleteAccount,
+        body: {
+          'password': password,
+          'reason_for_deletion': reasonForDeletion,
+        },
+        cancelToken: cancelToken,
+      );
+      return Right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return Left(e);
+      } else {
+        return Left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
 }

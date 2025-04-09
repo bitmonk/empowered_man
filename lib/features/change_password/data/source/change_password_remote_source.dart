@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
@@ -26,6 +27,35 @@ class ChangePasswordRemoteSource {
       // );
       throw UnimplementedError();
     } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> changePassword({
+    required String newPasswordConfirmation,
+    required String newPassword,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      print(
+          'Sending PUT request to ${AppEndpoints.changePassword} with body: {new_password: $newPassword, new_password_confirmation: $newPasswordConfirmation}');
+      final response = await _client.put(
+        AppEndpoints.changePassword,
+        body: {
+          'new_password': newPassword,
+          'new_password_confirmation': newPasswordConfirmation,
+        },
+        cancelToken: cancelToken,
+      );
+      print('Response: $response');
+
+      return right(response['message']);
+    } catch (e) {
+      print('Error: $e');
       if (e is ApiErrorResponse) {
         return left(e);
       } else {

@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -163,6 +164,27 @@ class AppUtils {
               ),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
+            const AppDivider(),
+            ListTile(
+              leading: const Icon(
+                Icons.photo_outlined,
+                color: AppColors.textColor50,
+              ),
+              title: const Text(
+                'Remove Image',
+                style: AppTextStyles.titleSm,
+              ),
+              onTap: () async {
+                final result =
+                    await Get.find<ProfileController>().deleteProfile();
+                if (result ?? false) {
+                  AppUtils.showSnackbar(
+                    message: 'Image removed',
+                  );
+                }
+              },
+            ),
+            const VerticalSpacing(6),
           ],
         ),
       ),

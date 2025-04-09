@@ -115,14 +115,19 @@ class ChangePasswordScreen extends GetView<ChangePasswordController> {
                       return;
                     }
                     UiHelper.showloaderdialog(context);
-                    await Future.delayed(const Duration(seconds: 2));
-                    Navigator.pop(Get.overlayContext!);
-                    if (context.mounted) {
-                      Navigator.pop(context);
+                    try {
+
+                      await controller.changePassword();
+                      if (context.mounted) {
+                        Navigator.pop(context);
+                      }
+                    } catch (e) {
+                      AppUtils.showErrorSnackbar(
+                        message: 'Failed to change password',
+                      );
+                    } finally {
+                      Navigator.pop(Get.overlayContext!);
                     }
-                    AppUtils.showSnackbar(
-                      message: 'Password Changed Successfully',
-                    );
                   },
                 ),
               ],

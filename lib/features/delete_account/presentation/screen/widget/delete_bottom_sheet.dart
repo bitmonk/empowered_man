@@ -1,8 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/features/delete_account/presentation/controller/delete_account_controller.dart';
 
 class DeleteBottomSheet extends StatelessWidget {
-  const DeleteBottomSheet({super.key});
-
+  const DeleteBottomSheet({required this.controller, super.key});
+  final DeleteAccountController controller;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -53,8 +55,12 @@ class DeleteBottomSheet extends StatelessWidget {
             const VerticalSpacing(24),
             AppOutlinedButton.orange(
               text: 'Delete',
-              onPressed: () {
-                Navigator.pop(context);
+              onPressed: () async {
+                final result = await controller.deleteAccount();
+                if (result == true) {
+                  await Get.find<AppSharedPref>().removeAll();
+                  Get.offAllNamed(AppRoutes.landingScreen);
+                }
               },
             ),
             const VerticalSpacing(16),

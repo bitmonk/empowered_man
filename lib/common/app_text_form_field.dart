@@ -41,6 +41,7 @@ class AppTextFormField extends StatelessWidget {
       color: AppColors.textColor200,
     ),
     this.focusNode,
+    this.initialValue,
   });
   final FocusNode? focusNode;
   final String? Function(String?)? validator;
@@ -75,9 +76,11 @@ class AppTextFormField extends StatelessWidget {
   final int? maxLength;
   final bool alignLabelWithHint;
   final void Function(String)? onChanged;
+  final String? initialValue;
   @override
   Widget build(BuildContext context) {
     return TextFormField(
+      initialValue: initialValue,
       focusNode: focusNode,
       maxLines: maxLines,
       autofocus: autofocus,

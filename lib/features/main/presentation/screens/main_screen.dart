@@ -8,6 +8,7 @@ import 'package:empowered/features/home/presentation/controllers/home_bindings.d
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
+import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
@@ -40,6 +41,7 @@ class _MainScreenState extends State<MainScreen>
     ChatInitializer.initialize();
     TasksInitializer.initialize();
     NotificationInitializer.initialize();
+    LogoutInitializer.initialize();
   }
 
   @override
@@ -47,6 +49,7 @@ class _MainScreenState extends State<MainScreen>
     HomeInitializer.destroy();
     ChatInitializer.destroy();
     TasksInitializer.destroy();
+    LogoutInitializer.destroy();
     super.dispose();
   }
 

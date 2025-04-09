@@ -14,6 +14,11 @@ class _MyWidgetState extends State<EditProfileScreen> {
   final controller = Get.find<EditProfileController>();
 
   @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: CustomAppBar(
@@ -31,6 +36,8 @@ class _MyWidgetState extends State<EditProfileScreen> {
                 hintText: 'Name',
                 labelText: 'Name',
                 validator: ValidationBuilder().required().build(),
+                // initialValue:
+                //     _profileController.userProfile.value.fullName ?? '',
               ),
               const VerticalSpacing(20),
               AppTextFormField(
@@ -61,11 +68,16 @@ class _MyWidgetState extends State<EditProfileScreen> {
                   if (!AppUtils.validateForm(controller.formKey)) {
                     return;
                   }
-                  UiHelper.showloaderdialog(context);
-                  await Future.delayed(const Duration(seconds: 1));
-                  Navigator.pop(Get.overlayContext!);
-                  if (context.mounted) {
-                    Navigator.pop(context);
+
+                  UiHelper.showloaderdialog(context); // Show loading dialog
+                  await controller.updateProfile(); // Call the update function
+                  Navigator.pop(Get.overlayContext!); // Close loading dialog
+
+                  if (controller.editProfileState.value == TheStates.success) {
+                    if (context.mounted) {
+                      Navigator.pop(
+                          context); // Pop Edit Profile screen only on success
+                    }
                   }
                 },
               ),
