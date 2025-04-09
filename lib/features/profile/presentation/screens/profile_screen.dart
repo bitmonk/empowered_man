@@ -16,6 +16,7 @@ import 'package:empowered/features/faq/presentation/controllers/faq_support_bind
 import 'package:empowered/features/faq/presentation/screens/faq_support_screen.dart';
 import 'package:empowered/features/notification/presentation/controller/notification_bindings.dart';
 import 'package:empowered/features/notification/presentation/screen/notification_screen.dart';
+import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/widgets/setting_tile.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
@@ -30,16 +31,30 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? _image;
+  final _profileController = Get.find<ProfileController>();
+  final _logoutController = Get.find<LogoutController>();
+
+  @override
+  void initState() {
+    super.initState();
+    _profileController.getUserProfile();
+  }
 
   Future<void> _pickImage(BuildContext context) async {
     UiHelper.showloaderdialog(context);
-    final pickedImage = await AppUtils.pickImage(context);
-    Navigator.pop(Get.overlayContext!);
-
-    if (pickedImage != null) {
-      setState(() {
+    try {
+      final pickedImage = await AppUtils.pickImage(context);
+      if (pickedImage != null) {
         _image = File(pickedImage.path);
-      });
+        setState(() {
+          _profileController.selectedImage.value = pickedImage;
+        });
+        await _profileController.uploadProfile();
+      }
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to pick image');
+    } finally {
+      Navigator.pop(Get.overlayContext!);
     }
   }
 
@@ -254,9 +269,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 .copyWith(color: AppColors.primary500),
                           ),
                           onTap: () async {
-                            await Get.find<AppSharedPref>().removeAll();
+                            // final controller = Get.find<LoginController>();
+                            final result = await _logoutController.logout();
 
-                            Get.offAllNamed(AppRoutes.landingScreen);
+                            if (result) {
+                              await Get.find<AppSharedPref>().removeAll();
+                              Get.offAllNamed(AppRoutes.landingScreen);
+                            }
                           },
                         ),
                         ListTile(

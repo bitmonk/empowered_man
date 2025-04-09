@@ -20,13 +20,18 @@ class HomeScreen extends GetView<HomeController> {
           children: [
             const HomeHeaderWidgets(),
             // Tab Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildTabButton(0, 'My Daily'),
-                _buildTabButton(1, 'My Weekly'),
-                _buildTabButton(2, 'My Monthly'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTabButton(0, 'My Daily'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(1, 'My Weekly'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(2, 'My Monthly'),
+                ],
+              ),
             ),
             const VerticalSpacing(16),
 

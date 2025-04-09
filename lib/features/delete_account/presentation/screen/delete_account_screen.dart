@@ -23,14 +23,14 @@ class DeleteAccountScreen extends GetView<DeleteAccountController> {
               children: [
                 AppTextFormField(
                   validator: ValidationBuilder().required().build(),
-                  controller: controller.nameController,
+                  controller: controller.messageController,
                   labelText: ' Reason for deletion',
                   hintText: 'Reason',
                 ),
                 const VerticalSpacing(20),
                 AppTextFormField(
                   validator: ValidationBuilder().required().build(),
-                  controller: controller.emailController,
+                  controller: controller.passwordController,
                   labelText: 'Enter password',
                   hintText: 'Password',
                   obscureText: !controller.showPassword.value,
@@ -80,7 +80,9 @@ class DeleteAccountScreen extends GetView<DeleteAccountController> {
                         useRootNavigator: true,
                         useSafeArea: true,
                         context: context,
-                        builder: (context) => const DeleteBottomSheet(),
+                        builder: (context) => DeleteBottomSheet(
+                          controller: controller,
+                        ),
                       );
                     }
                   },
