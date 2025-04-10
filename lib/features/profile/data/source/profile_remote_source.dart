@@ -100,13 +100,11 @@ class ProfileRemoteSource {
     }
   }
 
-  Future<Either<AppError, UserProfileModel>> getProfile({
-    CancelToken? cancelToken,
-  }) async {
+  Future<Either<AppError, UserProfileModel>> getProfile() async {
     try {
       final response = await _client.get(
         AppEndpoints.getUserProfile,
-        cancelToken: cancelToken,
+        // cancelToken: cancelToken,
       );
       final data = response['data']['user'];
       return right(UserProfileModel.fromJson(data));

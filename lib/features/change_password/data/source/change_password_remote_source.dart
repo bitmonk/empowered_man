@@ -42,7 +42,8 @@ class ChangePasswordRemoteSource {
   }) async {
     try {
       print(
-          'Sending PUT request to ${AppEndpoints.changePassword} with body: {new_password: $newPassword, new_password_confirmation: $newPasswordConfirmation}');
+        'Sending PUT request to ${AppEndpoints.changePassword} with body: {new_password: $newPassword, new_password_confirmation: $newPasswordConfirmation}',
+      );
       final response = await _client.put(
         AppEndpoints.changePassword,
         body: {
@@ -51,11 +52,9 @@ class ChangePasswordRemoteSource {
         },
         cancelToken: cancelToken,
       );
-      print('Response: $response');
 
       return right(response['message']);
     } catch (e) {
-      print('Error: $e');
       if (e is ApiErrorResponse) {
         return left(e);
       } else {

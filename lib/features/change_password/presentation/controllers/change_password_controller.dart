@@ -39,7 +39,6 @@ class ChangePasswordController extends GetxController {
 
     if (!formKey.currentState!.validate()) return;
 
-
     if (!isUpperCaseValid.value ||
         !isNumberValid.value ||
         !isLengthValid.value) {
@@ -89,6 +88,11 @@ class ChangePasswordController extends GetxController {
     super.onInit();
     newPassword = TextEditingController();
     confirmNewPassword = TextEditingController();
+  }
+
+  void cancelRequest() {
+    _cancelToken?.cancel();
+    changePasswordState.value = TheStates.initial;
   }
 
   @override

@@ -25,17 +25,18 @@ class HomeHeaderWidgets extends StatelessWidget {
                       color: AppColors.primary500,
                     ),
                     child: ClipOval(
-                        child: AppCachedImage(
-                      width: 48,
-                      height: 48,
-                      fit: BoxFit.cover,
-                      errorWid: const Icon(Icons.person),
-                      imgUrl: Get.find<ProfileController>()
-                              .userProfile
-                              .value
-                              .image ??
-                          '',
-                    ),),
+                      child: AppCachedImage(
+                        width: 48,
+                        height: 48,
+                        fit: BoxFit.cover,
+                        errorWid: const Icon(Icons.person),
+                        imgUrl: Get.find<ProfileController>()
+                                .userProfile
+                                .value
+                                .image ??
+                            '',
+                      ),
+                    ),
                   ),
                   const HorizontalSpacing(16),
                   Column(
@@ -48,14 +49,26 @@ class HomeHeaderWidgets extends StatelessWidget {
                       const VerticalSpacing(2),
                       Text(
                         Get.find<ProfileController>()
-                                .userProfile
-                                .value
-                                .fullName
-                                ?.split(' ')
-                                .first ??
-                            '',
+                                    .userProfile
+                                    .value
+                                    .fullName
+                                    !.length >
+                                12
+                            ? Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .fullName
+                                    ?.split(' ')
+                                    .first ??
+                                ''
+                            : Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .fullName ??
+                                '',
                         style: AppTextStyles.textBodyB3
                             .copyWith(color: AppColors.white),
+                        maxLines: 2,
                       ),
                     ],
                   ),
