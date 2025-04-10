@@ -27,7 +27,7 @@ class SignupController extends GetxController {
   void validatePassword(String value) {
     hasMinLength.value = value.length >= 8;
     containsNumber.value = value.contains(RegExp(r'\d'));
-    containsLetter.value = value.contains(RegExp(r'[a-zA-Z]'));
+    containsLetter.value = value.contains(RegExp('[a-zA-Z]'));
     containsSymbol.value = value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>]'));
     isPasswordValid.value = hasMinLength.value &&
         containsNumber.value &&

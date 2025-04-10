@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/contact_us/presentation/controllers/contact_us_controller.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:form_validator/form_validator.dart';
 
 class ContactUsScreen extends GetView<ContactUsController> {
@@ -45,17 +46,32 @@ class ContactUsScreen extends GetView<ContactUsController> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     AppTextFormField(
-                      validator: ValidationBuilder().required().build(),
-                      controller: controller.nameController,
+                      // validator: ValidationBuilder().required().build(),
+                      controller: TextEditingController(
+                          text: Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .fullName,),
+                      isReadOnly: true,
                       labelText: 'Your Name',
-                      hintText: 'Name',
+                      hintText: Get.find<ProfileController>()
+                          .userProfile
+                          .value
+                          .fullName,
                     ),
                     const VerticalSpacing(20),
                     AppTextFormField(
-                      validator: ValidationBuilder().email().build(),
-                      controller: controller.emailController,
+                      // validator: ValidationBuilder().email().build(),
+                      controller: TextEditingController(
+                          text: Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .email,),
+                      isReadOnly: true,
+
                       labelText: 'Your Email',
-                      hintText: 'Email@gmail.com',
+                      hintText:
+                          Get.find<ProfileController>().userProfile.value.email,
                     ),
                     const VerticalSpacing(20),
                     AppTextFormField(
