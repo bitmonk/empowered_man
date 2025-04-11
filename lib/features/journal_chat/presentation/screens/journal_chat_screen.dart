@@ -3,7 +3,6 @@ import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_drawer.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 
 class JournalChatScreen extends StatefulWidget {
   const JournalChatScreen({super.key, this.isFromGoals = false});

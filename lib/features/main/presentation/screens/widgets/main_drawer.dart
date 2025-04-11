@@ -10,8 +10,6 @@ import 'package:empowered/features/profile/presentation/controllers/logout_bindi
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
 
 class MainDrawer extends GetView<MainController> {
   const MainDrawer({super.key});

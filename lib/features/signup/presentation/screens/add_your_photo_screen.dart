@@ -4,7 +4,6 @@ import 'package:dotted_border/dotted_border.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/signup/presentation/controller/signup_controller.dart';
 import 'package:empowered/features/signup/presentation/widgets/dots_indicator.dart';
-import 'package:empowered/utlis/uihelper.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 

@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_controller.dart';
-import 'package:empowered/utlis/app_validators.dart';
 import 'package:form_validator/form_validator.dart';
 
 class ChangePasswordScreen extends GetView<ChangePasswordController> {
