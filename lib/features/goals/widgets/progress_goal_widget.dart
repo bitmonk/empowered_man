@@ -1,3 +1,4 @@
+import 'package:empowered/common/app_selected_button.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
@@ -104,41 +105,32 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
               ),
             ],
           ),
+          // Replace the dynamic goals list section with this code:
           const VerticalSpacing(8),
-
-          // **Dynamic Goals List**
-          ...List.generate(
-            selectedGoals.length,
-            (index) => GestureDetector(
-              onTap: () => toggleGoalSelection(index), // Toggle on tap
-              child: Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    if (selectedGoals[index])
-                      Assets.images.goalsSelectedSvg.svg()
-                    else
-                      Assets.images.goalsUnselectedSvg.svg(),
-                    const HorizontalSpacing(14),
-                    const Text(
-                      'Squat 140kg 5 5',
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: AppColors.textColor200,
-                      ),
+          SizedBox(
+            height: 200,
+            child: ListView(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              children: List.generate(
+                selectedGoals.length,
+                (index) => Align(
+                  child: GestureDetector(
+                    onTap: () => toggleGoalSelection(index),
+                    child: AppSelectedButton(
+                      selectedItem: selectedGoals[index],
+                      title: 'Squat 140kg 5 5',
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-
           const VerticalSpacing(30),
 
           // On Track / Off Track
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12),
+            padding: const EdgeInsets.symmetric(horizontal: 4),
             child: Row(
               children: [
                 // On Track Button
@@ -152,7 +144,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                         horizontal: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: isOnTrackSelected
+                        color: isOnTrackSelected && widget.title == 'Weekly'
                             ? AppColors.primary500
                             : AppColors.bgBorder,
                         borderRadius: BorderRadius.circular(20),
@@ -192,7 +184,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                         horizontal: 12,
                       ),
                       decoration: BoxDecoration(
-                        color: !isOnTrackSelected
+                        color: !isOnTrackSelected && widget.title == 'Weekly'
                             ? AppColors.primary500
                             : AppColors.bgBorder,
                         borderRadius: BorderRadius.circular(20),

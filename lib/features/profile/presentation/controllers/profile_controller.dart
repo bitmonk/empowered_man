@@ -1,4 +1,3 @@
-
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/data/model/user_profile_model.dart';
@@ -31,7 +30,7 @@ class ProfileController extends GetxController {
       (r) {
         userProfileState.value = TheStates.success;
         AppUtils.showSnackbar(
-          message: 'Your profile image was updated successfully.',
+          message: r,
         );
         getUserProfile();
         return true;
@@ -55,8 +54,9 @@ class ProfileController extends GetxController {
       },
       (r) {
         userProfileState.value = TheStates.success;
+        getUserProfile();
         AppUtils.showSnackbar(
-          message: 'Your profile image was removed successfully.',
+          message: r,
         );
 
         return true;
@@ -67,10 +67,10 @@ class ProfileController extends GetxController {
 
   Future<bool?> getUserProfile() async {
     userProfileState.value = TheStates.loading;
-    _cancelToken = CancelToken();
+    // _cancelToken = CancelToken();
     final result = await remoteSource.getProfile(
-      cancelToken: _cancelToken,
-    );
+        // cancelToken: _cancelToken,
+        );
     var res = result.fold(
       (l) {
         userProfileState.value = TheStates.error;

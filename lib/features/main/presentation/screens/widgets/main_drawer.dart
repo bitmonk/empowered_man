@@ -47,6 +47,7 @@ class MainDrawer extends GetView<MainController> {
                     child: AppCachedImage(
                       width: 48,
                       height: 48,
+                        fit: BoxFit.cover,
                       errorWid: const Icon(Icons.person),
                       imgUrl: Get.find<ProfileController>()
                               .userProfile

@@ -132,6 +132,7 @@ class AppUtils {
   }
 
   static Future<XFile?> pickImage(BuildContext context) async {
+    final profileController = Get.find<ProfileController>();
     final source = await showModalBottomSheet<ImageSource>(
       backgroundColor: AppColors.bgDark,
       useRootNavigator: true,
@@ -175,12 +176,10 @@ class AppUtils {
                 style: AppTextStyles.titleSm,
               ),
               onTap: () async {
-                final result =
-                    await Get.find<ProfileController>().deleteProfile();
-                if (result ?? false) {
-                  AppUtils.showSnackbar(
-                    message: 'Image removed',
-                  );
+                final result = await profileController.deleteProfile();
+                if (result == true) {
+                  profileController.selectedImage.value = null;
+                  Navigator.pop(context);
                 }
               },
             ),

@@ -49,6 +49,11 @@ class DeleteAccountController extends GetxController {
     showPassword.value = !showPassword.value;
   }
 
+  void cancelRequest() {
+    _cancelToken?.cancel();
+    deleteAccountState.value = TheStates.initial;
+  }
+
   @override
   void onClose() {
     passwordController.dispose();

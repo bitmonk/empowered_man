@@ -69,38 +69,32 @@ class EditProfileController extends GetxController {
     return isValid;
   }
 
-  Future<void> updateProfile() async {
+  Future<bool> updateProfile() async {
     editProfileState.value = TheStates.loading;
     _cancelToken = CancelToken();
-    if (!isFormValid.value) return;
+    if (!isFormValid.value) return false;
 
-    try {
-      final result = await remoteSource.updateProfile(
-        name: nameController.text,
-        email: emailController.text,
-        phone: mobileNumberController.text,
-        occupation: occupationController.text,
-      );
+    final result = await remoteSource.updateProfile(
+      name: nameController.text,
+      email: emailController.text,
+      phone: mobileNumberController.text,
+      occupation: occupationController.text,
+      cancelToken: _cancelToken,
+    );
 
-      result.fold(
-        (l) {
-          editProfileState.value = TheStates.error;
-          AppUtils.showErrorSnackbar(message: l.message);
-          return false;
-        },
-        (r) async {
-          AppUtils.showSnackbar(message: r);
-          editProfileState.value = TheStates.success;
-          await _profileController.getUserProfile();
-          return true;
-        },
-      );
-    } catch (e) {
-      editProfileState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: e.toString());
-    } finally {
-      editProfileState.value = TheStates.initial;
-    }
+    return result.fold(
+      (l) {
+        editProfileState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+        return false;
+      },
+      (r) async {
+        AppUtils.showSnackbar(message: r);
+        editProfileState.value = TheStates.success;
+        await _profileController.getUserProfile();
+        return true;
+      },
+    );
   }
 
   void cancelRequest() {

@@ -45,7 +45,7 @@ class DeleteBottomSheet extends StatelessWidget {
             const VerticalSpacing(20),
             Text(
               textAlign: TextAlign.center,
-              'Lorem ipsum dolor sit amet,\n consectetuer adipiscing elit. Aenean commodo ligula eget dolor massa. Cum sociin natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis.',
+              'Are you sure you want to delete your account? This action cannot be undone.',
               style: AppTextStyles.titleMd.copyWith(
                 fontWeight: FontWeight.w400,
                 fontSize: 16,
@@ -55,6 +55,8 @@ class DeleteBottomSheet extends StatelessWidget {
             const VerticalSpacing(24),
             AppOutlinedButton.orange(
               text: 'Delete',
+              isLoading:
+                  controller.deleteAccountState.value == TheStates.loading,
               onPressed: () async {
                 final result = await controller.deleteAccount();
                 if (result == true) {
