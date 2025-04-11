@@ -214,12 +214,6 @@ class AppInterceptor extends Interceptor {
 
   final AppSharedPref _preference;
   final String baseUrl;
-  final List<String> _noAuthEndpoints = [
-    // ExternalEndpoints.privacyPolicy,
-    // ExternalEndpoints.termsAndCondition,
-    // ExternalEndpoints.faq,
-    // ExternalEndpoints.faqCategory,
-  ];
 
   static bool isUnauthorized = false;
 
