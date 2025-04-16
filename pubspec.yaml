@@ -33,7 +33,7 @@ dependencies:
   flutter_screenutil: ^5.9.3
   flutter_secure_storage: ^9.2.2
   flutter_svg: ^2.0.10+1
-  flutter_widget_from_html: ^0.15.2
+  flutter_widget_from_html: ^0.16.0
   form_validator: ^2.1.1
   freezed_annotation: ^2.4.1
   get: ^4.6.6

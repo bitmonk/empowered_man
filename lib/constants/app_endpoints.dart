@@ -10,7 +10,13 @@ class AppEndpoints {
   static const String getUserProfile = '/user/profile';
   static const String updateProfile = '/user/update/profile';
   static const String changePassword = '/user/update/password';
-  static const String deleteAccount =  '/user/delete';
+  static const String deleteAccount = '/user/delete';
+
+  static const String getCourses = '/user/courses';
+  static String getChapters(String courseId) =>
+      '/user/courses/$courseId/chapters';
+  static String markChapterCompleted({String? courseId, String? chapterId}) =>
+      '/user/courses/$courseId/chapters/$chapterId/complete';
 }
 
 class ExternalEndpoints {}
