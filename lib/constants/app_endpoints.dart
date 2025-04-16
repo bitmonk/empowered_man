@@ -17,6 +17,8 @@ class AppEndpoints {
       '/user/courses/$courseId/chapters';
   static String markChapterCompleted({String? courseId, String? chapterId}) =>
       '/user/courses/$courseId/chapters/$chapterId/complete';
+
+  static const String habits = '/user/habits';
 }
 
 class ExternalEndpoints {}
