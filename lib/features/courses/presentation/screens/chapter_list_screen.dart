@@ -102,7 +102,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                           horizontal: 12,
                         ),
                         child: Text(
-                          '${controller.selectedCourse.value!.completionPercentage}%',
+                          '${controller.selectedChapter.value!.course!.completionPercentage}%',
                           style: AppTextStyles.textBodyB1.copyWith(
                             color: AppColors.primary300,
                           ),
@@ -113,8 +113,8 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                     LinearProgressIndicator(
                       borderRadius: BorderRadius.circular(20),
                       minHeight: 6,
-                      value: controller
-                              .selectedCourse.value!.completionPercentage! /
+                      value: controller.selectedChapter.value!.course!
+                              .completionPercentage! /
                           100,
                       backgroundColor: Colors.white24,
                       color: AppColors.primary300,
@@ -126,7 +126,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
           const VerticalSpacing(16),
           Text(
-            controller.selectedCourse.value!.title ?? '',
+            controller.selectedChapter.value!.course!.title ?? '',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: AppColors.textColor50,
@@ -134,7 +134,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
           const VerticalSpacing(16),
           StatusBadge(
-            status: controller.selectedCourse.value!.status,
+            status: controller.selectedChapter.value!.course!.status,
           ),
         ],
       ),

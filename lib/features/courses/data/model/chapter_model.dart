@@ -50,6 +50,8 @@ class Course with _$Course {
     @JsonKey(name: 'title') String? title,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
+    @JsonKey(name: 'completion_percentage') int? completionPercentage,
+    @JsonKey(name: 'status') String? status,
   }) = _Course;
 
   factory Course.fromJson(Map<String, dynamic> json) => _$CourseFromJson(json);
