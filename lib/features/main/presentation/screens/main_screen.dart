@@ -6,6 +6,7 @@ import 'package:empowered/features/goals/goals_screen.dart';
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
@@ -42,6 +43,8 @@ class _MainScreenState extends State<MainScreen>
     TasksInitializer.initialize();
     NotificationInitializer.initialize();
     LogoutInitializer.initialize();
+    JournalEmotionNameInitializer.initialize();
+    
   }
 
   @override
@@ -50,6 +53,7 @@ class _MainScreenState extends State<MainScreen>
     ChatInitializer.destroy();
     TasksInitializer.destroy();
     LogoutInitializer.destroy();
+    JournalEmotionNameInitializer.destroy();
     super.dispose();
   }
 

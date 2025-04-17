@@ -96,30 +96,30 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            Expanded(
-              child: Obx(() {
-                return ListView.builder(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  controller: controller.scrollController,
-                  padding: const EdgeInsets.symmetric(
-                    vertical: 24,
-                    horizontal: 16,
-                  ),
-                  itemCount: controller.chatConversationList.length,
-                  itemBuilder: (context, index) {
-                    var chat = controller.chatConversationList[index];
-                    return ChatBubbleContainer(
-                      message: chat.message,
-                      isMine: chat.isMine,
-                      timeStamp: chat.timeStamp,
-                      isAnotherUser: index == 1 && widget.isGroupChat,
-                      onLike: () {},
-                    );
-                  },
-                );
-              }),
-            ),
+            // Expanded(
+            //   child: Obx(() {
+            //     return ListView.builder(
+            //       keyboardDismissBehavior:
+            //           ScrollViewKeyboardDismissBehavior.onDrag,
+            //       controller: controller.scrollController,
+            //       padding: const EdgeInsets.symmetric(
+            //         vertical: 24,
+            //         horizontal: 16,
+            //       ),
+            //       itemCount: controller.chatConversationList.length,
+            //       itemBuilder: (context, index) {
+            //         var chat = controller.chatConversationList[index];
+            //         return ChatBubbleContainer(
+            //           message: chat.message,
+            //           isMine: chat.isMine,
+            //           timeStamp: chat.timeStamp,
+            //           isAnotherUser: index == 1 && widget.isGroupChat,
+            //           onLike: () {},
+            //         );
+            //       },
+            //     );
+            //   }),
+            // ),
             ChatInputField(),
           ],
         ),

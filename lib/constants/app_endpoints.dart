@@ -11,6 +11,12 @@ class AppEndpoints {
   static const String updateProfile = '/user/update/profile';
   static const String changePassword = '/user/update/password';
   static const String deleteAccount =  '/user/delete';
+
+
+  // Journal Api
+  static const String getJournalEmotionName = '/journals/emotion-names';
+  static const String getJournalWithQuestionsAndAnswers = '/journals/';
+  static const String postJournalAnswer = '/journal-answers';
 }
 
 class ExternalEndpoints {}

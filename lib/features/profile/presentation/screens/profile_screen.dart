@@ -20,7 +20,6 @@ import 'package:empowered/features/profile/presentation/controllers/logout_contr
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/widgets/setting_tile.dart';
 import 'package:empowered/utlis/navigation_helper.dart';
-import 'package:empowered/utlis/uihelper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});

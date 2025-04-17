@@ -224,28 +224,28 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 void initJournalWithNavigate(String title) {
   JournalChatInitializer.initialize();
   Get.find<JournalChatController>().title.value = '$title Tent';
-  var chatConversationList = [
-    ChatConversationModel(
-      isMine: false,
-      timeStamp: '10:30 AM',
-      profileImageUrl: '',
-      name: '',
-      message:
-          '''A new week has arrived! Take a moment to review the insights from the past week in the Mind domain and create your updated fire map for the week ahead.''',
-      dateTime: '2024-02-10 10:30:00',
-    ),
-    ChatConversationModel(
-      isMine: true,
-      timeStamp: '11:00 AM',
-      hide: true,
-      profileImageUrl: '',
-      name: '',
-      message: 'Angry!',
-      dateTime: '2024-02-10 11:00:00',
-    ),
-  ].obs;
-  Get.find<JournalChatController>().chatConversationList.value =
-      chatConversationList;
+  // var chatConversationList = [
+  //   ChatConversationModel(
+  //     isMine: false,
+  //     timeStamp: '10:30 AM',
+  //     profileImageUrl: '',
+  //     name: '',
+  //     message:
+  //         '''A new week has arrived! Take a moment to review the insights from the past week in the Mind domain and create your updated fire map for the week ahead.''',
+  //     dateTime: '2024-02-10 10:30:00',
+  //   ),
+  //   ChatConversationModel(
+  //     isMine: true,
+  //     timeStamp: '11:00 AM',
+  //     hide: true,
+  //     profileImageUrl: '',
+  //     name: '',
+  //     message: 'Angry!',
+  //     dateTime: '2024-02-10 11:00:00',
+  //   ),
+  // ].obs;
+  // Get.find<JournalChatController>().chatConversationList.value =
+  //     chatConversationList;
   Get.to(
     () => const JournalChatScreen(
       isFromGoals: true,

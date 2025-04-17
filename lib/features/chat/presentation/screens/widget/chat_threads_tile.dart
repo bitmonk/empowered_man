@@ -52,21 +52,21 @@ class ChatThreadsTile extends StatelessWidget {
               endent: 20,
               color: AppColors.bgBorderVLight,
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.chatConversationList.length,
-              itemBuilder: (context, index) {
-                var chat = controller.chatConversationList[index];
-                return ChatBubbleContainer(
-                  message: chat.message,
-                  isMine: chat.isMine,
-                  timeStamp: chat.timeStamp,
-                  onLike: () {},
-                );
-              },
-            ),
+            // ListView.builder(
+            //   shrinkWrap: true,
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   physics: const NeverScrollableScrollPhysics(),
+            //   itemCount: controller.chatConversationList.length,
+            //   itemBuilder: (context, index) {
+            //     var chat = controller.chatConversationList[index];
+            //     return ChatBubbleContainer(
+            //       message: chat.message,
+            //       isMine: chat.isMine,
+            //       timeStamp: chat.timeStamp,
+            //       onLike: () {},
+            //     );
+            //   },
+            // ),
             ChatInputField(),
           ],
         );
