@@ -10,6 +10,7 @@ class TasksExpansionTile extends StatelessWidget {
     required this.isCompleted,
     required this.isDone,
     required this.onTap,
+    this.totalTask,
     this.taskCompletionPoint,
     this.collapseBorderSideColor = AppColors.color008CFF,
     super.key,
@@ -17,10 +18,10 @@ class TasksExpansionTile extends StatelessWidget {
   final String title;
   final String description;
   final int taskPortion;
+  final int? totalTask;
   final bool isCompleted;
   final bool isDone;
   final VoidCallback onTap;
-
   final int? taskCompletionPoint;
   final Color collapseBorderSideColor;
   final controller = Get.find<TasksController>();
