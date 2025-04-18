@@ -9,32 +9,32 @@ class ChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController scrollController;
 
-  RxList<ChatConversationModel> chatConversationList = [
-    ChatConversationModel(
-      isMine: false,
-      timeStamp: '10:30 AM',
-      profileImageUrl: '',
-      name: '',
-      message: 'Good Morning, My Friend ',
-      dateTime: '2024-02-10 10:30:00',
-    ),
-    ChatConversationModel(
-      isMine: false,
-      timeStamp: '11:00 AM',
-      profileImageUrl: '',
-      name: '',
-      message: 'How are you ??',
-      dateTime: '2024-02-10 11:00:00',
-    ),
-    ChatConversationModel(
-      isMine: true,
-      timeStamp: '11:00 AM',
-      profileImageUrl: '',
-      name: '',
-      message: 'Good Morning, My Friend ',
-      dateTime: '2024-02-10 11:00:00',
-    ),
-  ].obs;
+  // RxList<ChatConversationModel> chatConversationList = [
+  //   ChatConversationModel(
+  //     isMine: false,
+  //     timeStamp: '10:30 AM',
+  //     profileImageUrl: '',
+  //     name: '',
+  //     message: 'Good Morning, My Friend ',
+  //     dateTime: '2024-02-10 10:30:00',
+  //   ),
+  //   ChatConversationModel(
+  //     isMine: false,
+  //     timeStamp: '11:00 AM',
+  //     profileImageUrl: '',
+  //     name: '',
+  //     message: 'How are you ??',
+  //     dateTime: '2024-02-10 11:00:00',
+  //   ),
+  //   ChatConversationModel(
+  //     isMine: true,
+  //     timeStamp: '11:00 AM',
+  //     profileImageUrl: '',
+  //     name: '',
+  //     message: 'Good Morning, My Friend ',
+  //     dateTime: '2024-02-10 11:00:00',
+  //   ),
+  // ].obs;
   RxList<ChatUserListModel> chatUserList = [
     ChatUserListModel(
       name: 'Liam Cooper',
@@ -130,24 +130,24 @@ class ChatController extends GetxController {
     scrollController.dispose();
   }
 
-  void sendMessage() {
-    if (chatController.text.trim().isNotEmpty) {
-      chatConversationList.add(
-        ChatConversationModel(
-          message: chatController.text.trim(),
-          isMine: true,
-          timeStamp: getCurrentTime(),
-          profileImageUrl: '',
-          name: '',
-          dateTime: '',
-        ),
-      );
-      chatController.clear();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        scrollToBottom();
-      });
-    }
-  }
+  // void sendMessage() {
+  //   if (chatController.text.trim().isNotEmpty) {
+  //     chatConversationList.add(
+  //       ChatConversationModel(
+  //         message: chatController.text.trim(),
+  //         isMine: true,
+  //         timeStamp: getCurrentTime(),
+  //         profileImageUrl: '',
+  //         name: '',
+  //         dateTime: '',
+  //       ),
+  //     );
+  //     chatController.clear();
+  //     WidgetsBinding.instance.addPostFrameCallback((_) {
+  //       scrollToBottom();
+  //     });
+  //   }
+  // }
 
   void scrollToBottom() {
     if (scrollController.hasClients) {
@@ -165,26 +165,26 @@ class ChatController extends GetxController {
   }
 }
 
-class ChatConversationModel {
-  ChatConversationModel({
-    required this.isMine,
-    required this.timeStamp,
-    required this.profileImageUrl,
-    required this.name,
-    required this.message,
-    required this.dateTime,
-    this.isLiked = false,
-    this.hide = false,
-  });
-  final String name;
-  final String message;
-  final String dateTime;
-  final String timeStamp;
-  final String profileImageUrl;
-  final bool isMine;
-  final bool hide;
-  final bool isLiked;
-}
+// class ChatConversationModel {
+//   ChatConversationModel({
+//     required this.isMine,
+//     required this.timeStamp,
+//     required this.profileImageUrl,
+//     required this.name,
+//     required this.message,
+//     required this.dateTime,
+//     this.isLiked = false,
+//     this.hide = false,
+//   });
+//   final String name;
+//   final String message;
+//   final String dateTime;
+//   final String timeStamp;
+//   final String profileImageUrl;
+//   final bool isMine;
+//   final bool hide;
+//   final bool isLiked;
+// }
 
 class ChatUserListModel {
   ChatUserListModel({

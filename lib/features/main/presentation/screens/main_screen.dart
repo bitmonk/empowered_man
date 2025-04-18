@@ -52,6 +52,7 @@ class _MainScreenState extends State<MainScreen>
     TasksInitializer.destroy();
     HabitInitializer.destroy();
     LogoutInitializer.destroy();
+
     super.dispose();
   }
 

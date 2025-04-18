@@ -12,6 +12,7 @@ class AppEndpoints {
   static const String changePassword = '/user/update/password';
   static const String deleteAccount = '/user/delete';
 
+  // Course Api
   static const String getCourses = '/user/courses';
   static String getChapters(String courseId) =>
       '/user/courses/$courseId/chapters';
@@ -21,6 +22,7 @@ class AppEndpoints {
   static const String habits = '/user/habits';
   static const String updateHabit = '/user/habit/update-status';
 
+  // Task Api
   static const String addTask = '/tasks';
   static const String getTask = '/tasks';
   static String delTask(String taskId) => '/tasks/$taskId';
@@ -30,6 +32,12 @@ class AppEndpoints {
       '/tasks/$mainTaskId/subtasks/$subTaskId/mark-as-completed';
   static const String getTaskEnums = '/tasks/enums';
   static String changeLevel(String taskId) => '/tasks/$taskId/change-level';
+
+  // Journal Api
+  static const String getJournalEmotionName = '/journals/emotion-names';
+  static const String getJournalWithQuestionsAndAnswers = '/journals/';
+  static const String postJournalAnswer = '/journal-answers';
+  static const String getJournalLibrary = '/journals-library';
 }
 
 class ExternalEndpoints {}

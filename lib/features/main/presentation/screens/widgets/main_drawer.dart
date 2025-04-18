@@ -3,6 +3,9 @@ import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
@@ -115,9 +118,30 @@ class MainDrawer extends GetView<MainController> {
                         Navigator.pop(context);
                         JournalChatInitializer.destroy();
                         JournalChatInitializer.initialize();
-                        Get.to(() => const JournalChatScreen());
+                        JournalEmotionNameInitializer.destroy();
+                        JournalEmotionNameInitializer.initialize();
+                        final emotionController =
+                            Get.find<JournalEmotionNameController>();
+                        await emotionController.getJournalEmotionName();
+
+                        // Get the emotion controller
+                        final emotionId = emotionController.journalEmotionName
+                            .value.data?.emotionNames?.first.id;
+
+                        // Safely get the first emotion ID
+                        await Get.find<JournalChatController>()
+                            .getJournalWithQuestionsAndAnswers(
+                          emotionId.toString(),
+                        );
+                        // Navigate to JournalChatScreen with the emotion ID
+                        Get.to(
+                          () => JournalChatScreen(
+                            initialEmotionId: emotionId,
+                          ),
+                        );
+
                         await Future.delayed(Durations.short4);
-                        AppWidgetKey.journalKey.currentState!.openDrawer();
+                        AppWidgetKey.journalKey.currentState?.openDrawer();
                       },
                       title: 'Journal',
                       image: Assets.images.journalSvg.path,

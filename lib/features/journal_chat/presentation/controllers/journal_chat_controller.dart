@@ -1,6 +1,8 @@
+import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/source/journal_chat_remote_source.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 
 class JournalChatController extends GetxController {
   JournalChatController({required this.remoteSource});
@@ -10,25 +12,13 @@ class JournalChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController scrollController;
   RxString title = 'Rage'.obs;
-
-  RxList<ChatConversationModel> chatConversationList = [
-    ChatConversationModel(
-      isMine: false,
-      timeStamp: '10:30 AM',
-      profileImageUrl: '',
-      name: '',
-      message: 'How are you feeling Today?',
-      dateTime: '2024-02-10 10:30:00',
-    ),
-    ChatConversationModel(
-      isMine: true,
-      timeStamp: '11:00 AM',
-      profileImageUrl: '',
-      name: '',
-      message: 'Angry!',
-      dateTime: '2024-02-10 11:00:00',
-    ),
-  ].obs;
+  Rx<ChatConversationModel> journalWithQuestionsAndAnswers =
+      const ChatConversationModel().obs;
+  CancelToken? _cancelToken;
+  Rx<TheStates> journalChatConversationState = TheStates.initial.obs;
+  Rx<String?> selectedEmotionId = Rx<String?>(null);
+  RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
+  // RxList<String> _selectedMediaPaths =  RxList<String>([]);
 
   @override
   void onInit() {
@@ -43,33 +33,89 @@ class JournalChatController extends GetxController {
     scrollController.dispose();
   }
 
-  void sendMessage() {
-    if (chatController.text.trim().isNotEmpty) {
-      chatConversationList.add(
-        ChatConversationModel(
-          message: chatController.text.trim(),
-          isMine: true,
-          timeStamp: getCurrentTime(),
-          profileImageUrl: '',
-          name: '',
-          dateTime: '',
-        ),
-      );
-      chatController.clear();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+  Future<bool?> getJournalWithQuestionsAndAnswers(String id) async {
+    journalChatConversationState.value = TheStates.loading;
+    final result = await remoteSource.getJournalWithQuestionsAndAnswers(id);
+    var res = result.fold(
+      (l) {
+        journalChatConversationState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+        return false;
+      },
+      (r) {
+        journalChatConversationState.value = TheStates.success;
+        journalWithQuestionsAndAnswers.value = r;
         scrollToBottom();
-      });
+        return true;
+      },
+    );
+    return res;
+  }
+
+  Future<void> sendMessage(
+    String journalId,
+    String? mediaPath,
+    String? text,
+    String? mainQuestionId,
+    String? followupQuestionId,
+  ) async {
+    _cancelToken = CancelToken();
+
+    journalChatConversationState.value = TheStates.loading;
+
+    try {
+      final result = await remoteSource.sendMessage(
+        journalId,
+        mediaPath,
+        _cancelToken,
+        mainQuestionId,
+        text ?? chatController.text.trim(),
+        followupQuestionId,
+      );
+      await getJournalWithQuestionsAndAnswers(journalId);
+
+      result.fold(
+        (l) {
+          journalChatConversationState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollToBottom();
+          });
+          journalChatConversationState.value = TheStates.success;
+
+          chatConversationList
+            ..clear()
+            ..add(
+              MessageItem(
+                message: chatController.text.trim(),
+                isMine: true,
+                timestamp: getCurrentTime(),
+                type: MessageType.answer,
+              ),
+            );
+
+          chatController.clear();
+          scrollToBottom();
+        },
+      );
+    } catch (e) {
+      journalChatConversationState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: e.toString());
     }
   }
 
   void scrollToBottom() {
-    if (scrollController.hasClients) {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOut,
-      );
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (scrollController.hasClients) {
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   String getCurrentTime() {

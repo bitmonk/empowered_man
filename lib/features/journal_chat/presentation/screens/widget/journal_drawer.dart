@@ -1,9 +1,23 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 
-class JournalDrawer extends StatelessWidget {
+class JournalDrawer extends StatefulWidget {
   const JournalDrawer({super.key});
+
+  @override
+  State<JournalDrawer> createState() => _JournalDrawerState();
+}
+
+class _JournalDrawerState extends State<JournalDrawer> {
+  final controller = Get.find<JournalEmotionNameController>();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getJournalEmotionName();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,70 +26,61 @@ class JournalDrawer extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            VerticalSpacing(MediaQuery.of(context).viewPadding.top),
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                    child: Assets.images.drawerBack.svg(),
+                  ),
+                ),
+                const HorizontalSpacing(6),
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary500,
+                  ),
+                  child: ClipOval(
+                    child: AppCachedImage(
+                      width: 48,
+                      height: 48,
+                      errorWid: const Icon(Icons.person),
+                      imgUrl: Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .image ??
+                          '',
+                    ),
+                  ),
+                ),
+                const HorizontalSpacing(16),
+                Text(
+                  Get.find<ProfileController>().userProfile.value.fullName ??
+                      '',
+                  style: AppTextStyles.textBodyB3.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+            const VerticalSpacing(20),
+
+            // Reframes Section
+            _buildSectionTitle('Reframes'),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    VerticalSpacing(MediaQuery.of(context).viewPadding.top),
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-                            child: Assets.images.drawerBack.svg(),
-                          ),
-                        ),
-                        const HorizontalSpacing(6),
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primary500,
-                          ),
-                          child: ClipOval(
-                              child: AppCachedImage(
-                            width: 48,
-                            height: 48,
-                            errorWid: const Icon(Icons.person),
-                            imgUrl: Get.find<ProfileController>()
-                                    .userProfile
-                                    .value
-                                    .image ??
-                                '',
-                          ),),
-                        ),
-                        const HorizontalSpacing(16),
-                        Text(
-                          Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .fullName ??
-                              '',
-                          style: AppTextStyles.textBodyB3.copyWith(
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const VerticalSpacing(20),
+                    _buildEmotionList(context),
 
-                    // Reframes Section
-                    _buildSectionTitle('Reframes'),
-                    _buildMenuItem('Rage', context),
-                    _buildMenuItem('Anger', context),
-                    _buildMenuItem('Fear', context),
-                    _buildMenuItem('Sadness', context),
-                    _buildMenuItem('Hurt', context),
-                    _buildMenuItem('Guilt', context),
-                    _buildMenuItem('Happiness', context),
-                    _buildMenuItem('Excitement', context),
-                    _buildMenuItem('Gratitude', context),
-                    _buildMenuItem('Appreciation', context),
                     const Divider(
                       color: Colors.grey,
                       thickness: 0.2,
@@ -99,15 +104,63 @@ class JournalDrawer extends StatelessWidget {
                 height: 40,
                 text: 'Go to journal library',
                 onPressed: () {
-                  Get.toNamed(AppRoutes.journalLibrary);
+                  final emotions =
+                      controller.journalEmotionName.value.data?.emotionNames ??
+                          [];
+                  print('>>>>>>>>>>>>.>>>>>>>>>>>>>>>>>>Emotions: $emotions');
+                  Get.toNamed(
+                    AppRoutes.journalLibrary,
+                    arguments: {
+                      'emotion_names': emotions,
+                    },
+                  );
                 },
               ),
             ),
-            const BottomSpacing(),
+            const VerticalSpacing(10),
           ],
         ),
       ),
     );
+  }
+
+  Widget _buildEmotionList(BuildContext context) {
+    return Obx(() {
+      final emotions =
+          controller.journalEmotionName.value.data?.emotionNames ?? [];
+      if (controller.journalEmotionNameState.value == TheStates.loading) {
+        return const LoadingWidget();
+      }
+      if (controller.journalEmotionNameState.value == TheStates.error) {
+        return const Center(
+          child: Text(
+            'Failed to load emotions',
+            style: TextStyle(color: Colors.red),
+          ),
+        );
+      }
+
+      if (emotions.isEmpty) {
+        return const Center(
+          child: Text(
+            'No emotions available',
+            style: TextStyle(color: Colors.grey),
+          ),
+        );
+      }
+
+      return Column(
+        children: emotions
+            .map(
+              (emotion) => _buildMenuItem(
+                emotion.emotionName ?? '',
+                context,
+                emotionId: emotion.id.toString(),
+              ),
+            )
+            .toList(),
+      );
+    });
   }
 
   Widget _buildSectionTitle(String title) {
@@ -122,11 +175,23 @@ class JournalDrawer extends StatelessWidget {
     );
   }
 
-  Widget _buildMenuItem(String title, BuildContext context) {
+  Widget _buildMenuItem(
+    String title,
+    BuildContext context, {
+    String? emotionId,
+  }) {
     return InkWell(
-      onTap: () {
+      onTap: () async {
+        print(
+            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId',);
         Navigator.pop(context);
-        Get.find<JournalChatController>().title.value = title;
+
+        final journalChatController = Get.find<JournalChatController>();
+        journalChatController.chatConversationList.clear();
+        journalChatController.selectedEmotionId.value = emotionId ?? '';
+
+        await journalChatController
+            .getJournalWithQuestionsAndAnswers(emotionId ?? '');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),

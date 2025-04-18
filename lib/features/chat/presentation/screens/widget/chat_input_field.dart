@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
 
 class ChatInputField extends StatelessWidget {
   ChatInputField({super.key, this.isNewMessage = false});
@@ -42,20 +41,20 @@ class ChatInputField extends StatelessWidget {
               style: const TextStyle(color: Colors.white),
             ),
           ),
-          InkWell(
-            onTap: isNewMessage
-                ? () {
-                    Navigator.pop(context);
-                    Get.to(
-                      () => const ChatCoversationScreen(
-                        isSoloChat: false,
-                        isGroupChat: true,
-                      ),
-                    );
-                  }
-                : controller.sendMessage,
-            child: Assets.images.sendMessageIcon.svg(width: 40, height: 40),
-          ),
+          // InkWell(
+          //   onTap: isNewMessage
+          //       ? () {
+          //           Navigator.pop(context);
+          //           Get.to(
+          //             () => const ChatCoversationScreen(
+          //               isSoloChat: false,
+          //               isGroupChat: true,
+          //             ),
+          //           );
+          //         }
+          //       : controller.sendMessage,
+          //   child: Assets.images.sendMessageIcon.svg(width: 40, height: 40),
+          // ),
         ],
       ),
     );
