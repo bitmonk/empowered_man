@@ -4,6 +4,7 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 
 class JournalEmotionNamesRemoteSource {
   const JournalEmotionNamesRemoteSource(this._client);
@@ -16,6 +17,39 @@ class JournalEmotionNamesRemoteSource {
         // cancelToken: cancelToken,
       );
       return right(JournalEmotionNamesModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, JournalLibraryIndexModel>> getJournalLibrary({
+    required int? page,
+    required String? emotionName,
+    required String? mainQuestion,
+    required String? sortBy,
+    required String? sortOrder,
+    required int? perPage,
+  }) async {
+    try {
+      final  queryParameters = <String, dynamic>{};
+
+      if (page != null) queryParameters['page'] = page;
+      if (emotionName != null) queryParameters['emotion_name'] = emotionName;
+      if (mainQuestion != null) queryParameters['main_question'] = mainQuestion;
+      if (sortBy != null) queryParameters['sort_by'] = sortBy;
+      if (sortOrder != null) queryParameters['sort_order'] = sortOrder;
+      if (perPage != null) queryParameters['per_page'] = perPage;
+
+      final response = await _client.get(
+        AppEndpoints.getJournalLibrary,
+        queryParameters: queryParameters,
+      );
+
+      return right(JournalLibraryIndexModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

@@ -90,8 +90,9 @@ class Answer with _$Answer {
 @freezed
 class Media with _$Media {
   const factory Media({
-    required List<String>? images,
-    required List<String>? videos,
+    @JsonKey(name: 'images')  List<String>? images,
+     List<String>? videos,
+     List<String>? voices,
   }) = _Media;
 
   factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);

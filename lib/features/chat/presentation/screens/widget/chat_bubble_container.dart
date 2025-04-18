@@ -1,8 +1,10 @@
+import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:intl/intl.dart';
+import 'package:just_audio/just_audio.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
@@ -19,6 +21,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.isAnotherUser = false,
     this.images,
     this.videos,
+    this.voices,
   });
 
   final bool isMine;
@@ -29,6 +32,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final String timeStamp;
   final List<String>? images;
   final List<String>? videos;
+  final List<String>? voices;
 
   final VoidCallback onLike;
 
@@ -41,11 +45,42 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   bool _isVideoInitialized = false;
+  late AudioPlayer _audioPlayer;
+  bool _isPlaying = false;
   @override
   void initState() {
     super.initState();
+    _audioPlayer = AudioPlayer();
     isLiked = widget.isLiked;
     _initializeVideo();
+    _initializeAudio();
+  }
+
+  Future<void> _initializeAudio() async {
+    // _audioPlayer = AudioPlayer();
+    _audioPlayer.playerStateStream.listen((state) {
+      if (state.processingState == ProcessingState.completed) {
+        setState(() {
+          _isPlaying = false;
+        });
+      } else if (state.playing) {
+        setState(() {
+          _isPlaying = true;
+        });
+      }
+    });
+  }
+
+  void _playVoiceMessage(String url) async {
+    try {
+      await _audioPlayer.setUrl(url);
+      await _audioPlayer.play();
+    } catch (e) {
+      debugPrint('Error playing audio: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to play audio message')),
+      );
+    }
   }
 
   Future<void> _initializeVideo() async {
@@ -75,6 +110,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   void dispose() {
     _videoController?.dispose();
     _chewieController?.dispose();
+    _audioPlayer.dispose();
 
     super.dispose();
   }
@@ -91,7 +127,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   String _formatTimestamp(String timestamp) {
     try {
       // Parse the ISO 8601 timestamp
-      final dateTime = DateTime.parse(timestamp);
+      final dateTime = DateTime.parse(timestamp).timeZoneName == 'UTC'
+          ? DateTime.parse(timestamp).toLocal()
+          : DateTime.parse(timestamp);
 
       // Format based on how long ago the message was sent
       final now = DateTime.now();
@@ -176,6 +214,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
       },
     );
   }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -325,6 +365,13 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               if (widget.videos != null &&
                                   widget.videos!.isNotEmpty)
                                 _buildVideoPreview(),
+                              if (widget.voices != null &&
+                                  widget.voices!.isNotEmpty)
+                                CustomAudioPlayer(
+                                  url: widget.voices!
+                                      .first, // your audio file URL or path
+                                  isMine: widget.isMine,
+                                ),
                               const SizedBox(height: 8),
                             ],
                           ),
@@ -532,6 +579,143 @@ class _FullscreenVideoViewState extends State<FullscreenVideoView> {
               : const CircularProgressIndicator(),
         ),
       ),
+    );
+  }
+}
+
+class CustomAudioPlayer extends StatefulWidget {
+  final String url;
+  final bool isMine;
+
+  const CustomAudioPlayer({
+    super.key,
+    required this.url,
+    this.isMine = false,
+  });
+
+  @override
+  State<CustomAudioPlayer> createState() => _CustomAudioPlayerState();
+}
+
+class _CustomAudioPlayerState extends State<CustomAudioPlayer> {
+  late AudioPlayer _audioPlayer;
+
+  @override
+  void initState() {
+    super.initState();
+    _audioPlayer = AudioPlayer()..setUrl(widget.url);
+  }
+
+  @override
+  void dispose() {
+    _audioPlayer.dispose();
+    super.dispose();
+  }
+
+  Widget _buildControls() {
+    return StreamBuilder<PlayerState>(
+      stream: _audioPlayer.playerStateStream,
+      builder: (context, snapshot) {
+        final playerState = snapshot.data;
+        final processingState = playerState?.processingState;
+        final playing = playerState?.playing;
+
+        if (processingState == ProcessingState.loading ||
+            processingState == ProcessingState.buffering) {
+          return const Padding(
+            padding: EdgeInsets.all(8),
+            child: SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
+                color: Colors.white,
+              ),
+            ),
+          );
+        } else if (playing != true) {
+          return IconButton(
+            icon: const Icon(
+              Icons.play_arrow,
+              color: AppColors.white,
+            ),
+            iconSize: 32,
+            onPressed: _audioPlayer.play,
+          );
+        } else if (processingState != ProcessingState.completed) {
+          return IconButton(
+            icon: const Icon(
+              Icons.pause,
+              color: AppColors.white,
+            ),
+            iconSize: 32,
+            onPressed: _audioPlayer.pause,
+          );
+        } else {
+          return IconButton(
+            icon: const Icon(
+              Icons.replay,
+              color: AppColors.white,
+            ),
+            iconSize: 32,
+            onPressed: () => _audioPlayer.seek(Duration.zero),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        Container(
+          width: 200,
+          // padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+          decoration: BoxDecoration(
+            color: widget.isMine ? AppColors.primary500 : Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _buildControls(),
+              const SizedBox(width: 4),
+              Expanded(
+                child: StreamBuilder<Duration>(
+                  stream: _audioPlayer.positionStream,
+                  builder: (context, snapshot) {
+                    final position = snapshot.data ?? Duration.zero;
+                    return StreamBuilder<Duration?>(
+                      stream: _audioPlayer.durationStream,
+                      builder: (context, snapshot) {
+                        final total = snapshot.data ?? Duration.zero;
+                        return ProgressBar(
+                          progress: position,
+                          total: total,
+                          onSeek: _audioPlayer.seek,
+                          timeLabelTextStyle: const TextStyle(fontSize: 12),
+                          baseBarColor: Colors.grey[400]!,
+                          progressBarColor: Colors.white,
+                          thumbColor: Colors.white,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              const Icon(
+                Icons.volume_up,
+                color: AppColors.baseWhite,
+              ),
+              const SizedBox(width: 8),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

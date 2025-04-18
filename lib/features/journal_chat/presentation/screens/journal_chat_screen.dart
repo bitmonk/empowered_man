@@ -77,16 +77,21 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     for (var i = 0; i < (journallist.followUpQuestions?.length ?? 0); i++) {
       final question = journallist.followUpQuestions?[i];
+      String questionTimestamp = '';
       if (i > 0) {
         final previousQuestion = journallist.followUpQuestions![i - 1];
         shouldShowQuestion = previousQuestion.answered ?? false;
+
+        if (shouldShowQuestion && previousQuestion.answer?.createdAt != null) {
+          questionTimestamp = previousQuestion.answer?.createdAt ?? '';
+        }
       }
       if (shouldShowQuestion) {
         items.add(
           MessageItem(
             type: MessageType.question,
             message: question?.question ?? '',
-            timestamp: '',
+            timestamp: questionTimestamp,
             isMine: false,
           ),
         );
@@ -100,6 +105,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               isMine: true,
               images: question?.answer?.media?.images,
               videos: question?.answer?.media?.videos,
+              voices: question?.answer?.media?.voices,
             ),
           );
         }
@@ -125,6 +131,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               onLike: () {},
               images: item.images,
               videos: item.videos,
+              voices: item.voices,
             );
             if (item.type == MessageType.question && index < items.length - 1) {
               final nextItem = items[index + 1];
@@ -219,11 +226,16 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
                 for (var i = 0; i < (journal.mainQuestions?.length ?? 0); i++) {
                   final mainQuestion = journal.mainQuestions![i];
-
+                  String questionTimestamp = '';
                   // Check if question should be shown
                   if (i > 0) {
                     final previousQuestion = journal.mainQuestions![i - 1];
                     shouldShowQuestion = previousQuestion.answered ?? false;
+                    if (shouldShowQuestion &&
+                        previousQuestion.answer?.createdAt != null) {
+                      questionTimestamp =
+                          previousQuestion.answer?.createdAt ?? '';
+                    }
                   }
 
                   if (shouldShowQuestion) {
@@ -232,7 +244,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                       MessageItem(
                         type: MessageType.question,
                         message: mainQuestion.question!,
-                        timestamp: '',
+                        timestamp: questionTimestamp,
                         isMine: false,
                       ),
                     );
@@ -248,6 +260,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           isMine: true,
                           images: mainQuestion.answer?.media?.images,
                           videos: mainQuestion.answer?.media?.videos,
+                          voices: mainQuestion.answer?.media?.voices,
                         ),
                       );
                     }
@@ -255,16 +268,18 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 }
 
                 // Add any sent messages from chatConversationList that aren't already in the items list
-                if (controller.chatConversationList.isNotEmpty) {
-                  for (final sentMessage in controller.chatConversationList) {
-                    if (!items.any((item) =>
-                        item.type == sentMessage.type &&
-                        item.message == sentMessage.message &&
-                        item.isMine == sentMessage.isMine,)) {
-                      items.add(sentMessage);
-                    }
-                  }
-                }
+                // if (controller.chatConversationList.isNotEmpty) {
+                //   for (final sentMessage in controller.chatConversationList) {
+                //     if (!items.any(
+                //       (item) =>
+                //           item.type == sentMessage.type &&
+                //           item.message == sentMessage.message &&
+                //           item.isMine == sentMessage.isMine,
+                //     )) {
+                //       items.add(sentMessage);
+                //     }
+                //   }
+                // }
                 return SingleChildScrollView(
                   child: Column(
                     children: [
@@ -292,6 +307,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             onLike: () {},
                             images: item.images,
                             videos: item.videos,
+                            voices: item.voices,
                           );
 
                           // Add spacing between questions and their answers
@@ -302,7 +318,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               messageWidget = Column(
                                 children: [
                                   messageWidget,
-                                  const SizedBox(height: 12),
+                                  const SizedBox(height: 8),
                                 ],
                               );
                             }
@@ -381,6 +397,7 @@ class MessageItem {
     required this.isMine,
     this.images,
     this.videos,
+    this.voices,
   });
   final MessageType type;
   final String message;
@@ -388,6 +405,7 @@ class MessageItem {
   final bool isMine;
   final List<String>? images;
   final List<String>? videos;
+  final List<String>? voices;
 }
 
 enum MessageType { question, answer }

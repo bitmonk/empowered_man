@@ -17,6 +17,7 @@ class AppEndpoints {
   static const String getJournalEmotionName = '/journals/emotion-names';
   static const String getJournalWithQuestionsAndAnswers = '/journals/';
   static const String postJournalAnswer = '/journal-answers';
+  static const String getJournalLibrary = '/journals-library';
 }
 
 class ExternalEndpoints {}
