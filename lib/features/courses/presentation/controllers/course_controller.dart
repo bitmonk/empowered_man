@@ -40,8 +40,8 @@ class CourseController extends GetxController {
   Rx<String?> chapterError = Rx<String?>(null);
   Rx<chap.ChapterData?> selectedChapter = Rx<chap.ChapterData?>(null);
   Rx<Course?> selectedCourse = Rx<Course?>(null);
-
   Rx<String?> queryText = Rx<String?>(null);
+
   @override
   void onInit() {
     super.onInit();
@@ -60,8 +60,11 @@ class CourseController extends GetxController {
     }
   }
 
-  Future<bool> getCourses(
-      {CancelToken? cancelToken, String? tag, String? query,}) async {
+  Future<bool> getCourses({
+    CancelToken? cancelToken,
+    String? tag,
+    String? query,
+  }) async {
     final currentFilter = tag ?? selectedFilters.value.toLowerCase();
     // Ensure keys exist before setting/loading
     filterStates.putIfAbsent(currentFilter, () => TheStates.initial.obs);
