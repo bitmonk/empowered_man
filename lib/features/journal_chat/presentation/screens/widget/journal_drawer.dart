@@ -106,7 +106,16 @@ class _JournalDrawerState extends State<JournalDrawer> {
                 height: 40,
                 text: 'Go to journal library',
                 onPressed: () {
-                  Get.toNamed(AppRoutes.journalLibrary);
+                  final emotions =
+                      controller.journalEmotionName.value.data?.emotionNames ??
+                          [];
+                          print('>>>>>>>>>>>>.>>>>>>>>>>>>>>>>>>Emotions: $emotions');
+                  Get.toNamed(
+                    AppRoutes.journalLibrary,
+                    arguments: {
+                      'emotion_names': emotions,
+                    },
+                  );
                 },
               ),
             ),
@@ -178,7 +187,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
         print(
             '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId');
         Navigator.pop(context);
-        
+
         final journalChatController = Get.find<JournalChatController>();
         journalChatController.chatConversationList.clear();
         journalChatController.selectedEmotionId.value = emotionId ?? '';

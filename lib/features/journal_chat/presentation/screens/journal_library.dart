@@ -1,9 +1,11 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
 
 class JournalLibrary extends StatefulWidget {
-  const JournalLibrary({super.key});
+  const JournalLibrary({super.key, this.emotionNames = const []});
+  final List<EmotionName>? emotionNames;
 
   @override
   State<JournalLibrary> createState() => _JournalLibraryState();
@@ -16,20 +18,36 @@ class _JournalLibraryState extends State<JournalLibrary> {
   List<bool> _selectedItems = List.generate(20, (index) => false);
   bool _selectAll = false; // Track the "Select All" state
   String selectedJournalType = 'Select Journal Type'; // Default selection
-  final List<String> journalTypes = [
-    'Personal Journal',
-    'Work Journal',
-    'Dream Journal',
-    'Health Journal',
-    'Gratitude Journal',
-  ];
+  // final List<String> journalTypes = [
+  //   'Personal Journal',
+  //   'Work Journal',
+  //   'Dream Journal',
+  //   'Health Journal',
+  //   'Gratitude Journal',
+  // ];
+  List<EmotionName>? emotionNames = [];
   @override
   void initState() {
     super.initState();
+    emotionNames = widget.emotionNames;
+    print('Emotion Names: >>>>>>>>>>>>>>>>>>>>>>from Library$emotionNames');
+    if (emotionNames == null || emotionNames!.isEmpty) {}
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
+      _fetchEmotionNames();
     });
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _fetchEmotionNames() async {
+    try {
+      await _controller.getJournalEmotionName();
+      setState(() {
+        emotionNames = _controller.journalEmotionName.value.data?.emotionNames;
+      });
+    } catch (e) {
+      print('Error fetching emotion names: $e');
+    }
   }
 
   Future<void> _initializeData() async {
@@ -112,7 +130,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                           child: Row(
                             children: [
                               Text(
-                                selectedJournalType,
+                                emotionNames?.isNotEmpty ?? false
+                                    ? selectedJournalType
+                                    : 'Loading emotions...',
                                 style: AppTextStyles.textBodyB2.copyWith(
                                   color: AppColors.textColor100,
                                 ),
@@ -226,6 +246,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
         ? journal.journal!.mainQuestions!.first.question
         : 'N/A';
+    final emotionName = journal.journal?.emotionName ?? 'N/A';
     return TableRow(
       children: [
         Padding(
@@ -246,7 +267,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
             ),
           ),
         ),
-        _tableCell(journal.journal?.emotionName ?? 'N/A'),
+        _tableCell(emotionName),
         _tableCell(firstQuestion ?? 'N/A'),
         _tableCell(journal.completedAt ?? journal.createdAt ?? 'N/A'),
       ],
@@ -282,18 +303,30 @@ class _JournalLibraryState extends State<JournalLibrary> {
   }
 
   void _showJournalTypeMenu(BuildContext context) {
+    if (emotionNames == null || emotionNames!.isEmpty) {
+      // Show a message when no emotion names are available
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No emotion names available'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
     showMenu(
       context: context,
-      position: const RelativeRect.fromLTRB(20, 100, 20, 0), // Adjust position
+      position: const RelativeRect.fromLTRB(20, 100, 20, 0),
       color: const Color(0xFF1A1E27),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      items: journalTypes
-          .map(
-            (type) => PopupMenuItem<String>(
-              value: type,
-              child: Text(type, style: const TextStyle(color: Colors.white)),
-            ),
-          )
+      items: emotionNames!
+          .map((emotion) => PopupMenuItem<String>(
+                value: emotion.emotionName ?? '',
+                child: Text(
+                  emotion.emotionName ?? '',
+                  style: const TextStyle(color: Colors.white),
+                ),
+              ))
           .toList(),
     ).then((value) {
       if (value != null) {
