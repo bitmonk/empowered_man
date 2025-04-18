@@ -3,6 +3,7 @@ import 'package:empowered/core/push_notification/firebase_notification_service.d
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/goals_screen.dart';
+import 'package:empowered/features/habits/presentation/controllers/habit_bindings.dart';
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
@@ -39,6 +40,7 @@ class _MainScreenState extends State<MainScreen>
     HomeInitializer.initialize();
     ChatInitializer.initialize();
     TasksInitializer.initialize();
+    HabitInitializer.initialize();
     NotificationInitializer.initialize();
     LogoutInitializer.initialize();
   }
@@ -48,6 +50,7 @@ class _MainScreenState extends State<MainScreen>
     HomeInitializer.destroy();
     ChatInitializer.destroy();
     TasksInitializer.destroy();
+    HabitInitializer.destroy();
     LogoutInitializer.destroy();
     super.dispose();
   }

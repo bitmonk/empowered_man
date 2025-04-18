@@ -132,6 +132,22 @@ class DioApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> patch(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.patch(
+        url,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> _request(
     Future<dynamic> Function() requestFunction,
   ) async {

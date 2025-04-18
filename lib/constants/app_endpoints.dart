@@ -19,6 +19,17 @@ class AppEndpoints {
       '/user/courses/$courseId/chapters/$chapterId/complete';
 
   static const String habits = '/user/habits';
+  static const String updateHabit = '/user/habit/update-status';
+
+  static const String addTask = '/tasks';
+  static const String getTask = '/tasks';
+  static String delTask(String taskId) => '/tasks/$taskId';
+  static String markMainTaskCompleted(String taskId) =>
+      '/tasks/$taskId/mark-as-completed';
+  static String markSubTaskCompleted(String mainTaskId, String subTaskId) =>
+      '/tasks/$mainTaskId/subtasks/$subTaskId/mark-as-completed';
+  static const String getTaskEnums = '/tasks/enums';
+  static String changeLevel(String taskId) => '/tasks/$taskId/change-level';
 }
 
 class ExternalEndpoints {}

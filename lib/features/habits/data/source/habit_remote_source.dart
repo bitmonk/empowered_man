@@ -3,21 +3,25 @@ import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/features/habits/data/model/habit_model.dart';
 
 class HabitRemoteSource {
   const HabitRemoteSource(this._client);
   final DioApiClient _client;
 
-  Future<Either<AppError, String>> getHabit({
+  Future<Either<AppError, HabitModel>> getHabit({
+    String? fromDate,
+    String? toDate,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.habits,
+        queryParameters: {'from_date': fromDate, 'to_date': toDate},
         cancelToken: cancelToken,
       );
 
-      return right(response['message']);
+      return right(HabitModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);
@@ -35,7 +39,7 @@ class HabitRemoteSource {
   }) async {
     try {
       final response = await _client.post(
-        AppEndpoints.habits,
+        AppEndpoints.updateHabit,
         queryParameters: {
           'habits_id': habitId,
           'habit_date': habitDate,

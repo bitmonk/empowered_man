@@ -62,6 +62,7 @@ dependencies:
   vector_graphics: any
   video_player: ^2.9.2
   video_player_android: ^2.7.16
+  vsc_quill_delta_to_html: ^1.0.5
 
 dev_dependencies:
   build_runner: ^2.4.13
