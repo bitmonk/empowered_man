@@ -60,7 +60,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                   ],
                 ),
               ),
-            )),
+            ),),
       ),
     );
   }

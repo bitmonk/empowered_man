@@ -17,7 +17,7 @@ class TasksExpansionTile extends StatelessWidget {
   });
   final String title;
   final String description;
-  final int taskPortion;
+  final String taskPortion;
   final int? totalTask;
   final bool isCompleted;
   final bool isDone;
@@ -50,7 +50,7 @@ class TasksExpansionTile extends StatelessWidget {
                   child: ColoredPaddedCotainer(
                     horizontalPadding: 5,
                     textStyle: AppTextStyles.titleSm.copyWith(fontSize: 12),
-                    title: '$taskPortion',
+                    title: taskPortion,
                     color: AppColors.primary500,
                     borderColor: AppColors.primary500,
                     verticalPadding: 2,

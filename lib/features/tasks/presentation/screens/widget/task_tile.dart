@@ -1,12 +1,16 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
+import 'package:empowered/features/tasks/data/model/task_model.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
+import 'package:empowered/features/tasks/presentation/screens/widget/priority_color.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/task_menu_dialog.dart';
+import 'package:intl/intl.dart';
 
 class TaskTile extends StatefulWidget {
-  const TaskTile({required this.showNote, super.key});
-  final bool showNote;
+  const TaskTile({required this.task, super.key});
+
+  final Task task;
 
   @override
   State<TaskTile> createState() => _TaskTileState();
@@ -54,8 +58,9 @@ class _TaskTileState extends State<TaskTile> {
                           showDialog(
                             context: context,
                             builder: (context) => Transform.translate(
-                                offset: const Offset(-60, 0),
-                                child: const TaskMenuDialog(),),
+                              offset: const Offset(-60, 0),
+                              child: const TaskMenuDialog(),
+                            ),
                           );
                         },
                         child: Padding(
@@ -66,10 +71,10 @@ class _TaskTileState extends State<TaskTile> {
                     ],
                   ),
                   const VerticalSpacing(12),
-                  const Padding(
-                    padding: EdgeInsets.only(right: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 20),
                     child: Text(
-                      'Plan convo sith CS Team Task 123',
+                      widget.task.title ?? '',
                       textAlign: TextAlign.start,
                       style: AppTextStyles.titleMd,
                     ),
@@ -77,45 +82,34 @@ class _TaskTileState extends State<TaskTile> {
                   const VerticalSpacing(12),
                   Row(
                     children: [
-                      const ColoredPaddedCotainer(
+                      ColoredPaddedCotainer(
                         horizontalPadding: 8,
                         borderColor: AppColors.colorE6F4FF,
                         borderRadius: 5,
                         color: AppColors.bgBorder,
-                        title: 'Dec 29',
+                        title:
+                            DateFormat('MMM dd').format(widget.task.dueDate!),
                         textStyle: AppTextStyles.lightBodySubHeader,
                         //font => inter
                       ),
                       Padding(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 15,
-                        ),
-                        child: !isExpandedTaskTile || widget.showNote
-                            ? ColoredPaddedCotainer(
-                                horizontalPadding: 8,
-                                borderColor: AppColors.appYellow,
-                                borderRadius: 5,
-                                color: AppColors.bgBorder,
-                                title: 'Do',
-                                //font => inter
-                                textStyle:
-                                    AppTextStyles.lightBodySubHeader.copyWith(
-                                  color: AppColors.appYellow,
-                                ),
-                              )
-                            : ColoredPaddedCotainer(
-                                horizontalPadding: 8,
-                                borderColor: AppColors.appRed,
-                                borderRadius: 5,
-                                color: AppColors.bgBorder,
-                                title: 'Hit',
-                                //font => inter
-                                textStyle:
-                                    AppTextStyles.lightBodySubHeader.copyWith(
-                                  color: AppColors.appRed,
-                                ),
-                              ),
-                      ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 15,
+                          ),
+                          child: ColoredPaddedCotainer(
+                            horizontalPadding: 8,
+                            borderColor:
+                                priorityColor(priority: widget.task.priority!),
+                            borderRadius: 5,
+                            color: AppColors.bgBorder,
+                            title: widget.task.priority ?? '',
+                            //font => inter
+                            textStyle:
+                                AppTextStyles.lightBodySubHeader.copyWith(
+                              color: priorityColor(
+                                  priority: widget.task.priority!,),
+                            ),
+                          ),),
                       const Spacer(),
                       if (isExpandedTaskTile)
                         Row(
@@ -166,30 +160,36 @@ class _TaskTileState extends State<TaskTile> {
                     ],
                   ),
                   if (isExpandedTaskTile)
-                    if (widget.showNote)
-                      const Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          VerticalSpacing(16),
-                          AppDivider(
-                            color: AppColors.bgBorderVLight,
+                    Column(
+                      children: [
+                        if (widget.task.notes != null)
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const VerticalSpacing(16),
+                              const AppDivider(
+                                color: AppColors.bgBorderVLight,
+                              ),
+                              const VerticalSpacing(16),
+                              const Text(
+                                'Notes',
+                                style: AppTextStyles.textBodyB1,
+                              ),
+                              const VerticalSpacing(12),
+                              Text(
+                                widget.task.notes ?? '',
+                                style: const TextStyle(
+                                  color: AppColors.textColor100,
+                                ),
+                              ),
+                            ],
                           ),
-                          VerticalSpacing(16),
-                          Text(
-                            'Notes',
-                            style: AppTextStyles.textBodyB1,
-                          ),
-                          VerticalSpacing(12),
-                          Text(
-                            'The content here is not meant to convey any specific information but to illustrate how text will appear in the final design. Please note that this text will be replaced with the approved content at the final stage.',
-                            style: TextStyle(
-                              color: AppColors.textColor100,
-                            ),
-                          ),
-                        ],
-                      )
-                    else
-                      const SubTaskList(),
+                        if (widget.task.subTasks != null)
+                          SubTaskList(
+                              subTaskList: widget.task.subTasks ?? [],
+                              priority: widget.task.priority ?? '',),
+                      ],
+                    ),
                 ],
               ),
             ),

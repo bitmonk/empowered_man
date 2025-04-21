@@ -9,31 +9,8 @@ class TasksController extends GetxController {
   TasksController({required this.remoteSource});
   final TasksRemoteSource remoteSource;
   final RxList<DaysFilterModel> daysList = <DaysFilterModel>[].obs;
-  late DateTime startOfWeek;
-
-  void _generateWeek(DateTime startDate) {
-    daysList.clear();
-    for (var i = 0; i < 7; i++) {
-      final currentDay = startDate.add(Duration(days: i));
-      final dayLetter = DateFormat('E').format(currentDay)[0]; // 'M', 'T', ...
-      final formattedDate = '${currentDay.day}';
-      daysList.add(DaysFilterModel(title: dayLetter, date: formattedDate));
-    }
-  }
-
-  void goToNextWeek() {
-    startOfWeek = startOfWeek.add(const Duration(days: 7));
-    _generateWeek(startOfWeek);
-  }
-
-  void goToPreviousWeek() {
-    startOfWeek = startOfWeek.subtract(const Duration(days: 7));
-    _generateWeek(startOfWeek);
-  }
-
-  DateTime _getStartOfWeek(DateTime date) {
-    return date.subtract(Duration(days: date.weekday - 1)); // Monday
-  }
+  late Rx<DateTime> fromDate;
+  late Rx<DateTime> toDate;
 
   RxList<String> taskCategoryTitle =
       ['Hit List', 'Mit List', 'Do List', 'Achieved List', 'Done List'].obs;
@@ -71,8 +48,9 @@ class TasksController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    startOfWeek = _getStartOfWeek(DateTime.now());
-    _generateWeek(startOfWeek);
+    fromDate = _getMonday(DateTime.now()).obs;
+    toDate = fromDate.value.add(const Duration(days: 6)).obs;
+    _generateWeek();
     getTaskEnums();
     scrollController = ScrollController();
     searchTextController = TextEditingController();
@@ -252,6 +230,36 @@ class TasksController extends GetxController {
   void cancelRequest() {
     _cancelToken?.cancel();
     addTaskState.value = TheStates.initial;
+  }
+
+  void _generateWeek() {
+    daysList.clear();
+
+    var current = fromDate.value;
+    while (!current.isAfter(toDate.value)) {
+      final dayLetter = DateFormat('E').format(current)[0]; // e.g. 'M', 'T'
+      final formattedDate = current.day.toString(); // full date
+      daysList.add(DaysFilterModel(title: dayLetter, date: formattedDate));
+      current = current.add(const Duration(days: 1));
+    }
+  }
+
+  /// Get Monday of the week for a given date
+  DateTime _getMonday(DateTime date) {
+    return date.subtract(Duration(days: date.weekday - 1));
+  }
+
+  /// Change week by offset (positive for next, negative for previous)
+  void changeWeek(int weekOffset) {
+    fromDate.value = fromDate.value.add(Duration(days: 7 * weekOffset));
+    toDate.value = fromDate.value.add(const Duration(days: 6));
+    _generateWeek();
+  }
+
+  /// Get formatted date range string
+  String getDateRange() {
+    toDate.value = fromDate.value.add(const Duration(days: 6));
+    return "${DateFormat("dd.MM").format(fromDate.value)} - ${DateFormat("dd.MM").format(toDate.value)}";
   }
 }
 

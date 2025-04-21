@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
-import 'package:empowered/features/tasks/presentation/screens/widget/hit_list.dart';
+import 'package:empowered/features/tasks/presentation/screens/widget/task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/tasks_expansion_tile.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -61,7 +61,9 @@ class _TasksScreenState extends State<TasksScreen> {
                           TasksExpansionTile(
                             title: 'Hit List',
                             description: '',
-                            taskPortion: 10,
+                            taskPortion: controller.hitData.value?.tasks?.length
+                                    .toString() ??
+                                '0',
                             isCompleted: false,
                             isDone: true,
                             onTap: () {
@@ -70,14 +72,14 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                           ),
                           if (controller.isExpandedHitList.value)
-                            const HitList(),
+                            TaskList(list: controller.hitData.value?.tasks),
                           TasksExpansionTile(
                             title: 'Mit List',
                             description: '',
-                            taskPortion: 12,
+                            taskPortion:
+                                '${controller.mitData.value?.tasks?.length ?? 0}/4',
                             totalTask: 4,
-                            isCompleted: true,
-                            taskCompletionPoint: 12,
+                            isCompleted: false,
                             isDone: true,
                             onTap: () {
                               controller.isExpandedMitList.value =
@@ -85,12 +87,13 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                           ),
                           if (controller.isExpandedMitList.value)
-                            const HitList(),
+                            TaskList(list: controller.mitData.value?.tasks),
                           TasksExpansionTile(
                             title: 'Do List',
                             description: '',
-
-                            taskPortion: 16,
+                            taskPortion: controller.doData.value?.tasks?.length
+                                    .toString() ??
+                                '0',
                             isCompleted: false,
                             isDone: true,
                             taskCompletionPoint: 12,
@@ -100,15 +103,19 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                           ),
                           if (controller.isExpandedDoList.value)
-                            const HitList(),
+                            TaskList(list: controller.doData.value?.tasks),
                           TasksExpansionTile(
                             title: 'Achieved List',
                             description: '',
                             totalTask: 20,
-                            taskPortion: 12,
+                            taskPortion: controller
+                                    .achievedData.value?.tasks?.length
+                                    .toString() ??
+                                '0',
                             isCompleted: true,
                             isDone: true,
-                            taskCompletionPoint: 12,
+                            taskCompletionPoint:
+                                controller.achievedData.value?.tasks?.length,
                             collapseBorderSideColor: AppColors.color2AD674,
                             onTap: () {
                               controller.isExpandedAchievedList.value =
@@ -116,14 +123,19 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                           ),
                           if (controller.isExpandedAchievedList.value)
-                            const HitList(),
+                            TaskList(
+                                list: controller.achievedData.value?.tasks,),
                           TasksExpansionTile(
                             title: 'Done List',
                             description: '',
-                            taskPortion: 12,
+                            taskPortion: controller
+                                    .doneData.value?.tasks?.length
+                                    .toString() ??
+                                '0',
                             isCompleted: true,
                             isDone: true,
-                            taskCompletionPoint: 12,
+                            taskCompletionPoint:
+                                controller.doneData.value?.tasks?.length,
                             collapseBorderSideColor: AppColors.color2AD674,
                             onTap: () {
                               controller.isExpandedDoneList.value =
@@ -131,7 +143,7 @@ class _TasksScreenState extends State<TasksScreen> {
                             },
                           ),
                           if (controller.isExpandedDoneList.value)
-                            const HitList(),
+                            TaskList(list: controller.doneData.value?.tasks),
                         ],
                       ),
                     ),
@@ -174,7 +186,7 @@ class _TasksScreenState extends State<TasksScreen> {
               // if (controller.selectedDaysindex.value > 0) {
               //   controller.selectedDaysindex.value--;
               // }
-              controller.goToPreviousWeek();
+              controller.changeWeek(-1);
             },
             child: Assets.images.arrowBack.svg(
               width: 35,
@@ -247,7 +259,7 @@ class _TasksScreenState extends State<TasksScreen> {
               //     controller.daysList.length - 1) {
               //   controller.selectedDaysindex.value++;
               // }
-              controller.goToNextWeek();
+              controller.changeWeek(1);
             },
             child: Assets.images.arrowForward.svg(
               width: 35,
