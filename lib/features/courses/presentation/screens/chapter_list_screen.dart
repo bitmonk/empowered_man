@@ -30,38 +30,37 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
       appBar: const CustomAppBar(title: 'Courses'),
       body: Obx(
         () => RefreshIndicator(
-          onRefresh: () async {
-            _refresh();
-          },
-          child: SingleChildScrollView(
-            padding: const EdgeInsets.all(16),
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const VerticalSpacing(12),
-                _buildCourseHeader(),
-                const SizedBox(height: 24),
-                const Text(
-                  'Modules',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+            onRefresh: () async {
+              _refresh();
+            },
+            child: controller.getChapterState.value.showWidget(
+              orElse: () => const LoadingWidget(),
+              error: () => CustomErrorWidget(
+                onPressed: _refresh,
+              ),
+              success: () => SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VerticalSpacing(12),
+                    _buildCourseHeader(),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Modules',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildModulesList(),
+                  ],
                 ),
-                const SizedBox(height: 12),
-                controller.getChapterState.value.showWidget(
-                  orElse: () => const LoadingWidget(),
-                  error: () => CustomErrorWidget(
-                    onPressed: _refresh,
-                  ),
-                  success: () => _buildModulesList(),
-                ),
-              ],
-            ),
-          ),
-        ),
+              ),
+            )),
       ),
     );
   }
