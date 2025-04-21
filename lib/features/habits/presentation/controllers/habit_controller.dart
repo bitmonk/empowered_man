@@ -34,9 +34,7 @@ class HabitController extends GetxController {
   void resetValue() {
     fromDate = _getMonday(DateTime.now()).obs;
     toDate = fromDate.value.add(const Duration(days: 6)).obs;
-    getHabitError.value = null;
-    totalHabits.value = 0;
-    totalCompletedHabits.value = 0;
+
     getHabit();
   }
 
@@ -48,6 +46,9 @@ class HabitController extends GetxController {
 
   Future<void> getHabit() async {
     getHabitState.value = TheStates.loading;
+    getHabitError.value = null;
+    totalHabits.value = 0;
+    totalCompletedHabits.value = 0;
     _cancelToken = CancelToken();
 
     final result = await remoteSource.getHabit(

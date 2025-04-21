@@ -252,19 +252,21 @@ class _HabitScreenState extends State<HabitScreen> {
             // setState(() {
             //   habit.completionStatus[index] = !habit.completionStatus[index];
             // });
+
             if (DateFormat('yyyy MM dd')
                     .format(DateTime.parse(data.habitDate!))
                     .compareTo(
                       DateFormat('yyyy MM dd').format(DateTime.now()),
-                    ) ==
-                0) {
+                    ) !=
+                1) {
               controller.updateHabit(
                 habitId: data.habitsId.toString(),
-                status: '1',
+                status: data.status.toString() == '0' ? '1' : '0',
                 habitDate: data.habitDate!,
               );
             } else {
-              AppUtils.showErrorSnackbar(message: 'not same date');
+              AppUtils.showErrorSnackbar(
+                  message: 'Future dates are not allowed.',);
             }
           },
           child: Container(

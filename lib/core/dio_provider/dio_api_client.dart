@@ -46,8 +46,8 @@ class DioApiClient {
         headers: {
           'Accept': 'application/json',
         },
-        connectTimeout: const Duration(seconds: 50),
-        receiveTimeout: const Duration(seconds: 50),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
       )
       ..interceptors.addAll([
         AppInterceptor(preference, baseUrl),
