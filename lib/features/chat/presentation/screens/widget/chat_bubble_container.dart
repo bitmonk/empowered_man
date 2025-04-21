@@ -215,8 +215,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     );
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     final displayMessage = _extractTextFromHtml(widget.message);
@@ -585,9 +583,9 @@ class _FullscreenVideoViewState extends State<FullscreenVideoView> {
 }
 
 class CustomAudioPlayer extends StatefulWidget {
-
   const CustomAudioPlayer({
-    required this.url, super.key,
+    required this.url,
+    super.key,
     this.isMine = false,
   });
   final String url;
