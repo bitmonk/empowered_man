@@ -71,7 +71,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     });
   }
 
-  void _playVoiceMessage(String url) async {
+  Future<void> _playVoiceMessage(String url) async {
     try {
       await _audioPlayer.setUrl(url);
       await _audioPlayer.play();
@@ -215,8 +215,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     );
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     final displayMessage = _extractTextFromHtml(widget.message);
@@ -333,8 +331,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                                             child,
                                             loadingProgress,
                                           ) {
-                                            if (loadingProgress == null)
+                                            if (loadingProgress == null) {
                                               return child;
+                                            }
                                             return Center(
                                               child: CircularProgressIndicator(
                                                 value: loadingProgress
@@ -584,14 +583,13 @@ class _FullscreenVideoViewState extends State<FullscreenVideoView> {
 }
 
 class CustomAudioPlayer extends StatefulWidget {
-  final String url;
-  final bool isMine;
-
   const CustomAudioPlayer({
-    super.key,
     required this.url,
+    super.key,
     this.isMine = false,
   });
+  final String url;
+  final bool isMine;
 
   @override
   State<CustomAudioPlayer> createState() => _CustomAudioPlayerState();
@@ -697,7 +695,7 @@ class _CustomAudioPlayerState extends State<CustomAudioPlayer> {
                           total: total,
                           onSeek: _audioPlayer.seek,
                           timeLabelTextStyle: const TextStyle(fontSize: 12),
-                          baseBarColor: Colors.grey[400]!,
+                          baseBarColor: Colors.grey[400],
                           progressBarColor: Colors.white,
                           thumbColor: Colors.white,
                         );

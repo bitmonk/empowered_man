@@ -18,6 +18,7 @@ class AppEndpoints {
   static const String getJournalWithQuestionsAndAnswers = '/journals/';
   static const String postJournalAnswer = '/journal-answers';
   static const String getJournalLibrary = '/journals-library';
+  static const String getSeeJournal = '/user-journals';
 }
 
 class ExternalEndpoints {}
