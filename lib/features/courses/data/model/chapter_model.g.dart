@@ -77,6 +77,7 @@ _$CourseImpl _$$CourseImplFromJson(Map<String, dynamic> json) => _$CourseImpl(
           : DateTime.parse(json['updated_at'] as String),
       completionPercentage: (json['completion_percentage'] as num?)?.toInt(),
       status: json['status'] as String?,
+      thumbnail: json['thumbnail'] as String?,
     );
 
 Map<String, dynamic> _$$CourseImplToJson(_$CourseImpl instance) =>
@@ -87,4 +88,5 @@ Map<String, dynamic> _$$CourseImplToJson(_$CourseImpl instance) =>
       'updated_at': instance.updatedAt?.toIso8601String(),
       'completion_percentage': instance.completionPercentage,
       'status': instance.status,
+      'thumbnail': instance.thumbnail,
     };
