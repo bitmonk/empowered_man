@@ -221,15 +221,16 @@ class _JournalLibraryState extends State<JournalLibrary> {
               ),
               ThemedContainer(
                 padding: EdgeInsets.zero,
-                margin: const EdgeInsets.all(16),
+                margin: const EdgeInsets.all(12),
                 child: SingleChildScrollView(
                   child: Table(
                     columnWidths: const {
-                      0: FixedColumnWidth(40), 
-                      1: FlexColumnWidth(60),
-                      2: FlexColumnWidth(60),
+                      0: FixedColumnWidth(35), 
+                      1: FlexColumnWidth(70),
+                      2: FlexColumnWidth(90),
                       3: FlexColumnWidth(80),
                     },
+                    
                     children: [
                       _buildTableHeaderRow(),
                       if (journals != null && journals.isNotEmpty)
@@ -371,7 +372,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
   /// Helper to create table header cells
   Widget _tableHeaderCell(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
       child: Text(
         title,
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
@@ -382,7 +383,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
   /// Helper to create table data cells
   Widget _tableCell(String text, {bool isLink = false, bool isBlue = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
       child: Text(
         text,
         style: TextStyle(
@@ -392,6 +393,10 @@ class _JournalLibraryState extends State<JournalLibrary> {
                   ? AppColors.white
                   : AppColors.textColor300,
         ),
+        textAlign: TextAlign.center,
+        maxLines: 2,
+        overflow: TextOverflow.ellipsis,
+
       ),
     );
   }
