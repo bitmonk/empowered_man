@@ -1,7 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
-import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
 import 'package:intl/intl.dart';
@@ -99,8 +98,8 @@ class _JournalLibraryState extends State<JournalLibrary> {
         title: 'Journal Library',
       ),
       body: Obx(() {
-        if (_controller.isLoading.value) {
-          return const Center(child: CircularProgressIndicator());
+        if (_controller.getJournalLibraryState.value == TheStates.loading) {
+          return const LoadingWidget();
         }
 
         final journals =
@@ -120,7 +119,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       child: ThemedContainer(
                         color: AppColors.bgBorder,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 16),
+                            vertical: 6, horizontal: 16,),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton2<String>(
                             isExpanded: true,
@@ -180,7 +179,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                             onChanged: (value) async {
                               if (value != null &&
                                   emotionNames?.any(
-                                          (e) => e.emotionName == value) ==
+                                          (e) => e.emotionName == value,) ==
                                       true) {
                                 setState(() {
                                   selectedJournalType = value;
@@ -193,7 +192,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                                 );
 
                                 _selectedItems = List.generate(
-                                    _selectedItems.length, (_) => false);
+                                    _selectedItems.length, (_) => false,);
 
                                 await _fetchJournalsWithEmotion(value);
                               }
@@ -210,10 +209,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                         if (shouldClearSelection) {
                           setState(() {
                             _selectedItems = List.generate(
-                                _selectedItems.length, (_) => false);
+                                _selectedItems.length, (_) => false,);
                           });
                         }
-
                       },
                     ),
                   ],
@@ -329,7 +327,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
         ? journal.journal!.mainQuestions!.first.question
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
-    String formattedTime =
+    var formattedTime =
         formatDateTime(journal.completedAt ?? journal.createdAt ?? 'N/A');
 
     return TableRow(
@@ -400,7 +398,6 @@ class _JournalLibraryState extends State<JournalLibrary> {
       ),
     );
   }
-
 
   Future<void> _fetchJournalsWithEmotion(String emotionName) async {
     try {

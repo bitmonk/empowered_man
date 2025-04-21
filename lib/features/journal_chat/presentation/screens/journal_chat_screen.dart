@@ -5,7 +5,6 @@ import 'package:empowered/features/journal_chat/presentation/controllers/journal
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_drawer.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 
 class JournalChatScreen extends StatefulWidget {
   const JournalChatScreen({
@@ -77,7 +76,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     for (var i = 0; i < (journallist.followUpQuestions?.length ?? 0); i++) {
       final question = journallist.followUpQuestions?[i];
-      String questionTimestamp = '';
+      var questionTimestamp = '';
       if (i > 0) {
         final previousQuestion = journallist.followUpQuestions![i - 1];
         shouldShowQuestion = previousQuestion.answered ?? false;
@@ -127,7 +126,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               isJournal: true,
               message: item.message,
               isMine: item.isMine,
-              timeStamp: item.timestamp,
+              timeStamp: item.timestamp ?? '',
               onLike: () {},
               images: item.images,
               videos: item.videos,
@@ -226,7 +225,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
                 for (var i = 0; i < (journal.mainQuestions?.length ?? 0); i++) {
                   final mainQuestion = journal.mainQuestions![i];
-                  String questionTimestamp = '';
+                  var questionTimestamp = '';
                   // Check if question should be shown
                   if (i > 0) {
                     final previousQuestion = journal.mainQuestions![i - 1];
@@ -280,77 +279,100 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 //     }
                 //   }
                 // }
-                return SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      ListView.builder(
-                        // reverse: true,
-                        shrinkWrap: true,
-                        // controller: controller.scrollController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        keyboardDismissBehavior:
-                            ScrollViewKeyboardDismissBehavior.onDrag,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24,
-                          horizontal: 16,
-                        ),
-                        itemCount: items.length,
-                        // itemCount: items.length,
-                        itemBuilder: (context, index) {
-                          final item = items[index];
+                return controller.journalChatConversationState.value.showWidget(
+                  orElse: () => CustomErrorWidget(
+                    onPressed: () {},
+                  ),
+                  loading: () => const LoadingWidget(),
+                  success: () => SingleChildScrollView(
+                    controller: controller.scrollController,
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          // reverse: true,
+                          shrinkWrap: true,
+                          // controller: controller.scrollController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 24,
+                            horizontal: 16,
+                          ),
+                          itemCount: items.length,
+                          // itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
 
-                          Widget messageWidget = ChatBubbleContainer(
-                            isJournal: true,
-                            message: item.message,
-                            isMine: item.isMine,
-                            timeStamp: item.timestamp,
-                            onLike: () {},
-                            images: item.images,
-                            videos: item.videos,
-                            voices: item.voices,
-                          );
+                            Widget messageWidget = ChatBubbleContainer(
+                              isJournal: true,
+                              message: item.message,
+                              isMine: item.isMine,
+                              timeStamp: item.timestamp ?? '',
+                              onLike: () {},
+                              images: item.images,
+                              videos: item.videos,
+                              voices: item.voices,
+                            );
 
-                          // Add spacing between questions and their answers
-                          if (item.type == MessageType.question &&
-                              index < items.length - 1) {
-                            final nextItem = items[index + 1];
-                            if (nextItem.type == MessageType.answer) {
-                              messageWidget = Column(
-                                children: [
-                                  messageWidget,
-                                  const SizedBox(height: 8),
-                                ],
-                              );
+                            // Add spacing between questions and their answers
+                            if (item.type == MessageType.question &&
+                                index < items.length - 1) {
+                              final nextItem = items[index + 1];
+                              if (nextItem.type == MessageType.answer) {
+                                messageWidget = Column(
+                                  children: [
+                                    messageWidget,
+                                    const SizedBox(height: 8),
+                                  ],
+                                );
+                              }
+
+                              if (index == 0) {
+                                final timestamp = items.length == 1
+                                    ? DateTime.now().toString()
+                                    : nextItem.timestamp;
+                                messageWidget = ChatBubbleContainer(
+                                  isJournal: true,
+                                  message: item.message,
+                                  isMine: item.isMine,
+                                  timeStamp: timestamp ?? '',
+                                  onLike: () {},
+                                  images: item.images,
+                                  videos: item.videos,
+                                  voices: item.voices,
+                                );
+                              }
                             }
-                          }
 
-                          return messageWidget;
-                        },
-                      ),
-                      if (allQuestionsAnswered)
-                        if (showWidget)
-                          showFollowUpQuestions()
-                        else if (!buttonPressed)
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 32,
-                              left: 40,
-                              right: 40,
-                            ),
-                            child: AppOutlinedButton(
-                              text: 'Begin Journaling',
-                              onPressed: () {
-                                startJournaling();
-                                setState(() {
-                                  showWidget = true;
-                                  buttonPressed = true;
-                                });
-                              },
-                            ),
-                          )
-                        else
-                          const SizedBox(),
-                    ],
+                            return messageWidget;
+                          },
+                        ),
+                        if (allQuestionsAnswered)
+                          if (showWidget)
+                            showFollowUpQuestions()
+                          else if (!buttonPressed)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 32,
+                                left: 40,
+                                right: 40,
+                              ),
+                              child: AppOutlinedButton(
+                                text: 'Begin Journaling',
+                                onPressed: () {
+                                  startJournaling();
+                                  setState(() {
+                                    showWidget = true;
+                                    buttonPressed = true;
+                                  });
+                                },
+                              ),
+                            )
+                          else
+                            const SizedBox(),
+                      ],
+                    ),
                   ),
                 );
               }),
@@ -393,7 +415,7 @@ class MessageItem {
   MessageItem({
     required this.type,
     required this.message,
-    required this.timestamp,
+    this.timestamp,
     required this.isMine,
     this.images,
     this.videos,
@@ -401,7 +423,7 @@ class MessageItem {
   });
   final MessageType type;
   final String message;
-  final String timestamp;
+  final String? timestamp;
   final bool isMine;
   final List<String>? images;
   final List<String>? videos;

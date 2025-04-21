@@ -10,17 +10,18 @@ class TasksExpansionTile extends StatelessWidget {
     required this.isCompleted,
     required this.isDone,
     required this.onTap,
+    this.totalTask,
     this.taskCompletionPoint,
     this.collapseBorderSideColor = AppColors.color008CFF,
     super.key,
   });
   final String title;
   final String description;
-  final int taskPortion;
+  final String taskPortion;
+  final int? totalTask;
   final bool isCompleted;
   final bool isDone;
   final VoidCallback onTap;
-
   final int? taskCompletionPoint;
   final Color collapseBorderSideColor;
   final controller = Get.find<TasksController>();
@@ -49,7 +50,7 @@ class TasksExpansionTile extends StatelessWidget {
                   child: ColoredPaddedCotainer(
                     horizontalPadding: 5,
                     textStyle: AppTextStyles.titleSm.copyWith(fontSize: 12),
-                    title: '$taskPortion',
+                    title: taskPortion,
                     color: AppColors.primary500,
                     borderColor: AppColors.primary500,
                     verticalPadding: 2,

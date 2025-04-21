@@ -50,7 +50,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
     if (widget.userJournal == null || widget.userJournal!.isEmpty) {
       return const Center(
           child: Text('No journal data available',
-              style: TextStyle(color: Colors.white)));
+              style: TextStyle(color: Colors.white),),);
     }
 
     return SafeArea(
@@ -138,7 +138,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                         ),
                         child: const Center(
                           child: Text('No answers available',
-                              style: TextStyle(color: Colors.white))
+                              style: TextStyle(color: Colors.white),),
                         ),
                       );
                     }

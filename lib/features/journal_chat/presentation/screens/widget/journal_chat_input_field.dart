@@ -101,10 +101,8 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
       'voice_message_${DateTime.now().millisecondsSinceEpoch}.wav',
     );
 
-    final recordConfig = const RecordConfig(
+    const recordConfig = RecordConfig(
       encoder: AudioEncoder.wav,
-      bitRate: 128000,
-      sampleRate: 44100,
     );
 
     await audioRecord.start(recordConfig, path: filePath);
@@ -218,6 +216,15 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
           widget.followupQuestionId,
         );
       }
+      setState(() {
+        _selectedMediaPaths = []; // Reset selection
+        if (showEditor) {
+          _controller.clear();
+        } else {
+          controller.chatController.clear();
+          recordingPath = null; // Reset recording state
+        }
+      });
     }
   }
 
@@ -431,53 +438,53 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
             child:
                 Assets.images.addIconWithBackground.svg(width: 40, height: 40),
           ),
-          InkWell(
-            onTap: () =>
-                isVoiceRecording ? _stopRecording() : _startRecording(),
-            // onTap: () async {
-            //   if (isVoiceRecording) {
-            //     var filePath = await audioRecord.stop();
-            //     if (filePath != null) {
-            //       _stopRecordingTimer();
-            //       setState(() {
-            //         isVoiceRecording = false;
-            //         recordingPath = filePath;
-            //       });
-            //     }
-            //   } else {
-            //     if (await audioRecord.hasPermission()) {
-            //       final appDocumentsDir =
-            //           await getApplicationDocumentsDirectory();
-            //       final filePath = p.join(
-            //         appDocumentsDir.path,
-            //         'message.wav',
-            //       );
-            //       await audioRecord.start(const RecordConfig(), path: filePath);
-            //       setState(() {
-            //         isVoiceRecording = true;
-            //         debugPrint('isVoiceRecording: $isVoiceRecording');
-            //         recordingPath = null;
-            //         _startRecordingTimer();
-            //       });
-            //     }
-            //   }
-            // },
-            child: isVoiceRecording
-                ? Container(
-                    height: 25,
-                    width: 25,
-                    decoration: const BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.red, // Background color of the circle
-                    ),
-                    padding: const EdgeInsets.all(
-                      4,
-                    ), // Optional: controls the size of the circle
-                    child: Assets.images.chatMicrophone.image(width: 20),
-                  )
-                : Assets.images.chatMicrophone.image(width: 20),
-          ),
-          const HorizontalSpacing(20),
+          // InkWell(
+          //   onTap: () =>
+          //       isVoiceRecording ? _stopRecording() : _startRecording(),
+          //   // onTap: () async {
+          //   //   if (isVoiceRecording) {
+          //   //     var filePath = await audioRecord.stop();
+          //   //     if (filePath != null) {
+          //   //       _stopRecordingTimer();
+          //   //       setState(() {
+          //   //         isVoiceRecording = false;
+          //   //         recordingPath = filePath;
+          //   //       });
+          //   //     }
+          //   //   } else {
+          //   //     if (await audioRecord.hasPermission()) {
+          //   //       final appDocumentsDir =
+          //   //           await getApplicationDocumentsDirectory();
+          //   //       final filePath = p.join(
+          //   //         appDocumentsDir.path,
+          //   //         'message.wav',
+          //   //       );
+          //   //       await audioRecord.start(const RecordConfig(), path: filePath);
+          //   //       setState(() {
+          //   //         isVoiceRecording = true;
+          //   //         debugPrint('isVoiceRecording: $isVoiceRecording');
+          //   //         recordingPath = null;
+          //   //         _startRecordingTimer();
+          //   //       });
+          //   //     }
+          //   //   }
+          //   // },
+          //   child: isVoiceRecording
+          //       ? Container(
+          //           height: 25,
+          //           width: 25,
+          //           decoration: const BoxDecoration(
+          //             shape: BoxShape.circle,
+          //             color: Colors.red, // Background color of the circle
+          //           ),
+          //           padding: const EdgeInsets.all(
+          //             4,
+          //           ), // Optional: controls the size of the circle
+          //           child: Assets.images.chatMicrophone.image(width: 20),
+          //         )
+          //       : Assets.images.chatMicrophone.image(width: 20),
+          // ),
+         // const HorizontalSpacing(20),
           InkWell(
             onTap: () {
               setState(() {
@@ -487,47 +494,47 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
             child: Assets.images.chatText.image(width: 20),
           ),
           const HorizontalSpacing(20),
-          InkWell(
-            onTap: () async {
-              try {
-                final result = await FilePicker.platform.pickFiles(
-                  allowMultiple: true,
-                  // type: FileType.custom,
-                  // type: FileType.any,
-                );
+          // InkWell(
+          //   onTap: () async {
+          //     try {
+          //       final result = await FilePicker.platform.pickFiles(
+          //         allowMultiple: true,
+          //         // type: FileType.custom,
+          //         // type: FileType.any,
+          //       );
 
-                if (result != null && result.files.isNotEmpty) {
-                  for (final file in result.files) {
-                    if (file.path != null) {
-                      final filePath = file.path!;
-                      if (filePath.endsWith('.mp4') ||
-                          filePath.endsWith('.mov')) {
-                        await _loadVideo(filePath);
-                      } else {
-                        await controller.sendMessage(
-                          widget.journalId,
-                          filePath,
-                          null,
-                          widget.mainQuestionId,
-                          widget.followupQuestionId,
-                        );
-                      }
-                    } else {
-                      debugPrint('File path is null for a selected file');
-                    }
-                  }
-                } else {
-                  debugPrint('No files selected or result is null');
-                }
-              } catch (e) {
-                debugPrint('File picking error: $e');
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text('Error selecting files: $e')),
-                );
-              }
-            },
-            child: Assets.images.chatAttachment.image(width: 20),
-          ),
+          //       if (result != null && result.files.isNotEmpty) {
+          //         for (final file in result.files) {
+          //           if (file.path != null) {
+          //             final filePath = file.path!;
+          //             if (filePath.endsWith('.mp4') ||
+          //                 filePath.endsWith('.mov')) {
+          //               await _loadVideo(filePath);
+          //             } else {
+          //               await controller.sendMessage(
+          //                 widget.journalId,
+          //                 filePath,
+          //                 null,
+          //                 widget.mainQuestionId,
+          //                 widget.followupQuestionId,
+          //               );
+          //             }
+          //           } else {
+          //             debugPrint('File path is null for a selected file');
+          //           }
+          //         }
+          //       } else {
+          //         debugPrint('No files selected or result is null');
+          //       }
+          //     } catch (e) {
+          //       debugPrint('File picking error: $e');
+          //       ScaffoldMessenger.of(context).showSnackBar(
+          //         SnackBar(content: Text('Error selecting files: $e')),
+          //       );
+          //     }
+          //   },
+          //   child: Assets.images.chatAttachment.image(width: 20),
+          // ),
           const Spacer(),
         ],
       ),
@@ -542,7 +549,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
         borderRadius: BorderRadius.circular(20),
       ),
       width: 180,
-     // width: Get.width,
+      // width: Get.width,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

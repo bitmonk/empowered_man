@@ -19,7 +19,6 @@ import 'package:empowered/features/notification/presentation/screen/notification
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/widgets/setting_tile.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -112,11 +111,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       decoration: BoxDecoration(
                                         border: Border.all(
                                           color: AppColors.white,
-                                          width: 2.0,
+                                          width: 2,
                                         ),
                                         // shape: BoxShape.circle,
                                       ),
-                                      child: Icon(
+                                      child: const Icon(
                                         Icons.person,
                                         color: AppColors.white,
                                         size: 60,

@@ -1,12 +1,13 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
+import 'package:empowered/features/tasks/data/model/task_model.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
+import 'package:empowered/features/tasks/presentation/screens/widget/priority_color.dart';
 
 class SubTaskTile extends StatefulWidget {
-  const SubTaskTile({
-    super.key,
-  });
-
+  const SubTaskTile({required this.subtask, required this.priority, super.key});
+  final String priority;
+  final Task subtask;
   @override
   State<SubTaskTile> createState() => _SubTaskTileState();
 }
@@ -29,8 +30,8 @@ class _SubTaskTileState extends State<SubTaskTile> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                'Sub Task 1',
+              Text(
+                widget.subtask.title ?? '',
                 style: AppTextStyles.textBodyB3,
               ),
               Assets.images.more.svg(),
@@ -41,13 +42,13 @@ class _SubTaskTileState extends State<SubTaskTile> {
             children: [
               ColoredPaddedCotainer(
                 horizontalPadding: 8,
-                borderColor: AppColors.appRed,
+                borderColor: priorityColor(priority: widget.priority),
                 borderRadius: 5,
                 color: AppColors.bgBorder,
-                title: 'Hit',
+                title: widget.priority,
                 //font => inter
                 textStyle: AppTextStyles.lightBodySubHeader.copyWith(
-                  color: AppColors.appRed,
+                  color: priorityColor(priority: widget.priority),
                 ),
               ),
               Padding(

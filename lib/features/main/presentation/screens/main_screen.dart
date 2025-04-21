@@ -3,16 +3,15 @@ import 'package:empowered/core/push_notification/firebase_notification_service.d
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/goals_screen.dart';
+import 'package:empowered/features/habits/presentation/controllers/habit_bindings.dart';
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
-import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class MainScreen extends StatefulWidget {
@@ -41,10 +40,9 @@ class _MainScreenState extends State<MainScreen>
     HomeInitializer.initialize();
     ChatInitializer.initialize();
     TasksInitializer.initialize();
+    HabitInitializer.initialize();
     NotificationInitializer.initialize();
     LogoutInitializer.initialize();
-    JournalEmotionNameInitializer.initialize();
-    
   }
 
   @override
@@ -52,8 +50,9 @@ class _MainScreenState extends State<MainScreen>
     HomeInitializer.destroy();
     ChatInitializer.destroy();
     TasksInitializer.destroy();
+    HabitInitializer.destroy();
     LogoutInitializer.destroy();
-    JournalEmotionNameInitializer.destroy();
+
     super.dispose();
   }
 

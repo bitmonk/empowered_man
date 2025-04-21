@@ -121,7 +121,7 @@ class JournalEmotionNamesRemoteSource {
   }) async {
     try {
       final response = await _client.delete(
-        '${AppEndpoints.getSeeJournal}',
+        AppEndpoints.getSeeJournal,
         body: {
           'ids': journalId,
         },

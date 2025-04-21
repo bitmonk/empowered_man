@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
-import 'package:empowered/features/courses/courses_screen.dart';
+import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
+import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
@@ -13,8 +14,6 @@ import 'package:empowered/features/profile/presentation/controllers/logout_bindi
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
 
 class MainDrawer extends GetView<MainController> {
   const MainDrawer({super.key});
@@ -95,6 +94,8 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () {
                         Navigator.pop(context);
+                        CourseInitializer.destroy();
+                        CourseInitializer.initialize();
                         Get.to(() => const CoursesScreen());
                       },
                       title: 'Course',
@@ -130,7 +131,8 @@ class MainDrawer extends GetView<MainController> {
                         // Safely get the first emotion ID
                         await Get.find<JournalChatController>()
                             .getJournalWithQuestionsAndAnswers(
-                                emotionId.toString(),);
+                          emotionId.toString(),
+                        );
                         // Navigate to JournalChatScreen with the emotion ID
                         Get.to(
                           () => JournalChatScreen(

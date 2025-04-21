@@ -18,6 +18,8 @@ class JournalChatController extends GetxController {
   Rx<TheStates> journalChatConversationState = TheStates.initial.obs;
   Rx<String?> selectedEmotionId = Rx<String?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
+  bool _shouldAutoScroll = false;
+
   // RxList<String> _selectedMediaPaths =  RxList<String>([]);
 
   @override
@@ -25,12 +27,23 @@ class JournalChatController extends GetxController {
     super.onInit();
     chatController = TextEditingController();
     scrollController = ScrollController();
+    scrollController.addListener(_scrollListener);
   }
 
   @override
   void onClose() {
     chatController.dispose();
     scrollController.dispose();
+  }
+
+  void _scrollListener() {
+    //  scrollController.jumpTo(scrollController.position.maxScrollExtent);
+    if (scrollController.position.pixels ==
+        scrollController.position.maxScrollExtent) {
+      _shouldAutoScroll = true;
+    } else {
+      _shouldAutoScroll = false;
+    }
   }
 
   Future<bool?> getJournalWithQuestionsAndAnswers(String id) async {
@@ -79,10 +92,10 @@ class JournalChatController extends GetxController {
           journalChatConversationState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
-        (r) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
+        (r) async {
+          if (_shouldAutoScroll) {
             scrollToBottom();
-          });
+          }
           journalChatConversationState.value = TheStates.success;
 
           chatConversationList
@@ -97,6 +110,7 @@ class JournalChatController extends GetxController {
             );
 
           chatController.clear();
+          await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
         },
       );
@@ -107,15 +121,16 @@ class JournalChatController extends GetxController {
   }
 
   void scrollToBottom() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (scrollController.hasClients) {
+    if (scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        const extraPadding = 100.0;
         scrollController.animateTo(
-          scrollController.position.maxScrollExtent,
+          scrollController.position.maxScrollExtent + extraPadding,
           duration: const Duration(milliseconds: 300),
           curve: Curves.easeOut,
         );
-      }
-    });
+      });
+    }
   }
 
   String getCurrentTime() {

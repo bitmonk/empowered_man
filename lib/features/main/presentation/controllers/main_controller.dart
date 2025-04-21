@@ -3,7 +3,6 @@ import 'package:empowered/core/extension/string_extension.dart';
 import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/main/data/source/main_remote_source.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:flutter/services.dart';
 
 enum DrawerItemEnum {

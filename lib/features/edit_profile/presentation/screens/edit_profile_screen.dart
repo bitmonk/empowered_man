@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/edit_profile/presentation/controllers/edit_profile_controller.dart';
-import 'package:empowered/utlis/uihelper.dart';
 import 'package:form_validator/form_validator.dart';
 
 class EditProfileScreen extends StatefulWidget {

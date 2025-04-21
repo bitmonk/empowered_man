@@ -26,61 +26,59 @@ class _JournalDrawerState extends State<JournalDrawer> {
       child: Container(
         padding: const EdgeInsets.all(24),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            VerticalSpacing(MediaQuery.of(context).viewPadding.top),
+            Row(
+              children: [
+                InkWell(
+                  onTap: () {
+                    Navigator.pop(context);
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
+                    child: Assets.images.drawerBack.svg(),
+                  ),
+                ),
+                const HorizontalSpacing(6),
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: const BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: AppColors.primary500,
+                  ),
+                  child: ClipOval(
+                    child: AppCachedImage(
+                      width: 48,
+                      height: 48,
+                      errorWid: const Icon(Icons.person),
+                      imgUrl: Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .image ??
+                          '',
+                    ),
+                  ),
+                ),
+                const HorizontalSpacing(16),
+                Text(
+                  Get.find<ProfileController>().userProfile.value.fullName ??
+                      '',
+                  style: AppTextStyles.textBodyB3.copyWith(
+                    color: AppColors.white,
+                  ),
+                ),
+              ],
+            ),
+            const VerticalSpacing(20),
+
+            // Reframes Section
+            _buildSectionTitle('Reframes'),
             Expanded(
               child: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    VerticalSpacing(MediaQuery.of(context).viewPadding.top),
-                    Row(
-                      children: [
-                        InkWell(
-                          onTap: () {
-                            Navigator.pop(context);
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 8, 8, 8),
-                            child: Assets.images.drawerBack.svg(),
-                          ),
-                        ),
-                        const HorizontalSpacing(6),
-                        Container(
-                          padding: const EdgeInsets.all(3),
-                          decoration: const BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: AppColors.primary500,
-                          ),
-                          child: ClipOval(
-                            child: AppCachedImage(
-                              width: 48,
-                              height: 48,
-                              errorWid: const Icon(Icons.person),
-                              imgUrl: Get.find<ProfileController>()
-                                      .userProfile
-                                      .value
-                                      .image ??
-                                  '',
-                            ),
-                          ),
-                        ),
-                        const HorizontalSpacing(16),
-                        Text(
-                          Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .fullName ??
-                              '',
-                          style: AppTextStyles.textBodyB3.copyWith(
-                            color: AppColors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const VerticalSpacing(20),
-
-                    // Reframes Section
-                    _buildSectionTitle('Reframes'),
                     _buildEmotionList(context),
 
                     const Divider(
@@ -109,7 +107,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
                   final emotions =
                       controller.journalEmotionName.value.data?.emotionNames ??
                           [];
-                          print('>>>>>>>>>>>>.>>>>>>>>>>>>>>>>>>Emotions: $emotions');
+                  print('>>>>>>>>>>>>.>>>>>>>>>>>>>>>>>>Emotions: $emotions');
                   Get.toNamed(
                     AppRoutes.journalLibrary,
                     arguments: {
@@ -119,7 +117,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
                 },
               ),
             ),
-            const BottomSpacing(),
+            const VerticalSpacing(10),
           ],
         ),
       ),
@@ -131,7 +129,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
       final emotions =
           controller.journalEmotionName.value.data?.emotionNames ?? [];
       if (controller.journalEmotionNameState.value == TheStates.loading) {
-        return const Center(child: CircularProgressIndicator());
+        return const LoadingWidget();
       }
       if (controller.journalEmotionNameState.value == TheStates.error) {
         return const Center(
@@ -185,7 +183,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
     return InkWell(
       onTap: () async {
         print(
-            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId');
+            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId',);
         Navigator.pop(context);
 
         final journalChatController = Get.find<JournalChatController>();

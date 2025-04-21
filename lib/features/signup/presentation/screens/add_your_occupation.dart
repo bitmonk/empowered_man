@@ -5,7 +5,6 @@ import 'package:empowered/features/notification/presentation/controller/notifica
 import 'package:empowered/features/notification/presentation/screen/notification_screen.dart';
 import 'package:empowered/features/signup/presentation/controller/signup_controller.dart';
 import 'package:empowered/features/signup/presentation/widgets/dots_indicator.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
 import 'package:form_validator/form_validator.dart';
 
 class AddYourOccupation extends StatefulWidget {

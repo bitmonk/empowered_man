@@ -127,7 +127,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           Assets.images.deletePop.path,
           'delete',
           () async {
-            Future.delayed(Duration(milliseconds: 100), () async {
+            Future.delayed(const Duration(milliseconds: 100), () async {
               if (widget.selectedItems.where((item) => item).isEmpty) {
                 AppUtils.showErrorSnackbar(
                   message: 'No journals selected for deletion',
@@ -139,7 +139,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
                 AlertDialog(
                   backgroundColor: AppColors.bgBorder,
                   title: const Text('Delete Journals',
-                      style: AppTextStyles.textHeadingH3),
+                      style: AppTextStyles.textHeadingH3,),
                   content: const Text(
                     'Are you sure you want to delete the selected journals? This action cannot be undone.',
                     style: AppTextStyles.textBodyB2,
@@ -188,13 +188,13 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
                 if (result == true) {
                   widget.onSelected(journalIds, true);
                   await _controller.getJournalLibrary(
-                      1, '', null, null, null, 10);
+                      1, '', null, null, null, 10,);
                   Get.close(1);
                 }
               } catch (e) {
                 print('Error deleting journals: $e');
                 AppUtils.showErrorSnackbar(
-                    message: 'Failed to delete journals: $e');
+                    message: 'Failed to delete journals: $e',);
               }
             });
           },

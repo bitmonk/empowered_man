@@ -46,8 +46,8 @@ class DioApiClient {
         headers: {
           'Accept': 'application/json',
         },
-        connectTimeout: const Duration(seconds: 50),
-        receiveTimeout: const Duration(seconds: 50),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
       )
       ..interceptors.addAll([
         AppInterceptor(preference, baseUrl),
@@ -124,6 +124,22 @@ class DioApiClient {
   }) async {
     return _request(
       () => _dio.delete(
+        url,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> patch(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.patch(
         url,
         queryParameters: queryParameters,
         data: body,
@@ -214,12 +230,6 @@ class AppInterceptor extends Interceptor {
 
   final AppSharedPref _preference;
   final String baseUrl;
-  final List<String> _noAuthEndpoints = [
-    // ExternalEndpoints.privacyPolicy,
-    // ExternalEndpoints.termsAndCondition,
-    // ExternalEndpoints.faq,
-    // ExternalEndpoints.faqCategory,
-  ];
 
   static bool isUnauthorized = false;
 
