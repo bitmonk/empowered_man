@@ -2,9 +2,7 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
-import 'package:html/parser.dart' show parse;
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:photo_view/photo_view.dart';
@@ -405,38 +403,36 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
             ),
           ),
           if (widget.isLoading)
-          Padding(
-            padding: const EdgeInsets.only(top: 8.0),
-            child: Row(
-              mainAxisAlignment: widget.isMine 
-                ? MainAxisAlignment.end 
-                : MainAxisAlignment.start,
-              children: [
-                Container(
-                  width: 16,
-                  height: 16,
-                  margin: const EdgeInsets.only(right: 8.0),
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(
-                      widget.isMine 
-                        ? Theme.of(context).primaryColor 
-                        : Colors.grey[600]!
+            Padding(
+              padding: const EdgeInsets.only(top: 8.0),
+              child: Row(
+                mainAxisAlignment: widget.isMine
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 16,
+                    height: 16,
+                    margin: const EdgeInsets.only(right: 8.0),
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      valueColor: AlwaysStoppedAnimation<Color>(widget.isMine
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[600]!),
                     ),
                   ),
-                ),
-                Text(
-                  'Sending...',
-                  style: TextStyle(
-                    color: widget.isMine 
-                      ? Theme.of(context).primaryColor 
-                      : Colors.grey[600],
-                    fontSize: 12,
+                  Text(
+                    'Sending...',
+                    style: TextStyle(
+                      color: widget.isMine
+                          ? Theme.of(context).primaryColor
+                          : Colors.grey[600],
+                      fontSize: 12,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
         ],
       ),
     );
