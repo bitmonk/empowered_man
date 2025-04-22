@@ -2,6 +2,8 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:flutter_html/flutter_html.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:html/parser.dart' show parse;
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -22,6 +24,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.images,
     this.videos,
     this.voices,
+    this.isLoading = false,
   });
 
   final bool isMine;
@@ -33,7 +36,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final List<String>? images;
   final List<String>? videos;
   final List<String>? voices;
-
+  final bool isLoading;
   final VoidCallback onLike;
 
   @override
@@ -115,14 +118,14 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     super.dispose();
   }
 
-  String _extractTextFromHtml(String htmlContent) {
-    try {
-      final document = parse(htmlContent);
-      return document.body?.text ?? '';
-    } catch (e) {
-      return htmlContent;
-    }
-  }
+  // String _extractTextFromHtml(String htmlContent) {
+  //   try {
+  //     final document = parse(htmlContent);
+  //     return document.body?.text ?? '';
+  //   } catch (e) {
+  //     return htmlContent;
+  //   }
+  // }
 
   String _formatTimestamp(String timestamp) {
     try {
@@ -217,7 +220,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
 
   @override
   Widget build(BuildContext context) {
-    final displayMessage = _extractTextFromHtml(widget.message);
+    // final displayMessage = _extractTextFromHtml(widget.message);
     final formattedTimestamp = _formatTimestamp(widget.timeStamp);
 
     return Align(
@@ -259,7 +262,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                         alignment: Alignment.bottomRight,
                         clipBehavior: Clip.none,
                         children: [
-                          if (displayMessage.isNotEmpty)
+                          if (widget.message.isNotEmpty)
                             Container(
                               margin: const EdgeInsets.all(4),
                               padding: const EdgeInsets.all(10),
@@ -286,10 +289,10 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  Text(
-                                    displayMessage,
-                                    style: AppTextStyles.textBodyB2,
-                                    softWrap: true,
+                                  HtmlWidget(
+                                    //  shrinkWrap: true,
+                                    widget.message,
+                                    textStyle: AppTextStyles.textBodyB2,
                                   ),
                                 ],
                               ),
@@ -398,6 +401,39 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                           .image(height: 25, width: 25),
                     ),
                   ),
+              ],
+            ),
+          ),
+          if (widget.isLoading)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisAlignment: widget.isMine 
+                ? MainAxisAlignment.end 
+                : MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  margin: const EdgeInsets.only(right: 8.0),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      widget.isMine 
+                        ? Theme.of(context).primaryColor 
+                        : Colors.grey[600]!
+                    ),
+                  ),
+                ),
+                Text(
+                  'Sending...',
+                  style: TextStyle(
+                    color: widget.isMine 
+                      ? Theme.of(context).primaryColor 
+                      : Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),

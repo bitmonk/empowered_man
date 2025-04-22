@@ -28,6 +28,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   bool buttonPressed = false;
   String? currentMainQuestionId;
   String? currentFollowUpQuestionId;
+  bool _isSendingMessage = false;
 
   @override
   void initState() {
@@ -39,8 +40,17 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     controller.selectedEmotionId.listen((id) {
       if (id != null && id.isNotEmpty) {
-        controller.getJournalWithQuestionsAndAnswers(id);
+        controller.getJournalWithQuestionsAndAnswers(id).then((_) {
+          // Ensure we scroll to bottom after data is loaded
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            controller.scrollToBottom();
+          });
+        });
       }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.scrollToBottom();
     });
   }
 
@@ -126,11 +136,14 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               isJournal: true,
               message: item.message,
               isMine: item.isMine,
-              timeStamp: item.timestamp,
+              timeStamp: item.timestamp ?? '',
               onLike: () {},
               images: item.images,
               videos: item.videos,
               voices: item.voices,
+              isLoading: _isSendingMessage &&
+                  item.isMine &&
+                  item.type == MessageType.answer,
             );
             if (item.type == MessageType.question && index < items.length - 1) {
               final nextItem = items[index + 1];
@@ -138,7 +151,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 messageWidget = Column(
                   children: [
                     messageWidget,
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                   ],
                 );
               }
@@ -280,83 +293,107 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 //   }
                 // }
                 return controller.journalChatConversationState.value.showWidget(
-                    orElse: () => CustomErrorWidget(
-                          onPressed: () {},
+                  orElse: () => CustomErrorWidget(
+                    onPressed: () {},
+                  ),
+                  loading: () => const LoadingWidget(),
+                  success: () => SingleChildScrollView(
+                    controller: controller.scrollController,
+                    child: Column(
+                      children: [
+                        ListView.builder(
+                          // reverse: true,
+                          shrinkWrap: true,
+                          // controller: controller.scrollController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          keyboardDismissBehavior:
+                              ScrollViewKeyboardDismissBehavior.onDrag,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 24,
+                            horizontal: 16,
+                          ),
+                          itemCount: items.length,
+                          // itemCount: items.length,
+                          itemBuilder: (context, index) {
+                            final item = items[index];
+
+                            Widget messageWidget = ChatBubbleContainer(
+                              isJournal: true,
+                              message: item.message,
+                              isMine: item.isMine,
+                              timeStamp: item.timestamp ?? '',
+                              onLike: () {},
+                              images: item.images,
+                              videos: item.videos,
+                              voices: item.voices,
+                            );
+
+                            // Add spacing between questions and their answers
+                            if (item.type == MessageType.question &&
+                                index < items.length - 1) {
+                              final nextItem = items[index + 1];
+                              if (nextItem.type == MessageType.answer) {
+                                messageWidget = Column(
+                                  children: [
+                                    messageWidget,
+                                    const SizedBox(height: 8),
+                                  ],
+                                );
+                              }
+
+                              if (index == 0) {
+                                final timestamp = items.length == 1
+                                    ? DateTime.now().toString()
+                                    : nextItem.timestamp;
+                                messageWidget = ChatBubbleContainer(
+                                  isJournal: true,
+                                  message: item.message,
+                                  isMine: item.isMine,
+                                  timeStamp: timestamp ?? '',
+                                  onLike: () {},
+                                  images: item.images,
+                                  videos: item.videos,
+                                  voices: item.voices,
+                                );
+                              }
+                            }
+
+                            return messageWidget;
+                          },
                         ),
-                    loading: () => const LoadingWidget(),
-                    success: () => SingleChildScrollView(
-                          child: Column(
-                            children: [
-                              ListView.builder(
-                                // reverse: true,
-                                shrinkWrap: true,
-                                // controller: controller.scrollController,
-                                physics: const NeverScrollableScrollPhysics(),
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 24,
-                                  horizontal: 16,
-                                ),
-                                itemCount: items.length,
-                                // itemCount: items.length,
-                                itemBuilder: (context, index) {
-                                  final item = items[index];
-
-                                  Widget messageWidget = ChatBubbleContainer(
-                                    isJournal: true,
-                                    message: item.message,
-                                    isMine: item.isMine,
-                                    timeStamp: item.timestamp,
-                                    onLike: () {},
-                                    images: item.images,
-                                    videos: item.videos,
-                                    voices: item.voices,
-                                  );
-
-                                  // Add spacing between questions and their answers
-                                  if (item.type == MessageType.question &&
-                                      index < items.length - 1) {
-                                    final nextItem = items[index + 1];
-                                    if (nextItem.type == MessageType.answer) {
-                                      messageWidget = Column(
-                                        children: [
-                                          messageWidget,
-                                          const SizedBox(height: 8),
-                                        ],
-                                      );
-                                    }
-                                  }
-
-                                  return messageWidget;
+                        if (allQuestionsAnswered)
+                          if (showWidget)
+                            showFollowUpQuestions()
+                          else if (!buttonPressed)
+                            Padding(
+                              padding: const EdgeInsets.only(
+                                top: 32,
+                                left: 40,
+                                right: 40,
+                              ),
+                              child: AppOutlinedButton(
+                                text: 'Begin Journaling',
+                                onPressed: () {
+                                  startJournaling();
+                                  setState(() {
+                                    showWidget = true;
+                                    buttonPressed = true;
+                                  });
                                 },
                               ),
-                              if (allQuestionsAnswered)
-                                if (showWidget)
-                                  showFollowUpQuestions()
-                                else if (!buttonPressed)
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 32,
-                                      left: 40,
-                                      right: 40,
-                                    ),
-                                    child: AppOutlinedButton(
-                                      text: 'Begin Journaling',
-                                      onPressed: () {
-                                        startJournaling();
-                                        setState(() {
-                                          showWidget = true;
-                                          buttonPressed = true;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                else
-                                  const SizedBox(),
-                            ],
-                          ),
-                        ),);
+                            )
+                          else
+                            const SizedBox(),
+                        const SizedBox(height: 60),
+                        Container(
+                          height: 1,
+                          width: double.infinity,
+                          key: const ValueKey('scroll-bottom-anchor'),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
               }),
             ),
             Obx(() {
@@ -384,6 +421,26 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 journalId: journal?.id?.toString() ?? '',
                 mainQuestionId: mainQuestionId,
                 followupQuestionId: followupQuestionId,
+                onMessageSent: () async {
+                  setState(() {
+                    _isSendingMessage = true;
+                  });
+                  // Force scroll to bottom whenever a message is sent
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    controller.autoScrollEnabled.value = true;
+                    controller.scrollToBottom();
+                  });
+                  try {
+                    await Future.delayed(const Duration(
+                        milliseconds: 500)); // Simulate sending delay
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isSendingMessage = false;
+                      });
+                    }
+                  }
+                },
               );
             }),
           ],
@@ -397,19 +454,21 @@ class MessageItem {
   MessageItem({
     required this.type,
     required this.message,
-    required this.timestamp,
+    this.timestamp,
     required this.isMine,
     this.images,
     this.videos,
     this.voices,
+    this.isLoading = false,
   });
   final MessageType type;
   final String message;
-  final String timestamp;
+  final String? timestamp;
   final bool isMine;
   final List<String>? images;
   final List<String>? videos;
   final List<String>? voices;
+  final bool isLoading;
 }
 
 enum MessageType { question, answer }

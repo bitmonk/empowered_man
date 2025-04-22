@@ -88,10 +88,7 @@ class JournalEmotionNameController extends GetxController {
       },
       (r) {
         journalEmotionNameState.value = TheStates.success;
-
         userJournalResponse.value = r;
-
-        // Access emotions like this:
 
         return true;
       },
