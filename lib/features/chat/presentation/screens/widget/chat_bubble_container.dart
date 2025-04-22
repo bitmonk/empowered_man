@@ -43,6 +43,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final String? selectedOption;
   final Function(String)? onYesNoOptionSelected;
 
+  @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
 }
 
@@ -461,7 +462,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               bottom: -10,
                               right: widget.isMine ? -10 : null,
                               left: widget.isMine ? null : -10,
-                              child: Container(
+                              child: SizedBox(
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(

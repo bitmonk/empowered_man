@@ -11,7 +11,7 @@ class CourseController extends GetxController {
 
   final List<String> filters = ['All', 'Ongoing', 'Completed'];
   RxString selectedFilters = 'All'.obs;
-
+  TextEditingController searchController = TextEditingController();
   Map<String, List<Course>> filteredCourses = {
     'all': [],
     'ongoing': [],

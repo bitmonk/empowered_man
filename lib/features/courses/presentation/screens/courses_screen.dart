@@ -74,11 +74,12 @@ class _CoursesScreenState extends State<CoursesScreen> {
 
   Widget _buildSearchBar() {
     return AppTextFormField(
-      labelText: 'Search...',
+      hintText: 'Search...',
       prefixIcon: Padding(
         padding: const EdgeInsets.only(left: 16, right: 16),
         child: Assets.images.search.svg(),
       ),
+      controller: controller.searchController,
       onChanged: (v) {
         if (v.isNotEmpty) {
           controller.queryText.value = v;
@@ -88,6 +89,23 @@ class _CoursesScreenState extends State<CoursesScreen> {
           controller.fetchAllCourses();
         }
       },
+      suffixIcon: controller.queryText.value != null
+          ? GestureDetector(
+              onTap: () {
+                controller.queryText.value = null;
+                controller.searchController.clear();
+                context.hideKeyboard();
+                controller.selectedFilters.value = 'All';
+                controller.getCourses(
+                  tag: 'all',
+                );
+              },
+              child: const Padding(
+                padding: EdgeInsets.only(left: 16, right: 16),
+                child: Icon(Icons.clear),
+              ),
+            )
+          : null,
       fillColor: AppColors.color132534,
       borderSide: const BorderSide(
         color: AppColors.color132534,

@@ -507,10 +507,10 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           else
                             const SizedBox(),
                         const SizedBox(height: 60),
-                        Container(
+                        const SizedBox(
                           height: 1,
                           width: double.infinity,
-                          key: const ValueKey('scroll-bottom-anchor'),
+                          key: ValueKey('scroll-bottom-anchor'),
                         ),
                       ],
                     ),

@@ -3,7 +3,6 @@ import 'dart:io';
 
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:just_audio/just_audio.dart';
 import 'package:path/path.dart' as p;

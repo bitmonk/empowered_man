@@ -77,7 +77,9 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
           if (widget.chapter.videoUrl != null)
             LinearProgressIndicator(
               borderRadius: BorderRadius.circular(20),
-              value: _videoCompleteValue,
+              value: widget.chapter.status == 'completed'
+                  ? 1.0
+                  : _videoCompleteValue,
               minHeight: 8,
               backgroundColor: AppColors.textColor200,
               valueColor:
@@ -117,15 +119,20 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
               : 'Completed',
           backgroundColor: widget.chapter.status == 'completed'
               ? AppColors.appGreen
-              : AppColors.primary500,
+              : AppColors.dividerGrey,
+          progress:
+              widget.chapter.status == 'completed' ? null : _videoCompleteValue,
           isLoading:
               controller.markChapterCompletedState.value == TheStates.loading,
           onPressed: () {
-            if (widget.chapter.status != 'completed') {
+            if (widget.chapter.status != 'completed' &&
+                _videoCompleteValue > 0.9) {
               controller.markChapterCompleted(
                 courseId: widget.courseID,
                 chapterId: widget.chapter.id.toString(),
               );
+            } else {
+              AppUtils.showErrorSnackbar(message: 'Please watch full video');
             }
           },
         ),
