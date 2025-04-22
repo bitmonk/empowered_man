@@ -19,6 +19,7 @@ class JournalChatController extends GetxController {
   Rx<String?> selectedEmotionId = Rx<String?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
   RxBool autoScrollEnabled = true.obs;
+  RxBool isLoading = false.obs;
 
   // RxList<String> _selectedMediaPaths =  RxList<String>([]);
 
@@ -62,7 +63,7 @@ class JournalChatController extends GetxController {
   }
 
   Future<bool?> getJournalWithQuestionsAndAnswers(String id) async {
-    journalChatConversationState.value = TheStates.loading;
+    // journalChatConversationState.value = TheStates.loading;
     final result = await remoteSource.getJournalWithQuestionsAndAnswers(id);
     var res = result.fold(
       (l) {
@@ -90,7 +91,7 @@ class JournalChatController extends GetxController {
     _cancelToken = CancelToken();
     autoScrollEnabled.value = true;
 
-    journalChatConversationState.value = TheStates.loading;
+    // journalChatConversationState.value = TheStates.loading;
 
     try {
       final result = await remoteSource.sendMessage(
@@ -126,15 +127,19 @@ class JournalChatController extends GetxController {
             );
 
           chatController.clear();
+          await getJournalWithQuestionsAndAnswers(journalId);
           await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
+          isLoading.value = false;
         },
       );
     } catch (e) {
       journalChatConversationState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: e.toString());
+      isLoading.value = false;
     }
   }
+  
 
   void scrollToBottom() {
     if (scrollController.hasClients) {

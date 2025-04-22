@@ -23,6 +23,9 @@ class ChatBubbleContainer extends StatefulWidget {
     this.videos,
     this.voices,
     this.isLoading = false,
+    this.isYesNoQuestion = false,
+    this.selectedOption,
+    this.onYesNoOptionSelected,
   });
 
   final bool isMine;
@@ -36,8 +39,10 @@ class ChatBubbleContainer extends StatefulWidget {
   final List<String>? voices;
   final bool isLoading;
   final VoidCallback onLike;
+  final bool isYesNoQuestion;
+  final String? selectedOption;
+  final Function(String)? onYesNoOptionSelected;
 
-  @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
 }
 
@@ -48,9 +53,11 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   bool _isVideoInitialized = false;
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
+  String? _selectedOption;
   @override
   void initState() {
     super.initState();
+    _selectedOption = widget.selectedOption;
     _audioPlayer = AudioPlayer();
     isLiked = widget.isLiked;
     _initializeVideo();
@@ -105,6 +112,77 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
         });
       }
     }
+  }
+
+  Widget _buildYesNoQuestion() {
+    return Container(
+      padding: const EdgeInsets.all(10),
+      decoration: BoxDecoration(
+        border: Border.all(color: AppColors.bgBorder),
+        color: AppColors.bgMedium,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          HtmlWidget(
+            widget.message,
+            textStyle: AppTextStyles.textBodyB2,
+          ),
+          const SizedBox(height: 16),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
+                _handleYesNoSelection('Yes');
+              }),
+              const SizedBox(height: 12),
+              _buildYesNoOption('No', _selectedOption == 'No', () {
+                _handleYesNoSelection('No');
+              }),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildYesNoOption(String text, bool isSelected, Function() onTap) {
+    return InkWell(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+        child: Row(
+          children: [
+            Radio<String>(
+              value: text,
+              groupValue: _selectedOption,
+              onChanged: (value) {
+                if (value != null) {
+                  onTap();
+                }
+              },
+              activeColor: AppColors.primary500,
+            ),
+            const SizedBox(width: 12),
+            Text(
+              text,
+              style: AppTextStyles.textBodyB2.copyWith(
+                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _handleYesNoSelection(String option) {
+    setState(() {
+      _selectedOption = option;
+    });
+
+    widget.onYesNoOptionSelected?.call(option);
   }
 
   @override
@@ -287,11 +365,14 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.end,
                                 children: [
-                                  HtmlWidget(
-                                    //  shrinkWrap: true,
-                                    widget.message,
-                                    textStyle: AppTextStyles.textBodyB2,
-                                  ),
+                                  if (widget.isYesNoQuestion)
+                                    _buildYesNoQuestion()
+                                  else
+                                    HtmlWidget(
+                                      //  shrinkWrap: true,
+                                      widget.message,
+                                      textStyle: AppTextStyles.textBodyB2,
+                                    ),
                                 ],
                               ),
                             ),
@@ -375,6 +456,24 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               const SizedBox(height: 8),
                             ],
                           ),
+                          if (widget.isLoading)
+                            Positioned(
+                              bottom: -10,
+                              right: widget.isMine ? -10 : null,
+                              left: widget.isMine ? null : -10,
+                              child: Container(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    widget.isMine
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.grey[600]!,
+                                  ),
+                                ),
+                              ),
+                            ),
                           if (isLiked)
                             Positioned(
                               right: -10,
@@ -402,37 +501,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
               ],
             ),
           ),
-          if (widget.isLoading)
-            Padding(
-              padding: const EdgeInsets.only(top: 8.0),
-              child: Row(
-                mainAxisAlignment: widget.isMine
-                    ? MainAxisAlignment.end
-                    : MainAxisAlignment.start,
-                children: [
-                  Container(
-                    width: 16,
-                    height: 16,
-                    margin: const EdgeInsets.only(right: 8.0),
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(widget.isMine
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[600]!),
-                    ),
-                  ),
-                  Text(
-                    'Sending...',
-                    style: TextStyle(
-                      color: widget.isMine
-                          ? Theme.of(context).primaryColor
-                          : Colors.grey[600],
-                      fontSize: 12,
-                    ),
-                  ),
-                ],
-              ),
-            ),
         ],
       ),
     );
