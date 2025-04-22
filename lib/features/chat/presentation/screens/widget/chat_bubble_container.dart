@@ -24,6 +24,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.images,
     this.videos,
     this.voices,
+    this.isLoading = false,
   });
 
   final bool isMine;
@@ -35,7 +36,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final List<String>? images;
   final List<String>? videos;
   final List<String>? voices;
-
+  final bool isLoading;
   final VoidCallback onLike;
 
   @override
@@ -400,6 +401,39 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                           .image(height: 25, width: 25),
                     ),
                   ),
+              ],
+            ),
+          ),
+          if (widget.isLoading)
+          Padding(
+            padding: const EdgeInsets.only(top: 8.0),
+            child: Row(
+              mainAxisAlignment: widget.isMine 
+                ? MainAxisAlignment.end 
+                : MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: 16,
+                  height: 16,
+                  margin: const EdgeInsets.only(right: 8.0),
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2,
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      widget.isMine 
+                        ? Theme.of(context).primaryColor 
+                        : Colors.grey[600]!
+                    ),
+                  ),
+                ),
+                Text(
+                  'Sending...',
+                  style: TextStyle(
+                    color: widget.isMine 
+                      ? Theme.of(context).primaryColor 
+                      : Colors.grey[600],
+                    fontSize: 12,
+                  ),
+                ),
               ],
             ),
           ),

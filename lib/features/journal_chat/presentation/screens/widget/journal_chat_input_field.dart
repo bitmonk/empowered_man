@@ -17,12 +17,15 @@ class JournalChatInputField extends StatefulWidget {
     required this.journalId,
     this.mainQuestionId,
     this.followupQuestionId,
+    this.onMessageSent, 
     super.key,
   });
   final FocusNode focusNode;
   final String journalId;
   final String? mainQuestionId;
   final String? followupQuestionId;
+  final VoidCallback? onMessageSent; 
+
 
   @override
   State<JournalChatInputField> createState() => _JournalChatInputFieldState();
@@ -215,6 +218,9 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
           widget.mainQuestionId,
           widget.followupQuestionId,
         );
+        if (widget.onMessageSent != null) {
+          widget.onMessageSent!();
+        }
       }
       setState(() {
         _selectedMediaPaths = []; // Reset selection

@@ -28,6 +28,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   bool buttonPressed = false;
   String? currentMainQuestionId;
   String? currentFollowUpQuestionId;
+  bool _isSendingMessage = false;
 
   @override
   void initState() {
@@ -39,8 +40,17 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     controller.selectedEmotionId.listen((id) {
       if (id != null && id.isNotEmpty) {
-        controller.getJournalWithQuestionsAndAnswers(id);
+        controller.getJournalWithQuestionsAndAnswers(id).then((_) {
+          // Ensure we scroll to bottom after data is loaded
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            controller.scrollToBottom();
+          });
+        });
       }
+    });
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.scrollToBottom();
     });
   }
 
@@ -131,6 +141,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               images: item.images,
               videos: item.videos,
               voices: item.voices,
+              isLoading: _isSendingMessage &&
+                  item.isMine &&
+                  item.type == MessageType.answer,
             );
             if (item.type == MessageType.question && index < items.length - 1) {
               final nextItem = items[index + 1];
@@ -138,7 +151,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 messageWidget = Column(
                   children: [
                     messageWidget,
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 8),
                   ],
                 );
               }
@@ -371,6 +384,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             )
                           else
                             const SizedBox(),
+                        const SizedBox(height: 60),
+                        Container(
+                          height: 1,
+                          width: double.infinity,
+                          key: const ValueKey('scroll-bottom-anchor'),
+                        ),
                       ],
                     ),
                   ),
@@ -402,6 +421,26 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 journalId: journal?.id?.toString() ?? '',
                 mainQuestionId: mainQuestionId,
                 followupQuestionId: followupQuestionId,
+                onMessageSent: () async {
+                  setState(() {
+                    _isSendingMessage = true;
+                  });
+                  // Force scroll to bottom whenever a message is sent
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    controller.autoScrollEnabled.value = true;
+                    controller.scrollToBottom();
+                  });
+                  try {
+                    await Future.delayed(const Duration(
+                        milliseconds: 500)); // Simulate sending delay
+                  } finally {
+                    if (mounted) {
+                      setState(() {
+                        _isSendingMessage = false;
+                      });
+                    }
+                  }
+                },
               );
             }),
           ],
@@ -420,6 +459,7 @@ class MessageItem {
     this.images,
     this.videos,
     this.voices,
+    this.isLoading = false,
   });
   final MessageType type;
   final String message;
@@ -428,6 +468,7 @@ class MessageItem {
   final List<String>? images;
   final List<String>? videos;
   final List<String>? voices;
+  final bool isLoading;
 }
 
 enum MessageType { question, answer }

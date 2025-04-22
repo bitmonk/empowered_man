@@ -18,7 +18,7 @@ class JournalChatController extends GetxController {
   Rx<TheStates> journalChatConversationState = TheStates.initial.obs;
   Rx<String?> selectedEmotionId = Rx<String?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
-  bool _shouldAutoScroll = false;
+  RxBool autoScrollEnabled = true.obs;
 
   // RxList<String> _selectedMediaPaths =  RxList<String>([]);
 
@@ -28,21 +28,36 @@ class JournalChatController extends GetxController {
     chatController = TextEditingController();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    journalChatConversationState.listen((state) {
+      if (state == TheStates.success && autoScrollEnabled.value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToBottom();
+        });
+      }
+    });
   }
 
   @override
   void onClose() {
     chatController.dispose();
     scrollController.dispose();
+    super.onClose();
   }
 
   void _scrollListener() {
-    //  scrollController.jumpTo(scrollController.position.maxScrollExtent);
-    if (scrollController.position.pixels ==
-        scrollController.position.maxScrollExtent) {
-      _shouldAutoScroll = true;
-    } else {
-      _shouldAutoScroll = false;
+    // If we're close to the bottom (within 100 pixels), enable auto-scrolling
+    if (scrollController.hasClients) {
+      final position = scrollController.position;
+      final maxScroll = position.maxScrollExtent;
+      final currentScroll = position.pixels;
+
+      // Enable auto-scroll if user is at or near bottom
+      if (maxScroll - currentScroll <= 100) {
+        autoScrollEnabled.value = true;
+      } else {
+        // Disable auto-scroll if user manually scrolled up
+        autoScrollEnabled.value = false;
+      }
     }
   }
 
@@ -73,6 +88,7 @@ class JournalChatController extends GetxController {
     String? followupQuestionId,
   ) async {
     _cancelToken = CancelToken();
+    autoScrollEnabled.value = true;
 
     journalChatConversationState.value = TheStates.loading;
 
@@ -93,9 +109,9 @@ class JournalChatController extends GetxController {
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) async {
-          if (_shouldAutoScroll) {
-            scrollToBottom();
-          }
+          // if (_shouldAutoScroll) {
+          //   scrollToBottom();
+          // }
           journalChatConversationState.value = TheStates.success;
 
           chatConversationList
@@ -123,7 +139,7 @@ class JournalChatController extends GetxController {
   void scrollToBottom() {
     if (scrollController.hasClients) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        const extraPadding = 100.0;
+        const extraPadding = 200.0;
         scrollController.animateTo(
           scrollController.position.maxScrollExtent + extraPadding,
           duration: const Duration(milliseconds: 300),
