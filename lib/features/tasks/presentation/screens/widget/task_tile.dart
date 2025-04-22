@@ -93,23 +93,24 @@ class _TaskTileState extends State<TaskTile> {
                         //font => inter
                       ),
                       Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                          ),
-                          child: ColoredPaddedCotainer(
-                            horizontalPadding: 8,
-                            borderColor:
-                                priorityColor(priority: widget.task.priority!),
-                            borderRadius: 5,
-                            color: AppColors.bgBorder,
-                            title: widget.task.priority ?? '',
-                            //font => inter
-                            textStyle:
-                                AppTextStyles.lightBodySubHeader.copyWith(
-                              color: priorityColor(
-                                  priority: widget.task.priority!,),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                        ),
+                        child: ColoredPaddedCotainer(
+                          horizontalPadding: 8,
+                          borderColor:
+                              priorityColor(priority: widget.task.priority!),
+                          borderRadius: 5,
+                          color: AppColors.bgBorder,
+                          title: widget.task.priority ?? '',
+                          //font => inter
+                          textStyle: AppTextStyles.lightBodySubHeader.copyWith(
+                            color: priorityColor(
+                              priority: widget.task.priority!,
                             ),
-                          ),),
+                          ),
+                        ),
+                      ),
                       const Spacer(),
                       if (isExpandedTaskTile)
                         Row(
@@ -187,7 +188,7 @@ class _TaskTileState extends State<TaskTile> {
                         if (widget.task.subTasks != null)
                           SubTaskList(
                               subTaskList: widget.task.subTasks ?? [],
-                              priority: widget.task.priority ?? '',),
+                              mainTask: widget.task,),
                       ],
                     ),
                 ],

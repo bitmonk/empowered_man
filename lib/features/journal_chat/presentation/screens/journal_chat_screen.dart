@@ -102,6 +102,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             message: question?.question ?? '',
             timestamp: questionTimestamp,
             isMine: false,
+            isYesNoQuestion: question?.questionType == 'yes_no',
+            questionId: question?.id.toString(),
           ),
         );
         if (question?.answered == true) {
@@ -118,6 +120,26 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             ),
           );
         }
+        // else if (question?.questionType == 'yes_no') {
+        //   // Add yes/no options as message items
+        //   items
+        //     ..add(
+        //       MessageItem(
+        //         type: MessageType.option,
+        //         message: 'Yes',
+        //         isMine: false,
+        //         timestamp: questionTimestamp,
+        //       ),
+        //     )
+        //     ..add(
+        //       MessageItem(
+        //         type: MessageType.option,
+        //         message: 'No',
+        //         isMine: false,
+        //         timestamp: questionTimestamp,
+        //       ),
+        //     );
+        // }
       }
     }
 
@@ -132,18 +154,87 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           itemCount: items.length,
           itemBuilder: (context, index) {
             final item = items[index];
-            Widget messageWidget = ChatBubbleContainer(
-              isJournal: true,
+            // Widget messageWidget = ChatBubbleContainer(
+            //   isJournal: true,
+            //   message: item.message,
+            //   isMine: item.isMine,
+            //   timeStamp: item.timestamp ?? '',
+            //   onLike: () {},
+            //   images: item.images,
+            //   videos: item.videos,
+            //   voices: item.voices,
+            //   isLoading: _isSendingMessage &&
+            //       item.isMine &&
+            //       item.type == MessageType.answer,
+            //   isYesNoQuestion: item.isYesNoQuestion,
+            //   selectedOption: item.selectedOption,
+            // );
+            final messageItem = MessageItem(
+              type: item.type,
               message: item.message,
+              timestamp: item.timestamp,
               isMine: item.isMine,
-              timeStamp: item.timestamp ?? '',
-              onLike: () {},
               images: item.images,
               videos: item.videos,
               voices: item.voices,
               isLoading: _isSendingMessage &&
                   item.isMine &&
                   item.type == MessageType.answer,
+              isYesNoQuestion: item.isYesNoQuestion,
+              selectedOption: item.selectedOption,
+            );
+
+            // Create the base message widget
+            Widget messageWidget = ChatBubbleContainer(
+              isJournal: true,
+              message: messageItem.message,
+              isMine: messageItem.isMine,
+              timeStamp: messageItem.timestamp ?? '',
+              onLike: () {},
+              images: messageItem.images,
+              videos: messageItem.videos,
+              voices: messageItem.voices,
+              isLoading: messageItem.isLoading,
+              isYesNoQuestion: messageItem.isYesNoQuestion,
+              selectedOption:
+                  messageItem.selectedOption, // Pass selected option
+              onYesNoOptionSelected: (option) {
+                // Handle Yes/No selection
+                if (
+                    messageItem.isYesNoQuestion 
+                   ) {
+                  String questionId;
+
+                  // Find in main questions
+                  final mainQuestion = journallist.mainQuestions?.firstWhere(
+                    (q) => q.question == messageItem.message,
+                    //  orElse: () => null,
+                  );
+
+                  // If not in main questions, check follow-up questions
+                  if (mainQuestion != null) {
+                    questionId = mainQuestion.id?.toString() ?? '';
+                  } else {
+                    final followUpQuestion =
+                        journallist.followUpQuestions?.firstWhere(
+                      (q) => q.question == messageItem.message,
+                      //orElse: () => null,
+                    );
+                    questionId = followUpQuestion?.id?.toString() ?? '';
+                  }
+
+                  if (questionId.isNotEmpty) {
+                    controller.sendMessage(
+                      journallist.id.toString(),
+                      null, // mediaPath
+                      option.toLowerCase(), // "yes" or "no"
+
+                      null,
+                      item.questionId,
+                    );
+                  }
+                }
+              },
             );
             if (item.type == MessageType.question && index < items.length - 1) {
               final nextItem = items[index + 1];
@@ -227,7 +318,11 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 if (journal == null) {
                   return const Center(child: CircularProgressIndicator());
                 }
-
+                if (controller.isLoading.value) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
                 var items = <MessageItem>[];
                 var shouldShowQuestion = true;
 
@@ -316,17 +411,43 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           // itemCount: items.length,
                           itemBuilder: (context, index) {
                             final item = items[index];
-
-                            Widget messageWidget = ChatBubbleContainer(
-                              isJournal: true,
+                            final messageItem = MessageItem(
+                              type: item.type,
                               message: item.message,
+                              timestamp: item.timestamp,
                               isMine: item.isMine,
-                              timeStamp: item.timestamp ?? '',
-                              onLike: () {},
                               images: item.images,
                               videos: item.videos,
                               voices: item.voices,
+                              isLoading: _isSendingMessage &&
+                                  item.isMine &&
+                                  item.type == MessageType.answer,
+                              isYesNoQuestion: item.isYesNoQuestion,
                             );
+
+                            // Create the base message widget
+                            Widget messageWidget = ChatBubbleContainer(
+                              isJournal: true,
+                              message: messageItem.message,
+                              isMine: messageItem.isMine,
+                              timeStamp: messageItem.timestamp ?? '',
+                              onLike: () {},
+                              images: messageItem.images,
+                              videos: messageItem.videos,
+                              voices: messageItem.voices,
+                              isLoading: messageItem.isLoading,
+                              isYesNoQuestion: messageItem.isYesNoQuestion,
+                            );
+                            // Widget messageWidget = ChatBubbleContainer(
+                            //   isJournal: true,
+                            //   message: item.message,
+                            //   isMine: item.isMine,
+                            //   timeStamp: item.timestamp ?? '',
+                            //   onLike: () {},
+                            //   images: item.images,
+                            //   videos: item.videos,
+                            //   voices: item.voices,
+                            // );
 
                             // Add spacing between questions and their answers
                             if (item.type == MessageType.question &&
@@ -354,6 +475,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   images: item.images,
                                   videos: item.videos,
                                   voices: item.voices,
+                                  // onYesNoOptionSelected: (option) {},
                                 );
                               }
                             }
@@ -425,14 +547,30 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   setState(() {
                     _isSendingMessage = true;
                   });
+
                   // Force scroll to bottom whenever a message is sent
                   WidgetsBinding.instance.addPostFrameCallback((_) {
                     controller.autoScrollEnabled.value = true;
                     controller.scrollToBottom();
                   });
+
                   try {
-                    await Future.delayed(const Duration(
-                        milliseconds: 500)); // Simulate sending delay
+                    // Add your message locally first to show with loading indicator
+                    final newMessage = MessageItem(
+                      type: MessageType.answer,
+                      message: controller.chatController.text.trim(),
+                      timestamp: DateTime.now().toString(),
+                      isMine: true,
+                      isLoading: true,
+                    );
+
+                    await controller.sendMessage(
+                      journal?.id?.toString() ?? '',
+                      null, // mediaPath
+                      controller.chatController.text.trim(),
+                      mainQuestionId,
+                      followupQuestionId,
+                    );
                   } finally {
                     if (mounted) {
                       setState(() {
@@ -454,12 +592,15 @@ class MessageItem {
   MessageItem({
     required this.type,
     required this.message,
-    this.timestamp,
     required this.isMine,
+    this.timestamp,
     this.images,
     this.videos,
     this.voices,
     this.isLoading = false,
+    this.isYesNoQuestion = false,
+    this.selectedOption,
+    this.questionId,
   });
   final MessageType type;
   final String message;
@@ -469,6 +610,9 @@ class MessageItem {
   final List<String>? videos;
   final List<String>? voices;
   final bool isLoading;
+  final bool isYesNoQuestion;
+  final String? selectedOption;
+  final String? questionId;
 }
 
-enum MessageType { question, answer }
+enum MessageType { question, answer, option }

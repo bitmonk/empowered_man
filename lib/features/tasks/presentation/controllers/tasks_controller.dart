@@ -8,39 +8,24 @@ import 'package:intl/intl.dart';
 class TasksController extends GetxController {
   TasksController({required this.remoteSource});
   final TasksRemoteSource remoteSource;
-  final RxList<DaysFilterModel> daysList = <DaysFilterModel>[].obs;
+  RxList<DaysFilterModel> daysList = <DaysFilterModel>[].obs;
   late Rx<DateTime> fromDate;
   late Rx<DateTime> toDate;
 
   RxList<String> taskCategoryTitle =
       ['Hit List', 'Mit List', 'Do List', 'Achieved List', 'Done List'].obs;
-  RxList<String> subTaskList = [
-    'Sub Task 1',
-    'Sub Task 1',
-    'Sub Task 1t',
-    ' Sub Task 1',
-    'Sub Task 1',
-  ].obs;
 
   RxList<String> levelList = <String>[].obs;
   RxList<String> completionStatusList = <String>[].obs;
   RxList<String> prioritiesList = <String>[].obs;
-  RxList<String> weekDaysList = <String>[
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ].obs;
+
   RxBool isExpandedHitList = false.obs;
   RxBool isExpandedMitList = false.obs;
   RxBool isExpandedDoList = false.obs;
   RxBool isExpandedAchievedList = false.obs;
   RxBool isExpandedDoneList = false.obs;
 
-  RxInt selectedDaysindex = 0.obs;
+  Rx<DateTime> selectedDate = DateTime.now().obs;
   late TextEditingController searchTextController;
 
   late ScrollController scrollController;
@@ -54,8 +39,15 @@ class TasksController extends GetxController {
     getTaskEnums();
     scrollController = ScrollController();
     searchTextController = TextEditingController();
-    var todayIndex = DateTime.now().weekday - 1;
-    selectedDaysindex.value = todayIndex;
+  }
+
+  void resetValue() {
+    daysList.clear();
+    fromDate = _getMonday(DateTime.now()).obs;
+    toDate = fromDate.value.add(const Duration(days: 6)).obs;
+    _generateWeek();
+    selectedDate.value = DateTime.now();
+    getTask();
   }
 
   @override
@@ -105,8 +97,9 @@ class TasksController extends GetxController {
   }) async {
     getTaskState.value = TheStates.loading;
     _cancelToken = CancelToken();
-    final result =
-        await remoteSource.getTask(cancelToken: _cancelToken, day: day);
+    final result = await remoteSource.getTask(
+        cancelToken: _cancelToken,
+        day: DateFormat('EEEE').format(selectedDate.value),);
     result.fold(
       (l) {
         getTaskState.value = TheStates.error;
@@ -205,7 +198,7 @@ class TasksController extends GetxController {
     );
   }
 
-  Future<void> markSubTaskCompleted({
+  Future<bool> markSubTaskCompleted({
     required String taskId,
     required String subTaskId,
   }) async {
@@ -216,13 +209,15 @@ class TasksController extends GetxController {
       taskId: taskId,
       cancelToken: _cancelToken,
     );
-    result.fold(
+    return result.fold(
       (l) {
         mmarkSubTaskCompletedState.value = TheStates.error;
         AppUtils.showErrorSnackbar(message: l.message);
+        return false;
       },
       (r) {
         mmarkSubTaskCompletedState.value = TheStates.success;
+        return true;
       },
     );
   }
@@ -238,7 +233,7 @@ class TasksController extends GetxController {
     var current = fromDate.value;
     while (!current.isAfter(toDate.value)) {
       final dayLetter = DateFormat('E').format(current)[0]; // e.g. 'M', 'T'
-      final formattedDate = current.day.toString(); // full date
+      final formattedDate = current; // full date
       daysList.add(DaysFilterModel(title: dayLetter, date: formattedDate));
       current = current.add(const Duration(days: 1));
     }
@@ -253,7 +248,9 @@ class TasksController extends GetxController {
   void changeWeek(int weekOffset) {
     fromDate.value = fromDate.value.add(Duration(days: 7 * weekOffset));
     toDate.value = fromDate.value.add(const Duration(days: 6));
+    selectedDate.value = fromDate.value;
     _generateWeek();
+    getTask();
   }
 
   /// Get formatted date range string
@@ -267,5 +264,5 @@ class DaysFilterModel {
   DaysFilterModel({required this.title, required this.date});
 
   final String title;
-  final String date;
+  final DateTime date;
 }

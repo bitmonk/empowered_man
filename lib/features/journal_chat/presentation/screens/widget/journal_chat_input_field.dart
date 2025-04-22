@@ -17,15 +17,14 @@ class JournalChatInputField extends StatefulWidget {
     required this.journalId,
     this.mainQuestionId,
     this.followupQuestionId,
-    this.onMessageSent, 
+    this.onMessageSent,
     super.key,
   });
   final FocusNode focusNode;
   final String journalId;
   final String? mainQuestionId;
   final String? followupQuestionId;
-  final VoidCallback? onMessageSent; 
-
+  final VoidCallback? onMessageSent;
 
   @override
   State<JournalChatInputField> createState() => _JournalChatInputFieldState();
@@ -430,6 +429,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
               ),
             ],
           ),
+          
         ],
       ),
     );
@@ -490,7 +490,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
           //         )
           //       : Assets.images.chatMicrophone.image(width: 20),
           // ),
-         // const HorizontalSpacing(20),
+          // const HorizontalSpacing(20),
           InkWell(
             onTap: () {
               setState(() {

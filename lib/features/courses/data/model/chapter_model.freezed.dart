@@ -780,6 +780,8 @@ mixin _$Course {
   int? get completionPercentage => throw _privateConstructorUsedError;
   @JsonKey(name: 'status')
   String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'thumbnail')
+  String? get thumbnail => throw _privateConstructorUsedError;
 
   /// Serializes this Course to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -801,7 +803,8 @@ abstract class $CourseCopyWith<$Res> {
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'completion_percentage') int? completionPercentage,
-      @JsonKey(name: 'status') String? status});
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'thumbnail') String? thumbnail});
 }
 
 /// @nodoc
@@ -825,6 +828,7 @@ class _$CourseCopyWithImpl<$Res, $Val extends Course>
     Object? updatedAt = freezed,
     Object? completionPercentage = freezed,
     Object? status = freezed,
+    Object? thumbnail = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -851,6 +855,10 @@ class _$CourseCopyWithImpl<$Res, $Val extends Course>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as String?,
+      thumbnail: freezed == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String?,
     ) as $Val);
   }
 }
@@ -868,7 +876,8 @@ abstract class _$$CourseImplCopyWith<$Res> implements $CourseCopyWith<$Res> {
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'completion_percentage') int? completionPercentage,
-      @JsonKey(name: 'status') String? status});
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'thumbnail') String? thumbnail});
 }
 
 /// @nodoc
@@ -890,6 +899,7 @@ class __$$CourseImplCopyWithImpl<$Res>
     Object? updatedAt = freezed,
     Object? completionPercentage = freezed,
     Object? status = freezed,
+    Object? thumbnail = freezed,
   }) {
     return _then(_$CourseImpl(
       id: freezed == id
@@ -916,6 +926,10 @@ class __$$CourseImplCopyWithImpl<$Res>
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
               as String?,
+      thumbnail: freezed == thumbnail
+          ? _value.thumbnail
+          : thumbnail // ignore: cast_nullable_to_non_nullable
+              as String?,
     ));
   }
 }
@@ -929,7 +943,8 @@ class _$CourseImpl implements _Course {
       @JsonKey(name: 'created_at') this.createdAt,
       @JsonKey(name: 'updated_at') this.updatedAt,
       @JsonKey(name: 'completion_percentage') this.completionPercentage,
-      @JsonKey(name: 'status') this.status});
+      @JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'thumbnail') this.thumbnail});
 
   factory _$CourseImpl.fromJson(Map<String, dynamic> json) =>
       _$$CourseImplFromJson(json);
@@ -952,10 +967,13 @@ class _$CourseImpl implements _Course {
   @override
   @JsonKey(name: 'status')
   final String? status;
+  @override
+  @JsonKey(name: 'thumbnail')
+  final String? thumbnail;
 
   @override
   String toString() {
-    return 'Course(id: $id, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, completionPercentage: $completionPercentage, status: $status)';
+    return 'Course(id: $id, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, completionPercentage: $completionPercentage, status: $status, thumbnail: $thumbnail)';
   }
 
   @override
@@ -971,13 +989,15 @@ class _$CourseImpl implements _Course {
                 other.updatedAt == updatedAt) &&
             (identical(other.completionPercentage, completionPercentage) ||
                 other.completionPercentage == completionPercentage) &&
-            (identical(other.status, status) || other.status == status));
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.thumbnail, thumbnail) ||
+                other.thumbnail == thumbnail));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, title, createdAt, updatedAt,
-      completionPercentage, status);
+      completionPercentage, status, thumbnail);
 
   /// Create a copy of Course
   /// with the given fields replaced by the non-null parameter values.
@@ -1002,7 +1022,8 @@ abstract class _Course implements Course {
       @JsonKey(name: 'created_at') final DateTime? createdAt,
       @JsonKey(name: 'updated_at') final DateTime? updatedAt,
       @JsonKey(name: 'completion_percentage') final int? completionPercentage,
-      @JsonKey(name: 'status') final String? status}) = _$CourseImpl;
+      @JsonKey(name: 'status') final String? status,
+      @JsonKey(name: 'thumbnail') final String? thumbnail}) = _$CourseImpl;
 
   factory _Course.fromJson(Map<String, dynamic> json) = _$CourseImpl.fromJson;
 
@@ -1024,6 +1045,9 @@ abstract class _Course implements Course {
   @override
   @JsonKey(name: 'status')
   String? get status;
+  @override
+  @JsonKey(name: 'thumbnail')
+  String? get thumbnail;
 
   /// Create a copy of Course
   /// with the given fields replaced by the non-null parameter values.

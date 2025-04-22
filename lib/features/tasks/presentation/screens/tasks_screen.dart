@@ -54,6 +54,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   success: () => Expanded(
                     child: RefreshIndicator(
                       onRefresh: () async {
+                        controller.resetValue();
                         _initFunc();
                       },
                       child: ListView(
@@ -124,7 +125,8 @@ class _TasksScreenState extends State<TasksScreen> {
                           ),
                           if (controller.isExpandedAchievedList.value)
                             TaskList(
-                                list: controller.achievedData.value?.tasks,),
+                              list: controller.achievedData.value?.tasks,
+                            ),
                           TasksExpansionTile(
                             title: 'Done List',
                             description: '',
@@ -196,59 +198,64 @@ class _TasksScreenState extends State<TasksScreen> {
           Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: List.generate(
-                controller.daysList.length,
-                (index) {
-                  var selectedDaysIndex =
-                      controller.selectedDaysindex.value == index;
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 12),
-                    child: InkWell(
-                      splashColor: Colors.transparent,
-                      onTap: () {
-                        controller.selectedDaysindex.value = index;
-                      },
-                      child: Column(
-                        children: [
-                          Text(
-                            controller.daysList[index].title,
-                            style: AppTextStyles.titleMd.copyWith(
-                              color: selectedDaysIndex
-                                  ? AppColors.primary500
-                                  : AppColors.textColor100,
-                            ),
-                          ),
-                          Text(
-                            controller.daysList[index].date,
-                            style: AppTextStyles.textCaptionC2.copyWith(
-                              color: selectedDaysIndex
-                                  ? AppColors.primary500
-                                  : AppColors.textColor100,
-                            ),
-                          ),
-                          if (index == 0) Assets.images.tickCircle.svg(),
-                          if (index == 1)
+              children: [
+                ...controller.daysList.map(
+                  (index) {
+                    var selectedDaysIndex = controller.selectedDate.value;
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      child: InkWell(
+                        splashColor: Colors.transparent,
+                        onTap: () {
+                          controller.selectedDate.value = index.date;
+                          controller.getTask();
+                        },
+                        child: Column(
+                          children: [
                             Text(
-                              '2/3',
+                              index.title,
+                              style: AppTextStyles.titleMd.copyWith(
+                                color: isToday(selectedDaysIndex,
+                                        date2: index.date,)
+                                    ? AppColors.primary500
+                                    : AppColors.textColor100,
+                              ),
+                            ),
+                            Text(
+                              index.date.day.toString(),
                               style: AppTextStyles.textCaptionC2.copyWith(
-                                color: const Color(0xFF959EA6),
+                                color: isToday(selectedDaysIndex,
+                                        date2: index.date,)
+                                    ? AppColors.primary500
+                                    : AppColors.textColor100,
                               ),
                             ),
-                          if (selectedDaysIndex)
-                            Container(
-                              width: 5,
-                              height: 5,
-                              decoration: BoxDecoration(
-                                color: AppColors.primary500,
-                                borderRadius: BorderRadius.circular(20),
+
+                            if (isToday(index.date))
+                              Assets.images.tickCircle.svg(),
+                            // if (index == 1)
+                            //   Text(
+                            //     '2/3',
+                            //     style: AppTextStyles.textCaptionC2.copyWith(
+                            //       color: const Color(0xFF959EA6),
+                            //     ),
+                            //   ),
+                            if (isToday(selectedDaysIndex, date2: index.date))
+                              Container(
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: AppColors.primary500,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    ),
-                  );
-                },
-              ),
+                    );
+                  },
+                ),
+              ],
             ),
           ),
           InkWell(
@@ -269,5 +276,12 @@ class _TasksScreenState extends State<TasksScreen> {
         ],
       ),
     );
+  }
+
+  bool isToday(DateTime date, {DateTime? date2}) {
+    final now = date2 ?? DateTime.now();
+    return date.year == now.year &&
+        date.month == now.month &&
+        date.day == now.day;
   }
 }

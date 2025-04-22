@@ -5,10 +5,12 @@ import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_ti
 
 class SubTaskList extends GetView<TasksController> {
   const SubTaskList({
-    required this.subTaskList, required this.priority, super.key,
+    required this.subTaskList,
+    required this.mainTask,
+    super.key,
   });
   final List<Task> subTaskList;
-  final String priority;
+  final Task mainTask;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +20,7 @@ class SubTaskList extends GetView<TasksController> {
         ...subTaskList.map(
           (e) => SubTaskTile(
             subtask: e,
-            priority: priority,
+            mainTask: mainTask,
           ),
         ),
       ],
