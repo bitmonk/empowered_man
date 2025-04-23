@@ -4,7 +4,6 @@ import 'package:empowered/features/home/presentation/screens/widgets/daily_widge
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/monthly_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/weekly_widget.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -14,47 +13,40 @@ class HomeScreen extends GetView<HomeController> {
     return SafeArea(
       key: AppWidgetKey.home,
       bottom: false,
-      child: RefreshIndicator(
-        onRefresh: () async {
-          Get.find<ProfileController>().getUserProfile();
-        },
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              children: [
-                const HomeHeaderWidgets(),
-                // Tab Buttons
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildTabButton(0, 'My Daily'),
-                      const SizedBox(width: 12),
-                      _buildTabButton(1, 'My Weekly'),
-                      const SizedBox(width: 12),
-                      _buildTabButton(2, 'My Monthly'),
-                    ],
-                  ),
-                ),
-                const VerticalSpacing(16),
-
-                Expanded(
-                  child: Obx(
-                    () => IndexedStack(
-                      index: controller.selectedTabIndex.value,
-                      children: const [
-                        DailyWidget(),
-                        WeeklyWidget(),
-                        MonthlyWidget(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Column(
+          children: [
+            const HomeHeaderWidgets(),
+            // Tab Buttons
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTabButton(0, 'My Daily'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(1, 'My Weekly'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(2, 'My Monthly'),
+                ],
+              ),
             ),
-          ),
+            const VerticalSpacing(16),
+
+            Expanded(
+              child: Obx(
+                () => IndexedStack(
+                  index: controller.selectedTabIndex.value,
+                  children: const [
+                    DailyWidget(),
+                    WeeklyWidget(),
+                    MonthlyWidget(),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
