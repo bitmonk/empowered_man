@@ -100,10 +100,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           MessageItem(
             type: MessageType.question,
             message: question?.question ?? '',
-            timestamp: questionTimestamp,
+            timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+            // timestamp: questionTimestamp,
             isMine: false,
             isYesNoQuestion: question?.questionType == 'yes_no',
             questionId: question?.id.toString(),
+            answered: question?.answered ?? false,
           ),
         );
         if (question?.answered == true) {
@@ -182,6 +184,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   item.type == MessageType.answer,
               isYesNoQuestion: item.isYesNoQuestion,
               selectedOption: item.selectedOption,
+              answered: item.answered,
             );
 
             // Create the base message widget
@@ -196,6 +199,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               voices: messageItem.voices,
               isLoading: messageItem.isLoading,
               isYesNoQuestion: messageItem.isYesNoQuestion,
+              isAnswered: messageItem.answered,
               selectedOption:
                   messageItem.selectedOption, // Pass selected option
               onYesNoOptionSelected: (option) {
@@ -360,7 +364,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                       MessageItem(
                         type: MessageType.question,
                         message: mainQuestion.question!,
-                        timestamp: questionTimestamp,
+                        timestamp: i == 0
+                            ? DateTime.now().toString()
+                            : questionTimestamp,
                         isMine: false,
                       ),
                     );
@@ -610,6 +616,7 @@ class MessageItem {
     this.isYesNoQuestion = false,
     this.selectedOption,
     this.questionId,
+    this.answered = false,
   });
   final MessageType type;
   final String message;
@@ -622,6 +629,7 @@ class MessageItem {
   final bool isYesNoQuestion;
   final String? selectedOption;
   final String? questionId;
+  final bool answered;
 }
 
 enum MessageType { question, answer, option }

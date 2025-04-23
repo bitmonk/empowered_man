@@ -26,6 +26,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.isYesNoQuestion = false,
     this.selectedOption,
     this.onYesNoOptionSelected,
+    this.isAnswered = false,
   });
 
   final bool isMine;
@@ -42,6 +43,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final bool isYesNoQuestion;
   final String? selectedOption;
   final Function(String)? onYesNoOptionSelected;
+  final bool isAnswered;
 
   @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
@@ -116,37 +118,101 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   }
 
   Widget _buildYesNoQuestion() {
-    return Container(
-      padding: const EdgeInsets.all(10),
-      decoration: BoxDecoration(
-        border: Border.all(color: AppColors.bgBorder),
-        color: AppColors.bgMedium,
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          HtmlWidget(
-            widget.message,
-            textStyle: AppTextStyles.textBodyB2,
-          ),
-          const SizedBox(height: 16),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
-                _handleYesNoSelection('Yes');
-              }),
-              const SizedBox(height: 12),
-              _buildYesNoOption('No', _selectedOption == 'No', () {
-                _handleYesNoSelection('No');
-              }),
-            ],
-          ),
-        ],
-      ),
-    );
+    if (widget.isAnswered) {
+      return HtmlWidget(
+        widget.message,
+        textStyle: AppTextStyles.textBodyB2,
+      );
+    } else {
+      return Container(
+        padding: const EdgeInsets.all(10),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.bgBorder),
+          color: AppColors.bgMedium,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            HtmlWidget(
+              widget.message,
+              textStyle: AppTextStyles.textBodyB2,
+            ),
+            const SizedBox(height: 16),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
+                  _handleYesNoSelection('Yes');
+                }),
+                const SizedBox(height: 12),
+                _buildYesNoOption('No', _selectedOption == 'No', () {
+                  _handleYesNoSelection('No');
+                }),
+              ],
+            ),
+            if (_selectedOption != null)
+              Padding(
+                padding: const EdgeInsets.only(top: 8),
+                child: Text(
+                  'Selected: $_selectedOption',
+                  style: AppTextStyles.textBodyB2.copyWith(
+                    fontWeight: FontWeight.w500,
+                    color: AppColors.primary500,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
   }
+  // Widget _buildYesNoQuestion() {
+  //   return Container(
+  //     padding: const EdgeInsets.all(10),
+  //     decoration: BoxDecoration(
+  //       border: Border.all(color: AppColors.bgBorder),
+  //       color: AppColors.bgMedium,
+  //       borderRadius: BorderRadius.circular(16),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.stretch,
+  //       children: [
+  //         HtmlWidget(
+  //           widget.message,
+  //           textStyle: AppTextStyles.textBodyB2,
+  //         ),
+  //         const SizedBox(height: 16),
+  //         // Only show options if the question hasn't been answered yet
+  //         if (!widget.isAnswered) // Add this property to ChatBubbleContainer
+  //           Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
+  //                 _handleYesNoSelection('Yes');
+  //               }),
+  //               const SizedBox(height: 12),
+  //               _buildYesNoOption('No', _selectedOption == 'No', () {
+  //                 _handleYesNoSelection('No');
+  //               }),
+  //             ],
+  //           ),
+  //         // If it's been answered, show the selected option as text
+  //         if (widget.isAnswered && _selectedOption != null)
+  //           Padding(
+  //             padding: const EdgeInsets.only(top: 8),
+  //             child: Text(
+  //               'Selected: $_selectedOption',
+  //               style: AppTextStyles.textBodyB2.copyWith(
+  //                 fontWeight: FontWeight.w500,
+  //                 color: AppColors.primary500,
+  //               ),
+  //             ),
+  //           ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget _buildYesNoOption(String text, bool isSelected, Function() onTap) {
     return InkWell(
