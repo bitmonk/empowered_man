@@ -1,6 +1,14 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
+import 'dart:io';
+import 'package:file_saver/file_saver.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:permission_handler/permission_handler.dart';
+import 'package:share_plus/share_plus.dart';
 
 class JournalLibraryPopUp extends StatefulWidget {
   const JournalLibraryPopUp({
@@ -25,6 +33,86 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     _initializeData();
   }
 
+  Future<void> _exportSelectedJournalsToPdf(bool shouldShare) async {
+    final selectedCount = widget.selectedItems.where((item) => item).length;
+
+    if (selectedCount == 0) {
+      AppUtils.showErrorSnackbar(message: 'No journals selected for export');
+      return;
+    }
+
+    // Get selected journal data
+    final journalIds = <String>[];
+    final journals =
+        _controller.journalLibraryIndexModel.value.data?.userJournals;
+
+    if (journals != null) {
+      for (var i = 0; i < widget.selectedItems.length; i++) {
+        if (widget.selectedItems[i] && i < journals.length) {
+          journalIds.add(journals[i].id.toString());
+        }
+      }
+    }
+
+    if (journalIds.isEmpty) {
+      AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
+      return;
+    }
+
+    try {
+      // Get journal data for PDF
+      // final result = await _controller.getBulkSeeJournal(journalIds);
+      // final userJournals =
+      //     _controller.userJournalResponse.value.data?.userJournals;
+
+      // if (userJournals == null || userJournals.isEmpty) {
+      //   AppUtils.showErrorSnackbar(message: 'No journal data available');
+      //   return;
+      // }
+
+      // Format data for PDF
+      String formattedData = '';
+      String fromToDate = '';
+
+      // if (userJournals.isNotEmpty) {
+      //   // Format data properly for your needs
+      //   formattedData = userJournals
+      //       .map((journal) =>
+      //           '${journal.journal?.emotionName ?? "Untitled"}: ${journal.journalAnswers ?? "No content"}')
+      //       .join('\n\n');
+
+      //   // Generate date range for PDF header
+      //   if (userJournals.length == 1 && userJournals.first.createdAt != null) {
+      //     fromToDate = userJournals.first.createdAt!;
+      //   } else if (userJournals.isNotEmpty) {
+      //     // Find oldest and newest entries
+      //     final dates = userJournals
+      //         .where((j) => j.createdAt != null)
+      //         .map((j) => j.createdAt!)
+      //         .toList();
+
+      //     if (dates.isNotEmpty) {
+      //       dates.sort();
+      //       fromToDate = '${dates.first} - ${dates.last}';
+      //     } else {
+      //       fromToDate = 'Journal Export';
+      //     }
+      //   }
+      // }
+
+      // Export the PDF with the shouldShare parameter
+      await exportPdf(
+        context,
+        data: formattedData,
+        fromToDate: fromToDate,
+        shouldShare: shouldShare, // Pass the parameter
+      );
+    } catch (e) {
+      print('Error exporting journals to PDF: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to export journals: $e');
+    }
+  }
+
   Future<void> _initializeData() async {}
 
   @override
@@ -36,18 +124,21 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         height: 33,
         width: 33,
         child: Assets.images.circleThreeDot.svg(),
-      ), 
-      color: AppColors.bgBorder, 
+      ),
+      color: AppColors.bgBorder,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         switch (value) {
           case 'download':
+            _exportSelectedJournalsToPdf(false);
             // Handle download action
             break;
           case 'delete':
             // Handle delete action
             break;
           case 'share':
+            _exportSelectedJournalsToPdf(true); // Share only
+
             // Handle share action
             break;
           case 'see_journal':
@@ -60,13 +151,17 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           'Share',
           Assets.images.sharePop.path,
           'share',
-          () {},
+          () {
+            _exportSelectedJournalsToPdf(true);
+          },
         ),
         _buildPopupMenuItem(
           'Download',
           Assets.images.download.path,
           'download',
-          () {},
+          () {
+            _exportSelectedJournalsToPdf(false);
+          },
         ),
         _buildPopupMenuItem(
           'See Journal',
@@ -138,8 +233,10 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
               final shouldDelete = await Get.dialog<bool>(
                 AlertDialog(
                   backgroundColor: AppColors.bgBorder,
-                  title: const Text('Delete Journals',
-                      style: AppTextStyles.textHeadingH3,),
+                  title: const Text(
+                    'Delete Journals',
+                    style: AppTextStyles.textHeadingH3,
+                  ),
                   content: const Text(
                     'Are you sure you want to delete the selected journals? This action cannot be undone.',
                     style: AppTextStyles.textBodyB2,
@@ -188,13 +285,20 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
                 if (result == true) {
                   widget.onSelected(journalIds, true);
                   await _controller.getJournalLibrary(
-                      1, '', null, null, null, 10,);
+                    1,
+                    '',
+                    null,
+                    null,
+                    null,
+                    10,
+                  );
                   Get.close(1);
                 }
               } catch (e) {
                 print('Error deleting journals: $e');
                 AppUtils.showErrorSnackbar(
-                    message: 'Failed to delete journals: $e',);
+                  message: 'Failed to delete journals: $e',
+                );
               }
             });
           },

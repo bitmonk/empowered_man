@@ -120,28 +120,42 @@ class MainDrawer extends GetView<MainController> {
                         JournalChatInitializer.initialize();
                         JournalEmotionNameInitializer.destroy();
                         JournalEmotionNameInitializer.initialize();
-                        final emotionController =
-                            Get.find<JournalEmotionNameController>();
-                        await emotionController.getJournalEmotionName();
 
-                        // Get the emotion controller
-                        final emotionId = emotionController.journalEmotionName
-                            .value.data?.emotionNames?.first.id;
+                        // Show loading dialog
+                        final loadingDialog =
+                            AppUtils.showLoadingDialog(context);
 
-                        // Safely get the first emotion ID
-                        await Get.find<JournalChatController>()
-                            .getJournalWithQuestionsAndAnswers(
-                          emotionId.toString(),
-                        );
-                        // Navigate to JournalChatScreen with the emotion ID
-                        Get.to(
-                          () => JournalChatScreen(
-                            initialEmotionId: emotionId,
-                          ),
-                        );
+                        try {
+                          final emotionController =
+                              Get.find<JournalEmotionNameController>();
+                          await emotionController.getJournalEmotionName();
 
-                        await Future.delayed(Durations.short4);
-                        AppWidgetKey.journalKey.currentState?.openDrawer();
+                          final emotionId = emotionController.journalEmotionName
+                              .value.data?.emotionNames?.first.id;
+                          if (emotionId == null) {
+                            AppUtils.hideLoadingDialog(context);
+                            return;
+                          }
+
+                          await Get.find<JournalChatController>()
+                              .getJournalWithQuestionsAndAnswers(
+                                  emotionId.toString());
+
+                          // Hide loading dialog before navigation
+                          AppUtils.hideLoadingDialog(context);
+
+                          await Get.to(
+                            () => JournalChatScreen(
+                              initialEmotionId: emotionId,
+                            ),
+                          );
+
+                          await Future.delayed(Durations.short4);
+                          AppWidgetKey.journalKey.currentState?.openDrawer();
+                        } finally {
+                          // This ensures the dialog is hidden even if an error occurs
+                          AppUtils.hideLoadingDialog(context);
+                        }
                       },
                       title: 'Journal',
                       image: Assets.images.journalSvg.path,
