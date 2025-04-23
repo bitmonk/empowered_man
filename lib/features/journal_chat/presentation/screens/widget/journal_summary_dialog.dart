@@ -1,3 +1,5 @@
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
 import 'package:flutter/material.dart';
 
@@ -45,12 +47,112 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
     }
   }
 
+  Future<void> _shareJournal() async {
+    try {
+      if (widget.userJournal == null || widget.userJournal!.isEmpty) {
+        // Show error if no journal data available
+        AppUtils.showErrorSnackbar(
+            message: 'No journal data available for sharing');
+        return;
+      }
+
+      // Create a list of journal IDs to export
+      final journalIds =
+          widget.userJournal!.map((journal) => journal.id.toString()).toList();
+
+      if (journalIds.isEmpty) {
+        AppUtils.showErrorSnackbar(
+            message: 'No valid journals found for export');
+        return;
+      }
+
+      // Format data for PDF
+      String formattedData = '';
+      String fromToDate = '';
+
+      // Format journal data for PDF
+      if (widget.userJournal!.isNotEmpty) {
+        // Format data based on journal questions and answers
+        formattedData = _formatJournalDataForPdf();
+
+        // Generate date range for PDF header
+        if (widget.userJournal!.length == 1 &&
+            widget.userJournal!.first.createdAt != null) {
+          fromToDate = widget.userJournal!.first.createdAt!;
+        } else {
+          // Find oldest and newest entries
+          final dates = widget.userJournal!
+              .where((j) => j.createdAt != null)
+              .map((j) => j.createdAt!)
+              .toList();
+
+          if (dates.isNotEmpty) {
+            dates.sort();
+            fromToDate = '${dates.first} - ${dates.last}';
+          } else {
+            fromToDate = 'Journal Export';
+          }
+        }
+      }
+
+      // Export the PDF with sharing enabled
+      await exportPdf(
+        context,
+        data: formattedData,
+        fromToDate: fromToDate,
+        shouldShare: true, // Enable sharing
+      );
+    } catch (e) {
+      print('Error sharing journals to PDF: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
+    }
+  }
+
+  String _formatJournalDataForPdf() {
+    final buffer = StringBuffer();
+
+    for (final journal in widget.userJournal!) {
+      // Add journal emotion/title
+      buffer.writeln('${journal.journal?.emotionName ?? "Untitled Journal"}');
+      buffer.writeln('-------------------------------------------');
+
+      final journalAnswers = journal.journalAnswers;
+      if (journalAnswers != null && journalAnswers.isNotEmpty) {
+        for (final answer in journalAnswers) {
+          // Add main question and answer
+          if (answer.mainQuestion != null) {
+            buffer.writeln('Q: ${answer.mainQuestion!.question ?? "Question"}');
+            buffer.writeln('A: ${answer.text ?? "No answer provided"}');
+            buffer.writeln();
+          }
+
+          // Add follow-up question and answer if available
+          if (answer.followUpQuestion != null) {
+            buffer.writeln(
+                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}');
+            buffer.writeln('A: ${answer.text ?? "No answer provided"}');
+            buffer.writeln();
+          }
+        }
+      } else {
+        buffer.writeln('No answers available for this journal.');
+      }
+
+      buffer.writeln('\n\n');
+    }
+
+    return buffer.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     if (widget.userJournal == null || widget.userJournal!.isEmpty) {
       return const Center(
-          child: Text('No journal data available',
-              style: TextStyle(color: Colors.white),),);
+        child: Text(
+          'No journal data available',
+          style: TextStyle(color: Colors.white),
+        ),
+      );
     }
 
     return SafeArea(
@@ -73,7 +175,9 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                 children: [
                   Flexible(
                     child: Text(
-                      widget.userJournal?[_currentJournalIndex].journal?.emotionName ?? 'Journal Summary',
+                      widget.userJournal?[_currentJournalIndex].journal
+                              ?.emotionName ??
+                          'Journal Summary',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -116,7 +220,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                 ],
               ),
               const SizedBox(height: 12),
-              
+
               // Scrollable Content for Journal Entries
               Expanded(
                 child: PageView.builder(
@@ -137,8 +241,10 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Center(
-                          child: Text('No answers available',
-                              style: TextStyle(color: Colors.white),),
+                          child: Text(
+                            'No answers available',
+                            style: TextStyle(color: Colors.white),
+                          ),
                         ),
                       );
                     }
@@ -159,22 +265,28 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                               for (final journalAnswer in journalAnswers) ...[
                                 if (journalAnswer.mainQuestion != null) ...[
                                   JournalSection(
-                                    title: journalAnswer.mainQuestion!.question ?? 'Question',
-                                    content: journalAnswer.text ?? 'No answer provided',
+                                    title:
+                                        journalAnswer.mainQuestion!.question ??
+                                            'Question',
+                                    content: journalAnswer.text ??
+                                        'No answer provided',
                                     isQuestion: true,
                                   ),
                                   const SizedBox(height: 16),
                                 ],
-                                
+
                                 // Show follow-up questions if they exist
                                 if (journalAnswer.followUpQuestion != null) ...[
                                   JournalSection(
-                                    title: journalAnswer.followUpQuestion!.question ?? 'Follow-up Question',
-                                    content: journalAnswer.text ?? 'No answer provided',
+                                    title: journalAnswer
+                                            .followUpQuestion!.question ??
+                                        'Follow-up Question',
+                                    content: journalAnswer.text ??
+                                        'No answer provided',
                                     isQuestion: true,
                                   ),
-                                 // const SizedBox(height: 16),
-                                  
+                                  // const SizedBox(height: 16),
+
                                   // Display additional metadata for follow-up questions
                                   // Column(
                                   //   crossAxisAlignment: CrossAxisAlignment.start,
@@ -197,31 +309,32 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                                   const SizedBox(height: 16),
                                 ],
                               ],
-
-                              const SizedBox(height: 20),
-                              // Share Button
-                              Center(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.blueAccent,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 32,
-                                      vertical: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(32),
-                                    ),
-                                  ),
-                                  onPressed: () => Navigator.pop(context),
-                                  child: const Text('Share'),
-                                ),
-                              ),
                             ],
                           ),
                         ),
                       ),
                     );
                   },
+                ),
+              ),
+              const SizedBox(height: 20),
+              // Share Button
+              Center(
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 32,
+                      vertical: 12,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(32),
+                    ),
+                  ),
+                  onPressed: () {
+                    _shareJournal();
+                  },
+                  child: const Text('Share'),
                 ),
               ),
             ],
@@ -257,25 +370,26 @@ class JournalSection extends StatelessWidget {
               //   padding: EdgeInsets.only(right: 6),
               //   child: Icon(Icons.help_outline, color: Colors.white, size: 16),
               // ),
-            Expanded(
-              child: Text(
-                title,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.bold,
+              Expanded(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
-            ),
           ],
         ),
         const SizedBox(height: 4),
         Text(
-            content,
-            style: const TextStyle(
-              color: Colors.white70,
-              fontSize: 14,
-            ),),
+          content,
+          style: const TextStyle(
+            color: Colors.white70,
+            fontSize: 14,
+          ),
+        ),
         // Answer container
         // Container(
         //   width: double.infinity,

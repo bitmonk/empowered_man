@@ -33,7 +33,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   @override
   void initState() {
     super.initState();
-   
     _initializeController();
     focusNode = FocusNode();
     Get.find<JournalEmotionNameController>().selectedEmotionId.value =
@@ -52,6 +51,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.scrollToBottom();
+      AppWidgetKey.journalKey.currentState?.openDrawer();
     });
   }
 
@@ -64,7 +64,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
       controller.getJournalWithQuestionsAndAnswers(
         widget.initialEmotionId.toString(),
       );
-    } _firstFollowUpQuestionAnswered();
+    }
+    _firstFollowUpQuestionAnswered();
   }
 
   void startJournaling() {
@@ -81,7 +82,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         controller.journalWithQuestionsAndAnswers.value.data?.journal;
     var items = <MessageItem>[];
 
-    if (journallist == null ) {
+    if (journallist == null) {
       return const SizedBox();
     }
 
@@ -269,7 +270,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     return null;
   }
 
-  void  _firstFollowUpQuestionAnswered() {
+  void _firstFollowUpQuestionAnswered() {
     final journal =
         controller.journalWithQuestionsAndAnswers.value.data?.journal;
     if (journal == null ||
@@ -277,16 +278,14 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         journal.followUpQuestions!.isEmpty) {
       setState(() {
         showWidget = false;
-      
       });
       // return false;
     }
     var state = journal?.followUpQuestions![0].answered ?? false;
-   
+    print('@@@@@@@@@@@@@@@@@@@@@@@ $state');
     setState(() {
-        showWidget = state;
-       
-      });
+      showWidget = state;
+    });
     //return journal.followUpQuestions![0].answered ?? false;
   }
 
@@ -482,11 +481,10 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               return messageWidget;
                             },
                           ),
-
                           if (allQuestionsAnswered)
                             if (showWidget)
                               showFollowUpQuestions()
-                            else 
+                            else
                               Padding(
                                 padding: const EdgeInsets.only(
                                   top: 32,
@@ -499,12 +497,10 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                     startJournaling();
                                     setState(() {
                                       showWidget = true;
-                                     
                                     });
                                   },
                                 ),
                               ),
-                           
                           const SizedBox(height: 60),
                           const SizedBox(
                             height: 1,
