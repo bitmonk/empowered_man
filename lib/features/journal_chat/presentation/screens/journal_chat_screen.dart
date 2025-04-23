@@ -200,27 +200,36 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   messageItem.selectedOption, // Pass selected option
               onYesNoOptionSelected: (option) {
                 // Handle Yes/No selection
-                if (
-                    messageItem.isYesNoQuestion 
-                   ) {
+                if (messageItem.isYesNoQuestion) {
                   String questionId;
-
+                  MainQuestion? mainQuestion;
                   // Find in main questions
-                  final mainQuestion = journallist.mainQuestions?.firstWhere(
-                    (q) => q.question == messageItem.message,
-                    //  orElse: () => null,
-                  );
+                  try {
+                    mainQuestion = journallist.mainQuestions?.firstWhere(
+                      (q) => q.question == messageItem.message,
+                    );
+                  } catch (e) {
+                    // No element found
+                    mainQuestion = null;
+                  }
 
                   // If not in main questions, check follow-up questions
                   if (mainQuestion != null) {
                     questionId = mainQuestion.id?.toString() ?? '';
+                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   } else {
-                    final followUpQuestion =
-                        journallist.followUpQuestions?.firstWhere(
-                      (q) => q.question == messageItem.message,
-                      //orElse: () => null,
-                    );
+                    FollowUpQuestion? followUpQuestion;
+                    try {
+                      followUpQuestion =
+                          journallist.followUpQuestions?.firstWhere(
+                        (q) => q.question == messageItem.message,
+                      );
+                    } catch (e) {
+                      // No element found
+                      followUpQuestion = null;
+                    }
                     questionId = followUpQuestion?.id?.toString() ?? '';
+                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   }
 
                   if (questionId.isNotEmpty) {
