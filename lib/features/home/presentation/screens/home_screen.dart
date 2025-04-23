@@ -14,47 +14,40 @@ class HomeScreen extends GetView<HomeController> {
     return SafeArea(
       key: AppWidgetKey.home,
       bottom: false,
-      child: RefreshIndicator(
-        onRefresh: () async {
-          Get.find<ProfileController>().getUserProfile();
-        },
-        child: Expanded(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-            child: Column(
-              children: [
-                const HomeHeaderWidgets(),
-                // Tab Buttons
-                SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _buildTabButton(0, 'My Daily'),
-                      const SizedBox(width: 12),
-                      _buildTabButton(1, 'My Weekly'),
-                      const SizedBox(width: 12),
-                      _buildTabButton(2, 'My Monthly'),
-                    ],
-                  ),
-                ),
-                const VerticalSpacing(16),
-
-                Expanded(
-                  child: Obx(
-                    () => IndexedStack(
-                      index: controller.selectedTabIndex.value,
-                      children: const [
-                        DailyWidget(),
-                        WeeklyWidget(),
-                        MonthlyWidget(),
-                      ],
-                    ),
-                  ),
-                ),
-              ],
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        child: Column(
+          children: [
+            const HomeHeaderWidgets(),
+            // Tab Buttons
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTabButton(0, 'My Daily'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(1, 'My Weekly'),
+                  const SizedBox(width: 12),
+                  _buildTabButton(2, 'My Monthly'),
+                ],
+              ),
             ),
-          ),
+            const VerticalSpacing(16),
+            
+            Expanded(
+              child: Obx(
+                () => IndexedStack(
+                  index: controller.selectedTabIndex.value,
+                  children: const [
+                    DailyWidget(),
+                    WeeklyWidget(),
+                    MonthlyWidget(),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

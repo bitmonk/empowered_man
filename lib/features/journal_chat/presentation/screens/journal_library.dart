@@ -108,169 +108,180 @@ class _JournalLibraryState extends State<JournalLibrary> {
         // if (journals == null || journals.isEmpty) {
         //   return const Center(child: Text('No journals found'));
         // }
-        return SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: ThemedContainer(
-                        color: AppColors.bgBorder,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 16,
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton2<String>(
-                            isExpanded: true,
+        return RefreshIndicator(
+          onRefresh: () async {
+            await _initializeData();
+            await _fetchEmotionNames();
+            selectedJournalType = 'Select Journal Type';
+            
+            
+          },
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            controller: _scrollController,
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ThemedContainer(
+                          color: AppColors.bgBorder,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 6,
+                            horizontal: 16,
+                          ),
+                          child: DropdownButtonHideUnderline(
+                            child: DropdownButton2<String>(
+                              isExpanded: true,
 
-                            // dropdownColor: const Color(0xFF1A1E27),
-                            // borderRadius: BorderRadius.circular(10),
-                            // icon: const Icon(
-                            //   Icons.keyboard_arrow_down,
-                            //   color: AppColors.textColor100,
-                            // ),
-                            value: emotionNames
-                                        ?.map((e) => e.emotionName)
-                                        .contains(selectedJournalType) ==
-                                    true
-                                ? selectedJournalType
-                                : null,
-                            dropdownStyleData: DropdownStyleData(
-                              maxHeight: 200,
-                              width: 200,
-                              offset: const Offset(-17, 0),
-                              scrollbarTheme: ScrollbarThemeData(
-                                radius: const Radius.circular(40),
-                                thickness: WidgetStateProperty.all(6),
-                                thumbVisibility: WidgetStateProperty.all(true),
+                              // dropdownColor: const Color(0xFF1A1E27),
+                              // borderRadius: BorderRadius.circular(10),
+                              // icon: const Icon(
+                              //   Icons.keyboard_arrow_down,
+                              //   color: AppColors.textColor100,
+                              // ),
+                              value: emotionNames
+                                          ?.map((e) => e.emotionName)
+                                          .contains(selectedJournalType) ==
+                                      true
+                                  ? selectedJournalType
+                                  : null,
+                              dropdownStyleData: DropdownStyleData(
+                                maxHeight: 200,
+                                width: 200,
+                                offset: const Offset(-17, 0),
+                                scrollbarTheme: ScrollbarThemeData(
+                                  radius: const Radius.circular(40),
+                                  thickness: WidgetStateProperty.all(6),
+                                  thumbVisibility:
+                                      WidgetStateProperty.all(true),
+                                ),
+                                decoration: const BoxDecoration(
+                                  // borderRadius: BorderRadius.circular(14),
+                                  color: AppColors.bgBorder,
+                                ),
                               ),
-                              decoration: const BoxDecoration(
-                                // borderRadius: BorderRadius.circular(14),
-                                color: AppColors.bgBorder,
+                              iconStyleData: const IconStyleData(
+                                openMenuIcon: Icon(Icons.arrow_drop_up),
                               ),
-                            ),
-                            iconStyleData: const IconStyleData(
-                              openMenuIcon: Icon(Icons.arrow_drop_up),
-                            ),
-                            hint: Row(
-                              children: [
-                                Text(
-                                  emotionNames?.isNotEmpty == true
-                                      ? selectedJournalType
-                                      : 'Loading emotions...',
-                                  style: AppTextStyles.textBodyB2.copyWith(
-                                    color: AppColors.textColor100,
+                              hint: Row(
+                                children: [
+                                  Text(
+                                    emotionNames?.isNotEmpty == true
+                                        ? selectedJournalType
+                                        : 'Loading emotions...',
+                                    style: AppTextStyles.textBodyB2.copyWith(
+                                      color: AppColors.textColor100,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
+
+                              items: emotionNames?.map((emotion) {
+                                final name = emotion.emotionName ?? '';
+                                return DropdownMenuItem<String>(
+                                  value: name,
+                                  child: Text(
+                                    name,
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                );
+                              }).toList(),
+                              onChanged: (value) async {
+                                if (value != null &&
+                                    emotionNames?.any(
+                                          (e) => e.emotionName == value,
+                                        ) ==
+                                        true) {
+                                  setState(() {
+                                    selectedJournalType = value;
+                                  });
+
+                                  _scrollController.animateTo(
+                                    0,
+                                    duration: const Duration(milliseconds: 500),
+                                    curve: Curves.easeInOut,
+                                  );
+
+                                  _selectedItems = List.generate(
+                                    _selectedItems.length,
+                                    (_) => false,
+                                  );
+
+                                  await _fetchJournalsWithEmotion(value);
+                                }
+                              },
                             ),
-
-                            items: emotionNames?.map((emotion) {
-                              final name = emotion.emotionName ?? '';
-                              return DropdownMenuItem<String>(
-                                value: name,
-                                child: Text(
-                                  name,
-                                  style: const TextStyle(color: Colors.white),
-                                ),
-                              );
-                            }).toList(),
-                            onChanged: (value) async {
-                              if (value != null &&
-                                  emotionNames?.any(
-                                        (e) => e.emotionName == value,
-                                      ) ==
-                                      true) {
-                                setState(() {
-                                  selectedJournalType = value;
-                                });
-
-                                _scrollController.animateTo(
-                                  0,
-                                  duration: const Duration(milliseconds: 500),
-                                  curve: Curves.easeInOut,
-                                );
-
-                                _selectedItems = List.generate(
-                                  _selectedItems.length,
-                                  (_) => false,
-                                );
-
-                                await _fetchJournalsWithEmotion(value);
-                              }
-                            },
                           ),
                         ),
                       ),
-                    ),
-                    const SizedBox(width: 12),
-                    GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (_) => JournalSearchScreen()),
-                        );
-                      },
-                      child: Assets.images.homeSearch.svg(),
-                    ),
-                    JournalLibraryPopUp(
-                      selectedItems: _selectedItems,
-                      onSelected: (deletedIds, shouldClearSelection) {
-                        if (shouldClearSelection) {
-                          setState(() {
-                            _selectedItems = List.generate(
-                              _selectedItems.length,
-                              (_) => false,
-                            );
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ThemedContainer(
-                padding: EdgeInsets.zero,
-                margin: const EdgeInsets.all(12),
-                child: SingleChildScrollView(
-                  child: Table(
-                    columnWidths: const {
-                      0: FixedColumnWidth(35),
-                      1: FlexColumnWidth(70),
-                      2: FlexColumnWidth(90),
-                      3: FlexColumnWidth(80),
-                    },
-                    children: [
-                      _buildTableHeaderRow(),
-                      if (journals != null && journals.isNotEmpty)
-                        ...List.generate(
-                          journals.length,
-                          (index) => _buildTableRow(index),
-                        ),
+                      const SizedBox(width: 12),
+                      GestureDetector(
+                        onTap: () async {
+                          await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => JournalSearchScreen()),
+                          );
+                        },
+                        child: Assets.images.homeSearch.svg(),
+                      ),
+                      JournalLibraryPopUp(
+                        selectedItems: _selectedItems,
+                        onSelected: (deletedIds, shouldClearSelection) {
+                          if (shouldClearSelection) {
+                            setState(() {
+                              _selectedItems = List.generate(
+                                _selectedItems.length,
+                                (_) => false,
+                              );
+                            });
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
-              ),
-              if (journals == null || journals.isEmpty)
-                const Center(
-                  child: Padding(
-                    padding: EdgeInsets.all(8),
-                    child: Text(
-                      'No journals found',
-                      style: TextStyle(
-                        color: AppColors.white,
-                        fontSize: 18,
-                        fontWeight: FontWeight.w500,
-                      ),
+                ThemedContainer(
+                  padding: EdgeInsets.zero,
+                  margin: const EdgeInsets.all(12),
+                  child: SingleChildScrollView(
+                    child: Table(
+                      columnWidths: const {
+                        0: FixedColumnWidth(35),
+                        1: FlexColumnWidth(70),
+                        2: FlexColumnWidth(90),
+                        3: FlexColumnWidth(80),
+                      },
+                      children: [
+                        _buildTableHeaderRow(),
+                        if (journals != null && journals.isNotEmpty)
+                          ...List.generate(
+                            journals.length,
+                            (index) => _buildTableRow(index),
+                          ),
+                      ],
                     ),
                   ),
                 ),
-            ],
+                if (journals == null || journals.isEmpty)
+                  const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(8),
+                      child: Text(
+                        'No journals found',
+                        style: TextStyle(
+                          color: AppColors.white,
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         );
       }),
