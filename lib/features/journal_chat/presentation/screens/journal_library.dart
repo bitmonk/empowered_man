@@ -209,8 +209,12 @@ class _JournalLibraryState extends State<JournalLibrary> {
                     ),
                     const SizedBox(width: 12),
                     GestureDetector(
-                      onTap: () {
-                        
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => JournalSearchScreen()),
+                        );
                       },
                       child: Assets.images.homeSearch.svg(),
                     ),

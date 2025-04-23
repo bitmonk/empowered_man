@@ -1,9 +1,6 @@
-import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:empowered/constants/app_colors.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
 import 'package:intl/intl.dart';
 
 class JournalSearchScreen extends StatefulWidget {
@@ -14,39 +11,85 @@ class JournalSearchScreen extends StatefulWidget {
 }
 
 class _JournalSearchScreenState extends State<JournalSearchScreen> {
-  final JournalEmotionNameController _controller = Get.find<JournalEmotionNameController>();
+  final JournalEmotionNameController _controller =
+      Get.find<JournalEmotionNameController>();
   final ScrollController _scrollController = ScrollController();
-  List<bool> _selectedItems = [];
+  List<bool> _selectedItems = List.generate(0, (index) => false);
   bool _selectAll = false;
-  String selectedJournalType = 'Select Journal Type';
-  final TextEditingController _searchController = TextEditingController();
+  final TextEditingController controller = TextEditingController();
+  bool _isLoading = false;
+
+  void onSearch(String text) async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await _controller.getJournalLibrary(
+        1,
+        '', // emotion type
+        text, // main question
+        '', // search query
+        '', // start date
+        10, // limit
+      );
+
+      setState(() {
+        if (_controller.journalLibraryIndexModel.value.data?.userJournals
+                ?.isNotEmpty ??
+            false) {
+          _selectedItems = List.generate(
+            _controller
+                .journalLibraryIndexModel.value.data!.userJournals!.length,
+            (_) => false,
+          );
+        } else {
+          _selectedItems = [];
+        }
+      });
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to load journals');
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _initializeData();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
     _scrollController.addListener(_onScroll);
   }
 
   Future<void> _initializeData() async {
+    // Load initial data with default parameters
     await _controller.getJournalLibrary(
       1,
       '',
-      '',
+      '', //main question
       '',
       '',
       10,
     );
-    setState(() {
-      _selectedItems = List.generate(
-        _controller.journalLibraryIndexModel.value.data?.userJournals?.length ?? 0,
-        (_) => false,
-      );
-    });
+    if (mounted) {
+      setState(() {
+        // Initialize _selectedItems with the correct length
+        _selectedItems = List.generate(
+          _controller
+                  .journalLibraryIndexModel.value.data?.userJournals?.length ??
+              0,
+          (index) => false,
+        );
+      });
+    }
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels >= 
+    if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent * 0.8) {
       _loadMoreData();
     }
@@ -54,32 +97,47 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
 
   Future<void> _loadMoreData() async {
     final currentMeta = _controller.journalLibraryIndexModel.value.data?.meta;
-    if (currentMeta!.currentPage! < int.parse(currentMeta.lastPage.toString())) {
+    if (currentMeta!.currentPage! <
+        int.parse(currentMeta.lastPage.toString())) {
       await _controller.getJournalLibrary(
         currentMeta.currentPage! + 1,
-        selectedJournalType,
-        _searchController.text,
+        '',
+        '',
         '',
         '',
         10,
       );
     }
   }
+  
+  // Get selected journal entries based on selectedItems flags
+  List<dynamic> getSelectedJournals() {
+    final journals = _controller.journalLibraryIndexModel.value.data?.userJournals;
+    if (journals == null) return [];
+    
+    final selectedJournals = <dynamic>[];
+    for (int i = 0; i < _selectedItems.length; i++) {
+      if (_selectedItems[i] && i < journals.length) {
+        selectedJournals.add(journals[i]);
+      }
+    }
+    return selectedJournals;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Search Results'),
+    return AppScaffold(
+      appBar: const CustomAppBar(
+        title: 'Journal Library',
       ),
       body: Obx(() {
         if (_controller.getJournalLibraryState.value == TheStates.loading) {
           return const LoadingWidget();
         }
 
-        final journals = _controller.journalLibraryIndexModel.value.data?.userJournals;
+        final journals =
+            _controller.journalLibraryIndexModel.value.data?.userJournals;
         return SingleChildScrollView(
-          controller: _scrollController,
           child: Column(
             children: [
               Padding(
@@ -87,53 +145,56 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                 child: Row(
                   children: [
                     Expanded(
-                      child: ThemedContainer(
-                        color: AppColors.bgBorder,
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(
-                          vertical: 6,
-                          horizontal: 16,
-                        ),
-                        child: DropdownButtonHideUnderline(
-                          child: DropdownButton2<String>(
-                            isExpanded: true,
-                            value: selectedJournalType,
-                            items: _controller.journalEmotionName.value.data?.emotionNames?.map((emotion) {
-                              final name = emotion.emotionName ?? '';
-                              return DropdownMenuItem<String>(
-                                value: name,
-                                child: Text(name),
-                              );
-                            }).toList(),
-                            onChanged: (value) async {
-                              if (value != null) {
-                                setState(() {
-                                  selectedJournalType = value;
-                                  _selectedItems = List.generate(_selectedItems.length, (_) => false);
-                                });
-                                await _fetchFilteredJournals(value);
-                              }
-                            },
+                            horizontal: 8, vertical: 12),
+                        child: TextField(
+                          controller: controller,
+                          style: const TextStyle(
+                            color: AppColors.white,
+                            fontSize: 14,
+                          ),
+                          onSubmitted: onSearch,
+                          decoration: InputDecoration(
+                            hintText: 'Search journals...',
+                            hintStyle: TextStyle(
+                              color: AppColors.white,
+                              fontSize: 14,
+                            ),
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: controller.text.isNotEmpty
+                                ? IconButton(
+                                    icon: const Icon(Icons.clear),
+                                    onPressed: () {
+                                      controller.clear();
+                                      onSearch('');
+                                    },
+                                  )
+                                : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(color: Colors.white),
+                            ),
+                            contentPadding:
+                                const EdgeInsets.symmetric(horizontal: 16),
                           ),
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
-                    Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: AppColors.bgBorder,
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: TextField(
-                        controller: _searchController,
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          hintText: 'Search',
-                          contentPadding: const EdgeInsets.all(12),
-                        ),
-                        onChanged: (value) => _handleSearch(value),
-                      ),
+                    JournalLibraryPopUp(
+                      selectedItems: _selectedItems,
+                     // selectedJournals: getSelectedJournals(),
+                      onSelected: (deletedIds, shouldClearSelection) {
+                        if (shouldClearSelection) {
+                          setState(() {
+                            _selectedItems = List.generate(
+                              _selectedItems.length,
+                              (_) => false,
+                            );
+                            _selectAll = false;
+                          });
+                        }
+                      },
                     ),
                   ],
                 ),
@@ -167,9 +228,10 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     );
   }
 
+  /// Table Header Row with "Select All"
   TableRow _buildTableHeaderRow() {
     return TableRow(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.color1B2C3A,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -185,13 +247,17 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               setState(() {
                 _selectAll = !_selectAll;
                 _selectedItems = List.generate(
-                  _controller.journalLibraryIndexModel.value.data?.userJournals?.length ?? 0,
-                  (_) => _selectAll,
+                  _controller.journalLibraryIndexModel.value.data?.userJournals
+                          ?.length ??
+                      0,
+                  (index) => _selectAll,
                 );
               });
             },
             child: Icon(
-              _selectAll ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              _selectAll
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               color: AppColors.color8798A7,
             ),
           ),
@@ -204,8 +270,10 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   }
 
   TableRow _buildTableRow(int index) {
-    final journals = _controller.journalLibraryIndexModel.value.data?.userJournals;
-    
+    final journals =
+        _controller.journalLibraryIndexModel.value.data?.userJournals;
+
+    // Return empty row if index is out of bounds
     if (journals == null || index >= journals.length) {
       return TableRow(
         children: [
@@ -218,11 +286,14 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     }
 
     final journal = journals[index];
-    final firstQuestion = journal.journal?.mainQuestions?.isNotEmpty ?? false
+
+    // Safely get the first question
+    final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
         ? journal.journal!.mainQuestions!.first.question
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
-    var formattedTime = formatDateTime(journal.completedAt ?? journal.createdAt ?? 'N/A');
+    var formattedTime =
+        formatDateTime(journal.completedAt ?? journal.createdAt ?? 'N/A');
 
     return TableRow(
       children: [
@@ -237,7 +308,9 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               });
             },
             child: Icon(
-              _selectedItems[index] ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+              _selectedItems[index]
+                  ? Icons.radio_button_checked
+                  : Icons.radio_button_unchecked,
               color: AppColors.color8798A7,
             ),
           ),
@@ -259,9 +332,10 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     }
   }
 
+  /// Helper to create table header cells
   Widget _tableHeaderCell(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Text(
         title,
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
@@ -269,54 +343,20 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     );
   }
 
-  Widget _tableCell(String text) {
+  /// Helper to create table data cells
+  Widget _tableCell(String text, {bool isLink = false, bool isBlue = false}) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
+      padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
       child: Text(
         text,
         style: TextStyle(
-          color: AppColors.textColor300,
+          color: isBlue
+              ? AppColors.primary500
+              : isLink
+                  ? AppColors.white
+                  : AppColors.textColor300,
         ),
-        textAlign: TextAlign.center,
-        maxLines: 2,
-        overflow: TextOverflow.ellipsis,
       ),
     );
-  }
-
-  void _handleSearch(String value) async {
-    await _controller.getJournalLibrary(
-      1,
-      selectedJournalType,
-      value,
-      '',
-      '',
-      10,
-    );
-    
-    setState(() {
-      _selectedItems = List.generate(
-        _controller.journalLibraryIndexModel.value.data?.userJournals?.length ?? 0,
-        (_) => false,
-      );
-    });
-  }
-
-  Future<void> _fetchFilteredJournals(String emotionName) async {
-    await _controller.getJournalLibrary(
-      1,
-      emotionName,
-      _searchController.text,
-      '',
-      '',
-      10,
-    );
-
-    setState(() {
-      _selectedItems = List.generate(
-        _controller.journalLibraryIndexModel.value.data?.userJournals?.length ?? 0,
-        (_) => false,
-      );
-    });
   }
 }

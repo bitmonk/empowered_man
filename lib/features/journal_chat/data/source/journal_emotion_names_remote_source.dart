@@ -40,7 +40,7 @@ class JournalEmotionNamesRemoteSource {
 
       if (page != null) queryParameters['page'] = page;
       if (emotionName != null) queryParameters['emotion_name'] = emotionName;
-      // if (mainQuestion != null) queryParameters['main_question'] = mainQuestion;
+      if (mainQuestion != null) queryParameters['main_question'] = mainQuestion;
       //   if (sortBy != null) queryParameters['sort_by'] = sortBy;
       //  if (sortOrder != null) queryParameters['sort_order'] = sortOrder;
       if (perPage != null) queryParameters['per_page'] = perPage;

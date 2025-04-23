@@ -2,13 +2,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
-import 'dart:io';
-import 'package:file_saver/file_saver.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:share_plus/share_plus.dart';
 
 class JournalLibraryPopUp extends StatefulWidget {
   const JournalLibraryPopUp({
