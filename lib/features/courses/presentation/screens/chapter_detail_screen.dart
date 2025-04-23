@@ -69,7 +69,7 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${controller.selectedCourse.value!.completionPercentage}% Complete - ${controller.selectedCourse.value!.title}',
+            '${controller.selectedChapter.value!.course!.completionPercentage!}% Complete - ${controller.selectedCourse.value!.title}',
             style: AppTextStyles.textBodyB4
                 .copyWith(color: AppColors.textColor100),
           ),
@@ -77,9 +77,10 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
           if (widget.chapter.videoUrl != null)
             LinearProgressIndicator(
               borderRadius: BorderRadius.circular(20),
-              value: widget.chapter.status == 'completed'
-                  ? 1.0
-                  : _videoCompleteValue,
+              value: (controller.selectedChapter.value!.course!
+                          .completionPercentage ??
+                      0) /
+                  100,
               minHeight: 8,
               backgroundColor: AppColors.textColor200,
               valueColor:

@@ -18,6 +18,7 @@ class AppEndpoints {
       '/user/courses/$courseId/chapters';
   static String markChapterCompleted({String? courseId, String? chapterId}) =>
       '/user/courses/$courseId/chapters/$chapterId/complete';
+  static const String changeCourseStatus = '/user/course-chapter/update-status';
 
   static const String habits = '/user/habits';
   static const String updateHabit = '/user/habit/update-status';

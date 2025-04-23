@@ -32,6 +32,9 @@ class NotificationController extends GetxController {
       },
       (r) {
         notificationList.value = r;
+        allNotification.value = notificationList.value.data?.values
+                .every((innerMap) => innerMap.values.every((val) => val)) ??
+            false;
         getNotificationState.value = TheStates.success;
       },
     );
@@ -40,9 +43,10 @@ class NotificationController extends GetxController {
   Future<void> updateNotification() async {
     updateNotificationState.value = TheStates.loading;
     var body = <String, String>{};
-    notificationList.value.data?.entries.forEach((e) =>
-        body[e.value.entries.first.key] =
-            e.value.entries.first.value ? '1' : '0',);
+    notificationList.value.data?.entries.forEach(
+      (e) => body[e.value.entries.first.key] =
+          e.value.entries.first.value ? '1' : '0',
+    );
     _cancelToken = CancelToken();
     final result = await remoteSource.updateNotification(
       body: body,

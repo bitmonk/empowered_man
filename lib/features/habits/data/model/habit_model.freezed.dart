@@ -237,6 +237,8 @@ mixin _$SubDomain {
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'type_name')
   String? get typeName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'logo')
+  String? get logo => throw _privateConstructorUsedError;
   @JsonKey(name: 'tracked_data')
   List<WeekData>? get trackedData => throw _privateConstructorUsedError;
 
@@ -258,6 +260,7 @@ abstract class $SubDomainCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'type_name') String? typeName,
+      @JsonKey(name: 'logo') String? logo,
       @JsonKey(name: 'tracked_data') List<WeekData>? trackedData});
 }
 
@@ -278,6 +281,7 @@ class _$SubDomainCopyWithImpl<$Res, $Val extends SubDomain>
   $Res call({
     Object? id = freezed,
     Object? typeName = freezed,
+    Object? logo = freezed,
     Object? trackedData = freezed,
   }) {
     return _then(_value.copyWith(
@@ -288,6 +292,10 @@ class _$SubDomainCopyWithImpl<$Res, $Val extends SubDomain>
       typeName: freezed == typeName
           ? _value.typeName
           : typeName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      logo: freezed == logo
+          ? _value.logo
+          : logo // ignore: cast_nullable_to_non_nullable
               as String?,
       trackedData: freezed == trackedData
           ? _value.trackedData
@@ -308,6 +316,7 @@ abstract class _$$SubDomainImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'type_name') String? typeName,
+      @JsonKey(name: 'logo') String? logo,
       @JsonKey(name: 'tracked_data') List<WeekData>? trackedData});
 }
 
@@ -326,6 +335,7 @@ class __$$SubDomainImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? typeName = freezed,
+    Object? logo = freezed,
     Object? trackedData = freezed,
   }) {
     return _then(_$SubDomainImpl(
@@ -336,6 +346,10 @@ class __$$SubDomainImplCopyWithImpl<$Res>
       typeName: freezed == typeName
           ? _value.typeName
           : typeName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      logo: freezed == logo
+          ? _value.logo
+          : logo // ignore: cast_nullable_to_non_nullable
               as String?,
       trackedData: freezed == trackedData
           ? _value._trackedData
@@ -351,6 +365,7 @@ class _$SubDomainImpl implements _SubDomain {
   const _$SubDomainImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'type_name') this.typeName,
+      @JsonKey(name: 'logo') this.logo,
       @JsonKey(name: 'tracked_data') final List<WeekData>? trackedData})
       : _trackedData = trackedData;
 
@@ -363,6 +378,9 @@ class _$SubDomainImpl implements _SubDomain {
   @override
   @JsonKey(name: 'type_name')
   final String? typeName;
+  @override
+  @JsonKey(name: 'logo')
+  final String? logo;
   final List<WeekData>? _trackedData;
   @override
   @JsonKey(name: 'tracked_data')
@@ -376,7 +394,7 @@ class _$SubDomainImpl implements _SubDomain {
 
   @override
   String toString() {
-    return 'SubDomain(id: $id, typeName: $typeName, trackedData: $trackedData)';
+    return 'SubDomain(id: $id, typeName: $typeName, logo: $logo, trackedData: $trackedData)';
   }
 
   @override
@@ -387,13 +405,14 @@ class _$SubDomainImpl implements _SubDomain {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.typeName, typeName) ||
                 other.typeName == typeName) &&
+            (identical(other.logo, logo) || other.logo == logo) &&
             const DeepCollectionEquality()
                 .equals(other._trackedData, _trackedData));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, typeName,
+  int get hashCode => Object.hash(runtimeType, id, typeName, logo,
       const DeepCollectionEquality().hash(_trackedData));
 
   /// Create a copy of SubDomain
@@ -416,6 +435,7 @@ abstract class _SubDomain implements SubDomain {
   const factory _SubDomain(
           {@JsonKey(name: 'id') final int? id,
           @JsonKey(name: 'type_name') final String? typeName,
+          @JsonKey(name: 'logo') final String? logo,
           @JsonKey(name: 'tracked_data') final List<WeekData>? trackedData}) =
       _$SubDomainImpl;
 
@@ -428,6 +448,9 @@ abstract class _SubDomain implements SubDomain {
   @override
   @JsonKey(name: 'type_name')
   String? get typeName;
+  @override
+  @JsonKey(name: 'logo')
+  String? get logo;
   @override
   @JsonKey(name: 'tracked_data')
   List<WeekData>? get trackedData;

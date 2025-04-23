@@ -209,10 +209,16 @@ class _HabitScreenState extends State<HabitScreen> {
           const VerticalSpacing(8),
           Row(
             children: [
-              Image.asset(
-                Assets.images.exercise.path,
+              AppCachedImage(
+                imgUrl: habit.$2.logo ?? '',
                 width: 20,
-                color: AppColors.primary500,
+                height: 20,
+                errorWid: const Icon(
+                  Icons.image_not_supported,
+                  size: 20,
+                  color: AppColors.primary500,
+                ),
+                // color: AppColors.primary500,
               ),
               const HorizontalSpacing(8),
               Text(
@@ -266,7 +272,8 @@ class _HabitScreenState extends State<HabitScreen> {
               );
             } else {
               AppUtils.showErrorSnackbar(
-                  message: 'Future dates are not allowed.',);
+                message: 'Future dates are not allowed.',
+              );
             }
           },
           child: Container(

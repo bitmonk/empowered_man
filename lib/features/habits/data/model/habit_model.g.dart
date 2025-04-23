@@ -31,6 +31,7 @@ _$SubDomainImpl _$$SubDomainImplFromJson(Map<String, dynamic> json) =>
     _$SubDomainImpl(
       id: (json['id'] as num?)?.toInt(),
       typeName: json['type_name'] as String?,
+      logo: json['logo'] as String?,
       trackedData: (json['tracked_data'] as List<dynamic>?)
           ?.map((e) => WeekData.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -40,6 +41,7 @@ Map<String, dynamic> _$$SubDomainImplToJson(_$SubDomainImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'type_name': instance.typeName,
+      'logo': instance.logo,
       'tracked_data': instance.trackedData,
     };
 

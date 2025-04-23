@@ -38,28 +38,30 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
             error: () => CustomErrorWidget(
               onPressed: _refresh,
             ),
-            success: () => SingleChildScrollView(
-              padding: const EdgeInsets.all(16),
-              physics: const AlwaysScrollableScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const VerticalSpacing(12),
-                  _buildCourseHeader(),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Modules',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
+            success: () {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(16),
+                physics: const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const VerticalSpacing(12),
+                    _buildCourseHeader(),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'Modules',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildModulesList(),
-                ],
-              ),
-            ),
+                    const SizedBox(height: 12),
+                    _buildModulesList(),
+                  ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -186,6 +188,12 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                               .status ==
                           'completed' ||
                       chapter.status == 'completed') {
+                    if (index == 0) {
+                      controller.changeCourseStatus(
+                          chapterId: chapter.id.toString(),
+                          courseId:
+                              controller.selectedCourse.value!.id.toString(),);
+                    }
                     Get.to(
                       () => ChapterDetailScreen(
                         chapter: chapter,

@@ -11,6 +11,7 @@ class CourseController extends GetxController {
 
   final List<String> filters = ['All', 'Ongoing', 'Completed'];
   RxString selectedFilters = 'All'.obs;
+  RxInt chapterProgress = 0.obs;
   TextEditingController searchController = TextEditingController();
   Map<String, List<Course>> filteredCourses = {
     'all': [],
@@ -32,6 +33,7 @@ class CourseController extends GetxController {
   Rx<TheStates> getChapterState = TheStates.initial.obs;
   Rx<TheStates> getCoursesState = TheStates.initial.obs;
   Rx<TheStates> markChapterCompletedState = TheStates.initial.obs;
+  Rx<TheStates> changeCourseStatusState = TheStates.initial.obs;
 
   CancelToken? _cancelToken;
 
@@ -145,6 +147,36 @@ class CourseController extends GetxController {
         Get.back();
         AppUtils.showSnackbar(message: r);
         markChapterCompletedState.value = TheStates.success;
+        return true;
+      },
+    );
+  }
+
+  Future<bool> changeCourseStatus({
+    required String courseId,
+    required String chapterId,
+    CancelToken? cancelToken,
+  }) async {
+    changeCourseStatusState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+
+    final result = await remoteSource.changeCourseStatus(
+      chapterId: chapterId,
+      courseId: courseId,
+      cancelToken: _cancelToken,
+    );
+
+    return result.fold(
+      (l) {
+        changeCourseStatusState.value = TheStates.error;
+        // AppUtils.showErrorSnackbar(message: l.message);
+        return false;
+      },
+      (r) async {
+        getChapters();
+        // Get.back();
+        // AppUtils.showSnackbar(message: r);
+        changeCourseStatusState.value = TheStates.success;
         return true;
       },
     );

@@ -138,13 +138,21 @@ class AppOutlinedButton extends StatelessWidget {
               // 🔵 Progress fill background
               if (progress != null && progress! > 0)
                 Positioned.fill(
-                  child: FractionallySizedBox(
-                    alignment: Alignment.centerLeft,
-                    widthFactor: progress!.clamp(0.0, 1.0),
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: AppColors.primary500,
-                        borderRadius: BorderRadius.circular(borderRadius),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(borderRadius),
+                    child: FractionallySizedBox(
+                      alignment: Alignment.centerLeft,
+                      widthFactor: progress!.clamp(0.0, 1.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.primary500,
+                          borderRadius: BorderRadius.horizontal(
+                            left: Radius.circular(borderRadius),
+                            right: Radius.circular(
+                              progress! >= 0.95 ? borderRadius : 0,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
