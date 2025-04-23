@@ -1,3 +1,5 @@
+import 'dart:core';
+
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
@@ -14,16 +16,11 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   final JournalEmotionNameController _controller =
       Get.find<JournalEmotionNameController>();
   final ScrollController _scrollController = ScrollController();
-  List<bool> _selectedItems = List.generate(0, (index) => false);
+  List<bool> _selectedItems = [];
   bool _selectAll = false;
   final TextEditingController controller = TextEditingController();
-  bool _isLoading = false;
 
   void onSearch(String text) async {
-    setState(() {
-      _isLoading = true;
-    });
-
     try {
       await _controller.getJournalLibrary(
         1,
@@ -49,10 +46,6 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
       });
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to load journals');
-    } finally {
-      setState(() {
-        _isLoading = false;
-      });
     }
   }
 
@@ -110,6 +103,31 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     }
   }
 
+  Future<void> onRefresh() async {
+    final currentLength = _selectedItems.length;
+    controller.clear();
+    await _controller.getJournalLibrary(
+      1,
+      '', // emotion type
+      '', // main question
+      '', // search query
+      '', // start date
+      10, // limit
+    );
+    setState(() {
+      if (_controller
+              .journalLibraryIndexModel.value.data?.userJournals?.isNotEmpty ??
+          false) {
+        _selectedItems = List.generate(
+          _controller.journalLibraryIndexModel.value.data!.userJournals!.length,
+          (_) => false,
+        );
+      } else {
+        _selectedItems = List.generate(currentLength, (_) => false);
+      }
+    });
+  }
+
   // Get selected journal entries based on selectedItems flags
   List<dynamic> getSelectedJournals() {
     final journals =
@@ -138,91 +156,96 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
 
         final journals =
             _controller.journalLibraryIndexModel.value.data?.userJournals;
-        return SingleChildScrollView(
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 12),
-                        child: TextField(
-                          controller: controller,
-                          style: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 14,
-                          ),
-                          onSubmitted: onSearch,
-                          decoration: InputDecoration(
-                            hintText: 'Search journals...',
-                            hintStyle: TextStyle(
+        return RefreshIndicator(
+          onRefresh: onRefresh,
+          child: SingleChildScrollView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            child: Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 12),
+                          child: TextField(
+                            controller: controller,
+                            style: const TextStyle(
                               color: AppColors.white,
                               fontSize: 14,
                             ),
-                            prefixIcon: const Icon(Icons.search),
-                            suffixIcon: controller.text.isNotEmpty
-                                ? IconButton(
-                                    icon: const Icon(Icons.clear),
-                                    onPressed: () {
-                                      controller.clear();
-                                      onSearch('');
-                                    },
-                                  )
-                                : null,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: Colors.white),
+                            onSubmitted: onSearch,
+                            decoration: InputDecoration(
+                              hintText: 'Search journals...',
+                              hintStyle: TextStyle(
+                                color: AppColors.white,
+                                fontSize: 14,
+                              ),
+                              prefixIcon: const Icon(Icons.search),
+                              suffixIcon: controller.text.isNotEmpty
+                                  ? IconButton(
+                                      icon: const Icon(Icons.clear),
+                                      onPressed: () {
+                                        controller.clear();
+                                        onSearch('');
+                                      },
+                                    )
+                                  : null,
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(12),
+                                borderSide:
+                                    const BorderSide(color: Colors.white),
+                              ),
+                              contentPadding:
+                                  const EdgeInsets.symmetric(horizontal: 16),
                             ),
-                            contentPadding:
-                                const EdgeInsets.symmetric(horizontal: 16),
                           ),
                         ),
                       ),
-                    ),
-                    JournalLibraryPopUp(
-                      selectedItems: _selectedItems,
-                      // selectedJournals: getSelectedJournals(),
-                      onSelected: (deletedIds, shouldClearSelection) {
-                        if (shouldClearSelection) {
-                          setState(() {
-                            _selectedItems = List.generate(
-                              _selectedItems.length,
-                              (_) => false,
-                            );
-                            _selectAll = false;
-                          });
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              ThemedContainer(
-                padding: EdgeInsets.zero,
-                margin: const EdgeInsets.all(12),
-                child: SingleChildScrollView(
-                  child: Table(
-                    columnWidths: const {
-                      0: FixedColumnWidth(35),
-                      1: FlexColumnWidth(70),
-                      2: FlexColumnWidth(90),
-                      3: FlexColumnWidth(80),
-                    },
-                    children: [
-                      _buildTableHeaderRow(),
-                      if (journals != null && journals.isNotEmpty)
-                        ...List.generate(
-                          journals.length,
-                          (index) => _buildTableRow(index),
-                        ),
+                      JournalLibraryPopUp(
+                        selectedItems: _selectedItems,
+                        // selectedJournals: getSelectedJournals(),
+                        onSelected: (deletedIds, shouldClearSelection) {
+                          if (shouldClearSelection) {
+                            setState(() {
+                              _selectedItems = List.generate(
+                                _selectedItems.length,
+                                (_) => false,
+                              );
+                              _selectAll = false;
+                            });
+                          }
+                        },
+                      ),
                     ],
                   ),
                 ),
-              ),
-            ],
+                ThemedContainer(
+                  padding: EdgeInsets.zero,
+                  margin: const EdgeInsets.all(12),
+                  child: SingleChildScrollView(
+                    child: Table(
+                      columnWidths: const {
+                        0: FixedColumnWidth(35),
+                        1: FlexColumnWidth(70),
+                        2: FlexColumnWidth(90),
+                        3: FlexColumnWidth(80),
+                      },
+                      children: [
+                        _buildTableHeaderRow(),
+                        if (journals != null && journals.isNotEmpty)
+                          ...List.generate(
+                            journals.length,
+                            (index) => _buildTableRow(index),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         );
       }),
