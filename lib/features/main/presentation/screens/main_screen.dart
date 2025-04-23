@@ -60,148 +60,166 @@ class _MainScreenState extends State<MainScreen>
   Widget build(BuildContext context) {
     super.build(context);
 
-    return Scaffold(
-      key: AppWidgetKey.mainScaffold,
-      resizeToAvoidBottomInset: false,
-      backgroundColor: AppColors.colorWhite,
-      drawer: Drawer(
-        width: MediaQuery.of(context).size.width * 0.92,
-        backgroundColor: AppColors.bgMedium,
-        child: const MainDrawer(),
-      ),
-      body: SafeArea(
-        top: false,
-        bottom: false,
-        child: PersistentTabView(
-          backgroundColor: AppColors.bgDark,
-          screenTransitionAnimation: const ScreenTransitionAnimation.none(),
-          controller: AppWidgetKey.bottomBarController,
-          navBarHeight: 68,
-          onTabChanged: (value) {
-            controller.changeIndex(value);
-          },
-          tabs: [
-            PersistentTabConfig(
-              screen: const HomeScreen(),
-              item: ItemConfig(
-                title: title[0],
-                textStyle: AppTextStyles.captionMedium,
-                inactiveForegroundColor: AppColors.bgBorder,
-                icon: Assets.images.dashboard
-                    .svg(
-                      width: 24,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                    .paddingOnly(top: 6),
-                inactiveIcon:
-                    Assets.images.dashboard.svg(width: 24).paddingOnly(top: 6),
-                activeForegroundColor: AppColors.primary500,
-              ),
-            ),
-            PersistentTabConfig(
-              screen: const TasksScreen(),
-              item: ItemConfig(
-                title: title[1],
-                textStyle: AppTextStyles.captionMedium,
-                inactiveForegroundColor: AppColors.bgBorder,
-                icon: Assets.images.tasks
-                    .svg(
-                      width: 26,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                    .paddingOnly(top: 6),
-                inactiveIcon:
-                    Assets.images.tasks.svg(width: 26).paddingOnly(top: 6),
-                activeForegroundColor: AppColors.primary500,
-              ),
-            ),
-            PersistentTabConfig(
-              screen: const ChatScreen(),
-              item: ItemConfig(
-                title: 'Chat',
-                textStyle: AppTextStyles.captionMedium,
-                inactiveForegroundColor: AppColors.bgBorder,
-                inactiveIcon: _buildChatIcon(),
-                activeForegroundColor: AppColors.bgBorder,
-                icon: _buildChatIcon(),
-              ),
-            ),
-            PersistentTabConfig(
-              screen: const GoalsScreen(),
-              item: ItemConfig(
-                title: title[3],
-                inactiveForegroundColor: AppColors.bgBorder,
-                textStyle: AppTextStyles.captionMedium,
-                icon: Assets.images.games
-                    .svg(
-                      width: 26,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                    .paddingOnly(top: 6),
-                inactiveIcon:
-                    Assets.images.games.svg(width: 26).paddingOnly(top: 6),
-                activeForegroundColor: AppColors.primary500,
-              ),
-            ),
-            PersistentTabConfig(
-              screen: const HabitScreen(),
-              item: ItemConfig(
-                title: title[4],
-                textStyle: AppTextStyles.captionMedium,
-                inactiveForegroundColor: AppColors.bgBorder,
-                icon: Assets.images.habits
-                    .svg(
-                      width: 26,
-                      colorFilter: const ColorFilter.mode(
-                        AppColors.primary500,
-                        BlendMode.srcIn,
-                      ),
-                    )
-                    .paddingOnly(top: 6),
-                inactiveIcon:
-                    Assets.images.habits.svg(width: 26).paddingOnly(top: 6),
-                activeForegroundColor: AppColors.primary500,
-              ),
-            ),
-          ],
-          navBarBuilder: (navBarConfig) => Stack(
-            clipBehavior: Clip.none,
-            children: [
-              Positioned(
-                left: 174, // Adjust to center it horizontally
-                right: 174, // Adjust to center it horizontally
-                bottom: -65,
-                child: Container(
-                  height: 154, // Adjust height for oval shape
-                  width: 100, // Adjust width for oval shape
-                  decoration: BoxDecoration(
-                    color: AppColors.bgBorder,
-                    borderRadius: BorderRadius.circular(100), // Makes it oval
-                  ),
+    return WillPopScope(
+      onWillPop: () async {
+        final scaffoldState = AppWidgetKey.mainScaffold.currentState;
+        if (scaffoldState?.isDrawerOpen ?? false) {
+          Navigator.of(context).pop(); // Closes drawer
+          return false;
+        }
+
+        final currentIndex = AppWidgetKey.bottomBarController.index;
+        if (currentIndex > 0) {
+          AppWidgetKey.bottomBarController.jumpToTab(currentIndex - 1);
+          return false;
+        }
+
+        return true;
+      },
+      child: Scaffold(
+        key: AppWidgetKey.mainScaffold,
+        resizeToAvoidBottomInset: false,
+        backgroundColor: AppColors.colorWhite,
+        drawer: Drawer(
+          width: MediaQuery.of(context).size.width * 0.92,
+          backgroundColor: AppColors.bgMedium,
+          child: const MainDrawer(),
+        ),
+        body: SafeArea(
+          top: false,
+          bottom: false,
+          child: PersistentTabView(
+            backgroundColor: AppColors.bgDark,
+            screenTransitionAnimation: const ScreenTransitionAnimation.none(),
+            controller: AppWidgetKey.bottomBarController,
+            navBarHeight: 68,
+            onTabChanged: (value) {
+              controller.changeIndex(value);
+            },
+            tabs: [
+              PersistentTabConfig(
+                screen: const HomeScreen(),
+                item: ItemConfig(
+                  title: title[0],
+                  textStyle: AppTextStyles.captionMedium,
+                  inactiveForegroundColor: AppColors.bgBorder,
+                  icon: Assets.images.dashboard
+                      .svg(
+                        width: 24,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      .paddingOnly(top: 6),
+                  inactiveIcon: Assets.images.dashboard
+                      .svg(width: 24)
+                      .paddingOnly(top: 6),
+                  activeForegroundColor: AppColors.primary500,
                 ),
               ),
-              Style13BottomNavBar(
-                navBarDecoration: const NavBarDecoration(
-                  color:
-                      AppColors.bgBorder, // Make it blend with the curved shape
+              PersistentTabConfig(
+                screen: const TasksScreen(),
+                item: ItemConfig(
+                  title: title[1],
+                  textStyle: AppTextStyles.captionMedium,
+                  inactiveForegroundColor: AppColors.bgBorder,
+                  icon: Assets.images.tasks
+                      .svg(
+                        width: 26,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      .paddingOnly(top: 6),
+                  inactiveIcon:
+                      Assets.images.tasks.svg(width: 26).paddingOnly(top: 6),
+                  activeForegroundColor: AppColors.primary500,
                 ),
-                navBarConfig: navBarConfig.copyWith(
-                  onItemSelected: (index) {
-                    AppWidgetKey.bottomBarController.jumpToTab(index);
-                    return true;
-                  },
+              ),
+              PersistentTabConfig(
+                screen: const ChatScreen(),
+                item: ItemConfig(
+                  title: 'Chat',
+                  textStyle: AppTextStyles.captionMedium,
+                  inactiveForegroundColor: AppColors.bgBorder,
+                  inactiveIcon: _buildChatIcon(),
+                  activeForegroundColor: AppColors.bgBorder,
+                  icon: _buildChatIcon(),
+                ),
+              ),
+              PersistentTabConfig(
+                screen: const GoalsScreen(),
+                item: ItemConfig(
+                  title: title[3],
+                  inactiveForegroundColor: AppColors.bgBorder,
+                  textStyle: AppTextStyles.captionMedium,
+                  icon: Assets.images.games
+                      .svg(
+                        width: 26,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      .paddingOnly(top: 6),
+                  inactiveIcon:
+                      Assets.images.games.svg(width: 26).paddingOnly(top: 6),
+                  activeForegroundColor: AppColors.primary500,
+                ),
+              ),
+              PersistentTabConfig(
+                screen: const HabitScreen(),
+                item: ItemConfig(
+                  title: title[4],
+                  textStyle: AppTextStyles.captionMedium,
+                  inactiveForegroundColor: AppColors.bgBorder,
+                  icon: Assets.images.habits
+                      .svg(
+                        width: 26,
+                        colorFilter: const ColorFilter.mode(
+                          AppColors.primary500,
+                          BlendMode.srcIn,
+                        ),
+                      )
+                      .paddingOnly(top: 6),
+                  inactiveIcon:
+                      Assets.images.habits.svg(width: 26).paddingOnly(top: 6),
+                  activeForegroundColor: AppColors.primary500,
                 ),
               ),
             ],
+            navBarBuilder: (navBarConfig) => Stack(
+              clipBehavior: Clip.none,
+              children: [
+                Positioned(
+                  left: 174, // Adjust to center it horizontally
+                  right: 174, // Adjust to center it horizontally
+                  bottom: -65,
+                  child: Container(
+                    height: 154, // Adjust height for oval shape
+                    width: 100, // Adjust width for oval shape
+                    decoration: BoxDecoration(
+                      color: AppColors.bgBorder,
+                      borderRadius: BorderRadius.circular(100), // Makes it oval
+                    ),
+                  ),
+                ),
+                Style13BottomNavBar(
+                  navBarDecoration: const NavBarDecoration(
+                    color: AppColors
+                        .bgBorder, // Make it blend with the curved shape
+                  ),
+                  navBarConfig: navBarConfig.copyWith(
+                    onItemSelected: (index) {
+                      AppWidgetKey.bottomBarController.jumpToTab(index);
+                      return true;
+                    },
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

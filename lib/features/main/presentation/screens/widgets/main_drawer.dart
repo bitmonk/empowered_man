@@ -139,7 +139,7 @@ class MainDrawer extends GetView<MainController> {
 
                           await Get.find<JournalChatController>()
                               .getJournalWithQuestionsAndAnswers(
-                                  emotionId.toString());
+                                  emotionId.toString(),);
 
                           // Hide loading dialog before navigation
                           AppUtils.hideLoadingDialog(context);

@@ -2,7 +2,6 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/journal_search_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
 import 'package:intl/intl.dart';
 

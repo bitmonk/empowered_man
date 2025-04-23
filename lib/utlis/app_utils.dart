@@ -25,7 +25,7 @@ class AppUtils {
     if (_overlayEntry != null) return;
 
     _overlayEntry = OverlayEntry(
-      builder: (context) => Material(
+      builder: (context) => const Material(
         color: Colors.transparent,
         child: Center(
           child: Center(
@@ -38,7 +38,7 @@ class AppUtils {
       ),
     );
 
-    Overlay.of(context)?.insert(_overlayEntry!);
+    Overlay.of(context).insert(_overlayEntry!);
   }
 
   static void hideLoadingDialog(BuildContext context) {

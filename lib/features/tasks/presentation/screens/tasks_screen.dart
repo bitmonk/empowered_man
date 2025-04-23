@@ -31,128 +31,129 @@ class _TasksScreenState extends State<TasksScreen> {
     return AppScaffold(
       body: SafeArea(
         bottom: false,
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Obx(
-            () => Column(
-              children: [
-                const VerticalSpacing(16),
-                const DrawerHeaderWithBack(title: 'Tasks'),
-                const VerticalSpacing(32),
-                _searchField(),
-                const VerticalSpacing(26),
-                _weekListWidget(),
-                const VerticalSpacing(10),
-                controller.getTaskState.value.showWidget(
-                  orElse: () => const LoadingWidget(),
-                  error: () => CustomErrorWidget(
-                    error: controller.getTaskError.value,
-                    onPressed: () {
-                      controller.getTask();
+        child: Obx(
+          () => Column(
+            children: [
+              const VerticalSpacing(16),
+              const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: DrawerHeaderWithBack(title: 'Tasks'),
+              ),
+              const VerticalSpacing(32),
+              _searchField(),
+              const VerticalSpacing(26),
+              _weekListWidget(),
+              const VerticalSpacing(10),
+              controller.getTaskState.value.showWidget(
+                orElse: () => const LoadingWidget(),
+                error: () => CustomErrorWidget(
+                  error: controller.getTaskError.value,
+                  onPressed: () {
+                    controller.getTask();
+                  },
+                ),
+                success: () => Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      controller.resetValue();
+                      _initFunc();
                     },
-                  ),
-                  success: () => Expanded(
-                    child: RefreshIndicator(
-                      onRefresh: () async {
-                        controller.resetValue();
-                        _initFunc();
-                      },
-                      child: ListView(
-                        children: [
-                          TasksExpansionTile(
-                            title: 'Hit List',
-                            description: '',
-                            taskPortion: controller.hitData.value?.tasks?.length
-                                    .toString() ??
-                                '0',
-                            isCompleted: false,
-                            isDone: true,
-                            onTap: () {
-                              controller.isExpandedHitList.value =
-                                  !controller.isExpandedHitList.value;
-                            },
+                    child: ListView(
+                      padding: const EdgeInsets.symmetric(horizontal: 16)
+                          .copyWith(bottom: 120),
+                      children: [
+                        TasksExpansionTile(
+                          title: 'Hit List',
+                          description: '',
+                          taskPortion: controller.hitData.value?.tasks?.length
+                                  .toString() ??
+                              '0',
+                          isCompleted: false,
+                          isDone: true,
+                          onTap: () {
+                            controller.isExpandedHitList.value =
+                                !controller.isExpandedHitList.value;
+                          },
+                        ),
+                        if (controller.isExpandedHitList.value)
+                          TaskList(list: controller.hitData.value?.tasks),
+                        TasksExpansionTile(
+                          title: 'Mit List',
+                          description: '',
+                          taskPortion:
+                              '${controller.mitData.value?.tasks?.length ?? 0}/4',
+                          totalTask: 4,
+                          isCompleted: false,
+                          isDone: true,
+                          onTap: () {
+                            controller.isExpandedMitList.value =
+                                !controller.isExpandedMitList.value;
+                          },
+                        ),
+                        if (controller.isExpandedMitList.value)
+                          TaskList(list: controller.mitData.value?.tasks),
+                        TasksExpansionTile(
+                          title: 'Do List',
+                          description: '',
+                          taskPortion: controller.doData.value?.tasks?.length
+                                  .toString() ??
+                              '0',
+                          isCompleted: false,
+                          isDone: true,
+                          taskCompletionPoint: 12,
+                          onTap: () {
+                            controller.isExpandedDoList.value =
+                                !controller.isExpandedDoList.value;
+                          },
+                        ),
+                        if (controller.isExpandedDoList.value)
+                          TaskList(list: controller.doData.value?.tasks),
+                        TasksExpansionTile(
+                          title: 'Achieved List',
+                          description: '',
+                          totalTask: 20,
+                          taskPortion: controller
+                                  .achievedData.value?.tasks?.length
+                                  .toString() ??
+                              '0',
+                          isCompleted: true,
+                          isDone: true,
+                          taskCompletionPoint:
+                              controller.achievedData.value?.tasks?.length,
+                          collapseBorderSideColor: AppColors.color2AD674,
+                          onTap: () {
+                            controller.isExpandedAchievedList.value =
+                                !controller.isExpandedAchievedList.value;
+                          },
+                        ),
+                        if (controller.isExpandedAchievedList.value)
+                          TaskList(
+                            list: controller.achievedData.value?.tasks,
                           ),
-                          if (controller.isExpandedHitList.value)
-                            TaskList(list: controller.hitData.value?.tasks),
-                          TasksExpansionTile(
-                            title: 'Mit List',
-                            description: '',
-                            taskPortion:
-                                '${controller.mitData.value?.tasks?.length ?? 0}/4',
-                            totalTask: 4,
-                            isCompleted: false,
-                            isDone: true,
-                            onTap: () {
-                              controller.isExpandedMitList.value =
-                                  !controller.isExpandedMitList.value;
-                            },
-                          ),
-                          if (controller.isExpandedMitList.value)
-                            TaskList(list: controller.mitData.value?.tasks),
-                          TasksExpansionTile(
-                            title: 'Do List',
-                            description: '',
-                            taskPortion: controller.doData.value?.tasks?.length
-                                    .toString() ??
-                                '0',
-                            isCompleted: false,
-                            isDone: true,
-                            taskCompletionPoint: 12,
-                            onTap: () {
-                              controller.isExpandedDoList.value =
-                                  !controller.isExpandedDoList.value;
-                            },
-                          ),
-                          if (controller.isExpandedDoList.value)
-                            TaskList(list: controller.doData.value?.tasks),
-                          TasksExpansionTile(
-                            title: 'Achieved List',
-                            description: '',
-                            totalTask: 20,
-                            taskPortion: controller
-                                    .achievedData.value?.tasks?.length
-                                    .toString() ??
-                                '0',
-                            isCompleted: true,
-                            isDone: true,
-                            taskCompletionPoint:
-                                controller.achievedData.value?.tasks?.length,
-                            collapseBorderSideColor: AppColors.color2AD674,
-                            onTap: () {
-                              controller.isExpandedAchievedList.value =
-                                  !controller.isExpandedAchievedList.value;
-                            },
-                          ),
-                          if (controller.isExpandedAchievedList.value)
-                            TaskList(
-                              list: controller.achievedData.value?.tasks,
-                            ),
-                          TasksExpansionTile(
-                            title: 'Done List',
-                            description: '',
-                            taskPortion: controller
-                                    .doneData.value?.tasks?.length
-                                    .toString() ??
-                                '0',
-                            isCompleted: true,
-                            isDone: true,
-                            taskCompletionPoint:
-                                controller.doneData.value?.tasks?.length,
-                            collapseBorderSideColor: AppColors.color2AD674,
-                            onTap: () {
-                              controller.isExpandedDoneList.value =
-                                  !controller.isExpandedDoneList.value;
-                            },
-                          ),
-                          if (controller.isExpandedDoneList.value)
-                            TaskList(list: controller.doneData.value?.tasks),
-                        ],
-                      ),
+                        TasksExpansionTile(
+                          title: 'Done List',
+                          description: '',
+                          taskPortion: controller.doneData.value?.tasks?.length
+                                  .toString() ??
+                              '0',
+                          isCompleted: true,
+                          isDone: true,
+                          taskCompletionPoint:
+                              controller.doneData.value?.tasks?.length,
+                          collapseBorderSideColor: AppColors.color2AD674,
+                          onTap: () {
+                            controller.isExpandedDoneList.value =
+                                !controller.isExpandedDoneList.value;
+                          },
+                        ),
+                        if (controller.isExpandedDoneList.value)
+                          TaskList(list: controller.doneData.value?.tasks),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
@@ -160,17 +161,20 @@ class _TasksScreenState extends State<TasksScreen> {
   }
 
   Widget _searchField() {
-    return AppTextFormField(
-      controller: controller.searchTextController,
-      enabledBorderSide: const BorderSide(color: AppColors.bgMedium),
-      borderSide: const BorderSide(color: AppColors.bgMedium),
-      fillColor: AppColors.bgMedium,
-      prefixIcon: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        child: Assets.images.search.svg(height: 22, width: 22),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: AppTextFormField(
+        controller: controller.searchTextController,
+        enabledBorderSide: const BorderSide(color: AppColors.bgMedium),
+        borderSide: const BorderSide(color: AppColors.bgMedium),
+        fillColor: AppColors.bgMedium,
+        prefixIcon: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Assets.images.search.svg(height: 22, width: 22),
+        ),
+        hintText: 'Search...',
+        hintStyle: AppTextStyles.textCaptionC2,
       ),
-      hintText: 'Search...',
-      hintStyle: AppTextStyles.textCaptionC2,
     );
   }
 
@@ -203,7 +207,7 @@ class _TasksScreenState extends State<TasksScreen> {
                   (index) {
                     var selectedDaysIndex = controller.selectedDate.value;
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
                       child: InkWell(
                         splashColor: Colors.transparent,
                         onTap: () {
@@ -215,8 +219,10 @@ class _TasksScreenState extends State<TasksScreen> {
                             Text(
                               index.title,
                               style: AppTextStyles.titleMd.copyWith(
-                                color: isToday(selectedDaysIndex,
-                                        date2: index.date,)
+                                color: isToday(
+                                  selectedDaysIndex,
+                                  date2: index.date,
+                                )
                                     ? AppColors.primary500
                                     : AppColors.textColor100,
                               ),
@@ -224,8 +230,10 @@ class _TasksScreenState extends State<TasksScreen> {
                             Text(
                               index.date.day.toString(),
                               style: AppTextStyles.textCaptionC2.copyWith(
-                                color: isToday(selectedDaysIndex,
-                                        date2: index.date,)
+                                color: isToday(
+                                  selectedDaysIndex,
+                                  date2: index.date,
+                                )
                                     ? AppColors.primary500
                                     : AppColors.textColor100,
                               ),

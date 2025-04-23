@@ -1,9 +1,6 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
-import 'package:empowered/constants/app_colors.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class JournalSearchScreen extends StatefulWidget {
@@ -127,10 +124,10 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                       ),
                       child: TextField(
                         controller: _searchController,
-                        decoration: InputDecoration(
+                        decoration: const InputDecoration(
                           border: InputBorder.none,
                           hintText: 'Search',
-                          contentPadding: const EdgeInsets.all(12),
+                          contentPadding: EdgeInsets.all(12),
                         ),
                         onChanged: (value) => _handleSearch(value),
                       ),
@@ -169,7 +166,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
 
   TableRow _buildTableHeaderRow() {
     return TableRow(
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: AppColors.color1B2C3A,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(20),
@@ -274,7 +271,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 6),
       child: Text(
         text,
-        style: TextStyle(
+        style: const TextStyle(
           color: AppColors.textColor300,
         ),
         textAlign: TextAlign.center,
@@ -284,7 +281,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     );
   }
 
-  void _handleSearch(String value) async {
+  Future<void> _handleSearch(String value) async {
     await _controller.getJournalLibrary(
       1,
       selectedJournalType,
