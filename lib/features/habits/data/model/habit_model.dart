@@ -20,6 +20,7 @@ class SubDomain with _$SubDomain {
   const factory SubDomain({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'type_name') String? typeName,
+    @JsonKey(name: 'logo') String? logo,
     @JsonKey(name: 'tracked_data') List<WeekData>? trackedData,
   }) = _SubDomain;
 

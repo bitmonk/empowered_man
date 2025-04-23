@@ -68,285 +68,284 @@ class _ProfileScreenState extends State<ProfileScreen> {
       },
       child: AppScaffold(
         appBar: const CustomAppBar(),
-        body: Column(
-          children: [
-            Container(
-              color: AppColors.bgDark,
-              // height: 317,
-              width: double.infinity,
-              child: Padding(
-                padding: EdgeInsets.zero,
-                child: Column(
-                  children: [
-                    Stack(
-                      clipBehavior: Clip.none,
-                      alignment: Alignment.bottomRight,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.zero,
-
-                          // padding: const EdgeInsets.only(
-                          //   right: 20,
-                          //   bottom: 5,
-                          //   left: 20,
-                          // ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: _image != null
-                                ? Image.file(
-                                    _image!,
-                                    width: 120,
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                  )
-                                : AppCachedImage(
-                                    imgUrl: Get.find<ProfileController>()
-                                            .userProfile
-                                            .value
-                                            .image ??
-                                        '',
-                                    height: 120,
-                                    fit: BoxFit.cover,
-                                    errorWid: Container(
-                                      decoration: BoxDecoration(
-                                        border: Border.all(
-                                          color: AppColors.white,
-                                          width: 2,
+        body: RefreshIndicator(
+          onRefresh: () async {
+            _profileController.getUserProfile();
+          },
+          child: Column(
+            children: [
+              Container(
+                color: AppColors.bgDark,
+                // height: 317,
+                width: double.infinity,
+                child: Padding(
+                  padding: EdgeInsets.zero,
+                  child: Column(
+                    children: [
+                      Stack(
+                        clipBehavior: Clip.none,
+                        alignment: Alignment.bottomRight,
+                        children: [
+                          Padding(
+                            padding: EdgeInsets.zero,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: _image != null
+                                  ? Image.file(
+                                      _image!,
+                                      width: 120,
+                                      height: 120,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : AppCachedImage(
+                                      imgUrl: Get.find<ProfileController>()
+                                              .userProfile
+                                              .value
+                                              .image ??
+                                          '',
+                                      height: 120,
+                                      fit: BoxFit.cover,
+                                      errorWid: Container(
+                                        decoration: BoxDecoration(
+                                          border: Border.all(
+                                            color: AppColors.white,
+                                            width: 2,
+                                          ),
+                                          // shape: BoxShape.circle,
                                         ),
-                                        // shape: BoxShape.circle,
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: AppColors.white,
+                                          size: 60,
+                                        ),
                                       ),
-                                      child: const Icon(
-                                        Icons.person,
-                                        color: AppColors.white,
-                                        size: 60,
-                                      ),
+                                      width: 120,
                                     ),
-                                    width: 120,
-                                  ),
+                            ),
                           ),
-                        ),
-                        if (_isUploading)
-                          Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                color: Colors.black.withOpacity(0.3),
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              child: const Center(
-                                child: CircularProgressIndicator(
-                                  color: AppColors.white,
-                                  strokeWidth: 2,
+                          if (_isUploading)
+                            Positioned.fill(
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withOpacity(0.3),
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.white,
+                                    strokeWidth: 2,
+                                  ),
                                 ),
                               ),
                             ),
+                          Positioned(
+                            right: -10,
+                            bottom: -10,
+                            child: InkWell(
+                              onTap: () => _pickImage(context),
+                              child:
+                                  Assets.images.editProfilePic.image(width: 46),
+                            ),
                           ),
-                        Positioned(
-                          right: -10,
-                          bottom: -10,
-                          child: InkWell(
-                            onTap: () => _pickImage(context),
-                            child:
-                                Assets.images.editProfilePic.image(width: 46),
-                          ),
-                        ),
-                        const VerticalSpacing(6),
-                      ],
-                    ),
-                    const VerticalSpacing(6),
-                    Text(
-                      Get.find<ProfileController>()
-                              .userProfile
-                              .value
-                              .fullName ??
-                          '',
-                      style: AppTextStyles.titleMd.copyWith(fontSize: 20),
-                    ),
-                    const VerticalSpacing(8),
-                    Text(
-                      '${Get.find<ProfileController>().userProfile.value.email ?? ''} | ${Get.find<ProfileController>().userProfile.value.phoneNumber ?? ''}',
-                      style: AppTextStyles.titleSm,
-                      textAlign: TextAlign.center,
-                    ),
-                    const VerticalSpacing(24),
-                  ],
-                ),
-              ),
-            ),
-            Expanded(
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: AppColors.bgMedium,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                          const VerticalSpacing(6),
+                        ],
+                      ),
+                      const VerticalSpacing(6),
+                      Text(
+                        Get.find<ProfileController>()
+                                .userProfile
+                                .value
+                                .fullName ??
+                            '',
+                        style: AppTextStyles.titleMd.copyWith(fontSize: 20),
+                      ),
+                      const VerticalSpacing(8),
+                      Text(
+                        '${Get.find<ProfileController>().userProfile.value.email ?? ''} | ${Get.find<ProfileController>().userProfile.value.phoneNumber ?? ''}',
+                        style: AppTextStyles.titleSm,
+                        textAlign: TextAlign.center,
+                      ),
+                      const VerticalSpacing(24),
+                    ],
                   ),
                 ),
-                child: SafeArea(
-                  top: false,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24)
-                          .copyWith(bottom: 24),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'Account Settings',
-                            style: AppTextStyles.titleMd,
-                          ),
-                          const VerticalSpacing(18),
-                          SettingTile(
-                            title: 'Profile',
-                            onTap: () {
-                              EditProfileInitializer.destroy();
-                              EditProfileInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const EditProfileScreen(),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'Notification',
-                            onTap: () {
-                              NotificationInitializer.destroy();
-                              NotificationInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const NotificationScreen(false),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'Change Password',
-                            onTap: () {
-                              ChangePasswordInitializer.destroy();
-                              ChangePasswordInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const ChangePasswordScreen(),
-                              );
-                            },
-                          ),
-                          const AppDivider(),
-                          const VerticalSpacing(20),
-                          const Text(
-                            'More',
-                            style: AppTextStyles.titleMd,
-                          ),
-                          const VerticalSpacing(18),
-                          SettingTile(
-                            title: 'Privacy policy',
-                            onTap: () {
-                              AppDirectoryInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const AppDirectoryScreen(
-                                  appDirectoryEnum:
-                                      AppDirectoryEnum.privacyPolicy,
-                                ),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'Terms and conditions',
-                            onTap: () {
-                              AppDirectoryInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const AppDirectoryScreen(
-                                  appDirectoryEnum:
-                                      AppDirectoryEnum.termsAndConditions,
-                                ),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'FAQ',
-                            onTap: () {
-                              FaqInitializer.destroy();
-                              FaqInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const FaqScreen(),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'Community Guidelines',
-                            onTap: () {
-                              AppDirectoryInitializer.destroy();
-                              AppDirectoryInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const AppDirectoryScreen(
-                                  appDirectoryEnum:
-                                      AppDirectoryEnum.communityGuidelines,
-                                ),
-                              );
-                            },
-                          ),
-                          SettingTile(
-                            title: 'Contact Us',
-                            onTap: () {
-                              ContactUsInitializer.destroy();
-                              ContactUsInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                ContactUsScreen(
-                                  email: 'email',
-                                  name: 'name',
-                                  message: 'message',
-                                ),
-                              );
-                            },
-                          ),
-                          const AppDivider(),
-                          const VerticalSpacing(20),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              'Logout',
-                              style: AppTextStyles.titleMd
-                                  .copyWith(color: AppColors.primary500),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: AppColors.bgMedium,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: SafeArea(
+                    top: false,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 20),
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.symmetric(horizontal: 24)
+                            .copyWith(bottom: 24),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Account Settings',
+                              style: AppTextStyles.titleMd,
                             ),
-                            onTap: () async {
-                              // final controller = Get.find<LoginController>();
-                              final result = await _logoutController.logout();
-
-                              if (result) {
-                                await Get.find<AppSharedPref>().removeAll();
-                                Get.offAllNamed(AppRoutes.landingScreen);
-                              }
-                            },
-                          ),
-                          ListTile(
-                            contentPadding: EdgeInsets.zero,
-                            title: Text(
-                              'Delete Account',
-                              style: AppTextStyles.titleMd.copyWith(
-                                color: AppColors.appRed,
+                            const VerticalSpacing(18),
+                            SettingTile(
+                              title: 'Profile',
+                              onTap: () {
+                                EditProfileInitializer.destroy();
+                                EditProfileInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const EditProfileScreen(),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'Notification',
+                              onTap: () {
+                                NotificationInitializer.destroy();
+                                NotificationInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const NotificationScreen(false),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'Change Password',
+                              onTap: () {
+                                ChangePasswordInitializer.destroy();
+                                ChangePasswordInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const ChangePasswordScreen(),
+                                );
+                              },
+                            ),
+                            const AppDivider(),
+                            const VerticalSpacing(20),
+                            const Text(
+                              'More',
+                              style: AppTextStyles.titleMd,
+                            ),
+                            const VerticalSpacing(18),
+                            SettingTile(
+                              title: 'Privacy policy',
+                              onTap: () {
+                                AppDirectoryInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const AppDirectoryScreen(
+                                    appDirectoryEnum:
+                                        AppDirectoryEnum.privacyPolicy,
+                                  ),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'Terms and conditions',
+                              onTap: () {
+                                AppDirectoryInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const AppDirectoryScreen(
+                                    appDirectoryEnum:
+                                        AppDirectoryEnum.termsAndConditions,
+                                  ),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'FAQ',
+                              onTap: () {
+                                FaqInitializer.destroy();
+                                FaqInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const FaqScreen(),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'Community Guidelines',
+                              onTap: () {
+                                AppDirectoryInitializer.destroy();
+                                AppDirectoryInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const AppDirectoryScreen(
+                                    appDirectoryEnum:
+                                        AppDirectoryEnum.communityGuidelines,
+                                  ),
+                                );
+                              },
+                            ),
+                            SettingTile(
+                              title: 'Contact Us',
+                              onTap: () {
+                                ContactUsInitializer.destroy();
+                                ContactUsInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  ContactUsScreen(
+                                    email: 'email',
+                                    name: 'name',
+                                    message: 'message',
+                                  ),
+                                );
+                              },
+                            ),
+                            const AppDivider(),
+                            const VerticalSpacing(20),
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                'Logout',
+                                style: AppTextStyles.titleMd
+                                    .copyWith(color: AppColors.primary500),
                               ),
+                              onTap: () async {
+                                // final controller = Get.find<LoginController>();
+                                final result = await _logoutController.logout();
+
+                                if (result) {
+                                  await Get.find<AppSharedPref>().removeAll();
+                                  Get.offAllNamed(AppRoutes.landingScreen);
+                                }
+                              },
                             ),
-                            onTap: () {
-                              DeleteAccountInitializer.destroy();
-                              DeleteAccountInitializer.initialize();
-                              NavigationHelper.navigateWithFadeTransition(
-                                context,
-                                const DeleteAccountScreen(),
-                              );
-                            },
-                          ),
-                        ],
+                            ListTile(
+                              contentPadding: EdgeInsets.zero,
+                              title: Text(
+                                'Delete Account',
+                                style: AppTextStyles.titleMd.copyWith(
+                                  color: AppColors.appRed,
+                                ),
+                              ),
+                              onTap: () {
+                                DeleteAccountInitializer.destroy();
+                                DeleteAccountInitializer.initialize();
+                                NavigationHelper.navigateWithFadeTransition(
+                                  context,
+                                  const DeleteAccountScreen(),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

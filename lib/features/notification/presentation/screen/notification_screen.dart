@@ -54,7 +54,11 @@ class NotificationScreen extends GetView<NotificationController> {
                         title: 'All',
                         value: controller.allNotification.value,
                         onChanged: (value) {
-                          controller.allNotification.value = value;
+                          controller.allNotification.value = controller
+                                  .notificationList.value.data?.values
+                                  .every((innerMap) =>
+                                      innerMap.values.every((val) => val),) ??
+                              false;
                           for (final e in controller
                               .notificationList.value.data!.entries) {
                             final updatedData = {

@@ -208,8 +208,7 @@ class DioApiClient {
         }
       } else {
         throw ApiErrorResponse(
-          message:
-              'Status Code: ${error.response?.statusCode} | ${DioErrorHandler.handle(error)}',
+          message: DioErrorHandler.handle(error),
         );
       }
     }
@@ -220,7 +219,7 @@ class DioApiClient {
       );
     }
     throw ApiErrorResponse(
-      message: 'Status Code: ${error.response?.statusCode} | $msg',
+      message: msg,
     );
   }
 }

@@ -51,6 +51,7 @@ class LoginController extends GetxController {
         return false;
       },
       (r) {
+        AppWidgetKey.bottomBarController.jumpToTab(0);
         logginInState.value = TheStates.success;
         // AppUtils.showErrorSnackbar(message: r);
         return true;

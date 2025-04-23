@@ -78,4 +78,30 @@ class CourseRemoteSource {
       }
     }
   }
+
+  Future<Either<AppError, String>> changeCourseStatus({
+    required String courseId,
+    required String chapterId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.post(
+        AppEndpoints.changeCourseStatus,
+        body: {
+          'course_id': courseId,
+          'chapter_id': chapterId,
+          'status': 'in_progress',
+        },
+        cancelToken: cancelToken,
+      );
+
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
 }

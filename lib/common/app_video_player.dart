@@ -4,11 +4,12 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:video_player/video_player.dart';
 
 class AppVideoPlayer extends StatefulWidget {
-  const AppVideoPlayer(
-      {required this.videoUrl,
-      super.key,
-      this.showListener = false,
-      this.onProgressUpdate,});
+  const AppVideoPlayer({
+    required this.videoUrl,
+    super.key,
+    this.showListener = false,
+    this.onProgressUpdate,
+  });
   final String videoUrl;
   final bool showListener;
   final ValueChanged<double>? onProgressUpdate;
@@ -96,7 +97,9 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
                           .videoPlayerController.value.isInitialized
                   ? Chewie(controller: _chewieController!)
                   : const ColoredBox(
-                      color: Colors.black, child: LoadingWidget(),),
+                      color: Colors.black,
+                      child: LoadingWidget(),
+                    ),
             ),
           );
   }
