@@ -12,6 +12,7 @@ Future<void> exportPdf(
   BuildContext context, {
   required String data,
   required String fromToDate,
+  bool shouldShare = false,
 }) async {
   final pdf = pw.Document();
   // final bytes = await rootBundle.load('assets/images/logo.png');
@@ -69,7 +70,7 @@ Future<void> exportPdf(
               pw.Container(
                 margin:
                     const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                child: pw.Table.fromTextArray(
+                child: pw.TableHelper.fromTextArray(
                   headerDecoration: pw.BoxDecoration(
                     color: PdfColor.fromHex('#F3F4F6'),
                     borderRadius:
@@ -126,18 +127,41 @@ Future<void> exportPdf(
   await file.writeAsBytes(await pdf.save());
   print('PDF exported to: ${file.path}');
 
-  await Share.shareXFiles([XFile(file.path)], text: 'Here is your PDF file.');
-  await FileSaver.instance
-      .saveAs(
-    name: 'exported_table',
-    ext: 'pdf',
-    file: file,
-    mimeType: Utils().getMimeType('pdf'),
-  )
-      .then((value) {
-    AppUtils.showSnackbar(message: 'File successfully saved');
-    // Navigator.of(context).pop();
-  });
+  // Only share if the shouldShare parameter is true
+  if (shouldShare) {
+    await Share.shareXFiles([XFile(file.path)], text: 'Here is your PDF file.');
+  } else {
+    try {
+      final result = await FileSaver.instance.saveAs(
+        name: 'exported_table',
+        ext: 'pdf',
+        file: file,
+        mimeType: Utils().getMimeType('pdf'),
+      );
+
+      // Check if the save operation was successful
+      if (result != null && result.isNotEmpty) {
+        AppUtils.showSnackbar(message: 'File successfully saved');
+      }
+      // If result is null or empty, it means the save was canceled or failed
+      // In this case, we don't show any success message
+    } catch (e) {
+      // Handle errors during save
+      AppUtils.showSnackbar(message: 'Failed to save file: ${e.toString()}');
+    }
+    // Only save if not sharing
+    // await FileSaver.instance
+    //     .saveAs(
+    //   name: 'exported_table',
+    //   ext: 'pdf',
+    //   file: file,
+    //   mimeType: Utils().getMimeType('pdf'),
+    // )
+    //     .then((value) {
+    //   AppUtils.showSnackbar(message: 'File successfully saved');
+    //   // Navigator.of(context).pop();
+    // });
+  }
 }
 
 class Utils {

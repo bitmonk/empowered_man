@@ -2,6 +2,7 @@ import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_search_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
 import 'package:intl/intl.dart';
 
@@ -51,7 +52,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
     await _controller.getJournalLibrary(
       1,
       '',
-      '',
+      '', //main question
       '',
       '',
       10,
@@ -119,7 +120,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       child: ThemedContainer(
                         color: AppColors.bgBorder,
                         padding: const EdgeInsets.symmetric(
-                            vertical: 6, horizontal: 16,),
+                          vertical: 6,
+                          horizontal: 16,
+                        ),
                         child: DropdownButtonHideUnderline(
                           child: DropdownButton2<String>(
                             isExpanded: true,
@@ -179,7 +182,8 @@ class _JournalLibraryState extends State<JournalLibrary> {
                             onChanged: (value) async {
                               if (value != null &&
                                   emotionNames?.any(
-                                          (e) => e.emotionName == value,) ==
+                                        (e) => e.emotionName == value,
+                                      ) ==
                                       true) {
                                 setState(() {
                                   selectedJournalType = value;
@@ -192,7 +196,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                                 );
 
                                 _selectedItems = List.generate(
-                                    _selectedItems.length, (_) => false,);
+                                  _selectedItems.length,
+                                  (_) => false,
+                                );
 
                                 await _fetchJournalsWithEmotion(value);
                               }
@@ -202,14 +208,21 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       ),
                     ),
                     const SizedBox(width: 12),
-                    Assets.images.homeSearch.svg(),
+                    GestureDetector(
+                      onTap: () {
+                        
+                      },
+                      child: Assets.images.homeSearch.svg(),
+                    ),
                     JournalLibraryPopUp(
                       selectedItems: _selectedItems,
                       onSelected: (deletedIds, shouldClearSelection) {
                         if (shouldClearSelection) {
                           setState(() {
                             _selectedItems = List.generate(
-                                _selectedItems.length, (_) => false,);
+                              _selectedItems.length,
+                              (_) => false,
+                            );
                           });
                         }
                       },
@@ -223,12 +236,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
                 child: SingleChildScrollView(
                   child: Table(
                     columnWidths: const {
-                      0: FixedColumnWidth(35), 
+                      0: FixedColumnWidth(35),
                       1: FlexColumnWidth(70),
                       2: FlexColumnWidth(90),
                       3: FlexColumnWidth(80),
                     },
-                    
                     children: [
                       _buildTableHeaderRow(),
                       if (journals != null && journals.isNotEmpty)
@@ -394,7 +406,6 @@ class _JournalLibraryState extends State<JournalLibrary> {
         textAlign: TextAlign.center,
         maxLines: 2,
         overflow: TextOverflow.ellipsis,
-
       ),
     );
   }

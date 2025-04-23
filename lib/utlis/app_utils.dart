@@ -19,6 +19,33 @@ class AppUtils {
     return Get.context!;
   }
 
+  static OverlayEntry? _overlayEntry;
+
+  static void showLoadingDialog(BuildContext context) {
+    if (_overlayEntry != null) return;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => Material(
+        color: Colors.transparent,
+        child: Center(
+          child: Center(
+            child: CircularProgressIndicator(
+              color: Colors.white,
+              strokeWidth: 3,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    Overlay.of(context)?.insert(_overlayEntry!);
+  }
+
+  static void hideLoadingDialog(BuildContext context) {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
   static void showSnackbar({required String message}) {
     if (!Get.isSnackbarOpen) {
       Get.showSnackbar(
