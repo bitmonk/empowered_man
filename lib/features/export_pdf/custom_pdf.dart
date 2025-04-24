@@ -14,155 +14,236 @@ Future<void> exportPdf(
   required String fromToDate,
   bool shouldShare = false,
 }) async {
-  final pdf = pw.Document();
-  // final bytes = await rootBundle.load('assets/images/logo.png');
-  // final logoData = bytes.buffer.asUint8List();
-  // final logo = pw.MemoryImage(logoData);
+  // Split data by emotion entries (journals)
+  final journalEntries =
+      data.split('\n\n\n').where((entry) => entry.trim().isNotEmpty).toList();
 
-  // Function to add content to a page
-  void addTablePage(String data, int startIndex, int endIndex) {
-    pdf.addPage(
+  final pdfFiles = <File>[];
+  final emotionNames = <String>[];
+
+  // Process each journal entry separately to create individual PDFs
+  for (var i = 0; i < journalEntries.length; i++) {
+    final journalContent = journalEntries[i];
+
+    // Extract emotion/title and content
+    final parts =
+        journalContent.split('-------------------------------------------');
+    if (parts.length < 2) continue;
+
+    final emotionName = parts[0].trim();
+    emotionNames.add(emotionName);
+    final journalText = parts[1].trim();
+
+    // Create a new PDF document for this emotion
+    final pdf = pw.Document()
+
+    // Add cover page
+    ..addPage(
       pw.Page(
-        build: (pw.Context context) {
-          return pw.Column(
-            children: [
-              pw.Container(
-                width: double.infinity,
-                color: PdfColor.fromHex('#C44E66'),
-                padding: const pw.EdgeInsets.all(10),
-                child: pw.Row(
-                  children: [
-                    // pw.Image(logo, width: 100, height: 100),
-                    pw.SizedBox(width: 20),
-                    pw.Text(
-                      'Additive Free',
-                      style: pw.TextStyle(
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColor.fromHex('#FFFFFF'),
-                        fontSize: 18,
-                      ),
-                    ),
-                  ],
-                ),
+        build: (pw.Context context) => pw.Column(
+          mainAxisAlignment: pw.MainAxisAlignment.center,
+          children: [
+            pw.Text(
+              'Journal Export: $emotionName',
+              style: pw.TextStyle(
+                fontSize: 24,
+                fontWeight: pw.FontWeight.bold,
               ),
-              pw.SizedBox(height: 10),
-              pw.Row(
-                children: [
-                  pw.Text(
-                    'Shopping List - ',
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColor.fromHex('#1A2637'),
-                      fontSize: 16,
-                    ),
-                  ),
-                  pw.Text(
-                    fromToDate,
-                    style: pw.TextStyle(
-                      fontWeight: pw.FontWeight.bold,
-                      color: PdfColor.fromHex('#515C6D'),
-                      fontSize: 16,
-                    ),
-                  ),
-                ],
+            ),
+            pw.SizedBox(height: 10),
+            pw.Text(
+              fromToDate,
+              style: const pw.TextStyle(
+                fontSize: 16,
               ),
-              pw.SizedBox(height: 10),
-              pw.Container(
-                margin:
-                    const pw.EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-                child: pw.TableHelper.fromTextArray(
-                  headerDecoration: pw.BoxDecoration(
-                    color: PdfColor.fromHex('#F3F4F6'),
-                    borderRadius:
-                        const pw.BorderRadius.all(pw.Radius.circular(10)),
-                  ),
-                  headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-                  border: pw.TableBorder.all(
-                    color: PdfColor.fromHex('#bdbdbd'),
-                  ),
-                  headers: ['Item', 'Rate', 'Unit'],
-                  data: List.generate(
-                    endIndex - startIndex,
-                    (i) => [
-                      'data[startIndex + i]',
-                      'data[startIndex + i]',
-                      'data[startIndex + i]',
-                    ],
-                  ),
-                ),
+            ),
+            pw.SizedBox(height: 20),
+            pw.Text(
+              'Your Journal Entry',
+              style: pw.TextStyle(
+                fontSize: 18,
+                fontWeight: pw.FontWeight.bold,
               ),
-            ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    // Create a multi-paragraph content section
+    final paragraphs = <pw.Widget>[pw.Text(
+        emotionName,
+        style: pw.TextStyle(
+          fontSize: 18,
+          fontWeight: pw.FontWeight.bold,
+        ),
+      ), pw.SizedBox(height: 10),]
+
+    // Add emotion title
+    
+
+    
+    ..add(
+      pw.Divider(
+        thickness: 1,
+        color: PdfColors.grey300,
+      ),
+    )
+    ..add(pw.SizedBox(height: 10));
+
+    // Process Q&A pairs
+    final qaBlocks = journalText
+        .split('\n\n')
+        .where((block) => block.trim().isNotEmpty)
+        .toList();
+
+    for (final qaBlock in qaBlocks) {
+      final lines = qaBlock.split('\n');
+
+      for (var j = 0; j < lines.length; j += 2) {
+        if (j < lines.length) {
+          final question =
+              lines[j].startsWith('Q: ') ? lines[j].substring(3) : lines[j];
+
+          paragraphs.add(
+            pw.Text(
+              question,
+              style: pw.TextStyle(
+                fontSize: 12,
+                fontWeight: pw.FontWeight.bold,
+                color: PdfColors.blueGrey800,
+              ),
+            ),
           );
+
+          if (j + 1 < lines.length) {
+            final answer = lines[j + 1].startsWith('A: ')
+                ? lines[j + 1].substring(3)
+                : lines[j + 1];
+
+            paragraphs..add(pw.SizedBox(height: 4))
+            ..add(
+              pw.Text(
+                answer,
+                style: const pw.TextStyle(
+                  fontSize: 12,
+                ),
+              ),
+            );
+          }
+
+          paragraphs.add(pw.SizedBox(height: 8));
+        }
+      }
+    }
+
+    // Add content pages
+    pdf.addPage(
+      pw.MultiPage(
+        pageFormat: PdfPageFormat.a4,
+        margin: const pw.EdgeInsets.all(32),
+        build: (pw.Context context) {
+          return paragraphs;
         },
       ),
     );
+
+    // Save the PDF for this emotion
+    var status = await Permission.storage.isGranted;
+    if (!status) await Permission.storage.request();
+
+    var filePath = '';
+    if (Platform.isAndroid) {
+      var fp = await getExternalStorageDirectory();
+      filePath = fp!.path;
+    } else if (Platform.isIOS) {
+      var fp = await getApplicationSupportDirectory();
+      filePath = fp.path;
+    }
+
+    // Create sanitized filename from emotion name
+    var safeEmotionName = emotionName
+        .replaceAll(RegExp(r'[^\w\s]+'), '') // Remove special characters
+        .replaceAll(' ', '_') // Replace spaces with underscores
+        .toLowerCase();
+
+    final file = File('$filePath/${safeEmotionName}_journal.pdf');
+    await file.writeAsBytes(await pdf.save());
+    pdfFiles.add(file);
   }
 
-  // Split data into chunks to handle pagination
-  const itemsPerPage = 20; // Number of items per page
-  var totalPages = (data.length / itemsPerPage).ceil();
-
-  for (var page = 0; page < totalPages; page++) {
-    var startIndex = page * itemsPerPage;
-    var endIndex = (startIndex + itemsPerPage > data.length)
-        ? data.length
-        : startIndex + itemsPerPage;
-    addTablePage(data, startIndex, endIndex);
+  if (pdfFiles.isEmpty) {
+    AppUtils.showErrorSnackbar(message: 'No valid journal data to export');
+    return;
   }
 
-  // Save and share the PDF
-  var status = await Permission.storage.isGranted;
-  if (!status) await Permission.storage.request();
-
-  var filePath = '';
-  if (Platform.isAndroid) {
-    var fp = await getExternalStorageDirectory();
-    filePath = fp!.path;
-  } else if (Platform.isIOS) {
-    var fp = await getApplicationSupportDirectory();
-    filePath = fp.path;
-  }
-
-  final file = File('$filePath/exported_table.pdf');
-  await file.writeAsBytes(await pdf.save());
-  print('PDF exported to: ${file.path}');
-
-  // Only share if the shouldShare parameter is true
   if (shouldShare) {
-    await Share.shareXFiles([XFile(file.path)], text: 'Here is your PDF file.');
+    if (pdfFiles.length == 1) {
+      // Share single PDF
+      await Share.shareXFiles([XFile(pdfFiles.first.path)],
+          text: 'Here is your ${emotionNames.first} journal export.',);
+    } else {
+      // Share multiple PDFs
+      await Share.shareXFiles(pdfFiles.map((file) => XFile(file.path)).toList(),
+          text:
+              'Here are your journal exports for ${emotionNames.join(", ")}.',);
+    }
   } else {
     try {
-      final result = await FileSaver.instance.saveAs(
-        name: 'exported_table',
-        ext: 'pdf',
-        file: file,
-        mimeType: Utils().getMimeType('pdf'),
-      );
-
-      // Check if the save operation was successful
-      if (result != null && result.isNotEmpty) {
-        AppUtils.showSnackbar(message: 'File successfully saved');
+      // For downloads, save each file individually
+      for (var i = 0; i < pdfFiles.length; i++) {
+        final result = await FileSaver.instance.saveAs(
+          name: '${emotionNames[i].toLowerCase().replaceAll(' ', '_')}_journal',
+          ext: 'pdf',
+          file: pdfFiles[i],
+          mimeType: Utils().getMimeType('pdf'),
+        );
       }
-      // If result is null or empty, it means the save was canceled or failed
-      // In this case, we don't show any success message
+
+      final message = pdfFiles.length == 1
+          ? 'Journal successfully exported'
+          : '${pdfFiles.length} journals successfully exported';
+
+      AppUtils.showSnackbar(message: message);
     } catch (e) {
-      // Handle errors during save
-      AppUtils.showSnackbar(message: 'Failed to save file: $e');
+      AppUtils.showSnackbar(message: 'Failed to save journal: $e');
     }
-    // Only save if not sharing
-    // await FileSaver.instance
-    //     .saveAs(
-    //   name: 'exported_table',
-    //   ext: 'pdf',
-    //   file: file,
-    //   mimeType: Utils().getMimeType('pdf'),
-    // )
-    //     .then((value) {
-    //   AppUtils.showSnackbar(message: 'File successfully saved');
-    //   // Navigator.of(context).pop();
-    // });
   }
 }
+
+// New helper method to build journal entry content
+// pw.Widget _buildJournalEntryContent(
+//   pw.Context context,
+//   String title,
+//   String content,
+// ) {
+//   return pw.Column(
+//     crossAxisAlignment: pw.CrossAxisAlignment.start,
+//     children: [
+//       // Title section
+//       pw.Text(
+//         title,
+//         style: pw.TextStyle(
+//           fontSize: 16,
+//           fontWeight: pw.FontWeight.bold,
+//         ),
+//       ),
+//       pw.SizedBox(height: 10),
+
+//       // Content section with proper spacing
+//       pw.Text(
+//         content,
+//         style: const pw.TextStyle(
+//           fontSize: 12,
+//         ),
+//         textAlign: pw.TextAlign.justify,
+//       ),
+
+//       // Spacer to ensure consistent spacing
+//       pw.SizedBox(height: 40),
+//     ],
+//   );
+// }
 
 class Utils {
   MimeType getMimeType(String ext) {

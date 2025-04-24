@@ -26,9 +26,11 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     _initializeData();
   }
 
+  // Add this as a class member variable
+  bool _isDialogShowing = false;
+
   Future<void> _exportSelectedJournalsToPdf(bool shouldShare) async {
     final selectedCount = widget.selectedItems.where((item) => item).length;
-
     if (selectedCount == 0) {
       AppUtils.showErrorSnackbar(message: 'No journals selected for export');
       return;
@@ -38,7 +40,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     final journalIds = <String>[];
     final journals =
         _controller.journalLibraryIndexModel.value.data?.userJournals;
-
     if (journals != null) {
       for (var i = 0; i < widget.selectedItems.length; i++) {
         if (widget.selectedItems[i] && i < journals.length) {
@@ -46,7 +47,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         }
       }
     }
-
     if (journalIds.isEmpty) {
       AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
       return;
@@ -57,53 +57,154 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       final result = await _controller.getBulkSeeJournal(journalIds);
       final userJournals =
           _controller.userJournalResponse.value.data?.userJournals;
-
       if (userJournals == null || userJournals.isEmpty) {
         AppUtils.showErrorSnackbar(message: 'No journal data available');
         return;
       }
 
-      // Format data for PDF
-      var formattedData = '';
-      var fromToDate = '';
-
-      if (userJournals.isNotEmpty) {
-        //   // Format data properly for your needs
-        formattedData = userJournals
-            .map((journal) =>
-                '${journal.journal?.emotionName ?? "Untitled"}: ${journal.journalAnswers ?? "No content"}')
-            .join('\n\n');
-
-        //   // Generate date range for PDF header
-          if (userJournals.length == 1 && userJournals.first.createdAt != null) {
-            fromToDate = userJournals.first.createdAt!;
-          } else if (userJournals.isNotEmpty) {
-            // Find oldest and newest entries
-            final dates = userJournals
-                .where((j) => j.createdAt != null)
-                .map((j) => j.createdAt!)
-                .toList();
-
-            if (dates.isNotEmpty) {
-              dates.sort();
-              fromToDate = '${dates.first} - ${dates.last}';
-            } else {
-              fromToDate = 'Journal Export';
-            }
-          }
+      // Show loading indicator
+      final showProgressIndicator = userJournals.length > 2;
+      if (showProgressIndicator) {
+        _isDialogShowing = true;
+        Get.dialog(
+          Material(
+            color: Colors.transparent,
+            child: Padding(
+              padding: const EdgeInsets.all(40),
+              child: Center(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgBorder,
+                    borderRadius: BorderRadius.circular(8),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        spreadRadius: 2,
+                        blurRadius: 4,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const CircularProgressIndicator(
+                        strokeWidth: 3,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Preparing ${userJournals.length} journals for export...',
+                        style: AppTextStyles.textBodyB3,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          barrierDismissible: false,
+        );
       }
 
-      // Export the PDF with the shouldShare parameter
+      // Format data for PDF
+      String formattedData = '';
+      String fromToDate = '';
+      if (userJournals.isNotEmpty) {
+        formattedData = _formatJournalDataForPdf();
+        if (userJournals.length == 1 && userJournals.first.createdAt != null) {
+          fromToDate = userJournals.first.createdAt!;
+        } else {
+          final dates = userJournals
+              .where((j) => j.createdAt != null)
+              .map((j) => j.createdAt!)
+              .toList();
+          if (dates.isNotEmpty) {
+            dates.sort();
+            fromToDate = '${dates.first} - ${dates.last}';
+          } else {
+            fromToDate = 'Journal Export';
+          }
+        }
+      }
+
+      // Export the PDF with sharing enabled
       await exportPdf(
         context,
         data: formattedData,
         fromToDate: fromToDate,
-        shouldShare: shouldShare, // Pass the parameter
+        shouldShare: shouldShare,
       );
+
+      // Close the dialog after export is complete
+      if (_isDialogShowing) {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+        _isDialogShowing = false;
+      }
+
+      AppUtils.showSnackbar(message: 'Journals exported successfully');
     } catch (e) {
-      print('Error exporting journals to PDF: $e');
-      AppUtils.showErrorSnackbar(message: 'Failed to export journals: $e');
+      // Close loading dialog if it was shown
+      if (_isDialogShowing) {
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+        _isDialogShowing = false;
+      }
+      print('Error sharing journals to PDF: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
+    } finally {
+      // Always dismiss dialog in finally block to ensure it gets executed
+      if (_isDialogShowing) {
+        // Add a small delay to ensure UI has time to process
+        await Future.delayed(const Duration(milliseconds: 200));
+        if (Get.isDialogOpen ?? false) {
+          Get.back();
+        }
+        _isDialogShowing = false;
+      }
     }
+  }
+
+  String _formatJournalDataForPdf() {
+    final buffer = StringBuffer();
+    for (final journal
+        in _controller.userJournalResponse.value.data?.userJournals ?? []) {
+      // Add journal emotion/title
+      buffer
+        ..writeln('${journal.journal?.emotionName ?? "Untitled Journal"}')
+        ..writeln('-------------------------------------------');
+
+      final journalAnswers = journal.journalAnswers;
+      if (journalAnswers != null && journalAnswers.isNotEmpty) {
+        for (final answer in journalAnswers) {
+          // Add main question and answer
+          if (answer.mainQuestion != null) {
+            buffer
+              ..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
+          }
+          // Add follow-up question and answer if available
+          if (answer.followUpQuestion != null) {
+            buffer
+              ..writeln(
+                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
+              )
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
+          }
+        }
+      } else {
+        buffer.writeln('No answers available for this journal.');
+      }
+      buffer.writeln('\n\n');
+    }
+    return buffer.toString();
   }
 
   Future<void> _initializeData() async {}
@@ -124,14 +225,14 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         switch (value) {
           case 'download':
             _exportSelectedJournalsToPdf(false);
-            // Handle download action
+          // Handle download action
           case 'delete':
             // Handle delete action
             break;
           case 'share':
             _exportSelectedJournalsToPdf(true); // Share only
 
-            // Handle share action
+          // Handle share action
           case 'see_journal':
             // Handle share action
             break;
