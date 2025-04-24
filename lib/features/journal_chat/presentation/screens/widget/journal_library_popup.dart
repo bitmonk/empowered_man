@@ -27,7 +27,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
   }
 
   // Add this as a class member variable
-  bool _isDialogShowing = false;
 
   Future<void> _exportSelectedJournalsToPdf(bool shouldShare) async {
     final selectedCount = widget.selectedItems.where((item) => item).length;
@@ -47,6 +46,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         }
       }
     }
+
     if (journalIds.isEmpty) {
       AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
       return;
@@ -54,7 +54,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
 
     try {
       // Get journal data for PDF
-      final result = await _controller.getBulkSeeJournal(journalIds);
+      await _controller.getBulkSeeJournal(journalIds);
       final userJournals =
           _controller.userJournalResponse.value.data?.userJournals;
       if (userJournals == null || userJournals.isEmpty) {
@@ -63,55 +63,52 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       }
 
       // Show loading indicator
-      final showProgressIndicator = userJournals.length > 2;
-      if (showProgressIndicator) {
-        _isDialogShowing = true;
-        Get.dialog(
-          Material(
-            color: Colors.transparent,
-            child: Padding(
-              padding: const EdgeInsets.all(40),
-              child: Center(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgBorder,
-                    borderRadius: BorderRadius.circular(8),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        spreadRadius: 2,
-                        blurRadius: 4,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const CircularProgressIndicator(
-                        strokeWidth: 3,
-                        valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Preparing ${userJournals.length} journals for export...',
-                        style: AppTextStyles.textBodyB3,
-                        textAlign: TextAlign.center,
-                      ),
-                    ],
-                  ),
+
+      Get.dialog(
+        Material(
+          color: Colors.transparent,
+          child: Padding(
+            padding: const EdgeInsets.all(40),
+            child: Center(
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.bgBorder,
+                  borderRadius: BorderRadius.circular(8),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      spreadRadius: 2,
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const CircularProgressIndicator(
+                      strokeWidth: 3,
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      'Preparing ${userJournals.length} journals for export...',
+                      style: AppTextStyles.textBodyB3,
+                      textAlign: TextAlign.center,
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-          barrierDismissible: false,
-        );
-      }
+        ),
+        barrierDismissible: false,
+      );
 
       // Format data for PDF
-      String formattedData = '';
-      String fromToDate = '';
+      var formattedData = '';
+      var fromToDate = '';
       if (userJournals.isNotEmpty) {
         formattedData = _formatJournalDataForPdf();
         if (userJournals.length == 1 && userJournals.first.createdAt != null) {
@@ -139,33 +136,28 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       );
 
       // Close the dialog after export is complete
-      if (_isDialogShowing) {
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
-        _isDialogShowing = false;
+
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
       }
 
       AppUtils.showSnackbar(message: 'Journals exported successfully');
     } catch (e) {
       // Close loading dialog if it was shown
-      if (_isDialogShowing) {
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
-        _isDialogShowing = false;
+
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
       }
+
       print('Error sharing journals to PDF: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
     } finally {
       // Always dismiss dialog in finally block to ensure it gets executed
-      if (_isDialogShowing) {
-        // Add a small delay to ensure UI has time to process
-        await Future.delayed(const Duration(milliseconds: 200));
-        if (Get.isDialogOpen ?? false) {
-          Get.back();
-        }
-        _isDialogShowing = false;
+
+      // Add a small delay to ensure UI has time to process
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
       }
     }
   }

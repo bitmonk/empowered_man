@@ -77,19 +77,17 @@ Future<void> exportPdf(
           fontSize: 18,
           fontWeight: pw.FontWeight.bold,
         ),
+      ), pw.SizedBox(height: 10), pw.Divider(
+        thickness: 1,
+        color: PdfColors.grey300,
       ), pw.SizedBox(height: 10),]
 
     // Add emotion title
     
 
     
-    ..add(
-      pw.Divider(
-        thickness: 1,
-        color: PdfColors.grey300,
-      ),
-    )
-    ..add(pw.SizedBox(height: 10));
+    
+    ;
 
     // Process Q&A pairs
     final qaBlocks = journalText
