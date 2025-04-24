@@ -117,7 +117,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
                 },
               ),
             ),
-            const VerticalSpacing(10),
+            const BottomSpacing(),
           ],
         ),
       ),
@@ -183,7 +183,8 @@ class _JournalDrawerState extends State<JournalDrawer> {
     return InkWell(
       onTap: () async {
         print(
-            '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId',);
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId',
+        );
         Navigator.pop(context);
 
         final journalChatController = Get.find<JournalChatController>();

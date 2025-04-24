@@ -535,10 +535,10 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 mainQuestionId = null;
                 if (followupQuestionId != null) {
                   final question = journal?.followUpQuestions?.firstWhereOrNull(
-                      (q) => q.id?.toString() == followupQuestionId);
+                      (q) => q.id?.toString() == followupQuestionId,);
                   isYesNoQuestion = question?.questionType == 'yes_no';
                   print(
-                      '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>@@@@@@@@@@@@@@@@@@@@@@@ $isYesNoQuestion');
+                      '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>@@@@@@@@@@@@@@@@@@@@@@@ $isYesNoQuestion',);
                 }
               }
 

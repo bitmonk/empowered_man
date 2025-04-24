@@ -15,8 +15,12 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
   final GlobalKey<FormState> formkey = GlobalKey<FormState>();
   // Added for password visibility
 
-  Color getPasswordStrengthColor(bool hasMinLength, bool containsNumber,
-      bool containsSymbol, bool containsLetter,) {
+  Color getPasswordStrengthColor(
+    bool hasMinLength,
+    bool containsNumber,
+    bool containsSymbol,
+    bool containsLetter,
+  ) {
     var strengthScore = (hasMinLength ? 1 : 0) +
         (containsNumber ? 1 : 0) +
         (containsSymbol ? 1 : 0) +
@@ -66,6 +70,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                 AppTextFormField(
                   controller: controller.emailController,
                   labelText: 'Enter email address',
+                  textInputType: TextInputType.emailAddress,
                   validator: ValidationBuilder().required().email().build(),
                 ),
                 const VerticalSpacing(16),
@@ -98,11 +103,11 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                             (controller.containsLetter.value ? 0.25 : 0.0),
                     backgroundColor: AppColors.colorEDECEF,
                     color: getPasswordStrengthColor(
-                        controller.hasMinLength.value,
-                        controller.containsNumber.value,
-                        controller.containsSymbol.value,
-                        controller
-                            .containsLetter.value,), // Red for invalid password
+                      controller.hasMinLength.value,
+                      controller.containsNumber.value,
+                      controller.containsSymbol.value,
+                      controller.containsLetter.value,
+                    ), // Red for invalid password
                   ),
                 ),
                 const VerticalSpacing(12),

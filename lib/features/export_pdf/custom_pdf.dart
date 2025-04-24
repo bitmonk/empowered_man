@@ -147,7 +147,7 @@ Future<void> exportPdf(
       // In this case, we don't show any success message
     } catch (e) {
       // Handle errors during save
-      AppUtils.showSnackbar(message: 'Failed to save file: ${e.toString()}');
+      AppUtils.showSnackbar(message: 'Failed to save file: $e');
     }
     // Only save if not sharing
     // await FileSaver.instance

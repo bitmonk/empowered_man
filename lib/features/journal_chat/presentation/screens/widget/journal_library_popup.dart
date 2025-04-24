@@ -64,8 +64,8 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       }
 
       // Format data for PDF
-      String formattedData = '';
-      String fromToDate = '';
+      var formattedData = '';
+      var fromToDate = '';
 
       if (userJournals.isNotEmpty) {
         //   // Format data properly for your needs
@@ -125,7 +125,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           case 'download':
             _exportSelectedJournalsToPdf(false);
             // Handle download action
-            break;
           case 'delete':
             // Handle delete action
             break;
@@ -133,7 +132,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
             _exportSelectedJournalsToPdf(true); // Share only
 
             // Handle share action
-            break;
           case 'see_journal':
             // Handle share action
             break;

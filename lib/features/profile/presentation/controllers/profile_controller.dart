@@ -29,6 +29,7 @@ class ProfileController extends GetxController {
       },
       (r) {
         userProfileState.value = TheStates.success;
+        selectedImage.value = null;
         AppUtils.showSnackbar(
           message: r,
         );

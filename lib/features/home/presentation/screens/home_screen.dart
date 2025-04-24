@@ -4,7 +4,6 @@ import 'package:empowered/features/home/presentation/screens/widgets/daily_widge
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/monthly_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/weekly_widget.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -34,7 +33,7 @@ class HomeScreen extends GetView<HomeController> {
               ),
             ),
             const VerticalSpacing(16),
-            
+
             Expanded(
               child: Obx(
                 () => IndexedStack(
