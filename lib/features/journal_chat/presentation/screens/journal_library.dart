@@ -17,23 +17,20 @@ class JournalLibrary extends StatefulWidget {
 class _JournalLibraryState extends State<JournalLibrary> {
   final JournalEmotionNameController _controller =
       Get.find<JournalEmotionNameController>();
-  final ScrollController _scrollController = ScrollController();
-  List<bool> _selectedItems = List.generate(20, (index) => false);
-  bool _selectAll = false; // Track the "Select All" state
-  String selectedJournalType = 'Select Journal Type';
-  List<EmotionName>? emotionNames = [];
 
+  bool _selectAll = false; // Track the "Select All" state
+  // String selectedJournalType = 'Select Journal Type';
+  List<EmotionName>? emotionNames = [];
+  JournalPagination paginationName = JournalPagination.library;
   @override
   void initState() {
     super.initState();
     emotionNames = widget.emotionNames;
-    print('Emotion Names: >>>>>>>>>>>>>>>>>>>>>>from Library$emotionNames');
-    if (emotionNames == null || emotionNames!.isEmpty) {}
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      _initializeData();
       _fetchEmotionNames();
+      _initializeData();
     });
-    _scrollController.addListener(_onScroll);
   }
 
   Future<void> _fetchEmotionNames() async {
@@ -48,48 +45,23 @@ class _JournalLibraryState extends State<JournalLibrary> {
   }
 
   Future<void> _initializeData() async {
-    // Load initial data with default parameters
-    await _controller.getJournalLibrary(
-      1,
-      '',
-      '', //main question
-      '',
-      '',
-      10,
+    _controller.seletedJournalPagination.value = paginationName;
+    final scrollController = _controller.getScrollController(
+      paginationName,
     );
-    if (mounted) {
-      setState(() {
-        // Initialize _selectedItems with the correct length
-        _selectedItems = List.generate(
-          _controller
-                  .journalLibraryIndexModel.value.data?.userJournals?.length ??
-              0,
-          (index) => false,
-        );
-      });
-    }
-  }
-
-  void _onScroll() {
-    if (_scrollController.position.pixels >=
-        _scrollController.position.maxScrollExtent * 0.8) {
-      _loadMoreData();
-    }
-  }
-
-  Future<void> _loadMoreData() async {
-    final currentMeta = _controller.journalLibraryIndexModel.value.data?.meta;
-    if (currentMeta!.currentPage! <
-        int.parse(currentMeta.lastPage.toString())) {
-      await _controller.getJournalLibrary(
-        currentMeta.currentPage! + 1,
-        '',
-        '',
-        '',
-        '',
-        10,
-      );
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // if (_controller.tabDataLoaded[paginationName] != true) {
+      _controller.getJournalLibrary(
+        isInitialLoad: true,
+      ); // Load data if not already loaded
+      // }
+    });
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent * 0.8) {
+        _controller.loadMoreData(paginationName);
+      }
+    });
   }
 
   @override
@@ -98,150 +70,141 @@ class _JournalLibraryState extends State<JournalLibrary> {
       appBar: const CustomAppBar(
         title: 'Journal Library',
       ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ThemedContainer(
-                    color: AppColors.bgBorder,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                    ),
-                    child: DropdownButtonHideUnderline(
-                      child: DropdownButton2<String>(
-                        isExpanded: true,
-                        value: emotionNames
-                                    ?.map((e) => e.emotionName)
-                                    .contains(selectedJournalType) ==
-                                true
-                            ? selectedJournalType
-                            : null,
-                        dropdownStyleData: DropdownStyleData(
-                          maxHeight: 200,
-                          width: 200,
-                          offset: const Offset(-17, 0),
-                          scrollbarTheme: ScrollbarThemeData(
-                            radius: const Radius.circular(40),
-                            thickness: WidgetStateProperty.all(6),
-                            thumbVisibility: WidgetStateProperty.all(true),
+      body: Obx(
+        () => Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: ThemedContainer(
+                      color: AppColors.bgBorder,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 16,
+                      ),
+                      child: DropdownButtonHideUnderline(
+                        child: DropdownButton2<String>(
+                          isExpanded: true,
+                          value: emotionNames
+                                      ?.map((e) => e.emotionName)
+                                      .contains(
+                                          _controller.selectedEmotion.value,) ==
+                                  true
+                              ? _controller.selectedEmotion.value
+                              : null,
+                          dropdownStyleData: DropdownStyleData(
+                            maxHeight: 200,
+                            width: 200,
+                            offset: const Offset(-17, 0),
+                            scrollbarTheme: ScrollbarThemeData(
+                              radius: const Radius.circular(40),
+                              thickness: WidgetStateProperty.all(6),
+                              thumbVisibility: WidgetStateProperty.all(true),
+                            ),
+                            decoration: const BoxDecoration(
+                              // borderRadius: BorderRadius.circular(14),
+                              color: AppColors.bgBorder,
+                            ),
                           ),
-                          decoration: const BoxDecoration(
-                            // borderRadius: BorderRadius.circular(14),
-                            color: AppColors.bgBorder,
+                          iconStyleData: const IconStyleData(
+                            openMenuIcon: Icon(Icons.arrow_drop_up),
                           ),
-                        ),
-                        iconStyleData: const IconStyleData(
-                          openMenuIcon: Icon(Icons.arrow_drop_up),
-                        ),
-                        hint: Row(
-                          children: [
-                            Text(
-                              emotionNames?.isNotEmpty == true
-                                  ? selectedJournalType
-                                  : 'Loading emotions...',
-                              style: AppTextStyles.textBodyB2.copyWith(
-                                color: AppColors.textColor100,
+                          hint: Row(
+                            children: [
+                              Text(
+                                _controller.selectedEmotion.value ??
+                                    'Select Journal Type',
+                                style: AppTextStyles.textBodyB2.copyWith(
+                                  color: AppColors.textColor100,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
+                          items: emotionNames?.map((emotion) {
+                            final name = emotion.emotionName ?? '';
+                            return DropdownMenuItem<String>(
+                              value: name,
+                              child: Padding(
+                                padding:
+                                    const EdgeInsets.symmetric(vertical: 4),
+                                child: Text(
+                                  name,
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (value) async {
+                            if (value == _controller.selectedEmotion.value) {
+                              return;
+                            }
+                            if (value != null &&
+                                emotionNames?.any(
+                                      (e) => e.emotionName == value,
+                                    ) ==
+                                    true) {
+                              setState(() {
+                                _controller.selectedEmotion.value = value;
+                              });
+
+                              await _fetchJournalsWithEmotion(value);
+                            }
+                          },
                         ),
-                        items: emotionNames?.map((emotion) {
-                          final name = emotion.emotionName ?? '';
-                          return DropdownMenuItem<String>(
-                            value: name,
-                            child: Text(
-                              name,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          );
-                        }).toList(),
-                        onChanged: (value) async {
-                          if (value != null &&
-                              emotionNames?.any(
-                                    (e) => e.emotionName == value,
-                                  ) ==
-                                  true) {
-                            setState(() {
-                              selectedJournalType = value;
-                            });
-
-                            _scrollController.animateTo(
-                              0,
-                              duration: const Duration(milliseconds: 500),
-                              curve: Curves.easeInOut,
-                            );
-
-                            _selectedItems = List.generate(
-                              _selectedItems.length,
-                              (_) => false,
-                            );
-
-                            await _fetchJournalsWithEmotion(value);
-                          }
-                        },
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const JournalSearchScreen(),
-                      ),
-                    );
-                  },
-                  child: Assets.images.homeSearch.svg(),
-                ),
-                if (_selectedItems.where((item) => item).isNotEmpty)
-                  JournalLibraryPopUp(
-                    selectedItems: _selectedItems,
-                    onSelected: (deletedIds, shouldClearSelection) {
-                      if (shouldClearSelection) {
-                        setState(() {
-                          _selectedItems = List.generate(
-                            _selectedItems.length,
-                            (_) => false,
-                          );
-                        });
-                      }
+                  const SizedBox(width: 12),
+                  GestureDetector(
+                    onTap: () async {
+                      await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const JournalSearchScreen(),
+                        ),
+                      );
                     },
+                    child: Assets.images.homeSearch.svg(),
                   ),
-              ],
+                  if (_controller.selectBulk.where((item) => item).isNotEmpty)
+                    JournalLibraryPopUp(
+                      searchJournal: false,
+                      selectedItems: _controller.selectBulk,
+                      onSelected: (deletedIds, shouldClearSelection) {
+                        if (shouldClearSelection) {
+                          _controller.selectBulk.clear();
+                        }
+                      },
+                    ),
+                ],
+              ),
             ),
-          ),
-          Obx(
-            () => _controller.getJournalLibraryState.value.showWidget(
+            _controller.getJournalLibraryState.value.showWidget(
               orElse: () => const Padding(
                 padding: EdgeInsets.symmetric(vertical: 50),
                 child: LoadingWidget(),
               ),
               error: () => CustomErrorWidget(
-                error: 'Something went wrong.',
+                error: _controller.libraryError.value,
                 verticlePadding: const EdgeInsets.symmetric(vertical: 200),
                 onPressed: () async {
-                  await _initializeData();
-                  await _fetchEmotionNames();
-                  selectedJournalType = 'Select Journal Type';
+                  _controller.getJournalLibrary(
+                      isInitialLoad: true,
+                      emotionName: _controller.selectedEmotion.value,);
                 },
               ),
               success: () {
-                final journals = _controller
-                    .journalLibraryIndexModel.value.data?.userJournals;
-                return (journals == null || journals.isEmpty)
+                final journals = _controller.journalLibraryList;
+                return (journals.isEmpty)
                     ? CustomErrorWidget(
                         error: 'No journals found',
                         verticlePadding:
                             const EdgeInsets.symmetric(vertical: 200),
                         onPressed: () async {
-                          await _initializeData();
-                          await _fetchEmotionNames();
-                          selectedJournalType = 'Select Journal Type';
+                          _controller.getJournalLibrary(
+                              isInitialLoad: true,
+                              emotionName: _controller.selectedEmotion.value,);
                         },
                       )
                     : Expanded(
@@ -252,16 +215,22 @@ class _JournalLibraryState extends State<JournalLibrary> {
                             margin: const EdgeInsets.all(12),
                             child: RefreshIndicator(
                               onRefresh: () async {
-                                await _initializeData();
+                                setState(() {
+                                  _controller.selectedEmotion.value = null;
+                                });
                                 await _fetchEmotionNames();
-                                selectedJournalType = 'Select Journal Type';
+                                _controller.getJournalLibrary(
+                                  isInitialLoad: true,
+                                );
                               },
                               child: LayoutBuilder(
                                 builder: (context, constraints) {
                                   return SingleChildScrollView(
                                     physics:
                                         const AlwaysScrollableScrollPhysics(),
-                                    controller: _scrollController,
+                                    controller: _controller.getScrollController(
+                                      paginationName,
+                                    ),
                                     child: ConstrainedBox(
                                       constraints: BoxConstraints(
                                         minHeight: constraints.maxHeight,
@@ -276,12 +245,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
                                           },
                                           children: [
                                             _buildTableHeaderRow(),
-                                            if (journals.isNotEmpty)
-                                              ...List.generate(
-                                                journals.length,
-                                                (index) =>
-                                                    _buildTableRow(index),
+                                            ...journals.map(
+                                              (index) => _buildTableRow(
+                                                journals.indexOf(index),
                                               ),
+                                            ),
                                           ],
                                         ),
                                       ),
@@ -295,8 +263,8 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       );
               },
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -319,10 +287,8 @@ class _JournalLibraryState extends State<JournalLibrary> {
             onTap: () {
               setState(() {
                 _selectAll = !_selectAll;
-                _selectedItems = List.generate(
-                  _controller.journalLibraryIndexModel.value.data?.userJournals
-                          ?.length ??
-                      0,
+                _controller.selectBulk.value = List.generate(
+                  _controller.journalLibraryList.length,
                   (index) => _selectAll,
                 );
               });
@@ -343,13 +309,10 @@ class _JournalLibraryState extends State<JournalLibrary> {
   }
 
   TableRow _buildTableRow(int index) {
-    // final journal =
-    //     _controller.journalLibraryIndexModel.value.data?.userJournals?[index];
-    final journals =
-        _controller.journalLibraryIndexModel.value.data?.userJournals;
+    final journals = _controller.journalLibraryList;
 
     // Return empty row if index is out of bounds
-    if (journals == null || index >= journals.length) {
+    if (index >= journals.length) {
       return TableRow(
         children: [
           _tableCell(''),
@@ -378,12 +341,12 @@ class _JournalLibraryState extends State<JournalLibrary> {
             behavior: HitTestBehavior.translucent,
             onTap: () {
               setState(() {
-                _selectedItems[index] = !_selectedItems[index];
-                _selectAll = _selectedItems.every((item) => item);
+                _controller.selectBulk[index] = !_controller.selectBulk[index];
+                _selectAll = _controller.selectBulk.every((item) => item);
               });
             },
             child: Icon(
-              _selectedItems[index]
+              _controller.selectBulk[index]
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               color: AppColors.color8798A7,
@@ -442,21 +405,15 @@ class _JournalLibraryState extends State<JournalLibrary> {
     try {
       // Reset page to 1 for new search
       await _controller.getJournalLibrary(
-        1,
-        emotionName,
-        '',
-        '',
-        '',
-        10,
+        emotionName: emotionName,
+        isInitialLoad: true,
       );
 
       // Reset _selectedItems based on new data
-      if (_controller.journalLibraryIndexModel.value.data?.userJournals !=
-          null) {
+      if (_controller.journalLibraryList.isNotEmpty) {
         setState(() {
-          _selectedItems = List.generate(
-            _controller
-                .journalLibraryIndexModel.value.data!.userJournals!.length,
+          _controller.selectBulk.value = List.generate(
+            _controller.journalLibraryList.length,
             (_) => false,
           );
         });

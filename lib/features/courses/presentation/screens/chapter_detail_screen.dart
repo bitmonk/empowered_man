@@ -119,7 +119,10 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
               : 'Completed',
           backgroundColor: widget.chapter.status == 'completed'
               ? AppColors.appGreen
-              : AppColors.dividerGrey,
+              : (widget.chapter.status != 'completed' &&
+                      widget.chapter.videoUrl == null)
+                  ? AppColors.primary500
+                  : AppColors.dividerGrey,
           progress:
               widget.chapter.status == 'completed' ? null : _videoCompleteValue,
           isLoading:

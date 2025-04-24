@@ -7,9 +7,11 @@ class JournalLibraryPopUp extends StatefulWidget {
   const JournalLibraryPopUp({
     required this.selectedItems,
     required this.onSelected,
+    required this.searchJournal,
     super.key,
   });
   final List<bool> selectedItems;
+  final bool searchJournal;
   final Function(List<String> deletedIds, bool shouldClearSelection) onSelected;
 
   @override
@@ -268,13 +270,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           if (result == true) {
             widget.onSelected(journalIds, true);
             await _controller.getJournalLibrary(
-              1,
-              '',
-              null,
-              null,
-              null,
-              10,
-            );
+                isInitialLoad: true, searchJournal: widget.searchJournal,);
             // Get.close(1);
           }
         } catch (e) {
