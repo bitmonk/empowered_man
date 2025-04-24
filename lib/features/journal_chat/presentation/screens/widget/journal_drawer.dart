@@ -188,11 +188,12 @@ class _JournalDrawerState extends State<JournalDrawer> {
         Navigator.pop(context);
 
         final journalChatController = Get.find<JournalChatController>();
+         journalChatController.selectedEmotionId.value = emotionId;
         journalChatController.chatConversationList.clear();
-        journalChatController.selectedEmotionId.value = emotionId ?? '';
+       
 
         await journalChatController
-            .getJournalWithQuestionsAndAnswers(emotionId ?? '');
+            .getJournalWithQuestionsAndAnswers();
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),
