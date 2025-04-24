@@ -6,40 +6,40 @@ part of 'user_journals_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$UserJournalsResponseImpl _$$UserJournalsResponseImplFromJson(
+_$SeeUserJournalResponseModelImpl _$$SeeUserJournalResponseModelImplFromJson(
         Map<String, dynamic> json) =>
-    _$UserJournalsResponseImpl(
+    _$SeeUserJournalResponseModelImpl(
       status: json['status'] as String?,
       message: json['message'] as String?,
       data: json['data'] == null
           ? null
-          : UserJournalsData.fromJson(json['data'] as Map<String, dynamic>),
+          : SeeUserJournalsData.fromJson(json['data'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$UserJournalsResponseImplToJson(
-        _$UserJournalsResponseImpl instance) =>
+Map<String, dynamic> _$$SeeUserJournalResponseModelImplToJson(
+        _$SeeUserJournalResponseModelImpl instance) =>
     <String, dynamic>{
       'status': instance.status,
       'message': instance.message,
       'data': instance.data,
     };
 
-_$UserJournalsDataImpl _$$UserJournalsDataImplFromJson(
+_$SeeUserJournalsDataImpl _$$SeeUserJournalsDataImplFromJson(
         Map<String, dynamic> json) =>
-    _$UserJournalsDataImpl(
+    _$SeeUserJournalsDataImpl(
       userJournals: (json['user_journals'] as List<dynamic>?)
-          ?.map((e) => UserJournal.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => SeeUserJournal.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
-Map<String, dynamic> _$$UserJournalsDataImplToJson(
-        _$UserJournalsDataImpl instance) =>
+Map<String, dynamic> _$$SeeUserJournalsDataImplToJson(
+        _$SeeUserJournalsDataImpl instance) =>
     <String, dynamic>{
       'user_journals': instance.userJournals,
     };
 
-_$UserJournalImpl _$$UserJournalImplFromJson(Map<String, dynamic> json) =>
-    _$UserJournalImpl(
+_$SeeUserJournalImpl _$$SeeUserJournalImplFromJson(Map<String, dynamic> json) =>
+    _$SeeUserJournalImpl(
       id: (json['id'] as num?)?.toInt(),
       completedAt: json['completed_at'] as String?,
       userId: (json['user_id'] as num?)?.toInt(),
@@ -55,7 +55,8 @@ _$UserJournalImpl _$$UserJournalImplFromJson(Map<String, dynamic> json) =>
           .toList(),
     );
 
-Map<String, dynamic> _$$UserJournalImplToJson(_$UserJournalImpl instance) =>
+Map<String, dynamic> _$$SeeUserJournalImplToJson(
+        _$SeeUserJournalImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'completed_at': instance.completedAt,

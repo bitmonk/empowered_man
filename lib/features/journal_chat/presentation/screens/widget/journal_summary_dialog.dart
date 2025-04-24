@@ -4,7 +4,7 @@ import 'package:empowered/features/journal_chat/data/model/user_journals_model.d
 
 class JournalSummaryDialog extends StatefulWidget {
   const JournalSummaryDialog({required this.userJournal, super.key});
-  final List<UserJournal>? userJournal;
+  final List<SeeUserJournal>? userJournal;
 
   @override
   State<JournalSummaryDialog> createState() => _JournalSummaryDialogState();
@@ -51,7 +51,8 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
       if (widget.userJournal == null || widget.userJournal!.isEmpty) {
         // Show error if no journal data available
         AppUtils.showErrorSnackbar(
-            message: 'No journal data available for sharing',);
+          message: 'No journal data available for sharing',
+        );
         return;
       }
 
@@ -61,7 +62,8 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
       if (journalIds.isEmpty) {
         AppUtils.showErrorSnackbar(
-            message: 'No valid journals found for export',);
+          message: 'No valid journals found for export',
+        );
         return;
       }
 
@@ -128,7 +130,8 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
           // Add follow-up question and answer if available
           if (answer.followUpQuestion != null) {
             buffer.writeln(
-                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',);
+              'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
+            );
             buffer.writeln('A: ${answer.text ?? "No answer provided"}');
             buffer.writeln();
           }

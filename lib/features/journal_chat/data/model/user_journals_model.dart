@@ -4,28 +4,30 @@ part 'user_journals_model.freezed.dart';
 part 'user_journals_model.g.dart';
 
 @freezed
-class UserJournalsResponse with _$UserJournalsResponse {
-  const factory UserJournalsResponse({
+class SeeUserJournalResponseModel with _$SeeUserJournalResponseModel {
+  const factory SeeUserJournalResponseModel({
     @JsonKey(name: 'status') String? status,
     @JsonKey(name: 'message') String? message,
-    @JsonKey(name: 'data') UserJournalsData? data,
-  }) = _UserJournalsResponse;
+    @JsonKey(name: 'data') SeeUserJournalsData? data,
+  }) = _SeeUserJournalResponseModel;
 
-  factory UserJournalsResponse.fromJson(Map<String, dynamic> json) => _$UserJournalsResponseFromJson(json);
+  factory SeeUserJournalResponseModel.fromJson(Map<String, dynamic> json) =>
+      _$SeeUserJournalResponseModelFromJson(json);
 }
 
 @freezed
-class UserJournalsData with _$UserJournalsData {
-  const factory UserJournalsData({
-    @JsonKey(name: 'user_journals') List<UserJournal>? userJournals,
-  }) = _UserJournalsData;
+class SeeUserJournalsData with _$SeeUserJournalsData {
+  const factory SeeUserJournalsData({
+    @JsonKey(name: 'user_journals') List<SeeUserJournal>? userJournals,
+  }) = _SeeUserJournalsData;
 
-  factory UserJournalsData.fromJson(Map<String, dynamic> json) => _$UserJournalsDataFromJson(json);
+  factory SeeUserJournalsData.fromJson(Map<String, dynamic> json) =>
+      _$SeeUserJournalsDataFromJson(json);
 }
 
 @freezed
-class UserJournal with _$UserJournal {
-  const factory UserJournal({
+class SeeUserJournal with _$SeeUserJournal {
+  const factory SeeUserJournal({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'completed_at') String? completedAt,
     @JsonKey(name: 'user_id') int? userId,
@@ -35,9 +37,10 @@ class UserJournal with _$UserJournal {
     @JsonKey(name: 'updated_at') String? updatedAt,
     @JsonKey(name: 'journal') Journal? journal,
     @JsonKey(name: 'journal_answers') List<JournalAnswer>? journalAnswers,
-  }) = _UserJournal;
+  }) = _SeeUserJournal;
 
-  factory UserJournal.fromJson(Map<String, dynamic> json) => _$UserJournalFromJson(json);
+  factory SeeUserJournal.fromJson(Map<String, dynamic> json) =>
+      _$SeeUserJournalFromJson(json);
 }
 
 @freezed
@@ -47,7 +50,8 @@ class Journal with _$Journal {
     @JsonKey(name: 'emotion_name') String? emotionName,
   }) = _Journal;
 
-  factory Journal.fromJson(Map<String, dynamic> json) => _$JournalFromJson(json);
+  factory Journal.fromJson(Map<String, dynamic> json) =>
+      _$JournalFromJson(json);
 }
 
 @freezed
@@ -65,7 +69,8 @@ class JournalAnswer with _$JournalAnswer {
     @JsonKey(name: 'follow_up_question') Question? followUpQuestion,
   }) = _JournalAnswer;
 
-  factory JournalAnswer.fromJson(Map<String, dynamic> json) => _$JournalAnswerFromJson(json);
+  factory JournalAnswer.fromJson(Map<String, dynamic> json) =>
+      _$JournalAnswerFromJson(json);
 }
 
 @freezed
@@ -80,7 +85,8 @@ class Question with _$Question {
     @JsonKey(name: 'answer') Answer? answer,
   }) = _Question;
 
-  factory Question.fromJson(Map<String, dynamic> json) => _$QuestionFromJson(json);
+  factory Question.fromJson(Map<String, dynamic> json) =>
+      _$QuestionFromJson(json);
 }
 
 @freezed

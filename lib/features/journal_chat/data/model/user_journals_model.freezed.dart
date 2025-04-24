@@ -14,55 +14,58 @@ T _$identity<T>(T value) => value;
 final _privateConstructorUsedError = UnsupportedError(
     'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
 
-UserJournalsResponse _$UserJournalsResponseFromJson(Map<String, dynamic> json) {
-  return _UserJournalsResponse.fromJson(json);
+SeeUserJournalResponseModel _$SeeUserJournalResponseModelFromJson(
+    Map<String, dynamic> json) {
+  return _SeeUserJournalResponseModel.fromJson(json);
 }
 
 /// @nodoc
-mixin _$UserJournalsResponse {
+mixin _$SeeUserJournalResponseModel {
   @JsonKey(name: 'status')
   String? get status => throw _privateConstructorUsedError;
   @JsonKey(name: 'message')
   String? get message => throw _privateConstructorUsedError;
   @JsonKey(name: 'data')
-  UserJournalsData? get data => throw _privateConstructorUsedError;
+  SeeUserJournalsData? get data => throw _privateConstructorUsedError;
 
-  /// Serializes this UserJournalsResponse to a JSON map.
+  /// Serializes this SeeUserJournalResponseModel to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserJournalsResponseCopyWith<UserJournalsResponse> get copyWith =>
-      throw _privateConstructorUsedError;
+  $SeeUserJournalResponseModelCopyWith<SeeUserJournalResponseModel>
+      get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserJournalsResponseCopyWith<$Res> {
-  factory $UserJournalsResponseCopyWith(UserJournalsResponse value,
-          $Res Function(UserJournalsResponse) then) =
-      _$UserJournalsResponseCopyWithImpl<$Res, UserJournalsResponse>;
+abstract class $SeeUserJournalResponseModelCopyWith<$Res> {
+  factory $SeeUserJournalResponseModelCopyWith(
+          SeeUserJournalResponseModel value,
+          $Res Function(SeeUserJournalResponseModel) then) =
+      _$SeeUserJournalResponseModelCopyWithImpl<$Res,
+          SeeUserJournalResponseModel>;
   @useResult
   $Res call(
       {@JsonKey(name: 'status') String? status,
       @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') UserJournalsData? data});
+      @JsonKey(name: 'data') SeeUserJournalsData? data});
 
-  $UserJournalsDataCopyWith<$Res>? get data;
+  $SeeUserJournalsDataCopyWith<$Res>? get data;
 }
 
 /// @nodoc
-class _$UserJournalsResponseCopyWithImpl<$Res,
-        $Val extends UserJournalsResponse>
-    implements $UserJournalsResponseCopyWith<$Res> {
-  _$UserJournalsResponseCopyWithImpl(this._value, this._then);
+class _$SeeUserJournalResponseModelCopyWithImpl<$Res,
+        $Val extends SeeUserJournalResponseModel>
+    implements $SeeUserJournalResponseModelCopyWith<$Res> {
+  _$SeeUserJournalResponseModelCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -83,51 +86,54 @@ class _$UserJournalsResponseCopyWithImpl<$Res,
       data: freezed == data
           ? _value.data
           : data // ignore: cast_nullable_to_non_nullable
-              as UserJournalsData?,
+              as SeeUserJournalsData?,
     ) as $Val);
   }
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserJournalsDataCopyWith<$Res>? get data {
+  $SeeUserJournalsDataCopyWith<$Res>? get data {
     if (_value.data == null) {
       return null;
     }
 
-    return $UserJournalsDataCopyWith<$Res>(_value.data!, (value) {
+    return $SeeUserJournalsDataCopyWith<$Res>(_value.data!, (value) {
       return _then(_value.copyWith(data: value) as $Val);
     });
   }
 }
 
 /// @nodoc
-abstract class _$$UserJournalsResponseImplCopyWith<$Res>
-    implements $UserJournalsResponseCopyWith<$Res> {
-  factory _$$UserJournalsResponseImplCopyWith(_$UserJournalsResponseImpl value,
-          $Res Function(_$UserJournalsResponseImpl) then) =
-      __$$UserJournalsResponseImplCopyWithImpl<$Res>;
+abstract class _$$SeeUserJournalResponseModelImplCopyWith<$Res>
+    implements $SeeUserJournalResponseModelCopyWith<$Res> {
+  factory _$$SeeUserJournalResponseModelImplCopyWith(
+          _$SeeUserJournalResponseModelImpl value,
+          $Res Function(_$SeeUserJournalResponseModelImpl) then) =
+      __$$SeeUserJournalResponseModelImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
       {@JsonKey(name: 'status') String? status,
       @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') UserJournalsData? data});
+      @JsonKey(name: 'data') SeeUserJournalsData? data});
 
   @override
-  $UserJournalsDataCopyWith<$Res>? get data;
+  $SeeUserJournalsDataCopyWith<$Res>? get data;
 }
 
 /// @nodoc
-class __$$UserJournalsResponseImplCopyWithImpl<$Res>
-    extends _$UserJournalsResponseCopyWithImpl<$Res, _$UserJournalsResponseImpl>
-    implements _$$UserJournalsResponseImplCopyWith<$Res> {
-  __$$UserJournalsResponseImplCopyWithImpl(_$UserJournalsResponseImpl _value,
-      $Res Function(_$UserJournalsResponseImpl) _then)
+class __$$SeeUserJournalResponseModelImplCopyWithImpl<$Res>
+    extends _$SeeUserJournalResponseModelCopyWithImpl<$Res,
+        _$SeeUserJournalResponseModelImpl>
+    implements _$$SeeUserJournalResponseModelImplCopyWith<$Res> {
+  __$$SeeUserJournalResponseModelImplCopyWithImpl(
+      _$SeeUserJournalResponseModelImpl _value,
+      $Res Function(_$SeeUserJournalResponseModelImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -136,7 +142,7 @@ class __$$UserJournalsResponseImplCopyWithImpl<$Res>
     Object? message = freezed,
     Object? data = freezed,
   }) {
-    return _then(_$UserJournalsResponseImpl(
+    return _then(_$SeeUserJournalResponseModelImpl(
       status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
@@ -148,21 +154,23 @@ class __$$UserJournalsResponseImplCopyWithImpl<$Res>
       data: freezed == data
           ? _value.data
           : data // ignore: cast_nullable_to_non_nullable
-              as UserJournalsData?,
+              as SeeUserJournalsData?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$UserJournalsResponseImpl implements _UserJournalsResponse {
-  const _$UserJournalsResponseImpl(
+class _$SeeUserJournalResponseModelImpl
+    implements _SeeUserJournalResponseModel {
+  const _$SeeUserJournalResponseModelImpl(
       {@JsonKey(name: 'status') this.status,
       @JsonKey(name: 'message') this.message,
       @JsonKey(name: 'data') this.data});
 
-  factory _$UserJournalsResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UserJournalsResponseImplFromJson(json);
+  factory _$SeeUserJournalResponseModelImpl.fromJson(
+          Map<String, dynamic> json) =>
+      _$$SeeUserJournalResponseModelImplFromJson(json);
 
   @override
   @JsonKey(name: 'status')
@@ -172,18 +180,18 @@ class _$UserJournalsResponseImpl implements _UserJournalsResponse {
   final String? message;
   @override
   @JsonKey(name: 'data')
-  final UserJournalsData? data;
+  final SeeUserJournalsData? data;
 
   @override
   String toString() {
-    return 'UserJournalsResponse(status: $status, message: $message, data: $data)';
+    return 'SeeUserJournalResponseModel(status: $status, message: $message, data: $data)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserJournalsResponseImpl &&
+            other is _$SeeUserJournalResponseModelImpl &&
             (identical(other.status, status) || other.status == status) &&
             (identical(other.message, message) || other.message == message) &&
             (identical(other.data, data) || other.data == data));
@@ -193,33 +201,33 @@ class _$UserJournalsResponseImpl implements _UserJournalsResponse {
   @override
   int get hashCode => Object.hash(runtimeType, status, message, data);
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserJournalsResponseImplCopyWith<_$UserJournalsResponseImpl>
-      get copyWith =>
-          __$$UserJournalsResponseImplCopyWithImpl<_$UserJournalsResponseImpl>(
-              this, _$identity);
+  _$$SeeUserJournalResponseModelImplCopyWith<_$SeeUserJournalResponseModelImpl>
+      get copyWith => __$$SeeUserJournalResponseModelImplCopyWithImpl<
+          _$SeeUserJournalResponseModelImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserJournalsResponseImplToJson(
+    return _$$SeeUserJournalResponseModelImplToJson(
       this,
     );
   }
 }
 
-abstract class _UserJournalsResponse implements UserJournalsResponse {
-  const factory _UserJournalsResponse(
+abstract class _SeeUserJournalResponseModel
+    implements SeeUserJournalResponseModel {
+  const factory _SeeUserJournalResponseModel(
           {@JsonKey(name: 'status') final String? status,
           @JsonKey(name: 'message') final String? message,
-          @JsonKey(name: 'data') final UserJournalsData? data}) =
-      _$UserJournalsResponseImpl;
+          @JsonKey(name: 'data') final SeeUserJournalsData? data}) =
+      _$SeeUserJournalResponseModelImpl;
 
-  factory _UserJournalsResponse.fromJson(Map<String, dynamic> json) =
-      _$UserJournalsResponseImpl.fromJson;
+  factory _SeeUserJournalResponseModel.fromJson(Map<String, dynamic> json) =
+      _$SeeUserJournalResponseModelImpl.fromJson;
 
   @override
   @JsonKey(name: 'status')
@@ -229,55 +237,56 @@ abstract class _UserJournalsResponse implements UserJournalsResponse {
   String? get message;
   @override
   @JsonKey(name: 'data')
-  UserJournalsData? get data;
+  SeeUserJournalsData? get data;
 
-  /// Create a copy of UserJournalsResponse
+  /// Create a copy of SeeUserJournalResponseModel
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserJournalsResponseImplCopyWith<_$UserJournalsResponseImpl>
+  _$$SeeUserJournalResponseModelImplCopyWith<_$SeeUserJournalResponseModelImpl>
       get copyWith => throw _privateConstructorUsedError;
 }
 
-UserJournalsData _$UserJournalsDataFromJson(Map<String, dynamic> json) {
-  return _UserJournalsData.fromJson(json);
+SeeUserJournalsData _$SeeUserJournalsDataFromJson(Map<String, dynamic> json) {
+  return _SeeUserJournalsData.fromJson(json);
 }
 
 /// @nodoc
-mixin _$UserJournalsData {
+mixin _$SeeUserJournalsData {
   @JsonKey(name: 'user_journals')
-  List<UserJournal>? get userJournals => throw _privateConstructorUsedError;
+  List<SeeUserJournal>? get userJournals => throw _privateConstructorUsedError;
 
-  /// Serializes this UserJournalsData to a JSON map.
+  /// Serializes this SeeUserJournalsData to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserJournalsData
+  /// Create a copy of SeeUserJournalsData
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserJournalsDataCopyWith<UserJournalsData> get copyWith =>
+  $SeeUserJournalsDataCopyWith<SeeUserJournalsData> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserJournalsDataCopyWith<$Res> {
-  factory $UserJournalsDataCopyWith(
-          UserJournalsData value, $Res Function(UserJournalsData) then) =
-      _$UserJournalsDataCopyWithImpl<$Res, UserJournalsData>;
+abstract class $SeeUserJournalsDataCopyWith<$Res> {
+  factory $SeeUserJournalsDataCopyWith(
+          SeeUserJournalsData value, $Res Function(SeeUserJournalsData) then) =
+      _$SeeUserJournalsDataCopyWithImpl<$Res, SeeUserJournalsData>;
   @useResult
-  $Res call({@JsonKey(name: 'user_journals') List<UserJournal>? userJournals});
+  $Res call(
+      {@JsonKey(name: 'user_journals') List<SeeUserJournal>? userJournals});
 }
 
 /// @nodoc
-class _$UserJournalsDataCopyWithImpl<$Res, $Val extends UserJournalsData>
-    implements $UserJournalsDataCopyWith<$Res> {
-  _$UserJournalsDataCopyWithImpl(this._value, this._then);
+class _$SeeUserJournalsDataCopyWithImpl<$Res, $Val extends SeeUserJournalsData>
+    implements $SeeUserJournalsDataCopyWith<$Res> {
+  _$SeeUserJournalsDataCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserJournalsData
+  /// Create a copy of SeeUserJournalsData
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -288,60 +297,62 @@ class _$UserJournalsDataCopyWithImpl<$Res, $Val extends UserJournalsData>
       userJournals: freezed == userJournals
           ? _value.userJournals
           : userJournals // ignore: cast_nullable_to_non_nullable
-              as List<UserJournal>?,
+              as List<SeeUserJournal>?,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$UserJournalsDataImplCopyWith<$Res>
-    implements $UserJournalsDataCopyWith<$Res> {
-  factory _$$UserJournalsDataImplCopyWith(_$UserJournalsDataImpl value,
-          $Res Function(_$UserJournalsDataImpl) then) =
-      __$$UserJournalsDataImplCopyWithImpl<$Res>;
+abstract class _$$SeeUserJournalsDataImplCopyWith<$Res>
+    implements $SeeUserJournalsDataCopyWith<$Res> {
+  factory _$$SeeUserJournalsDataImplCopyWith(_$SeeUserJournalsDataImpl value,
+          $Res Function(_$SeeUserJournalsDataImpl) then) =
+      __$$SeeUserJournalsDataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'user_journals') List<UserJournal>? userJournals});
+  $Res call(
+      {@JsonKey(name: 'user_journals') List<SeeUserJournal>? userJournals});
 }
 
 /// @nodoc
-class __$$UserJournalsDataImplCopyWithImpl<$Res>
-    extends _$UserJournalsDataCopyWithImpl<$Res, _$UserJournalsDataImpl>
-    implements _$$UserJournalsDataImplCopyWith<$Res> {
-  __$$UserJournalsDataImplCopyWithImpl(_$UserJournalsDataImpl _value,
-      $Res Function(_$UserJournalsDataImpl) _then)
+class __$$SeeUserJournalsDataImplCopyWithImpl<$Res>
+    extends _$SeeUserJournalsDataCopyWithImpl<$Res, _$SeeUserJournalsDataImpl>
+    implements _$$SeeUserJournalsDataImplCopyWith<$Res> {
+  __$$SeeUserJournalsDataImplCopyWithImpl(_$SeeUserJournalsDataImpl _value,
+      $Res Function(_$SeeUserJournalsDataImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserJournalsData
+  /// Create a copy of SeeUserJournalsData
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
     Object? userJournals = freezed,
   }) {
-    return _then(_$UserJournalsDataImpl(
+    return _then(_$SeeUserJournalsDataImpl(
       userJournals: freezed == userJournals
           ? _value._userJournals
           : userJournals // ignore: cast_nullable_to_non_nullable
-              as List<UserJournal>?,
+              as List<SeeUserJournal>?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$UserJournalsDataImpl implements _UserJournalsData {
-  const _$UserJournalsDataImpl(
-      {@JsonKey(name: 'user_journals') final List<UserJournal>? userJournals})
+class _$SeeUserJournalsDataImpl implements _SeeUserJournalsData {
+  const _$SeeUserJournalsDataImpl(
+      {@JsonKey(name: 'user_journals')
+      final List<SeeUserJournal>? userJournals})
       : _userJournals = userJournals;
 
-  factory _$UserJournalsDataImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UserJournalsDataImplFromJson(json);
+  factory _$SeeUserJournalsDataImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SeeUserJournalsDataImplFromJson(json);
 
-  final List<UserJournal>? _userJournals;
+  final List<SeeUserJournal>? _userJournals;
   @override
   @JsonKey(name: 'user_journals')
-  List<UserJournal>? get userJournals {
+  List<SeeUserJournal>? get userJournals {
     final value = _userJournals;
     if (value == null) return null;
     if (_userJournals is EqualUnmodifiableListView) return _userJournals;
@@ -351,14 +362,14 @@ class _$UserJournalsDataImpl implements _UserJournalsData {
 
   @override
   String toString() {
-    return 'UserJournalsData(userJournals: $userJournals)';
+    return 'SeeUserJournalsData(userJournals: $userJournals)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserJournalsDataImpl &&
+            other is _$SeeUserJournalsDataImpl &&
             const DeepCollectionEquality()
                 .equals(other._userJournals, _userJournals));
   }
@@ -368,49 +379,49 @@ class _$UserJournalsDataImpl implements _UserJournalsData {
   int get hashCode => Object.hash(
       runtimeType, const DeepCollectionEquality().hash(_userJournals));
 
-  /// Create a copy of UserJournalsData
+  /// Create a copy of SeeUserJournalsData
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserJournalsDataImplCopyWith<_$UserJournalsDataImpl> get copyWith =>
-      __$$UserJournalsDataImplCopyWithImpl<_$UserJournalsDataImpl>(
+  _$$SeeUserJournalsDataImplCopyWith<_$SeeUserJournalsDataImpl> get copyWith =>
+      __$$SeeUserJournalsDataImplCopyWithImpl<_$SeeUserJournalsDataImpl>(
           this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserJournalsDataImplToJson(
+    return _$$SeeUserJournalsDataImplToJson(
       this,
     );
   }
 }
 
-abstract class _UserJournalsData implements UserJournalsData {
-  const factory _UserJournalsData(
+abstract class _SeeUserJournalsData implements SeeUserJournalsData {
+  const factory _SeeUserJournalsData(
       {@JsonKey(name: 'user_journals')
-      final List<UserJournal>? userJournals}) = _$UserJournalsDataImpl;
+      final List<SeeUserJournal>? userJournals}) = _$SeeUserJournalsDataImpl;
 
-  factory _UserJournalsData.fromJson(Map<String, dynamic> json) =
-      _$UserJournalsDataImpl.fromJson;
+  factory _SeeUserJournalsData.fromJson(Map<String, dynamic> json) =
+      _$SeeUserJournalsDataImpl.fromJson;
 
   @override
   @JsonKey(name: 'user_journals')
-  List<UserJournal>? get userJournals;
+  List<SeeUserJournal>? get userJournals;
 
-  /// Create a copy of UserJournalsData
+  /// Create a copy of SeeUserJournalsData
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserJournalsDataImplCopyWith<_$UserJournalsDataImpl> get copyWith =>
+  _$$SeeUserJournalsDataImplCopyWith<_$SeeUserJournalsDataImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
-UserJournal _$UserJournalFromJson(Map<String, dynamic> json) {
-  return _UserJournal.fromJson(json);
+SeeUserJournal _$SeeUserJournalFromJson(Map<String, dynamic> json) {
+  return _SeeUserJournal.fromJson(json);
 }
 
 /// @nodoc
-mixin _$UserJournal {
+mixin _$SeeUserJournal {
   @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'completed_at')
@@ -430,21 +441,21 @@ mixin _$UserJournal {
   @JsonKey(name: 'journal_answers')
   List<JournalAnswer>? get journalAnswers => throw _privateConstructorUsedError;
 
-  /// Serializes this UserJournal to a JSON map.
+  /// Serializes this SeeUserJournal to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserJournalCopyWith<UserJournal> get copyWith =>
+  $SeeUserJournalCopyWith<SeeUserJournal> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserJournalCopyWith<$Res> {
-  factory $UserJournalCopyWith(
-          UserJournal value, $Res Function(UserJournal) then) =
-      _$UserJournalCopyWithImpl<$Res, UserJournal>;
+abstract class $SeeUserJournalCopyWith<$Res> {
+  factory $SeeUserJournalCopyWith(
+          SeeUserJournal value, $Res Function(SeeUserJournal) then) =
+      _$SeeUserJournalCopyWithImpl<$Res, SeeUserJournal>;
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
@@ -461,16 +472,16 @@ abstract class $UserJournalCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$UserJournalCopyWithImpl<$Res, $Val extends UserJournal>
-    implements $UserJournalCopyWith<$Res> {
-  _$UserJournalCopyWithImpl(this._value, this._then);
+class _$SeeUserJournalCopyWithImpl<$Res, $Val extends SeeUserJournal>
+    implements $SeeUserJournalCopyWith<$Res> {
+  _$SeeUserJournalCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -525,7 +536,7 @@ class _$UserJournalCopyWithImpl<$Res, $Val extends UserJournal>
     ) as $Val);
   }
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -541,11 +552,11 @@ class _$UserJournalCopyWithImpl<$Res, $Val extends UserJournal>
 }
 
 /// @nodoc
-abstract class _$$UserJournalImplCopyWith<$Res>
-    implements $UserJournalCopyWith<$Res> {
-  factory _$$UserJournalImplCopyWith(
-          _$UserJournalImpl value, $Res Function(_$UserJournalImpl) then) =
-      __$$UserJournalImplCopyWithImpl<$Res>;
+abstract class _$$SeeUserJournalImplCopyWith<$Res>
+    implements $SeeUserJournalCopyWith<$Res> {
+  factory _$$SeeUserJournalImplCopyWith(_$SeeUserJournalImpl value,
+          $Res Function(_$SeeUserJournalImpl) then) =
+      __$$SeeUserJournalImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -564,14 +575,14 @@ abstract class _$$UserJournalImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$UserJournalImplCopyWithImpl<$Res>
-    extends _$UserJournalCopyWithImpl<$Res, _$UserJournalImpl>
-    implements _$$UserJournalImplCopyWith<$Res> {
-  __$$UserJournalImplCopyWithImpl(
-      _$UserJournalImpl _value, $Res Function(_$UserJournalImpl) _then)
+class __$$SeeUserJournalImplCopyWithImpl<$Res>
+    extends _$SeeUserJournalCopyWithImpl<$Res, _$SeeUserJournalImpl>
+    implements _$$SeeUserJournalImplCopyWith<$Res> {
+  __$$SeeUserJournalImplCopyWithImpl(
+      _$SeeUserJournalImpl _value, $Res Function(_$SeeUserJournalImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -586,7 +597,7 @@ class __$$UserJournalImplCopyWithImpl<$Res>
     Object? journal = freezed,
     Object? journalAnswers = freezed,
   }) {
-    return _then(_$UserJournalImpl(
+    return _then(_$SeeUserJournalImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -629,8 +640,8 @@ class __$$UserJournalImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$UserJournalImpl implements _UserJournal {
-  const _$UserJournalImpl(
+class _$SeeUserJournalImpl implements _SeeUserJournal {
+  const _$SeeUserJournalImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'completed_at') this.completedAt,
       @JsonKey(name: 'user_id') this.userId,
@@ -643,8 +654,8 @@ class _$UserJournalImpl implements _UserJournal {
       final List<JournalAnswer>? journalAnswers})
       : _journalAnswers = journalAnswers;
 
-  factory _$UserJournalImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UserJournalImplFromJson(json);
+  factory _$SeeUserJournalImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SeeUserJournalImplFromJson(json);
 
   @override
   @JsonKey(name: 'id')
@@ -683,14 +694,14 @@ class _$UserJournalImpl implements _UserJournal {
 
   @override
   String toString() {
-    return 'UserJournal(id: $id, completedAt: $completedAt, userId: $userId, journalId: $journalId, isComplete: $isComplete, createdAt: $createdAt, updatedAt: $updatedAt, journal: $journal, journalAnswers: $journalAnswers)';
+    return 'SeeUserJournal(id: $id, completedAt: $completedAt, userId: $userId, journalId: $journalId, isComplete: $isComplete, createdAt: $createdAt, updatedAt: $updatedAt, journal: $journal, journalAnswers: $journalAnswers)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserJournalImpl &&
+            other is _$SeeUserJournalImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.completedAt, completedAt) ||
                 other.completedAt == completedAt) &&
@@ -722,24 +733,25 @@ class _$UserJournalImpl implements _UserJournal {
       journal,
       const DeepCollectionEquality().hash(_journalAnswers));
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserJournalImplCopyWith<_$UserJournalImpl> get copyWith =>
-      __$$UserJournalImplCopyWithImpl<_$UserJournalImpl>(this, _$identity);
+  _$$SeeUserJournalImplCopyWith<_$SeeUserJournalImpl> get copyWith =>
+      __$$SeeUserJournalImplCopyWithImpl<_$SeeUserJournalImpl>(
+          this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserJournalImplToJson(
+    return _$$SeeUserJournalImplToJson(
       this,
     );
   }
 }
 
-abstract class _UserJournal implements UserJournal {
-  const factory _UserJournal(
+abstract class _SeeUserJournal implements SeeUserJournal {
+  const factory _SeeUserJournal(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'completed_at') final String? completedAt,
       @JsonKey(name: 'user_id') final int? userId,
@@ -749,10 +761,10 @@ abstract class _UserJournal implements UserJournal {
       @JsonKey(name: 'updated_at') final String? updatedAt,
       @JsonKey(name: 'journal') final Journal? journal,
       @JsonKey(name: 'journal_answers')
-      final List<JournalAnswer>? journalAnswers}) = _$UserJournalImpl;
+      final List<JournalAnswer>? journalAnswers}) = _$SeeUserJournalImpl;
 
-  factory _UserJournal.fromJson(Map<String, dynamic> json) =
-      _$UserJournalImpl.fromJson;
+  factory _SeeUserJournal.fromJson(Map<String, dynamic> json) =
+      _$SeeUserJournalImpl.fromJson;
 
   @override
   @JsonKey(name: 'id')
@@ -782,11 +794,11 @@ abstract class _UserJournal implements UserJournal {
   @JsonKey(name: 'journal_answers')
   List<JournalAnswer>? get journalAnswers;
 
-  /// Create a copy of UserJournal
+  /// Create a copy of SeeUserJournal
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserJournalImplCopyWith<_$UserJournalImpl> get copyWith =>
+  _$$SeeUserJournalImplCopyWith<_$SeeUserJournalImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

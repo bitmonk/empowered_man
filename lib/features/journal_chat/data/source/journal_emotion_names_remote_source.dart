@@ -60,7 +60,7 @@ class JournalEmotionNamesRemoteSource {
     }
   }
 
-  Future<Either<AppError, UserJournalsResponse>> getSeeJournal({
+  Future<Either<AppError, SeeUserJournalResponseModel>> getSeeJournal({
     required String? journalId,
   }) async {
     try {
@@ -68,7 +68,7 @@ class JournalEmotionNamesRemoteSource {
         '${AppEndpoints.getSeeJournal}/$journalId/details',
       );
 
-      return right(UserJournalsResponse.fromJson(response));
+      return right(SeeUserJournalResponseModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);
@@ -78,7 +78,7 @@ class JournalEmotionNamesRemoteSource {
     }
   }
 
-  Future<Either<AppError, UserJournalsResponse>> getBulkSeeJournal({
+  Future<Either<AppError, SeeUserJournalResponseModel>> getBulkSeeJournal({
     required List<String>? journalId,
   }) async {
     try {
@@ -89,7 +89,7 @@ class JournalEmotionNamesRemoteSource {
         },
       );
 
-      return right(UserJournalsResponse.fromJson(response));
+      return right(SeeUserJournalResponseModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

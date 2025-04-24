@@ -12,8 +12,9 @@ class JournalEmotionNameController extends GetxController {
       const JournalEmotionNamesModel().obs;
   Rx<JournalLibraryIndexModel> journalLibraryIndexModel =
       const JournalLibraryIndexModel().obs;
-  Rx<UserJournalsResponse> userJournalResponse =
-      const UserJournalsResponse().obs;
+
+  Rx<SeeUserJournalResponseModel> userJournalResponse =
+      const SeeUserJournalResponseModel().obs;
   Rx<TheStates> journalEmotionNameState = TheStates.initial.obs;
   Rx<TheStates> getJournalLibraryState = TheStates.initial.obs;
 
