@@ -175,7 +175,7 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                             Get.toNamed(AppRoutes.addYourOccupation);
                           } else {
                             AppUtils.showErrorSnackbar(
-                                message: 'Please fill all fields correctly.');
+                                message: 'Please fill all fields correctly.',);
                           }
                         }
                       : null, // Disable button if password is invalid

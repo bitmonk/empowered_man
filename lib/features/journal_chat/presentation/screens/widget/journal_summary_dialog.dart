@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
-import 'package:flutter/material.dart';
 
 class JournalSummaryDialog extends StatefulWidget {
   const JournalSummaryDialog({required this.userJournal, super.key});
@@ -52,7 +51,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
       if (widget.userJournal == null || widget.userJournal!.isEmpty) {
         // Show error if no journal data available
         AppUtils.showErrorSnackbar(
-            message: 'No journal data available for sharing');
+            message: 'No journal data available for sharing',);
         return;
       }
 
@@ -62,13 +61,13 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
       if (journalIds.isEmpty) {
         AppUtils.showErrorSnackbar(
-            message: 'No valid journals found for export');
+            message: 'No valid journals found for export',);
         return;
       }
 
       // Format data for PDF
-      String formattedData = '';
-      String fromToDate = '';
+      var formattedData = '';
+      var fromToDate = '';
 
       // Format journal data for PDF
       if (widget.userJournal!.isNotEmpty) {
@@ -113,7 +112,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
     for (final journal in widget.userJournal!) {
       // Add journal emotion/title
-      buffer.writeln('${journal.journal?.emotionName ?? "Untitled Journal"}');
+      buffer.writeln(journal.journal?.emotionName ?? 'Untitled Journal');
       buffer.writeln('-------------------------------------------');
 
       final journalAnswers = journal.journalAnswers;
@@ -129,7 +128,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
           // Add follow-up question and answer if available
           if (answer.followUpQuestion != null) {
             buffer.writeln(
-                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}');
+                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',);
             buffer.writeln('A: ${answer.text ?? "No answer provided"}');
             buffer.writeln();
           }

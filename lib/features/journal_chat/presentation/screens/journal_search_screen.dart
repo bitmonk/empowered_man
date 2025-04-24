@@ -20,7 +20,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   bool _selectAll = false;
   final TextEditingController controller = TextEditingController();
 
-  void onSearch(String text) async {
+  Future<void> onSearch(String text) async {
     try {
       await _controller.getJournalLibrary(
         1,
@@ -135,7 +135,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     if (journals == null) return [];
 
     final selectedJournals = <dynamic>[];
-    for (int i = 0; i < _selectedItems.length; i++) {
+    for (var i = 0; i < _selectedItems.length; i++) {
       if (_selectedItems[i] && i < journals.length) {
         selectedJournals.add(journals[i]);
       }
@@ -169,7 +169,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                       Expanded(
                         child: Padding(
                           padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 12),
+                              horizontal: 8, vertical: 12,),
                           child: TextField(
                             controller: controller,
                             style: const TextStyle(
@@ -179,7 +179,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                             onSubmitted: onSearch,
                             decoration: InputDecoration(
                               hintText: 'Search journals...',
-                              hintStyle: TextStyle(
+                              hintStyle: const TextStyle(
                                 color: AppColors.white,
                                 fontSize: 14,
                               ),

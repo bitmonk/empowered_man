@@ -111,7 +111,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
   @override
   Widget build(BuildContext context) {
     final selectedCount = widget.selectedItems.where((item) => item).length;
-    _delete() async {
+    delete() async {
       Future.delayed(const Duration(milliseconds: 100), () async {
         if (widget.selectedItems.where((item) => item).isEmpty) {
           AppUtils.showErrorSnackbar(
@@ -193,7 +193,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       });
     }
 
-    _seeJournal() async {
+    Future<void> seeJournal() async {
       if (selectedCount > 0) {
         final journalIds = List<String>.empty(growable: true);
         final journals =
@@ -254,15 +254,13 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
             _exportSelectedJournalsToPdf(false);
           // Handle download action
           case 'delete':
-            _delete();
-            break;
+            delete();
           case 'share':
             _exportSelectedJournalsToPdf(true); // Share only
 
           // Handle share action
           case 'see_journal':
-            _seeJournal();
-            break;
+            seeJournal();
         }
       },
       itemBuilder: (context) => [

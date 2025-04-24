@@ -1,4 +1,3 @@
-import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
@@ -193,12 +192,12 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (_) => JournalSearchScreen()),
+                            builder: (_) => const JournalSearchScreen(),),
                       );
                     },
                     child: Assets.images.homeSearch.svg(),
                   ),
-                  if (_selectedItems.where((item) => item).length != 0)
+                  if (_selectedItems.where((item) => item).isNotEmpty)
                     JournalLibraryPopUp(
                       selectedItems: _selectedItems,
                       onSelected: (deletedIds, shouldClearSelection) {
@@ -216,13 +215,13 @@ class _JournalLibraryState extends State<JournalLibrary> {
               ),
             ),
             Obx(() => _controller.getJournalLibraryState.value.showWidget(
-                orElse: () => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 50.0),
+                orElse: () => const Padding(
+                      padding: EdgeInsets.symmetric(vertical: 50),
                       child: LoadingWidget(),
                     ),
                 error: () => CustomErrorWidget(
                       error: 'Something went wrong.',
-                      verticlePadding: EdgeInsets.symmetric(vertical: 200),
+                      verticlePadding: const EdgeInsets.symmetric(vertical: 200),
                       onPressed: () async {
                         await _initializeData();
                         await _fetchEmotionNames();
@@ -235,7 +234,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                   return (journals == null || journals.isEmpty)
                       ? CustomErrorWidget(
                           error: 'No journals found',
-                          verticlePadding: EdgeInsets.symmetric(vertical: 200),
+                          verticlePadding: const EdgeInsets.symmetric(vertical: 200),
                           onPressed: () async {
                             await _initializeData();
                             await _fetchEmotionNames();
@@ -244,7 +243,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                         )
                       : Expanded(
                           child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8.0),
+                            padding: const EdgeInsets.only(bottom: 8),
                             child: ThemedContainer(
                               padding: EdgeInsets.zero,
                               margin: const EdgeInsets.all(12),
@@ -257,7 +256,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                                 child: LayoutBuilder(
                                   builder: (context, constraints) {
                                     return SingleChildScrollView(
-                                      physics: AlwaysScrollableScrollPhysics(),
+                                      physics: const AlwaysScrollableScrollPhysics(),
                                       controller: _scrollController,
                                       child: ConstrainedBox(
                                         constraints: BoxConstraints(
@@ -273,8 +272,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                                             },
                                             children: [
                                               _buildTableHeaderRow(),
-                                              if (journals != null &&
-                                                  journals.isNotEmpty)
+                                              if (journals.isNotEmpty)
                                                 ...List.generate(
                                                   journals.length,
                                                   (index) =>
@@ -291,9 +289,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                             ),
                           ),
                         );
-                }))
+                },),),
           ],
-        ));
+        ),);
   }
 
   /// Table Header Row with "Select All"
