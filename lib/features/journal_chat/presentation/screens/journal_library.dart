@@ -49,11 +49,15 @@ class _JournalLibraryState extends State<JournalLibrary> {
     final scrollController = _controller.getScrollController(
       paginationName,
     );
+    await _controller.getJournalLibrary(isInitialLoad: true);
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // if (_controller.tabDataLoaded[paginationName] != true) {
-      _controller.getJournalLibrary(
-        isInitialLoad: true,
-      ); // Load data if not already loaded
+      _controller.selectBulk.value = List.generate(
+        _controller.journalLibraryList.length,
+        (_) => false,
+      );
+
       // }
     });
     scrollController.addListener(() {
@@ -62,6 +66,19 @@ class _JournalLibraryState extends State<JournalLibrary> {
         _controller.loadMoreData(paginationName);
       }
     });
+  }
+
+  List<String> getSelectedJournalIds() {
+    final selectedIds = <String>[];
+    for (int i = 0; i < _controller.journalLibraryList.length; i++) {
+      if (i < _controller.selectBulk.length && _controller.selectBulk[i]) {
+        final journal = _controller.journalLibraryList[i];
+        if (journal.id != null) {
+          selectedIds.add(journal.id!.toString());
+        }
+      }
+    }
+    return selectedIds;
   }
 
   @override
@@ -86,13 +103,13 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       child: DropdownButtonHideUnderline(
                         child: DropdownButton2<String>(
                           isExpanded: true,
-                          value: emotionNames
-                                      ?.map((e) => e.emotionName)
-                                      .contains(
-                                          _controller.selectedEmotion.value,) ==
-                                  true
-                              ? _controller.selectedEmotion.value
-                              : null,
+                          value:
+                              emotionNames?.map((e) => e.emotionName).contains(
+                                            _controller.selectedEmotion.value,
+                                          ) ==
+                                      true
+                                  ? _controller.selectedEmotion.value
+                                  : null,
                           dropdownStyleData: DropdownStyleData(
                             maxHeight: 200,
                             width: 200,
@@ -167,10 +184,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
                     },
                     child: Assets.images.homeSearch.svg(),
                   ),
-                  if (_controller.selectBulk.where((item) => item).isNotEmpty)
+                  if (_controller.selectBulk.any((item) => item))
                     JournalLibraryPopUp(
                       searchJournal: false,
                       selectedItems: _controller.selectBulk,
+                      journalList: _controller.journalLibraryList,
                       onSelected: (deletedIds, shouldClearSelection) {
                         if (shouldClearSelection) {
                           _controller.selectBulk.clear();
@@ -190,8 +208,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                 verticlePadding: const EdgeInsets.symmetric(vertical: 200),
                 onPressed: () async {
                   _controller.getJournalLibrary(
-                      isInitialLoad: true,
-                      emotionName: _controller.selectedEmotion.value,);
+                    isInitialLoad: true,
+                    emotionName: _controller.selectedEmotion.value,
+                  );
                 },
               ),
               success: () {
@@ -203,8 +222,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                             const EdgeInsets.symmetric(vertical: 200),
                         onPressed: () async {
                           _controller.getJournalLibrary(
-                              isInitialLoad: true,
-                              emotionName: _controller.selectedEmotion.value,);
+                            isInitialLoad: true,
+                            emotionName: _controller.selectedEmotion.value,
+                          );
                         },
                       )
                     : Expanded(
@@ -322,6 +342,15 @@ class _JournalLibraryState extends State<JournalLibrary> {
         ],
       );
     }
+    if (_controller.selectBulk.length <= index) {
+      // Expand the list if needed
+      _controller.selectBulk.value = List.generate(
+        journals.length,
+        (i) => i < _controller.selectBulk.length
+            ? _controller.selectBulk[i]
+            : false,
+      );
+    }
 
     final journal = journals[index];
 
@@ -373,7 +402,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
   /// Helper to create table header cells
   Widget _tableHeaderCell(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
       child: Text(
         title,
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
@@ -416,6 +445,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
             _controller.journalLibraryList.length,
             (_) => false,
           );
+          _selectAll = false;
         });
       }
     } catch (e) {

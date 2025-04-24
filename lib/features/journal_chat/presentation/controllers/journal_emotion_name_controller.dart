@@ -171,12 +171,14 @@ class JournalEmotionNameController extends GetxController {
       },
       dataToAdd: (res) {
         if (searchJournal) {
+          journalSearchList.clear();
           journalSearchList.addAll(res.data?.userJournals ?? []);
           selectSeaarchBulk.value = List.generate(
-            journalLibraryList.length,
+            journalSearchList.length,
             (index) => false,
           );
         } else {
+          journalLibraryList.clear();
           journalLibraryList.addAll(res.data?.userJournals ?? []);
           selectBulk.value = List.generate(
             journalLibraryList.length,
@@ -343,16 +345,17 @@ class JournalEmotionNameController extends GetxController {
     }
 
     await _handleApiCall<T>(
-        state: state,
-        apiCall: apiCall(paginationController?.currentPage.value ?? 1, search),
-        onSuccess: (response) {
-          // Add new data to the list
-          dataToAdd(response);
-          paginationController?.currentPage.value = currentPageValue(response);
-          paginationController?.lastPage.value = lastPageValue(response);
-          setTabDataLoaded(groupsPaginationName, true);
-        },
-        onError: onError,);
+      state: state,
+      apiCall: apiCall(paginationController?.currentPage.value ?? 1, search),
+      onSuccess: (response) {
+        // Add new data to the list
+        dataToAdd(response);
+        paginationController?.currentPage.value = currentPageValue(response);
+        paginationController?.lastPage.value = lastPageValue(response);
+        setTabDataLoaded(groupsPaginationName, true);
+      },
+      onError: onError,
+    );
 
     paginationController?.isLoadingMore.value = false;
     paginationController?.isInitialLoading.value = false;

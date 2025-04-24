@@ -290,7 +290,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   .journalWithQuestionsAndAnswers.value.data?.isCompleted ??
               false;
 
-          if (!isCompleted) {
+          if (!isCompleted && controller.selectedEmotionId.value != null) {
             showModalBottomSheet(
               isScrollControlled: true,
               useRootNavigator: true,
@@ -326,14 +326,17 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                     ),
                   ),
                   if (controller.selectedEmotionId.value == null)
-                    const Text('Select an emotion to start journaling')
+                    const Text(
+                      'Select an emotion to start journaling',
+                      style: TextStyle(),
+                    )
                   else
                     Expanded(
                         child: controller.journalChatConversationState.value
                             .showWidget(
-                                orElse: () => CustomErrorWidget(
-                                      onPressed: () {},
-                                    ),
+                                // orElse: () => CustomErrorWidget(
+                                //       onPressed: () {},
+                                //     ),
                                 loading: () => const LoadingWidget(),
                                 success: () {
                                   final journal = controller
@@ -558,87 +561,89 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                     ),
                                   );
                                 })),
-               if (controller.selectedEmotionId.value != null)    Obx(() {
-                    final journalCompleted = controller
-                            .journalWithQuestionsAndAnswers
-                            .value
-                            .data
-                            ?.isCompleted ??
-                        false;
-                    final journal = controller
-                        .journalWithQuestionsAndAnswers.value.data?.journal;
-                    String? mainQuestionId;
-                    String? followupQuestionId;
-                    var isYesNoQuestion = false;
+                  if (controller.selectedEmotionId.value != null)
+                    Obx(() {
+                      final journalCompleted = controller
+                              .journalWithQuestionsAndAnswers
+                              .value
+                              .data
+                              ?.isCompleted ??
+                          false;
+                      final journal = controller
+                          .journalWithQuestionsAndAnswers.value.data?.journal;
+                      String? mainQuestionId;
+                      String? followupQuestionId;
+                      var isYesNoQuestion = false;
 
-                    // Check if all main questions are answered
-                    final allMainQuestionsAnswered = journal?.mainQuestions
-                            ?.every((q) => q.answered ?? false) ??
-                        false;
+                      // Check if all main questions are answered
+                      final allMainQuestionsAnswered = journal?.mainQuestions
+                              ?.every((q) => q.answered ?? false) ??
+                          false;
 
-                    if (!allMainQuestionsAnswered) {
-                      mainQuestionId = _getLastVisibleQuestionId(journal);
-                      followupQuestionId = null;
-                    } else {
-                      followupQuestionId =
-                          _getLastVisibleFollowUpQuestionId(journal);
-                      mainQuestionId = null;
-                      if (followupQuestionId != null) {
-                        final question =
-                            journal?.followUpQuestions?.firstWhereOrNull(
-                          (q) => q.id?.toString() == followupQuestionId,
-                        );
-                        isYesNoQuestion = question?.questionType == 'yes_no';
+                      if (!allMainQuestionsAnswered) {
+                        mainQuestionId = _getLastVisibleQuestionId(journal);
+                        followupQuestionId = null;
+                      } else {
+                        followupQuestionId =
+                            _getLastVisibleFollowUpQuestionId(journal);
+                        mainQuestionId = null;
+                        if (followupQuestionId != null) {
+                          final question =
+                              journal?.followUpQuestions?.firstWhereOrNull(
+                            (q) => q.id?.toString() == followupQuestionId,
+                          );
+                          isYesNoQuestion = question?.questionType == 'yes_no';
+                        }
                       }
-                    }
 
-                    if (journalCompleted == false && isYesNoQuestion == false) {
-                      return JournalChatInputField(
-                        focusNode: focusNode,
-                        journalId: journal?.id?.toString() ?? '',
-                        mainQuestionId: mainQuestionId,
-                        followupQuestionId: followupQuestionId,
-                        onMessageSent: () async {
-                          setState(() {
-                            _isSendingMessage = true;
-                          });
-                          // Force scroll to bottom whenever a message is sent
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            controller.autoScrollEnabled.value = true;
-                            controller.scrollToBottom();
-                          });
-                          try {
-                            // Add your message locally first to show with loading indicator
-                            final newMessage = MessageItem(
-                              type: MessageType.answer,
-                              message: controller.chatController.text.trim(),
-                              timestamp: DateTime.now().toString(),
-                              isMine: true,
-                              isLoading: true,
-                            );
-                            await controller.sendMessage(
-                              journal?.id?.toString() ?? '',
-                              null, // mediaPath
-                              controller.chatController.text.trim(),
-                              mainQuestionId,
-                              followupQuestionId,
-                            );
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                _isSendingMessage = false;
-                              });
+                      if (journalCompleted == false &&
+                          isYesNoQuestion == false) {
+                        return JournalChatInputField(
+                          focusNode: focusNode,
+                          journalId: journal?.id?.toString() ?? '',
+                          mainQuestionId: mainQuestionId,
+                          followupQuestionId: followupQuestionId,
+                          onMessageSent: () async {
+                            setState(() {
+                              _isSendingMessage = true;
+                            });
+                            // Force scroll to bottom whenever a message is sent
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              controller.autoScrollEnabled.value = true;
+                              controller.scrollToBottom();
+                            });
+                            try {
+                              // Add your message locally first to show with loading indicator
+                              final newMessage = MessageItem(
+                                type: MessageType.answer,
+                                message: controller.chatController.text.trim(),
+                                timestamp: DateTime.now().toString(),
+                                isMine: true,
+                                isLoading: true,
+                              );
+                              await controller.sendMessage(
+                                journal?.id?.toString() ?? '',
+                                null, // mediaPath
+                                controller.chatController.text.trim(),
+                                mainQuestionId,
+                                followupQuestionId,
+                              );
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isSendingMessage = false;
+                                });
+                              }
                             }
-                          }
-                        },
-                      );
-                    } else {
-                      return const SizedBox(
-                        height: 1,
-                        width: double.infinity,
-                      );
-                    }
-                  }),
+                          },
+                        );
+                      } else {
+                        return const SizedBox(
+                          height: 1,
+                          width: double.infinity,
+                        );
+                      }
+                    }),
                 ],
               ),
             ),

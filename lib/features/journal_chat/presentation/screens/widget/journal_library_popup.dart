@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
 
@@ -8,12 +9,13 @@ class JournalLibraryPopUp extends StatefulWidget {
     required this.selectedItems,
     required this.onSelected,
     required this.searchJournal,
+    required this.journalList,
     super.key,
   });
   final List<bool> selectedItems;
   final bool searchJournal;
   final Function(List<String> deletedIds, bool shouldClearSelection) onSelected;
-
+  final List<UserJournal> journalList;
   @override
   State<JournalLibraryPopUp> createState() => _JournalLibraryPopUpState();
 }
@@ -270,7 +272,9 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           if (result == true) {
             widget.onSelected(journalIds, true);
             await _controller.getJournalLibrary(
-                isInitialLoad: true, searchJournal: widget.searchJournal,);
+              isInitialLoad: true,
+              searchJournal: widget.searchJournal,
+            );
             // Get.close(1);
           }
         } catch (e) {
@@ -287,14 +291,18 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         final journalIds = List<String>.empty(growable: true);
         final journals =
             _controller.journalLibraryIndexModel.value.data?.userJournals;
-
-        if (journals != null) {
-          for (var i = 0; i < widget.selectedItems.length; i++) {
-            if (widget.selectedItems[i] && i < journals.length) {
-              journalIds.add(journals[i].id.toString());
-            }
+        for (var i = 0; i < widget.selectedItems.length; i++) {
+          if (widget.selectedItems[i] && i < widget.journalList.length) {
+            journalIds.add(widget.journalList[i].id.toString());
           }
         }
+        // if (journals != null) {
+        //   for (var i = 0; i < widget.selectedItems.length; i++) {
+        //     if (widget.selectedItems[i] && i < journals.length) {
+        //       journalIds.add(journals[i].id.toString());
+        //     }
+        //   }
+        // }
 
         print('Selected journal IDs: $journalIds');
 

@@ -19,8 +19,13 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   bool _selectAll = false;
   final TextEditingController searchController = TextEditingController();
   Future<void> onSearch(String text) async {
-    _controller.getJournalLibrary(
-        mainQuestion: text, isInitialLoad: true, searchJournal: true,);
+    if (text.isNotEmpty) {
+      _controller.getJournalLibrary(
+        mainQuestion: text,
+        isInitialLoad: true,
+        searchJournal: true,
+      );
+    }
   }
 
   @override
@@ -124,6 +129,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                     JournalLibraryPopUp(
                       searchJournal: true,
                       selectedItems: _controller.selectSeaarchBulk,
+                      journalList: _controller.journalSearchList,
                       // selectedJournals: getSelectedJournals(),
                       onSelected: (deletedIds, shouldClearSelection) {
                         if (shouldClearSelection) {
@@ -153,10 +159,10 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                     verticlePadding: const EdgeInsets.symmetric(vertical: 200),
                     onPressed: () async {
                       _controller.getJournalLibrary(
-                          searchJournal: true,
-                          isInitialLoad: true,
-                          mainQuestion: searchController
-                              .text,); // Load data if not already loaded
+                        searchJournal: true,
+                        isInitialLoad: true,
+                        mainQuestion: searchController.text,
+                      ); // Load data if not already loaded
                     },
                   ),
                   success: () {
@@ -167,10 +173,13 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                             verticlePadding:
                                 const EdgeInsets.symmetric(vertical: 200),
                             onPressed: () async {
-                              _controller.getJournalLibrary(
-                                  searchJournal: true,
-                                  isInitialLoad: true,
-                                  mainQuestion: searchController.text,);
+                              final result = _controller.getJournalLibrary(
+                                searchJournal: true,
+                                isInitialLoad: true,
+                                mainQuestion: searchController.text,
+                              );
+                              print(
+                                  '#################################################>>>>>>>>>>>>>>>>>>>>>>>>result $result');
                             },
                           )
                         : Expanded(
@@ -248,9 +257,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               setState(() {
                 _selectAll = !_selectAll;
                 _controller.selectSeaarchBulk.value = List.generate(
-                  _controller.journalLibraryIndexModel.value.data?.userJournals
-                          ?.length ??
-                      0,
+                  _controller.journalSearchList.length ?? 0,
                   (index) => _selectAll,
                 );
               });
@@ -271,8 +278,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   }
 
   TableRow _buildTableRow(int index) {
-    final journals =
-        _controller.journalLibraryIndexModel.value.data?.userJournals;
+    final journals = _controller.journalSearchList;
 
     // Return empty row if index is out of bounds
     if (journals == null || index >= journals.length) {
@@ -304,14 +310,21 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
             behavior: HitTestBehavior.translucent,
             onTap: () {
               setState(() {
-                _controller.selectSeaarchBulk[index] =
-                    !_controller.selectSeaarchBulk[index];
-                _selectAll =
-                    _controller.selectSeaarchBulk.every((item) => item);
+                if (index < _controller.selectSeaarchBulk.length) {
+                  _controller.selectSeaarchBulk[index] =
+                      !_controller.selectSeaarchBulk[index];
+                  _selectAll =
+                      _controller.selectSeaarchBulk.every((item) => item);
+                }
+                // _controller.selectSeaarchBulk[index] =
+                //     !_controller.selectSeaarchBulk[index];
+                // _selectAll =
+                //     _controller.selectSeaarchBulk.every((item) => item);
               });
             },
             child: Icon(
-              _controller.selectSeaarchBulk[index]
+              (index < _controller.selectSeaarchBulk.length &&
+                      _controller.selectSeaarchBulk[index])
                   ? Icons.radio_button_checked
                   : Icons.radio_button_unchecked,
               color: AppColors.color8798A7,
