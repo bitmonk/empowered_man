@@ -122,32 +122,32 @@ class MainDrawer extends GetView<MainController> {
                         JournalEmotionNameInitializer.initialize();
 
                         // Show loading dialog
-                        final loadingDialog =
-                            AppUtils.showLoadingDialog(context);
+                        // final loadingDialog =
+                        //     AppUtils.showLoadingDialog(context);
 
                         try {
                           final emotionController =
                               Get.find<JournalEmotionNameController>();
                           await emotionController.getJournalEmotionName();
 
-                          final emotionId = emotionController.journalEmotionName
-                              .value.data?.emotionNames?.first.id;
-                          if (emotionId == null) {
-                            AppUtils.hideLoadingDialog(context);
-                            return;
-                          }
+                          // final emotionId = emotionController.journalEmotionName
+                          //     .value.data?.emotionNames?.first.id;
+                          // if (emotionId == null) {
+                          //   AppUtils.hideLoadingDialog(context);
+                          //   return;
+                          // }
 
-                          await Get.find<JournalChatController>()
-                              .getJournalWithQuestionsAndAnswers(
-                                  emotionId.toString(),);
+                          // await Get.find<JournalChatController>()
+                          //     .getJournalWithQuestionsAndAnswers(
+                          //         emotionId.toString(),);
 
                           // Hide loading dialog before navigation
-                          AppUtils.hideLoadingDialog(context);
+                          //  AppUtils.hideLoadingDialog(context);
 
                           await Get.to(
                             () => JournalChatScreen(
-                              initialEmotionId: emotionId,
-                            ),
+                                //    initialEmotionId: emotionId,
+                                ),
                           );
 
                           await Future.delayed(Durations.short4);

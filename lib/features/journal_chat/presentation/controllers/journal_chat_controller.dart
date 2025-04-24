@@ -62,9 +62,9 @@ class JournalChatController extends GetxController {
     }
   }
 
-  Future<bool?> getJournalWithQuestionsAndAnswers(String id) async {
+  Future<bool?> getJournalWithQuestionsAndAnswers() async {
     // journalChatConversationState.value = TheStates.loading;
-    final result = await remoteSource.getJournalWithQuestionsAndAnswers(id);
+    final result = await remoteSource.getJournalWithQuestionsAndAnswers(selectedEmotionId.value!);
     var res = result.fold(
       (l) {
         journalChatConversationState.value = TheStates.error;
@@ -102,7 +102,7 @@ class JournalChatController extends GetxController {
         text ?? chatController.text.trim(),
         followupQuestionId,
       );
-      await getJournalWithQuestionsAndAnswers(journalId);
+      await getJournalWithQuestionsAndAnswers();
 
       result.fold(
         (l) {
@@ -127,7 +127,7 @@ class JournalChatController extends GetxController {
             );
 
           chatController.clear();
-          await getJournalWithQuestionsAndAnswers(journalId);
+          await getJournalWithQuestionsAndAnswers();
           await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
           isLoading.value = false;
