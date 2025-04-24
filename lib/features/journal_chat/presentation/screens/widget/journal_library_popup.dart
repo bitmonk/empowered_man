@@ -54,44 +54,44 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
 
     try {
       // Get journal data for PDF
-      // final result = await _controller.getBulkSeeJournal(journalIds);
-      // final userJournals =
-      //     _controller.userJournalResponse.value.data?.userJournals;
+      final result = await _controller.getBulkSeeJournal(journalIds);
+      final userJournals =
+          _controller.userJournalResponse.value.data?.userJournals;
 
-      // if (userJournals == null || userJournals.isEmpty) {
-      //   AppUtils.showErrorSnackbar(message: 'No journal data available');
-      //   return;
-      // }
+      if (userJournals == null || userJournals.isEmpty) {
+        AppUtils.showErrorSnackbar(message: 'No journal data available');
+        return;
+      }
 
       // Format data for PDF
       String formattedData = '';
       String fromToDate = '';
 
-      // if (userJournals.isNotEmpty) {
-      //   // Format data properly for your needs
-      //   formattedData = userJournals
-      //       .map((journal) =>
-      //           '${journal.journal?.emotionName ?? "Untitled"}: ${journal.journalAnswers ?? "No content"}')
-      //       .join('\n\n');
+      if (userJournals.isNotEmpty) {
+        //   // Format data properly for your needs
+        formattedData = userJournals
+            .map((journal) =>
+                '${journal.journal?.emotionName ?? "Untitled"}: ${journal.journalAnswers ?? "No content"}')
+            .join('\n\n');
 
-      //   // Generate date range for PDF header
-      //   if (userJournals.length == 1 && userJournals.first.createdAt != null) {
-      //     fromToDate = userJournals.first.createdAt!;
-      //   } else if (userJournals.isNotEmpty) {
-      //     // Find oldest and newest entries
-      //     final dates = userJournals
-      //         .where((j) => j.createdAt != null)
-      //         .map((j) => j.createdAt!)
-      //         .toList();
+        //   // Generate date range for PDF header
+          if (userJournals.length == 1 && userJournals.first.createdAt != null) {
+            fromToDate = userJournals.first.createdAt!;
+          } else if (userJournals.isNotEmpty) {
+            // Find oldest and newest entries
+            final dates = userJournals
+                .where((j) => j.createdAt != null)
+                .map((j) => j.createdAt!)
+                .toList();
 
-      //     if (dates.isNotEmpty) {
-      //       dates.sort();
-      //       fromToDate = '${dates.first} - ${dates.last}';
-      //     } else {
-      //       fromToDate = 'Journal Export';
-      //     }
-      //   }
-      // }
+            if (dates.isNotEmpty) {
+              dates.sort();
+              fromToDate = '${dates.first} - ${dates.last}';
+            } else {
+              fromToDate = 'Journal Export';
+            }
+          }
+      }
 
       // Export the PDF with the shouldShare parameter
       await exportPdf(
