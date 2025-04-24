@@ -9,24 +9,24 @@ class CourseController extends GetxController {
   CourseController({required this.remoteSource});
   final CourseRemoteSource remoteSource;
 
-  final List<String> filters = ['All', 'Ongoing', 'Completed'];
+  final List<String> filters = ['All', 'in_progress', 'Completed'];
   RxString selectedFilters = 'All'.obs;
   RxInt chapterProgress = 0.obs;
   TextEditingController searchController = TextEditingController();
   Map<String, List<Course>> filteredCourses = {
     'all': [],
-    'ongoing': [],
+    'in_progress': [],
     'completed': [],
   };
   final Map<String, Rx<TheStates>> filterStates = {
     'all': TheStates.initial.obs,
-    'ongoing': TheStates.initial.obs,
+    'in_progress': TheStates.initial.obs,
     'completed': TheStates.initial.obs,
   };
 
   final Map<String, String?> errorMessages = {
     'all': null,
-    'ongoing': null,
+    'in_progress': null,
     'completed': null,
   };
 
@@ -145,7 +145,7 @@ class CourseController extends GetxController {
       (r) async {
         getChapters();
         Get.back();
-        AppUtils.showSnackbar(message: r);
+        // AppUtils.showSnackbar(message: r);
         markChapterCompletedState.value = TheStates.success;
         return true;
       },

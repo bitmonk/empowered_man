@@ -74,19 +74,18 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
                 .copyWith(color: AppColors.textColor100),
           ),
           const VerticalSpacing(12),
-          if (widget.chapter.videoUrl != null)
-            LinearProgressIndicator(
-              borderRadius: BorderRadius.circular(20),
-              value: (controller.selectedChapter.value!.course!
-                          .completionPercentage ??
-                      0) /
-                  100,
-              minHeight: 8,
-              backgroundColor: AppColors.textColor200,
-              valueColor:
-                  const AlwaysStoppedAnimation<Color>(AppColors.primary500),
-            ),
-          if (widget.chapter.videoUrl != null) const VerticalSpacing(12),
+          LinearProgressIndicator(
+            borderRadius: BorderRadius.circular(20),
+            value: (controller
+                        .selectedChapter.value!.course!.completionPercentage ??
+                    0) /
+                100,
+            minHeight: 8,
+            backgroundColor: AppColors.textColor200,
+            valueColor:
+                const AlwaysStoppedAnimation<Color>(AppColors.primary500),
+          ),
+          const VerticalSpacing(12),
           Text(
             'Chapter ${widget.chapterIndex + 1} - ${widget.chapter.title}',
             style: AppTextStyles.textHeadingH3,
@@ -126,14 +125,21 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
           isLoading:
               controller.markChapterCompletedState.value == TheStates.loading,
           onPressed: () {
-            if (widget.chapter.status != 'completed' &&
-                _videoCompleteValue > 0.9) {
-              controller.markChapterCompleted(
-                courseId: widget.courseID,
-                chapterId: widget.chapter.id.toString(),
-              );
-            } else {
-              AppUtils.showErrorSnackbar(message: 'Please watch full video');
+            if (widget.chapter.status != 'completed') {
+              if (_videoCompleteValue > 0.9 &&
+                  widget.chapter.videoUrl != null) {
+                controller.markChapterCompleted(
+                  courseId: widget.courseID,
+                  chapterId: widget.chapter.id.toString(),
+                );
+              } else if (widget.chapter.videoUrl == null) {
+                controller.markChapterCompleted(
+                  courseId: widget.courseID,
+                  chapterId: widget.chapter.id.toString(),
+                );
+              } else {
+                AppUtils.showErrorSnackbar(message: 'Please watch full video');
+              }
             }
           },
         ),

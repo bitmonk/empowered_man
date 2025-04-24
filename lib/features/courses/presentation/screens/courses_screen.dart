@@ -139,7 +139,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
               border: Border.all(color: Colors.white24),
             ),
             child: Text(
-              filter,
+              filter == 'in_progress' ? 'In Progress' : filter,
               style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,

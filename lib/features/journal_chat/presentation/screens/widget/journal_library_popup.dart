@@ -111,6 +111,134 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
   @override
   Widget build(BuildContext context) {
     final selectedCount = widget.selectedItems.where((item) => item).length;
+    _delete() async {
+      Future.delayed(const Duration(milliseconds: 100), () async {
+        if (widget.selectedItems.where((item) => item).isEmpty) {
+          AppUtils.showErrorSnackbar(
+            message: 'No journals selected for deletion',
+          );
+          return;
+        }
+
+        final shouldDelete = await Get.dialog<bool>(
+          AlertDialog(
+            backgroundColor: AppColors.bgBorder,
+            title: const Text(
+              'Delete Journals',
+              style: AppTextStyles.textHeadingH3,
+            ),
+            content: const Text(
+              'Are you sure you want to delete the selected journals? This action cannot be undone.',
+              style: AppTextStyles.textBodyB2,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Get.back(result: false),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: AppColors.textColor50),
+                ),
+              ),
+              TextButton(
+                onPressed: () => Get.back(result: true),
+                child: const Text(
+                  'Delete',
+                  style: TextStyle(color: Colors.redAccent),
+                ),
+              ),
+            ],
+          ),
+        );
+
+        if (shouldDelete != true) return;
+
+        final journalIds = <String>[];
+        final journals =
+            _controller.journalLibraryIndexModel.value.data?.userJournals;
+        if (journals != null) {
+          for (var i = 0; i < widget.selectedItems.length; i++) {
+            if (widget.selectedItems[i] && i < journals.length) {
+              journalIds.add(journals[i].id.toString());
+            }
+          }
+        }
+
+        if (journalIds.isEmpty) {
+          AppUtils.showErrorSnackbar(
+            message: 'No valid journals found for deletion',
+          );
+          return;
+        }
+
+        try {
+          final result = await _controller.deleteBulkJournal(journalIds);
+          if (result == true) {
+            widget.onSelected(journalIds, true);
+            await _controller.getJournalLibrary(
+              1,
+              '',
+              null,
+              null,
+              null,
+              10,
+            );
+            // Get.close(1);
+          }
+        } catch (e) {
+          print('Error deleting journals: $e');
+          AppUtils.showErrorSnackbar(
+            message: 'Failed to delete journals: $e',
+          );
+        }
+      });
+    }
+
+    _seeJournal() async {
+      if (selectedCount > 0) {
+        final journalIds = List<String>.empty(growable: true);
+        final journals =
+            _controller.journalLibraryIndexModel.value.data?.userJournals;
+
+        if (journals != null) {
+          for (var i = 0; i < widget.selectedItems.length; i++) {
+            if (widget.selectedItems[i] && i < journals.length) {
+              journalIds.add(journals[i].id.toString());
+            }
+          }
+        }
+
+        print('Selected journal IDs: $journalIds');
+
+        if (journalIds.isEmpty) {
+          AppUtils.showErrorSnackbar(message: 'No journals selected');
+
+          return;
+        }
+
+        // Call API
+        final result = await _controller.getBulkSeeJournal(journalIds);
+
+        final userJournals =
+            _controller.userJournalResponse.value.data?.userJournals;
+        Future.delayed(
+          const Duration(seconds: 1),
+        );
+        print('User Journals: $userJournals');
+
+        if (userJournals != null) {
+          Get.to(
+            () => JournalSummaryDialog(
+              userJournal: userJournals,
+            ),
+          );
+        } else {
+          AppUtils.showErrorSnackbar(
+            message: 'No journal data available',
+          );
+        }
+      }
+    }
+
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),
       icon: SizedBox(
@@ -124,16 +252,16 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         switch (value) {
           case 'download':
             _exportSelectedJournalsToPdf(false);
-            // Handle download action
+          // Handle download action
           case 'delete':
-            // Handle delete action
+            _delete();
             break;
           case 'share':
             _exportSelectedJournalsToPdf(true); // Share only
 
-            // Handle share action
+          // Handle share action
           case 'see_journal':
-            // Handle share action
+            _seeJournal();
             break;
         }
       },
@@ -142,67 +270,16 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           'Share',
           Assets.images.sharePop.path,
           'share',
-          () {
-            _exportSelectedJournalsToPdf(true);
-          },
         ),
         _buildPopupMenuItem(
           'Download',
           Assets.images.download.path,
           'download',
-          () {
-            _exportSelectedJournalsToPdf(false);
-          },
         ),
         _buildPopupMenuItem(
           'See Journal',
           Assets.images.note.path,
           'see_journal',
-          () async {
-            if (selectedCount > 0) {
-              final journalIds = List<String>.empty(growable: true);
-              final journals =
-                  _controller.journalLibraryIndexModel.value.data?.userJournals;
-
-              if (journals != null) {
-                for (var i = 0; i < widget.selectedItems.length; i++) {
-                  if (widget.selectedItems[i] && i < journals.length) {
-                    journalIds.add(journals[i].id.toString());
-                  }
-                }
-              }
-
-              print('Selected journal IDs: $journalIds');
-
-              if (journalIds.isEmpty) {
-                AppUtils.showErrorSnackbar(message: 'No journals selected');
-
-                return;
-              }
-
-              // Call API
-              final result = await _controller.getBulkSeeJournal(journalIds);
-
-              final userJournals =
-                  _controller.userJournalResponse.value.data?.userJournals;
-              Future.delayed(
-                const Duration(seconds: 1),
-              );
-              print('User Journals: $userJournals');
-
-              if (userJournals != null) {
-                Get.to(
-                  () => JournalSummaryDialog(
-                    userJournal: userJournals,
-                  ),
-                );
-              } else {
-                AppUtils.showErrorSnackbar(
-                  message: 'No journal data available',
-                );
-              }
-            }
-          },
         ),
 
         // if (selectedCount == 1) ...[
@@ -212,87 +289,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
           'Delete',
           Assets.images.deletePop.path,
           'delete',
-          () async {
-            Future.delayed(const Duration(milliseconds: 100), () async {
-              if (widget.selectedItems.where((item) => item).isEmpty) {
-                AppUtils.showErrorSnackbar(
-                  message: 'No journals selected for deletion',
-                );
-                return;
-              }
-
-              final shouldDelete = await Get.dialog<bool>(
-                AlertDialog(
-                  backgroundColor: AppColors.bgBorder,
-                  title: const Text(
-                    'Delete Journals',
-                    style: AppTextStyles.textHeadingH3,
-                  ),
-                  content: const Text(
-                    'Are you sure you want to delete the selected journals? This action cannot be undone.',
-                    style: AppTextStyles.textBodyB2,
-                  ),
-                  actions: [
-                    TextButton(
-                      onPressed: () => Get.back(result: false),
-                      child: const Text(
-                        'Cancel',
-                        style: TextStyle(color: AppColors.textColor50),
-                      ),
-                    ),
-                    TextButton(
-                      onPressed: () => Get.back(result: true),
-                      child: const Text(
-                        'Delete',
-                        style: TextStyle(color: Colors.redAccent),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-
-              if (shouldDelete != true) return;
-
-              final journalIds = <String>[];
-              final journals =
-                  _controller.journalLibraryIndexModel.value.data?.userJournals;
-              if (journals != null) {
-                for (var i = 0; i < widget.selectedItems.length; i++) {
-                  if (widget.selectedItems[i] && i < journals.length) {
-                    journalIds.add(journals[i].id.toString());
-                  }
-                }
-              }
-
-              if (journalIds.isEmpty) {
-                AppUtils.showErrorSnackbar(
-                  message: 'No valid journals found for deletion',
-                );
-                return;
-              }
-
-              try {
-                final result = await _controller.deleteBulkJournal(journalIds);
-                if (result == true) {
-                  widget.onSelected(journalIds, true);
-                  await _controller.getJournalLibrary(
-                    1,
-                    '',
-                    null,
-                    null,
-                    null,
-                    10,
-                  );
-                  Get.close(1);
-                }
-              } catch (e) {
-                print('Error deleting journals: $e');
-                AppUtils.showErrorSnackbar(
-                  message: 'Failed to delete journals: $e',
-                );
-              }
-            });
-          },
         ),
       ],
     );
@@ -302,12 +298,10 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     String text,
     String icon,
     String value,
-    VoidCallback? onPressed,
   ) {
     return PopupMenuItem(
       value: value,
       child: GestureDetector(
-        onTap: onPressed,
         child: Row(
           children: [
             Image.asset(

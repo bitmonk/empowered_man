@@ -190,9 +190,10 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                       chapter.status == 'completed') {
                     if (index == 0) {
                       controller.changeCourseStatus(
-                          chapterId: chapter.id.toString(),
-                          courseId:
-                              controller.selectedCourse.value!.id.toString(),);
+                        chapterId: chapter.id.toString(),
+                        courseId:
+                            controller.selectedCourse.value!.id.toString(),
+                      );
                     }
                     Get.to(
                       () => ChapterDetailScreen(

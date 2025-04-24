@@ -17,6 +17,7 @@ class SignupController extends GetxController {
   TextEditingController mobileController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
+  TextEditingController confirmPasswordController = TextEditingController();
   TextEditingController occupationController = TextEditingController();
   RxBool isPasswordValid = false.obs;
   RxBool containsNumber = false.obs;

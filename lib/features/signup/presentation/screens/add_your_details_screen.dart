@@ -91,6 +91,31 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                   ),
                 ),
                 const VerticalSpacing(16),
+                AppTextFormField(
+                  controller: controller.confirmPasswordController,
+                  labelText: 'Confirm password',
+                  obscureText: !controller.showPassword.value,
+                  // onChanged: (v) => controller.validatePassword(v),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please confirm your password';
+                    }
+                    if (value != controller.passwordController.text) {
+                      return 'Passwords do not match';
+                    }
+                    return null;
+                  },
+                  suffixIcon: IconButton(
+                    onPressed: () {
+                      controller.showPassword.value =
+                          !controller.showPassword.value;
+                    },
+                    icon: controller.showPassword.value
+                        ? Assets.images.eyeClose.svg()
+                        : Assets.images.eyeOpen.svg(),
+                  ),
+                ),
+                const VerticalSpacing(16),
                 SizedBox(
                   height: 8,
                   child: LinearProgressIndicator(
@@ -149,7 +174,8 @@ class _AddYourDetailsScreenState extends State<AddYourDetailsScreen> {
                                 controller.passwordController.text;
                             Get.toNamed(AppRoutes.addYourOccupation);
                           } else {
-                            AppUtils.showErrorSnackbar(message: 'Required');
+                            AppUtils.showErrorSnackbar(
+                                message: 'Please fill all fields correctly.');
                           }
                         }
                       : null, // Disable button if password is invalid
