@@ -26,7 +26,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
   void initState() {
     super.initState();
     emotionNames = widget.emotionNames;
-
+    _controller.selectedEmotion.value = null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _fetchEmotionNames();
       _initializeData();
@@ -70,7 +70,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
 
   List<String> getSelectedJournalIds() {
     final selectedIds = <String>[];
-    for (int i = 0; i < _controller.journalLibraryList.length; i++) {
+    for (var i = 0; i < _controller.journalLibraryList.length; i++) {
       if (i < _controller.selectBulk.length && _controller.selectBulk[i]) {
         final journal = _controller.journalLibraryList[i];
         if (journal.id != null) {
@@ -354,9 +354,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
 
     final journal = journals[index];
 
-    // Safely get the first question
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
-        ? journal.journal!.mainQuestions!.first.question
+        ? journal.journal!.mainQuestions!
+                .firstWhereOrNull((e) => e.keywords == 'title')
+                ?.keywords ??
+            'N/A'
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
     var formattedTime =

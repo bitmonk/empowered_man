@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/data/source/journal_chat_remote_source.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 
@@ -16,7 +17,7 @@ class JournalChatController extends GetxController {
       const ChatConversationModel().obs;
   CancelToken? _cancelToken;
   Rx<TheStates> journalChatConversationState = TheStates.initial.obs;
-  Rx<String?> selectedEmotionId = Rx<String?>(null);
+  Rx<EmotionName?> selectedEmotion = Rx<EmotionName?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
   RxBool autoScrollEnabled = true.obs;
   RxBool isLoading = false.obs;
@@ -64,7 +65,8 @@ class JournalChatController extends GetxController {
 
   Future<bool?> getJournalWithQuestionsAndAnswers() async {
     // journalChatConversationState.value = TheStates.loading;
-    final result = await remoteSource.getJournalWithQuestionsAndAnswers(selectedEmotionId.value!);
+    final result = await remoteSource.getJournalWithQuestionsAndAnswers(
+        selectedEmotion.value!.id.toString(),);
     var res = result.fold(
       (l) {
         journalChatConversationState.value = TheStates.error;
@@ -139,7 +141,6 @@ class JournalChatController extends GetxController {
       isLoading.value = false;
     }
   }
-  
 
   void scrollToBottom() {
     if (scrollController.hasClients) {

@@ -11,5 +11,5 @@ class AppWidgetKey {
   static final GlobalKey<ScaffoldState> events = GlobalKey();
   static final GlobalKey<ScaffoldState> profile = GlobalKey();
   static final GlobalKey<ScaffoldState> message = GlobalKey();
-  static final GlobalKey<ScaffoldState> journalKey = GlobalKey();
+  // static final GlobalKey<ScaffoldState> journalKey = GlobalKey();
 }
