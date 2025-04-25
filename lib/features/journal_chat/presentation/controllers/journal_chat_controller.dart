@@ -17,11 +17,12 @@ class JournalChatController extends GetxController {
       const ChatConversationModel().obs;
   CancelToken? _cancelToken;
   Rx<TheStates> journalChatConversationState = TheStates.initial.obs;
+  Rx<TheStates> sendMessageState = TheStates.initial.obs;
   Rx<EmotionName?> selectedEmotion = Rx<EmotionName?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
   RxBool autoScrollEnabled = true.obs;
-  RxBool isLoading = false.obs;
 
+  RxBool showBeginJournallButton = false.obs;
   // RxList<String> _selectedMediaPaths =  RxList<String>([]);
 
   @override
@@ -65,8 +66,10 @@ class JournalChatController extends GetxController {
 
   Future<bool?> getJournalWithQuestionsAndAnswers() async {
     // journalChatConversationState.value = TheStates.loading;
+    showBeginJournallButton.value = false;
     final result = await remoteSource.getJournalWithQuestionsAndAnswers(
-        selectedEmotion.value!.id.toString(),);
+      selectedEmotion.value!.id.toString(),
+    );
     var res = result.fold(
       (l) {
         journalChatConversationState.value = TheStates.error;
@@ -76,6 +79,9 @@ class JournalChatController extends GetxController {
       (r) {
         journalChatConversationState.value = TheStates.success;
         journalWithQuestionsAndAnswers.value = r;
+        showBeginJournallButton.value = journalWithQuestionsAndAnswers
+                .value.data?.journal?.mainQuestions?[0].answered ==
+            false;
         scrollToBottom();
         return true;
       },
@@ -90,10 +96,9 @@ class JournalChatController extends GetxController {
     String? mainQuestionId,
     String? followupQuestionId,
   ) async {
+    sendMessageState.value = TheStates.loading;
     _cancelToken = CancelToken();
     autoScrollEnabled.value = true;
-
-    // journalChatConversationState.value = TheStates.loading;
 
     try {
       final result = await remoteSource.sendMessage(
@@ -108,15 +113,10 @@ class JournalChatController extends GetxController {
 
       result.fold(
         (l) {
-          journalChatConversationState.value = TheStates.error;
+          sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) async {
-          // if (_shouldAutoScroll) {
-          //   scrollToBottom();
-          // }
-          journalChatConversationState.value = TheStates.success;
-
           chatConversationList
             ..clear()
             ..add(
@@ -132,13 +132,13 @@ class JournalChatController extends GetxController {
           await getJournalWithQuestionsAndAnswers();
           await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
-          isLoading.value = false;
+
+          sendMessageState.value = TheStates.success;
         },
       );
     } catch (e) {
       journalChatConversationState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: e.toString());
-      isLoading.value = false;
     }
   }
 
@@ -148,7 +148,7 @@ class JournalChatController extends GetxController {
         const extraPadding = 200.0;
         scrollController.animateTo(
           scrollController.position.maxScrollExtent + extraPadding,
-          duration: const Duration(milliseconds: 300),
+          duration: const Duration(milliseconds: 1),
           curve: Curves.easeOut,
         );
       });

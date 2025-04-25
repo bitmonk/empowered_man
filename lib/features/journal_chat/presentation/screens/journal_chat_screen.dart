@@ -23,7 +23,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
   late FocusNode focusNode;
   bool hasStartedJournaling = false;
-  bool showWidget = false;
+
   bool buttonPressed = false;
   String? currentMainQuestionId;
   String? currentFollowUpQuestionId;
@@ -42,6 +42,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   }
 
   void _initializeController() {
+    controller.chatController.clear();
     controller.getJournalWithQuestionsAndAnswers();
   }
 
@@ -263,10 +264,14 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             context: context,
             builder: (context) => JournalChatExitBottomsheet(
               controller: controller,
+              onPressed: () {
+                Get.back();
+              },
             ),
           );
           return false;
         } else {
+          Get.back();
           AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
           return false;
         }
@@ -317,7 +322,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                       // orElse: () => CustomErrorWidget(
                       //       onPressed: () {},
                       //     ),
-                      loading: () => const LoadingWidget(),
+                      // loading: () => const LoadingWidget(),
                       success: () {
                         final journal = controller
                             .journalWithQuestionsAndAnswers.value.data?.journal;
@@ -326,11 +331,11 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             child: CircularProgressIndicator(),
                           );
                         }
-                        if (controller.isLoading.value) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
+                        // if (controller.isLoading.value) {
+                        //   return const Center(
+                        //     child: CircularProgressIndicator(),
+                        //   );
+                        // }
                         var items = <MessageItem>[];
                         var shouldShowQuestion = true;
 
@@ -473,28 +478,27 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   return messageWidget;
                                 },
                               ),
-                              if (allQuestionsAnswered)
-                                if (!firstFollowUpAnswered && !showWidget)
-                                  // Show begin journaling button
-                                  Padding(
-                                    padding: const EdgeInsets.only(
-                                      top: 32,
-                                      left: 40,
-                                      right: 40,
-                                    ),
-                                    child: AppOutlinedButton(
-                                      text: 'Begin Journaling',
-                                      onPressed: () {
-                                        startJournaling();
-                                        setState(() {
-                                          showWidget = true;
-                                        });
-                                      },
-                                    ),
-                                  )
-                                else if (showWidget || firstFollowUpAnswered)
-                                  // Show follow-up questions
-                                  showFollowUpQuestions(),
+                              if (controller.showBeginJournallButton.value)
+                                Padding(
+                                  padding: const EdgeInsets.only(
+                                    top: 32,
+                                    left: 40,
+                                    right: 40,
+                                  ),
+                                  child: AppOutlinedButton(
+                                    text: 'Begin Journaling',
+                                    onPressed: () {
+                                      startJournaling();
+                                      setState(() {
+                                        controller.showBeginJournallButton
+                                            .value = false;
+                                      });
+                                    },
+                                  ),
+                                ),
+                              if (allQuestionsAnswered && firstFollowUpAnswered)
+                                // Show follow-up questions
+                                showFollowUpQuestions(),
                               const SizedBox(height: 60),
                               const SizedBox(
                                 height: 1,
@@ -541,52 +545,53 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                         isYesNoQuestion = question?.questionType == 'yes_no';
                       }
                     }
-
-                    if (journalCompleted == false && isYesNoQuestion == false) {
-                      return JournalChatInputField(
-                        focusNode: focusNode,
-                        journalId: journal?.id?.toString() ?? '',
-                        mainQuestionId: mainQuestionId,
-                        followupQuestionId: followupQuestionId,
-                        onMessageSent: () async {
-                          setState(() {
-                            _isSendingMessage = true;
-                          });
-                          // Force scroll to bottom whenever a message is sent
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                            controller.autoScrollEnabled.value = true;
-                            controller.scrollToBottom();
-                          });
-                          try {
-                            // Add your message locally first to show with loading indicator
-                            final newMessage = MessageItem(
-                              type: MessageType.answer,
-                              message: controller.chatController.text.trim(),
-                              timestamp: DateTime.now().toString(),
-                              isMine: true,
-                              isLoading: true,
-                            );
-                            await controller.sendMessage(
-                              journal?.id?.toString() ?? '',
-                              null, // mediaPath
-                              controller.chatController.text.trim(),
-                              mainQuestionId,
-                              followupQuestionId,
-                            );
-                          } finally {
-                            if (mounted) {
-                              setState(() {
-                                _isSendingMessage = false;
-                              });
+                    if (!controller.showBeginJournallButton.value) {
+                      if (journalCompleted == false &&
+                          isYesNoQuestion == false) {
+                        return JournalChatInputField(
+                          focusNode: focusNode,
+                          journalId: journal?.id?.toString() ?? '',
+                          mainQuestionId: mainQuestionId,
+                          followupQuestionId: followupQuestionId,
+                          onMessageSent: () async {
+                            setState(() {
+                              _isSendingMessage = true;
+                            });
+                            // Force scroll to bottom whenever a message is sent
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              controller.autoScrollEnabled.value = true;
+                              controller.scrollToBottom();
+                            });
+                            try {
+                              // Add your message locally first to show with loading indicator
+                              final newMessage = MessageItem(
+                                type: MessageType.answer,
+                                message: controller.chatController.text.trim(),
+                                timestamp: DateTime.now().toString(),
+                                isMine: true,
+                                isLoading: true,
+                              );
+                              await controller.sendMessage(
+                                journal?.id?.toString() ?? '',
+                                null, // mediaPath
+                                controller.chatController.text.trim(),
+                                mainQuestionId,
+                                followupQuestionId,
+                              );
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isSendingMessage = false;
+                                });
+                              }
                             }
-                          }
-                        },
-                      );
+                          },
+                        );
+                      } else {
+                        return const SizedBox.shrink();
+                      }
                     } else {
-                      return const SizedBox(
-                        height: 1,
-                        width: double.infinity,
-                      );
+                      return const SizedBox.shrink();
                     }
                   }),
               ],

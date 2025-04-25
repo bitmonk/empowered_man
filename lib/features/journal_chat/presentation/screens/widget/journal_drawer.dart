@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
@@ -189,6 +190,8 @@ class _JournalDrawerState extends State<JournalDrawer> {
         final journalChatController = Get.find<JournalChatController>();
         journalChatController.selectedEmotion.value = emotion;
         journalChatController.chatConversationList.clear();
+        journalChatController.journalWithQuestionsAndAnswers.value =
+            const ChatConversationModel();
         journalChatController.getJournalWithQuestionsAndAnswers();
         Get.to(
           () => const JournalChatScreen(),

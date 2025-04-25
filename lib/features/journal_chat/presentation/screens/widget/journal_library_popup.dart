@@ -250,13 +250,13 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         if (shouldDelete != true) return;
 
         final journalIds = <String>[];
-        final journals =
-            _controller.journalLibraryIndexModel.value.data?.userJournals;
-        if (journals != null) {
-          for (var i = 0; i < widget.selectedItems.length; i++) {
-            if (widget.selectedItems[i] && i < journals.length) {
-              journalIds.add(journals[i].id.toString());
-            }
+        final journals = widget.searchJournal
+            ? _controller.journalSearchList
+            : _controller.journalLibraryList;
+
+        for (var i = 0; i < widget.selectedItems.length; i++) {
+          if (widget.selectedItems[i] && i < journals.length) {
+            journalIds.add(journals[i].id.toString());
           }
         }
 
