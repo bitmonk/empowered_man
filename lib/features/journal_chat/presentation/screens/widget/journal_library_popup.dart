@@ -3,6 +3,7 @@ import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
+import 'package:path_provider/path_provider.dart';
 
 class JournalLibraryPopUp extends StatefulWidget {
   const JournalLibraryPopUp({
@@ -43,15 +44,18 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     final journalIds = <String>[];
     final journals =
         _controller.journalLibraryIndexModel.value.data?.userJournals;
+    print('Available journals count: ${journals?.length}');
     if (journals != null) {
       for (var i = 0; i < widget.selectedItems.length; i++) {
         if (widget.selectedItems[i] && i < journals.length) {
           journalIds.add(journals[i].id.toString());
+          print('Selected journal ID: ${journals[i].id}');
         }
       }
     }
 
     if (journalIds.isEmpty) {
+      print('No journal IDs found. Selected items: ${widget.selectedItems}');
       AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
       return;
     }
@@ -71,90 +75,114 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       Get.dialog(
         Material(
           color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.bgBorder,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Preparing ${userJournals.length} journals for export...',
-                      style: AppTextStyles.textBodyB3,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.bgBorder,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Preparing ${userJournals.length} journals for export...',
+                    style: AppTextStyles.textBodyB3,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
           ),
         ),
         barrierDismissible: false,
       );
+      final directory = await getApplicationDocumentsDirectory();
 
-      // Format data for PDF
-      var formattedData = '';
-      var fromToDate = '';
-      if (userJournals.isNotEmpty) {
-        formattedData = _formatJournalDataForPdf();
-        if (userJournals.length == 1 && userJournals.first.createdAt != null) {
-          fromToDate = userJournals.first.createdAt!;
-        } else {
-          final dates = userJournals
-              .where((j) => j.createdAt != null)
-              .map((j) => j.createdAt!)
-              .toList();
-          if (dates.isNotEmpty) {
-            dates.sort();
-            fromToDate = '${dates.first} - ${dates.last}';
-          } else {
-            fromToDate = 'Journal Export';
-          }
-        }
+      // Convert each journal to PDF content
+      final pdfContents = <String>[];
+      for (final journal in userJournals) {
+        pdfContents.add(_formatJournalDataForPdf());
       }
 
-      // Export the PDF with sharing enabled
-      await exportPdf(
-        context,
-        data: formattedData,
-        fromToDate: fromToDate,
-        shouldShare: shouldShare,
+      // Save files in batch
+      final savedFiles = await BatchFileManager.saveMultipleFiles(
+        pdfContents,
+        'journal_export',
+        directory,
       );
 
-      // Close the dialog after export is complete
-
+      // Close loading dialog
       if (Get.isDialogOpen ?? false) {
         Get.back();
       }
 
-      AppUtils.showSnackbar(message: 'Journals exported successfully');
-    } catch (e) {
-      // Close loading dialog if it was shown
+      if (savedFiles.isNotEmpty) {
+        AppUtils.showSnackbar(
+            message: '${savedFiles.length} journals exported successfully');
 
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
+        if (shouldShare) {
+          // Implement sharing logic here
+        }
+      } else {
+        AppUtils.showErrorSnackbar(message: 'No files were exported');
       }
 
-      print('Error sharing journals to PDF: $e');
-      AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
+      //   // Format data for PDF
+      //   var formattedData = '';
+      //   var fromToDate = '';
+      //   if (userJournals.isNotEmpty) {
+      //     formattedData = _formatJournalDataForPdf();
+      //     if (userJournals.length == 1 && userJournals.first.createdAt != null) {
+      //       fromToDate = userJournals.first.createdAt!;
+      //     } else {
+      //       final dates = userJournals
+      //           .where((j) => j.createdAt != null)
+      //           .map((j) => j.createdAt!)
+      //           .toList();
+      //       if (dates.isNotEmpty) {
+      //         dates.sort();
+      //         fromToDate = '${dates.first} - ${dates.last}';
+      //       } else {
+      //         fromToDate = 'Journal Export';
+      //       }
+      //     }
+      //   }
+
+      //   // Export the PDF with sharing enabled
+      //   await exportPdf(
+      //     context,
+      //     data: formattedData,
+      //     fromToDate: fromToDate,
+      //     shouldShare: shouldShare,
+      //   );
+
+      //   // Close the dialog after export is complete
+
+      //   if (Get.isDialogOpen ?? false) {
+      //     Get.back();
+      //   }
+
+      //   AppUtils.showSnackbar(message: 'Journals exported successfully');
+      // } catch (e) {
+      //   // Close loading dialog if it was shown
+
+      //   if (Get.isDialogOpen ?? false) {
+      //     Get.back();
+      //   }
+
+      //   print('Error sharing journals to PDF: $e');
+      //   AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
     } finally {
       // Always dismiss dialog in finally block to ensure it gets executed
 

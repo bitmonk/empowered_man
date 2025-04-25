@@ -37,57 +37,59 @@ Future<void> exportPdf(
     // Create a new PDF document for this emotion
     final pdf = pw.Document()
 
-    // Add cover page
-    ..addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
-          mainAxisAlignment: pw.MainAxisAlignment.center,
-          children: [
-            pw.Text(
-              'Journal Export: $emotionName',
-              style: pw.TextStyle(
-                fontSize: 24,
-                fontWeight: pw.FontWeight.bold,
+      // Add cover page
+      ..addPage(
+        pw.Page(
+          build: (pw.Context context) => pw.Column(
+            mainAxisAlignment: pw.MainAxisAlignment.center,
+            children: [
+              pw.Text(
+                'Journal Export: $emotionName',
+                style: pw.TextStyle(
+                  fontSize: 24,
+                  fontWeight: pw.FontWeight.bold,
+                ),
               ),
-            ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              fromToDate,
-              style: const pw.TextStyle(
-                fontSize: 16,
+              pw.SizedBox(height: 10),
+              pw.Text(
+                fromToDate,
+                style: const pw.TextStyle(
+                  fontSize: 16,
+                ),
               ),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              'Your Journal Entry',
-              style: pw.TextStyle(
-                fontSize: 18,
-                fontWeight: pw.FontWeight.bold,
+              pw.SizedBox(height: 20),
+              pw.Text(
+                'Your Journal Entry',
+                style: pw.TextStyle(
+                  fontSize: 18,
+                  fontWeight: pw.FontWeight.bold,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
-      ),
-    );
+      );
 
     // Create a multi-paragraph content section
-    final paragraphs = <pw.Widget>[pw.Text(
+    final paragraphs = <pw.Widget>[
+      pw.Text(
         emotionName,
         style: pw.TextStyle(
           fontSize: 18,
           fontWeight: pw.FontWeight.bold,
         ),
-      ), pw.SizedBox(height: 10), pw.Divider(
+      ),
+      pw.SizedBox(height: 10),
+      pw.Divider(
         thickness: 1,
         color: PdfColors.grey300,
-      ), pw.SizedBox(height: 10),]
+      ),
+      pw.SizedBox(height: 10),
+    ]
 
-    // Add emotion title
-    
+        // Add emotion title
 
-    
-    
-    ;
+        ;
 
     // Process Q&A pairs
     final qaBlocks = journalText
@@ -119,15 +121,16 @@ Future<void> exportPdf(
                 ? lines[j + 1].substring(3)
                 : lines[j + 1];
 
-            paragraphs..add(pw.SizedBox(height: 4))
-            ..add(
-              pw.Text(
-                answer,
-                style: const pw.TextStyle(
-                  fontSize: 12,
+            paragraphs
+              ..add(pw.SizedBox(height: 4))
+              ..add(
+                pw.Text(
+                  answer,
+                  style: const pw.TextStyle(
+                    fontSize: 12,
+                  ),
                 ),
-              ),
-            );
+              );
           }
 
           paragraphs.add(pw.SizedBox(height: 8));
@@ -178,13 +181,16 @@ Future<void> exportPdf(
   if (shouldShare) {
     if (pdfFiles.length == 1) {
       // Share single PDF
-      await Share.shareXFiles([XFile(pdfFiles.first.path)],
-          text: 'Here is your ${emotionNames.first} journal export.',);
+      await Share.shareXFiles(
+        [XFile(pdfFiles.first.path)],
+        text: 'Here is your ${emotionNames.first} journal export.',
+      );
     } else {
       // Share multiple PDFs
-      await Share.shareXFiles(pdfFiles.map((file) => XFile(file.path)).toList(),
-          text:
-              'Here are your journal exports for ${emotionNames.join(", ")}.',);
+      await Share.shareXFiles(
+        pdfFiles.map((file) => XFile(file.path)).toList(),
+        text: 'Here are your journal exports for ${emotionNames.join(", ")}.',
+      );
     }
   } else {
     try {
@@ -209,39 +215,30 @@ Future<void> exportPdf(
   }
 }
 
-// New helper method to build journal entry content
-// pw.Widget _buildJournalEntryContent(
-//   pw.Context context,
-//   String title,
-//   String content,
-// ) {
-//   return pw.Column(
-//     crossAxisAlignment: pw.CrossAxisAlignment.start,
-//     children: [
-//       // Title section
-//       pw.Text(
-//         title,
-//         style: pw.TextStyle(
-//           fontSize: 16,
-//           fontWeight: pw.FontWeight.bold,
-//         ),
-//       ),
-//       pw.SizedBox(height: 10),
+class BatchFileManager {
+  static Future<List<File>> saveMultipleFiles(
+    List<String> fileContents,
+    String baseFileName,
+    Directory directory,
+  ) async {
+    final List<File> savedFiles = [];
 
-//       // Content section with proper spacing
-//       pw.Text(
-//         content,
-//         style: const pw.TextStyle(
-//           fontSize: 12,
-//         ),
-//         textAlign: pw.TextAlign.justify,
-//       ),
+    for (int i = 0; i < fileContents.length; i++) {
+      final fileName = '${baseFileName}_${i + 1}.pdf';
+      final filePath = '${directory.path}/$fileName';
 
-//       // Spacer to ensure consistent spacing
-//       pw.SizedBox(height: 40),
-//     ],
-//   );
-// }
+      try {
+        final file = File(filePath);
+        await file.writeAsString(fileContents[i]);
+        savedFiles.add(file);
+      } catch (e) {
+        print('Error saving file $fileName: $e');
+      }
+    }
+
+    return savedFiles;
+  }
+}
 
 class Utils {
   MimeType getMimeType(String ext) {

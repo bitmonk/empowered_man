@@ -1,6 +1,7 @@
 import 'package:dropdown_button2/dropdown_button2.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_search_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_library_popup.dart';
@@ -356,7 +357,13 @@ class _JournalLibraryState extends State<JournalLibrary> {
 
     // Safely get the first question
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
-        ? journal.journal!.mainQuestions!.first.question
+        ? journal.journal!.mainQuestions!
+                .firstWhere(
+                  (question) => question.keywords?.contains('title') ?? false,
+                  orElse: () => MainQuestion(keywords: 'N/A'),
+                )
+                .keywords ??
+            'N/A'
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
     var formattedTime =
