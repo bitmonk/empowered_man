@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/push_notification/firebase_notification_service.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
@@ -7,11 +9,13 @@ import 'package:empowered/features/habits/presentation/controllers/habit_binding
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_drawer.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
+import 'package:flutter/services.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 class MainScreen extends StatefulWidget {
@@ -70,11 +74,17 @@ class _MainScreenState extends State<MainScreen>
 
         final currentIndex = AppWidgetKey.bottomBarController.index;
         if (currentIndex > 0) {
-          AppWidgetKey.bottomBarController.jumpToTab(currentIndex - 1);
+          AppWidgetKey.bottomBarController.jumpToPreviousTab();
           return false;
         }
 
-        return true;
+        if (Platform.isAndroid) {
+          SystemNavigator.pop(); // For Android
+        } else if (Platform.isIOS) {
+          exit(0); // Force exit on iOS (not recommended by Apple)
+        }
+
+        return false;
       },
       child: Scaffold(
         key: AppWidgetKey.mainScaffold,
@@ -85,6 +95,8 @@ class _MainScreenState extends State<MainScreen>
           backgroundColor: AppColors.bgMedium,
           child: const MainDrawer(),
         ),
+        endDrawer: const JournalDrawer(),
+        endDrawerEnableOpenDragGesture: false,
         body: SafeArea(
           top: false,
           bottom: false,

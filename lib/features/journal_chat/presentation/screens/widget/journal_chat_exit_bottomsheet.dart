@@ -2,8 +2,13 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 
 class JournalChatExitBottomsheet extends StatelessWidget {
-  const JournalChatExitBottomsheet({required this.controller, super.key});
+  const JournalChatExitBottomsheet({
+    required this.controller,
+    super.key,
+    this.onPressed,
+  });
   final JournalChatController controller;
+  final Function()? onPressed;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -57,10 +62,10 @@ class JournalChatExitBottomsheet extends StatelessWidget {
               // isLoading:
               //     controller.chatController.value == TheStates.loading,
               onPressed: () {
+                onPressed?.call();
                 Navigator.pop(context);
-                AppWidgetKey.journalKey.currentState?.openDrawer();
+                AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
               },
-              
             ),
             const VerticalSpacing(16),
             AppOutlinedButton.withOutlined(

@@ -1,6 +1,9 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 
 class JournalDrawer extends StatefulWidget {
@@ -155,7 +158,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
               (emotion) => _buildMenuItem(
                 emotion.emotionName ?? '',
                 context,
-                emotionId: emotion.id.toString(),
+                emotion: emotion,
               ),
             )
             .toList(),
@@ -178,22 +181,21 @@ class _JournalDrawerState extends State<JournalDrawer> {
   Widget _buildMenuItem(
     String title,
     BuildContext context, {
-    String? emotionId,
+    EmotionName? emotion,
   }) {
     return InkWell(
       onTap: () async {
-        print(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Selected emotion ID: $emotionId',
-        );
         Navigator.pop(context);
 
         final journalChatController = Get.find<JournalChatController>();
-         journalChatController.selectedEmotionId.value = emotionId;
+        journalChatController.selectedEmotion.value = emotion;
         journalChatController.chatConversationList.clear();
-       
-
-        await journalChatController
-            .getJournalWithQuestionsAndAnswers();
+        journalChatController.journalWithQuestionsAndAnswers.value =
+            const ChatConversationModel();
+        journalChatController.getJournalWithQuestionsAndAnswers();
+        Get.to(
+          () => const JournalChatScreen(),
+        );
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 12),

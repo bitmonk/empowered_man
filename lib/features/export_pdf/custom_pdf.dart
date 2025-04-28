@@ -215,30 +215,30 @@ Future<void> exportPdf(
   }
 }
 
-class BatchFileManager {
-  static Future<List<File>> saveMultipleFiles(
-    List<String> fileContents,
-    String baseFileName,
-    Directory directory,
-  ) async {
-    final List<File> savedFiles = [];
+// class BatchFileManager {
+//   static Future<List<File>> saveMultipleFiles(
+//     List<String> fileContents,
+//     String baseFileName,
+//     Directory directory,
+//   ) async {
+//     final List<File> savedFiles = [];
 
-    for (int i = 0; i < fileContents.length; i++) {
-      final fileName = '${baseFileName}_${i + 1}.pdf';
-      final filePath = '${directory.path}/$fileName';
+//     for (int i = 0; i < fileContents.length; i++) {
+//       final fileName = '${baseFileName}_${i + 1}.pdf';
+//       final filePath = '${directory.path}/$fileName';
 
-      try {
-        final file = File(filePath);
-        await file.writeAsString(fileContents[i]);
-        savedFiles.add(file);
-      } catch (e) {
-        print('Error saving file $fileName: $e');
-      }
-    }
+//       try {
+//         final file = File(filePath);
+//         await file.writeAsString(fileContents[i]);
+//         savedFiles.add(file);
+//       } catch (e) {
+//         print('Error saving file $fileName: $e');
+//       }
+//     }
 
-    return savedFiles;
-  }
-}
+//     return savedFiles;
+//   }
+// }
 
 class Utils {
   MimeType getMimeType(String ext) {

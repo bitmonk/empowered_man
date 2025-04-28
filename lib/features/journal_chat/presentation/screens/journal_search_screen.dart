@@ -179,7 +179,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                                 mainQuestion: searchController.text,
                               );
                               print(
-                                  '#################################################>>>>>>>>>>>>>>>>>>>>>>>>result $result');
+                                  '#################################################>>>>>>>>>>>>>>>>>>>>>>>>result $result',);
                             },
                           )
                         : Expanded(
@@ -281,7 +281,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
     final journals = _controller.journalSearchList;
 
     // Return empty row if index is out of bounds
-    if (journals == null || index >= journals.length) {
+    if (index >= journals.length) {
       return TableRow(
         children: [
           _tableCell(''),

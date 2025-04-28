@@ -18,6 +18,7 @@ dependencies:
   cupertino_icons: ^1.0.8
   custom_refresh_indicator: ^4.0.1
   dartz: ^0.10.1
+  device_info_plus: ^11.3.0
   dio: ^5.4.3+1
   dotted_border: ^2.1.0
   dropdown_button2: ^2.3.9

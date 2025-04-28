@@ -3,10 +3,8 @@ import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
-import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
 import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
@@ -144,14 +142,15 @@ class MainDrawer extends GetView<MainController> {
                           // Hide loading dialog before navigation
                           //  AppUtils.hideLoadingDialog(context);
 
-                          await Get.to(
-                            () => JournalChatScreen(
-                                //    initialEmotionId: emotionId,
-                                ),
-                          );
+                          // await Get.to(
+                          //   () => const JournalChatScreen(
+                          //       //    initialEmotionId: emotionId,
+                          //       ),
+                          // );
 
-                          await Future.delayed(Durations.short4);
-                          AppWidgetKey.journalKey.currentState?.openDrawer();
+                          // await Future.delayed(Durations.short4);
+                          AppWidgetKey.mainScaffold.currentState
+                              ?.openEndDrawer();
                         } finally {
                           // This ensures the dialog is hidden even if an error occurs
                           AppUtils.hideLoadingDialog(context);

@@ -29,32 +29,3 @@ class DrawerHeaderWithBack extends StatelessWidget {
     );
   }
 }
-
-class JournalHeader extends StatelessWidget {
-  const JournalHeader({required this.title, super.key, this.onDrawerTap});
-  final String title;
-  final void Function()? onDrawerTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        InkWell(
-          onTap: () {
-            Get.back();
-          },
-          child: const Icon(Icons.arrow_back, color: Colors.white),
-        ),
-        Text(
-          title,
-          style: AppTextStyles.textHeadingH3,
-        ),
-        InkWell(
-          onTap: onDrawerTap,
-          child: Assets.images.menu.svg(width: 32),
-        ),
-      ],
-    );
-  }
-}
