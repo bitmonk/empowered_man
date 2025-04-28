@@ -20,7 +20,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
         title: 'Assessments',
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8)
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8)
             .copyWith(bottom: context.devicePaddingBottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,25 +38,28 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
             const VerticalSpacing(12),
 
             // Tabs
-            Row(
-              children: [
-                _buildTab(
-                  'Assessments',
-                  isSelected: _selectedTabIndex == 0,
-                  index: 0,
-                ),
-                const SizedBox(width: 8),
-                _buildTab(
-                  'History',
-                  isSelected: _selectedTabIndex == 1,
-                  index: 1,
-                ),
-                const Spacer(),
-                if (_selectedTabIndex == 1)
-                  const AssesmentPopUp()
-                else
-                  const VerticalSpacing(50),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: Row(
+                children: [
+                  _buildTab(
+                    'Assessments',
+                    isSelected: _selectedTabIndex == 0,
+                    index: 0,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildTab(
+                    'History',
+                    isSelected: _selectedTabIndex == 1,
+                    index: 1,
+                  ),
+                  const Spacer(),
+                  if (_selectedTabIndex == 1)
+                    const AssesmentPopUp()
+                  else
+                    const VerticalSpacing(35),
+                ],
+              ),
             ),
             const VerticalSpacing(18),
 
