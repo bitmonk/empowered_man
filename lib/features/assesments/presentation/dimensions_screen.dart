@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/assesments/widgets/navigation_buttons.dart';
+import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
 
 class DimensionScreen extends StatefulWidget {
   // Track current dimension

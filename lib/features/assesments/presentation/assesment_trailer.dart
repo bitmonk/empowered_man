@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/assesments/dimensions_screen.dart';
+import 'package:empowered/features/assesments/presentation/dimensions_screen.dart';
 import 'package:flutter/services.dart';
 
 class AssesmentTrailer extends StatelessWidget {

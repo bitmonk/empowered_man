@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/assesments/widgets/assesment_card.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_card.dart';
 
 class AssessmentSummary extends StatelessWidget {
   const AssessmentSummary({super.key});

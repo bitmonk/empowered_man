@@ -34,6 +34,10 @@ class AppEndpoints {
   static const String getTaskEnums = '/tasks/enums';
   static String changeLevel(String taskId) => '/tasks/$taskId/change-level';
 
+  //assessment api
+  static const String getAssessmentsUrl ='/user/assessments';
+  
+
   // Journal Api
   static const String getJournalEmotionName = '/journals/emotion-names';
   static const String getJournalWithQuestionsAndAnswers = '/journals/';
