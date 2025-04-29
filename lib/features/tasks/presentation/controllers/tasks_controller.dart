@@ -13,8 +13,38 @@ class TasksController extends GetxController {
 
   late Rx<DateTime> toDate;
 
-  RxList<String> taskCategoryTitle =
-      ['Hit List', 'Mit List', 'Do List', 'Achieved List', 'Done List'].obs;
+  RxList<String> taskCategoryTitle = <String>[].obs;
+  List<String> getTaskCategoryTitle(String level) {
+    var level0 = level.toLowerCase();
+
+    // Forward mapping
+    final forward = <String, List<String>>{
+      'hit list': ['Mit List', 'Do List'],
+      'mit list': ['Achieved List'],
+      'do list': ['Done List'],
+    };
+
+    // Reverse mapping
+    final reverse = <String, List<String>>{
+      'mit list': ['Hit List'],
+      'do list': ['Hit List'],
+      'achieved list': ['Mit List'],
+      'done list': ['Do List'],
+    };
+
+    // Combine both forward and reverse
+    var combined = <String>[
+      ...(forward[level0] ?? []),
+      ...(reverse[level0] ?? []),
+    ];
+
+    if (combined.isEmpty) {
+      taskCategoryTitle.clear();
+    } else {
+      taskCategoryTitle.assignAll(combined);
+    }
+    return taskCategoryTitle;
+  }
 
   RxList<String> levelList = <String>[].obs;
   RxList<String> completionStatusList = <String>[].obs;
@@ -72,11 +102,12 @@ class TasksController extends GetxController {
   Rx<TheStates> addTaskState = TheStates.initial.obs;
   Rx<TheStates> getTaskState = TheStates.initial.obs;
   Rx<TheStates> delTaskState = TheStates.initial.obs;
-  Rx<TheStates> changeTaskLevelState = TheStates.initial.obs;
+  // Rx<TheStates> changeTaskLevelState = TheStates.initial.obs;
   // Rx<TheStates> markMainTaskCompletedState = TheStates.initial.obs;
   // Rx<TheStates> mmarkSubTaskCompletedState = TheStates.initial.obs;
   RxSet<int> markingMainTaskIds = <int>{}.obs;
   RxSet<int> markingSubTaskIds = <int>{}.obs;
+  RxSet<int> changingTaskIds = <int>{}.obs;
 
   Future<void> getTaskEnums() async {
     getTaskEnumState.value = TheStates.loading;
@@ -136,7 +167,10 @@ class TasksController extends GetxController {
     addTaskState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.addTask(
-        body: body, cancelToken: _cancelToken, id: id,);
+      body: body,
+      cancelToken: _cancelToken,
+      id: id,
+    );
     result.fold(
       (l) {
         addTaskState.value = TheStates.error;
@@ -176,22 +210,35 @@ class TasksController extends GetxController {
 
   Future<void> changeTaskLevel({
     required String taskId,
+    String? level,
+    String? completionStatus,
   }) async {
-    changeTaskLevelState.value = TheStates.loading;
+    // changeTaskLevelState.value = TheStates.loading;
+    final id = int.tryParse(taskId);
+    if (id == null) return;
+    changingTaskIds.add(id);
     _cancelToken = CancelToken();
-    final result = await remoteSource.changeTaskLevel(
-      taskId: taskId,
-      cancelToken: _cancelToken,
-    );
-    result.fold(
-      (l) {
-        changeTaskLevelState.value = TheStates.error;
-        AppUtils.showErrorSnackbar(message: l.message);
-      },
-      (r) {
-        changeTaskLevelState.value = TheStates.success;
-      },
-    );
+    try {
+      final result = await remoteSource.changeTaskLevel(
+        taskId: taskId,
+        completionStatus: completionStatus,
+        level: level,
+        cancelToken: _cancelToken,
+      );
+      result.fold(
+        (l) {
+          // changeTaskLevelState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          // changeTaskLevelState.value = TheStates.success;
+          AppUtils.showErrorSnackbar(message: r);
+          getTask();
+        },
+      );
+    } finally {
+      changingTaskIds.remove(id);
+    }
   }
 
   Future<void> markMainTaskCompleted({

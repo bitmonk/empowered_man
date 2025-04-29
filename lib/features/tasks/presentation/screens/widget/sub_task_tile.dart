@@ -7,7 +7,7 @@ import 'package:empowered/features/tasks/presentation/screens/widget/priority_co
 class SubTaskTile extends StatefulWidget {
   const SubTaskTile({required this.subtask, required this.mainTask, super.key});
   final Task mainTask;
-  final Task subtask;
+  final SubTask subtask;
   @override
   State<SubTaskTile> createState() => _SubTaskTileState();
 }

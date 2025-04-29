@@ -17,6 +17,7 @@ class AddNewTaskScreen extends StatefulWidget {
 }
 
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
+  TextEditingController titleController = TextEditingController();
   TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   List<TextEditingController> subtaskControllers = [];
@@ -33,8 +34,9 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   void _initVal() {
     if (widget.task != null) {
       setState(() {
+        titleController = TextEditingController(text: widget.task?.title ?? '');
         descriptionController =
-            TextEditingController(text: widget.task?.title ?? '');
+            TextEditingController(text: widget.task?.description ?? '');
         dateController = TextEditingController(
           text: DateFormat('yyyy-MM-dd').format(widget.task!.dueDate!),
         );
@@ -47,7 +49,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           });
         }
         addTaskRequestModel
-          ..title = descriptionController.text
+          ..title = titleController.text
+          ..description = descriptionController.text
           ..level = widget.task?.level
           ..priority = widget.task?.priority
           ..dueDate = dateController.text
@@ -65,6 +68,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   @override
   void dispose() {
     descriptionController.dispose();
+    titleController.dispose();
     dateController.dispose();
     for (final controller in subtaskControllers) {
       controller.dispose();
@@ -95,11 +99,21 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                 AppTextFormField(
                   enabledBorderSide:
                       const BorderSide(color: AppColors.color354451),
+                  labelText: 'Title',
+                  controller: titleController,
+                  validator: ValidationBuilder().required().build(),
+                  onChanged: (v) {
+                    addTaskRequestModel.title = v;
+                  },
+                ),
+                AppTextFormField(
+                  enabledBorderSide:
+                      const BorderSide(color: AppColors.color354451),
                   labelText: 'Description',
                   controller: descriptionController,
                   validator: ValidationBuilder().required().build(),
                   onChanged: (v) {
-                    addTaskRequestModel.title = v;
+                    addTaskRequestModel.description = v;
                   },
                 ),
                 const SizedBox(height: 16),
@@ -271,9 +285,11 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                                 .where((text) => text.isNotEmpty)
                                 .toList();
                           });
+
                           controller.addTask(
-                              body: addTaskRequestModel,
-                              id: widget.task?.id?.toString(),);
+                            body: addTaskRequestModel,
+                            id: widget.task?.id?.toString(),
+                          );
                         },
                       ),
                     ),
@@ -291,7 +307,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                           }
                           if (widget.task != null) {
                             controller.deleteTask(
-                                taskId: widget.task!.id.toString(),);
+                              taskId: widget.task!.id.toString(),
+                            );
                           } else {
                             Navigator.pop(context);
                           }

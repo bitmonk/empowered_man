@@ -105,7 +105,7 @@ _$TaskImpl _$$TaskImplFromJson(Map<String, dynamic> json) => _$TaskImpl(
       level: json['level'] as String?,
       notes: json['notes'] as String?,
       subTasks: (json['sub_tasks'] as List<dynamic>?)
-          ?.map((e) => Task.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => SubTask.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
@@ -122,4 +122,32 @@ Map<String, dynamic> _$$TaskImplToJson(_$TaskImpl instance) =>
       'level': instance.level,
       'notes': instance.notes,
       'sub_tasks': instance.subTasks,
+    };
+
+_$SubTaskImpl _$$SubTaskImplFromJson(Map<String, dynamic> json) =>
+    _$SubTaskImpl(
+      id: (json['id'] as num?)?.toInt(),
+      title: json['title'] as String?,
+      description: json['description'] as String?,
+      status: json['status'] as String?,
+      userId: (json['user_id'] as num?)?.toInt(),
+      dueDate: json['due_date'] == null
+          ? null
+          : DateTime.parse(json['due_date'] as String),
+      priority: json['priority'] as String?,
+      level: json['level'] as String?,
+      notes: json['notes'] as String?,
+    );
+
+Map<String, dynamic> _$$SubTaskImplToJson(_$SubTaskImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'title': instance.title,
+      'description': instance.description,
+      'status': instance.status,
+      'user_id': instance.userId,
+      'due_date': instance.dueDate?.toIso8601String(),
+      'priority': instance.priority,
+      'level': instance.level,
+      'notes': instance.notes,
     };

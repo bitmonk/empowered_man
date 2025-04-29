@@ -61,7 +61,9 @@ class _TaskTileState extends State<TaskTile> {
                               context: context,
                               builder: (context) => Transform.translate(
                                 offset: const Offset(-60, 0),
-                                child: TaskMenuDialog(task: widget.task),
+                                child: TaskMenuDialog(
+                                    task: widget.task,
+                                    currentLevel: widget.task.level.toString(),),
                               ),
                             );
                           },

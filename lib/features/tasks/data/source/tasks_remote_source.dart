@@ -90,11 +90,17 @@ class TasksRemoteSource {
 
   Future<Either<AppError, String>> changeTaskLevel({
     required String taskId,
+    String? level,
+    String? completionStatus,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.patch(
         AppEndpoints.changeLevel(taskId),
+        body: {
+          'level': level ?? '',
+          'completion_status': completionStatus ?? '',
+        },
         cancelToken: cancelToken,
       );
       return right(response['message']);

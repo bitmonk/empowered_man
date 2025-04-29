@@ -17,9 +17,15 @@ class TaskList extends GetView<TasksController> {
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: list?.length,
-      itemBuilder: (context, i) => TaskTile(
-        task: list![i],
-      ),
+      itemBuilder: (context, i) {
+        if (controller.changingTaskIds.contains(list![i].id)) {
+          return const LoadingWidget();
+        } else {
+          return TaskTile(
+            task: list![i],
+          );
+        }
+      },
     );
   }
 }

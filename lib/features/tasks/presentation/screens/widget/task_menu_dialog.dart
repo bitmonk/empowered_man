@@ -6,10 +6,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class TaskMenuDialog extends GetView<TasksController> {
   const TaskMenuDialog({
-    required this.task, super.key,
+    required this.task,
+    required this.currentLevel,
+    super.key,
   });
   final Task task;
-
+  final String currentLevel;
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -53,14 +55,37 @@ class TaskMenuDialog extends GetView<TasksController> {
               Expanded(
                 child: ListView.builder(
                   physics: const NeverScrollableScrollPhysics(),
-                  itemCount: controller.taskCategoryTitle.length,
+                  itemCount:
+                      controller.getTaskCategoryTitle(currentLevel).length,
                   itemBuilder: (context, index) {
+                    final label =
+                        controller.getTaskCategoryTitle(currentLevel)[index];
                     return InkWell(
                       customBorder: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(20),
                       ),
                       onTap: () {
                         Navigator.pop(context);
+                        controller.changeTaskLevel(
+                          taskId: task.id.toString(),
+                          level: controller.levelList
+                                  .where((e) =>
+                                      e.toLowerCase() == label.toLowerCase(),)
+                                  .isNotEmpty
+                              ? controller.levelList.firstWhere((e) =>
+                                  e.toLowerCase() == label.toLowerCase(),)
+                              : null,
+                          completionStatus: controller.completionStatusList
+                                  .where((e) => label
+                                      .toLowerCase()
+                                      .contains(e.toLowerCase()),)
+                                  .isNotEmpty
+                              ? controller.completionStatusList.firstWhere(
+                                  (e) => label
+                                      .toLowerCase()
+                                      .contains(e.toLowerCase()),)
+                              : null,
+                        );
                       },
                       child: Padding(
                         padding: const EdgeInsets.symmetric(
