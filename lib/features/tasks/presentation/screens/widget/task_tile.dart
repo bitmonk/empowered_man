@@ -5,6 +5,7 @@ import 'package:empowered/features/tasks/presentation/controllers/tasks_controll
 import 'package:empowered/features/tasks/presentation/screens/widget/priority_color.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/sub_task_list.dart';
 import 'package:empowered/features/tasks/presentation/screens/widget/task_menu_dialog.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
 
 class TaskTile extends StatefulWidget {
@@ -149,7 +150,8 @@ class _TaskTileState extends State<TaskTile> {
                                   return;
                                 }
                                 controller.markMainTaskCompleted(
-                                    taskId: widget.task.id.toString(),);
+                                  taskId: widget.task.id.toString(),
+                                );
                               },
                               child: widget.task.status == 'completed'
                                   ? Assets.images.tickCircle.svg()
@@ -191,9 +193,9 @@ class _TaskTileState extends State<TaskTile> {
                                   style: AppTextStyles.textBodyB1,
                                 ),
                                 const VerticalSpacing(12),
-                                Text(
+                                HtmlWidget(
                                   widget.task.notes ?? '',
-                                  style: const TextStyle(
+                                  textStyle: const TextStyle(
                                     color: AppColors.textColor100,
                                   ),
                                 ),
