@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
+import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
@@ -166,7 +167,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   // If not in main questions, check follow-up questions
                   if (mainQuestion != null) {
                     questionId = mainQuestion.id?.toString() ?? '';
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
+                    // print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   } else {
                     FollowUpQuestion? followUpQuestion;
                     try {
@@ -179,7 +180,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                       followUpQuestion = null;
                     }
                     questionId = followUpQuestion?.id?.toString() ?? '';
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
+                    // print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   }
 
                   if (questionId.isNotEmpty) {
@@ -306,11 +307,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           child: Obx(
             () => Column(
               children: [
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //       horizontal: 16, vertical: 20),
-                //   child:
-                // ),
                 if (controller.selectedEmotion.value == null)
                   const CustomErrorWidget(
                     error: 'Not found',
@@ -319,10 +315,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   Expanded(
                     child: controller.journalChatConversationState.value
                         .showWidget(
-                      // orElse: () => CustomErrorWidget(
-                      //       onPressed: () {},
-                      //     ),
-                      // loading: () => const LoadingWidget(),
                       success: () {
                         final journal = controller
                             .journalWithQuestionsAndAnswers.value.data?.journal;
@@ -331,11 +323,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             child: CircularProgressIndicator(),
                           );
                         }
-                        // if (controller.isLoading.value) {
-                        //   return const Center(
-                        //     child: CircularProgressIndicator(),
-                        //   );
-                        // }
+
                         var items = <MessageItem>[];
                         var shouldShowQuestion = true;
 
@@ -564,13 +552,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             });
                             try {
                               // Add your message locally first to show with loading indicator
-                              final newMessage = MessageItem(
-                                type: MessageType.answer,
-                                message: controller.chatController.text.trim(),
-                                timestamp: DateTime.now().toString(),
-                                isMine: true,
-                                isLoading: true,
-                              );
                               await controller.sendMessage(
                                 journal?.id?.toString() ?? '',
                                 null, // mediaPath
@@ -602,34 +583,3 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     );
   }
 }
-
-class MessageItem {
-  MessageItem({
-    required this.type,
-    required this.message,
-    required this.isMine,
-    this.timestamp,
-    this.images,
-    this.videos,
-    this.voices,
-    this.isLoading = false,
-    this.isYesNoQuestion = false,
-    this.selectedOption,
-    this.questionId,
-    this.answered = false,
-  });
-  final MessageType type;
-  final String message;
-  final String? timestamp;
-  final bool isMine;
-  final List<String>? images;
-  final List<String>? videos;
-  final List<String>? voices;
-  final bool isLoading;
-  final bool isYesNoQuestion;
-  final String? selectedOption;
-  final String? questionId;
-  final bool answered;
-}
-
-enum MessageType { question, answer, option }

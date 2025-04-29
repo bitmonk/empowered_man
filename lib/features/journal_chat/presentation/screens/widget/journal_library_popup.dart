@@ -3,10 +3,9 @@ import 'dart:io';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_pdf.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:share_plus/share_plus.dart';
 
@@ -32,427 +31,152 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
   @override
   void initState() {
     super.initState();
-
-    _initializeData();
   }
 
   // Add this as a class member variable
 
   Future<void> _exportSelectedJournalsToPdf(bool shouldShare) async {
-  final selectedCount = widget.selectedItems.where((item) => item).length;
-  if (selectedCount == 0) {
-    AppUtils.showErrorSnackbar(message: 'No journals selected for export');
-    return;
-  }
-
-  // Show loading indicator right away
-  Get.dialog(
-    Material(
-      color: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.all(40),
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.bgBorder,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  spreadRadius: 2,
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  strokeWidth: 3,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Preparing journals for download...',
-                  style: AppTextStyles.textBodyB3,
-                  textAlign: TextAlign.center,
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    ),
-    barrierDismissible: false,
-  );
-
-  try {
-    // Get selected journal data
-    final journalIds = <String>[];
-    final journals = widget.searchJournal
-        ? _controller.journalSearchList
-        : _controller.journalLibraryList;
-
-    for (var i = 0; i < widget.selectedItems.length; i++) {
-      if (widget.selectedItems[i] && i < journals.length) {
-        journalIds.add(journals[i].id.toString());
-      }
-    }
-
-    if (journalIds.isEmpty) {
-      // Close loading dialog
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
-      AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
+    final selectedCount = widget.selectedItems.where((item) => item).length;
+    if (selectedCount == 0) {
+      AppUtils.showErrorSnackbar(message: 'No journals selected for export');
       return;
     }
 
-    // Get journal data for PDF
-    await _controller.getBulkSeeJournal(journalIds);
-    final userJournals = _controller.userJournalResponse.value.data?.userJournals;
-
-    if (userJournals == null || userJournals.isEmpty) {
-      // Close loading dialog
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
-      AppUtils.showErrorSnackbar(message: 'No journal data available');
-      return;
-    }
-
-    // Update loading message
-    if (Get.isDialogOpen ?? false) {
-      Get.back(); // Close current dialog
-      Get.dialog(
-        Material(
-          color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.bgBorder,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Generating PDF for ${userJournals.length} journals...',
-                      style: AppTextStyles.textBodyB3,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        barrierDismissible: false,
-      );
-    }
-
-    // Request storage permission - simplified approach without device info
-    var status = await Permission.storage.request();
-    
-    if (!status.isGranted) {
-      // Close loading dialog
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
-      AppUtils.showErrorSnackbar(
-        message: 'Storage permission is required to download journals',
-      );
-      return;
-    }
-
-    // Prepare directory
-    Directory directory;
+    // _showLoadingDialog('Preparing journals for download...');
     try {
-      if (Platform.isAndroid) {
-        // First try documents directory
-        directory = await getApplicationDocumentsDirectory();
+      final journals = widget.searchJournal
+          ? _controller.journalSearchList
+          : _controller.journalLibraryList;
+
+      final journalIds = [
+        for (int i = 0;
+            i < widget.selectedItems.length && i < journals.length;
+            i++)
+          if (widget.selectedItems[i]) journals[i].id.toString(),
+      ];
+
+      if (journalIds.isEmpty) {
+        _closeDialogIfOpen();
+        AppUtils.showErrorSnackbar(
+            message: 'No valid journals found for export',);
+        return;
+      }
+
+      // Get journal data for PDF
+      await _controller.getBulkSeeJournal(journalIds);
+      final userJournals =
+          _controller.userJournalResponse.value.data?.userJournals;
+
+      if (userJournals == null || userJournals.isEmpty) {
+        _closeDialogIfOpen();
+        AppUtils.showErrorSnackbar(message: 'No journal data available');
+        return;
+      }
+
+      _showLoadingDialog(
+          'Generating PDF for ${userJournals.length} journals...',);
+
+      var status = await Permission.storage.request();
+
+      if (!status.isGranted) {
+        _closeDialogIfOpen();
+        AppUtils.showErrorSnackbar(
+          message: 'Storage permission is required to download journals',
+        );
+        return;
+      }
+
+      // Prepare directory
+      final directory = await _getStorageDirectory();
+      final pdf = JournalPdf().buildPdf(userJournals);
+
+      final fileName =
+          'journals_export_${DateTime.now().millisecondsSinceEpoch}.pdf';
+      final file = File('${directory.path}/$fileName');
+
+      await file.writeAsBytes(await pdf.save());
+
+      _closeDialogIfOpen();
+
+      if (shouldShare && await canShare(file.path)) {
+        await Share.shareXFiles([XFile(file.path)], text: 'My Journal Export');
       } else {
-        // For iOS
-        directory = await getApplicationDocumentsDirectory();
+        AppUtils.showSnackbar(message: 'Journal successfully saved!');
       }
     } catch (e) {
-      // Fallback to temporary directory if documents fails
-      directory = await getTemporaryDirectory();
+      // Close loading dialog if it was shown
+      _closeDialogIfOpen();
+      AppUtils.showErrorSnackbar(
+        message: 'Failed to download journals. Please try again.',
+      );
+    } finally {
+      _closeDialogIfOpen();
     }
+  }
 
-    // Create a single PDF for all journals
-    final pdf = pw.Document();
-    
-    // Add cover page
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) => pw.Column(
-          mainAxisAlignment: pw.MainAxisAlignment.center,
-          children: [
-            pw.Text(
-              'Journal Export',
-              style: pw.TextStyle(
-                fontSize: 24,
-                fontWeight: pw.FontWeight.bold,
+  void _showLoadingDialog(String message) {
+    Get.dialog(
+      Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.bgBorder,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(strokeWidth: 3),
+                  const SizedBox(height: 16),
+                  Text(
+                    message,
+                    style: AppTextStyles.textBodyB3,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
               ),
             ),
-            pw.SizedBox(height: 10),
-            pw.Text(
-              'Date: ${DateTime.now().toLocal().toString().split(' ')[0]}',
-              style: const pw.TextStyle(
-                fontSize: 16,
-              ),
-            ),
-            pw.SizedBox(height: 20),
-            pw.Text(
-              'Number of Journals: ${userJournals.length}',
-              style: pw.TextStyle(
-                fontSize: 16,
-                fontWeight: pw.FontWeight.bold,
-              ),
-            ),
-          ],
+          ),
         ),
       ),
+      barrierDismissible: false,
     );
+  }
 
-    // Add content pages for each journal
-    for (final journal in userJournals) {
-      final emotionName = journal.journal?.emotionName ?? 'Untitled Journal';
-      
-      // Add journal page
-      pdf.addPage(
-        pw.MultiPage(
-          pageFormat: PdfPageFormat.a4,
-          margin: const pw.EdgeInsets.all(32),
-          build: (pw.Context context) {
-            final paragraphs = <pw.Widget>[];
-            
-            // Add journal title
-            paragraphs.add(
-              pw.Text(
-                emotionName,
-                style: pw.TextStyle(
-                  fontSize: 18,
-                  fontWeight: pw.FontWeight.bold,
-                ),
-              ),
-            );
-            
-            paragraphs.add(pw.SizedBox(height: 10));
-            paragraphs.add(
-              pw.Divider(
-                thickness: 1,
-                color: PdfColors.grey300,
-              ),
-            );
-            paragraphs.add(pw.SizedBox(height: 10));
-            
-            // Add creation date if available
-            if (journal.createdAt != null) {
-              paragraphs.add(
-                pw.Text(
-                  'Created: ${journal.createdAt}',
-                  style:  pw.TextStyle(
-                    fontSize: 12,
-                    fontStyle: pw.FontStyle.italic,
-                  ),
-                ),
-              );
-              paragraphs.add(pw.SizedBox(height: 10));
-            }
-            
-            // Add journal answers
-            final journalAnswers = journal.journalAnswers;
-            if (journalAnswers != null && journalAnswers.isNotEmpty) {
-              for (final answer in journalAnswers) {
-                if (answer.mainQuestion != null) {
-                  paragraphs.add(
-                    pw.Text(
-                      'Q: ${answer.mainQuestion!.question ?? "Question"}',
-                      style: pw.TextStyle(
-                        fontSize: 12,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blueGrey800,
-                      ),
-                    ),
-                  );
-                  paragraphs.add(
-                    pw.Text(
-                      'A: ${answer.text ?? "No answer provided"}',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  );
-                  paragraphs.add(pw.SizedBox(height: 8));
-                }
-                
-                // Add follow-up if available
-                if (answer.followUpQuestion != null) {
-                  paragraphs.add(
-                    pw.Text(
-                      'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
-                      style: pw.TextStyle(
-                        fontSize: 12,
-                        fontWeight: pw.FontWeight.bold,
-                        color: PdfColors.blueGrey800,
-                      ),
-                    ),
-                  );
-                  paragraphs.add(
-                    pw.Text(
-                      'A: ${answer.followUpQuestion?.answer ?? "No answer provided"}',
-                      style: const pw.TextStyle(
-                        fontSize: 12,
-                      ),
-                    ),
-                  );
-                  paragraphs.add(pw.SizedBox(height: 8));
-                }
-              }
-            } else {
-              paragraphs.add(
-                pw.Text(
-                  'No answers available for this journal.',
-                  style:  pw.TextStyle(
-                    fontSize: 12,
-                    fontStyle: pw.FontStyle.italic,
-                  ),
-                ),
-              );
-            }
-            
-            return paragraphs;
-          },
-        ),
-      );
-    }
-
-    try {
-      // Save the combined PDF
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
-      final file = File('${directory.path}/journals_export_$timestamp.pdf');
-      
-      // Debug file path
-      print('Saving PDF to: ${file.path}');
-      
-      await file.writeAsBytes(await pdf.save());
-      
-      // Verify file exists after saving
-      if (!await file.exists()) {
-        throw Exception('File was not created successfully');
-      }
-      
-      // Close the loading dialog
-      if (Get.isDialogOpen ?? false) {
-        Get.back();
-      }
-
-      // Share if requested
-      if (shouldShare) {
-        try {
-          // Use optional sharing
-          if (await canShare(file.path)) {
-            await Share.shareXFiles([XFile(file.path)], text: 'My Journal Export');
-          } else {
-            throw Exception('Cannot share file');
-          }
-        } catch (shareError) {
-          // If sharing fails, just notify about download
-          AppUtils.showSnackbar(
-            message: 'Journal saved to: ${file.path}',
-          //  duration: const Duration(seconds: 5),
-          );
-        }
-      } else {
-        // Show success message with file path
-        AppUtils.showSnackbar(
-          message: 'Journal saved to: ${file.path}',
-         // duration: const Duration(seconds: 5),
-        );
-      }
-    } catch (fileError) {
-      print('File error: $fileError');
-      throw Exception('Could not save PDF file: $fileError');
-    }
-  } catch (e) {
-    // Close loading dialog if it was shown
+  void _closeDialogIfOpen() {
     if (Get.isDialogOpen ?? false) {
       Get.back();
     }
-    print('Error downloading journals to PDF: $e');
-    AppUtils.showErrorSnackbar(
-      message: 'Failed to download journals. Please try again.',
-    );
   }
-}
+
+  Future<Directory> _getStorageDirectory() async {
+    try {
+      return await getApplicationDocumentsDirectory();
+    } catch (_) {
+      return getTemporaryDirectory();
+    }
+  }
 
 // Helper function to check if sharing is available
-Future<bool> canShare(String filePath) async {
-  try {
-    return true; // Simplified check - assume sharing is available
-  } catch (e) {
-    return false;
-  }
-}
-
-  String _formatJournalDataForPdf() {
-    final buffer = StringBuffer();
-    for (final journal
-        in _controller.userJournalResponse.value.data?.userJournals ?? []) {
-      // Add journal emotion/title
-      buffer
-        ..writeln('${journal.journal?.emotionName ?? "Untitled Journal"}')
-        ..writeln('-------------------------------------------');
-
-      final journalAnswers = journal.journalAnswers;
-      if (journalAnswers != null && journalAnswers.isNotEmpty) {
-        for (final answer in journalAnswers) {
-          // Add main question and answer
-          if (answer.mainQuestion != null) {
-            buffer
-              ..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
-              ..writeln('A: ${answer.text ?? "No answer provided"}')
-              ..writeln();
-          }
-          // Add follow-up question and answer if available
-          if (answer.followUpQuestion != null) {
-            buffer
-              ..writeln(
-                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
-              )
-              ..writeln('A: ${answer.text ?? "No answer provided"}')
-              ..writeln();
-          }
-        }
-      } else {
-        buffer.writeln('No answers available for this journal.');
-      }
-      buffer.writeln('\n\n');
+  Future<bool> canShare(String filePath) async {
+    try {
+      return true; // Simplified check - assume sharing is available
+    } catch (e) {
+      return false;
     }
-    return buffer.toString();
   }
-
-  Future<void> _initializeData() async {}
 
   @override
   Widget build(BuildContext context) {
@@ -538,22 +262,13 @@ Future<bool> canShare(String filePath) async {
     Future<void> seeJournal() async {
       if (selectedCount > 0) {
         final journalIds = List<String>.empty(growable: true);
-        final journals =
-            _controller.journalLibraryIndexModel.value.data?.userJournals;
+
+        _controller.journalLibraryIndexModel.value.data?.userJournals;
         for (var i = 0; i < widget.selectedItems.length; i++) {
           if (widget.selectedItems[i] && i < widget.journalList.length) {
             journalIds.add(widget.journalList[i].id.toString());
           }
         }
-        // if (journals != null) {
-        //   for (var i = 0; i < widget.selectedItems.length; i++) {
-        //     if (widget.selectedItems[i] && i < journals.length) {
-        //       journalIds.add(journals[i].id.toString());
-        //     }
-        //   }
-        // }
-
-        print('Selected journal IDs: $journalIds');
 
         if (journalIds.isEmpty) {
           AppUtils.showErrorSnackbar(message: 'No journals selected');
@@ -562,14 +277,13 @@ Future<bool> canShare(String filePath) async {
         }
 
         // Call API
-        final result = await _controller.getBulkSeeJournal(journalIds);
+        await _controller.getBulkSeeJournal(journalIds);
 
         final userJournals =
             _controller.userJournalResponse.value.data?.userJournals;
         Future.delayed(
           const Duration(seconds: 1),
         );
-        print('User Journals: $userJournals');
 
         if (userJournals != null) {
           Get.to(
@@ -625,10 +339,6 @@ Future<bool> canShare(String filePath) async {
           Assets.images.note.path,
           'see_journal',
         ),
-
-        // if (selectedCount == 1) ...[
-
-        // ],
         _buildPopupMenuItem(
           'Delete',
           Assets.images.deletePop.path,

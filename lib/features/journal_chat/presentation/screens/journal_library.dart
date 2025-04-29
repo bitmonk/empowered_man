@@ -40,7 +40,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
         emotionNames = _controller.journalEmotionName.value.data?.emotionNames;
       });
     } catch (e) {
-      print('Error fetching emotion names: $e');
+      debugPrint('Error fetching emotion names: $e');
     }
   }
 
@@ -385,7 +385,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
           ),
         ),
         _tableCell(emotionName),
-        _tableCell(firstQuestion ?? 'N/A'),
+        _tableCell(firstQuestion),
         _tableCell(formattedTime),
       ],
     );
