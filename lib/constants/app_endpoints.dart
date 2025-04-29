@@ -25,6 +25,7 @@ class AppEndpoints {
 
   // Task Api
   static const String addTask = '/tasks';
+  static String updateTask(String id) => '/tasks/$id';
   static const String getTask = '/tasks';
   static String delTask(String taskId) => '/tasks/$taskId';
   static String markMainTaskCompleted(String taskId) =>

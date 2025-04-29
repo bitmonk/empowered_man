@@ -13,6 +13,7 @@ class TaskList extends GetView<TasksController> {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: const EdgeInsets.only(),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: list?.length,

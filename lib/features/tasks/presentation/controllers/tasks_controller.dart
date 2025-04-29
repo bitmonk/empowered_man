@@ -10,6 +10,7 @@ class TasksController extends GetxController {
   final TasksRemoteSource remoteSource;
   RxList<DaysFilterModel> daysList = <DaysFilterModel>[].obs;
   late Rx<DateTime> fromDate;
+
   late Rx<DateTime> toDate;
 
   RxList<String> taskCategoryTitle =
@@ -41,8 +42,17 @@ class TasksController extends GetxController {
     searchTextController = TextEditingController();
   }
 
+  void closeExpandedTiles() {
+    isExpandedHitList.value = false;
+    isExpandedMitList.value = false;
+    isExpandedDoList.value = false;
+    isExpandedAchievedList.value = false;
+    isExpandedDoneList.value = false;
+  }
+
   void resetValue() {
     daysList.clear();
+    closeExpandedTiles();
     fromDate = _getMonday(DateTime.now()).obs;
     toDate = fromDate.value.add(const Duration(days: 6)).obs;
     _generateWeek();
@@ -63,8 +73,10 @@ class TasksController extends GetxController {
   Rx<TheStates> getTaskState = TheStates.initial.obs;
   Rx<TheStates> delTaskState = TheStates.initial.obs;
   Rx<TheStates> changeTaskLevelState = TheStates.initial.obs;
-  Rx<TheStates> markMainTaskCompletedState = TheStates.initial.obs;
-  Rx<TheStates> mmarkSubTaskCompletedState = TheStates.initial.obs;
+  // Rx<TheStates> markMainTaskCompletedState = TheStates.initial.obs;
+  // Rx<TheStates> mmarkSubTaskCompletedState = TheStates.initial.obs;
+  RxSet<int> markingMainTaskIds = <int>{}.obs;
+  RxSet<int> markingSubTaskIds = <int>{}.obs;
 
   Future<void> getTaskEnums() async {
     getTaskEnumState.value = TheStates.loading;
@@ -98,8 +110,9 @@ class TasksController extends GetxController {
     getTaskState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.getTask(
-        cancelToken: _cancelToken,
-        day: DateFormat('EEEE').format(selectedDate.value),);
+      cancelToken: _cancelToken,
+      day: DateFormat('EEEE').format(selectedDate.value),
+    );
     result.fold(
       (l) {
         getTaskState.value = TheStates.error;
@@ -119,11 +132,11 @@ class TasksController extends GetxController {
 
   Rx<String?> getTaskError = Rx<String?>(null);
 
-  Future<void> addTask({required AddTaskRequestModel body}) async {
+  Future<void> addTask({required AddTaskRequestModel body, String? id}) async {
     addTaskState.value = TheStates.loading;
     _cancelToken = CancelToken();
-    final result =
-        await remoteSource.addTask(body: body, cancelToken: _cancelToken);
+    final result = await remoteSource.addTask(
+        body: body, cancelToken: _cancelToken, id: id,);
     result.fold(
       (l) {
         addTaskState.value = TheStates.error;
@@ -154,6 +167,9 @@ class TasksController extends GetxController {
       },
       (r) {
         delTaskState.value = TheStates.success;
+        Get.back();
+        getTask();
+        AppUtils.showErrorSnackbar(message: r);
       },
     );
   }
@@ -181,45 +197,60 @@ class TasksController extends GetxController {
   Future<void> markMainTaskCompleted({
     required String taskId,
   }) async {
-    markMainTaskCompletedState.value = TheStates.loading;
+    // markMainTaskCompletedState.value = TheStates.loading;
+    final id = int.tryParse(taskId);
+    if (id == null) return;
+    markingMainTaskIds.add(id);
     _cancelToken = CancelToken();
-    final result = await remoteSource.markMainTaskCompleted(
-      taskId: taskId,
-      cancelToken: _cancelToken,
-    );
-    result.fold(
-      (l) {
-        markMainTaskCompletedState.value = TheStates.error;
-        AppUtils.showErrorSnackbar(message: l.message);
-      },
-      (r) {
-        markMainTaskCompletedState.value = TheStates.success;
-      },
-    );
+    try {
+      final result = await remoteSource.markMainTaskCompleted(
+        taskId: taskId,
+        cancelToken: _cancelToken,
+      );
+      result.fold(
+        (l) {
+          // markMainTaskCompletedState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          getTask();
+          // markMainTaskCompletedState.value = TheStates.success;
+        },
+      );
+    } finally {
+      markingMainTaskIds.remove(id);
+    }
   }
 
   Future<bool> markSubTaskCompleted({
     required String taskId,
     required String subTaskId,
   }) async {
-    mmarkSubTaskCompletedState.value = TheStates.loading;
+    // mmarkSubTaskCompletedState.value = TheStates.loading;
     _cancelToken = CancelToken();
-    final result = await remoteSource.markSubTaskCompleted(
-      subTaskId: subTaskId,
-      taskId: taskId,
-      cancelToken: _cancelToken,
-    );
-    return result.fold(
-      (l) {
-        mmarkSubTaskCompletedState.value = TheStates.error;
-        AppUtils.showErrorSnackbar(message: l.message);
-        return false;
-      },
-      (r) {
-        mmarkSubTaskCompletedState.value = TheStates.success;
-        return true;
-      },
-    );
+    final id = int.tryParse(subTaskId);
+    markingSubTaskIds.add(id!);
+    try {
+      final result = await remoteSource.markSubTaskCompleted(
+        subTaskId: subTaskId,
+        taskId: taskId,
+        cancelToken: _cancelToken,
+      );
+      return result.fold(
+        (l) {
+          // mmarkSubTaskCompletedState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+          return false;
+        },
+        (r) {
+          getTask();
+          // mmarkSubTaskCompletedState.value = TheStates.success;
+          return true;
+        },
+      );
+    } finally {
+      markingSubTaskIds.remove(id);
+    }
   }
 
   void cancelRequest() {

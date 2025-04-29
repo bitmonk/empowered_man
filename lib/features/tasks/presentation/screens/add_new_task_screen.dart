@@ -1,31 +1,65 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tasks/data/model/add_task_request_model.dart';
+import 'package:empowered/features/tasks/data/model/task_model.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_controller.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
+import 'package:flutter_quill_delta_from_html/parser/html_to_delta.dart';
 import 'package:form_validator/form_validator.dart';
+import 'package:intl/intl.dart';
 import 'package:vsc_quill_delta_to_html/vsc_quill_delta_to_html.dart';
 
 class AddNewTaskScreen extends StatefulWidget {
-  const AddNewTaskScreen({super.key});
+  const AddNewTaskScreen({super.key, this.task});
+  final Task? task;
 
   @override
   _AddNewTaskScreenState createState() => _AddNewTaskScreenState();
 }
 
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
-  final TextEditingController descriptionController = TextEditingController();
-  final TextEditingController dateController = TextEditingController();
+  TextEditingController descriptionController = TextEditingController();
+  TextEditingController dateController = TextEditingController();
   List<TextEditingController> subtaskControllers = [];
-  final quill.QuillController _controller = quill.QuillController.basic();
+  quill.QuillController _controller = quill.QuillController.basic();
   AddTaskRequestModel addTaskRequestModel = AddTaskRequestModel();
   final controller = Get.find<TasksController>();
 
   @override
   void initState() {
     super.initState();
-    subtaskControllers.addAll([
-      TextEditingController(),
-    ]);
+    _initVal();
+  }
+
+  void _initVal() {
+    if (widget.task != null) {
+      setState(() {
+        descriptionController =
+            TextEditingController(text: widget.task?.title ?? '');
+        dateController = TextEditingController(
+          text: DateFormat('yyyy-MM-dd').format(widget.task!.dueDate!),
+        );
+        _controller = convertHtmlToQuill(widget.task?.notes ?? '');
+        for (final a in widget.task?.subTasks ?? []) {
+          setState(() {
+            subtaskControllers.add(
+              TextEditingController(text: a.title),
+            );
+          });
+        }
+        addTaskRequestModel
+          ..title = descriptionController.text
+          ..level = widget.task?.level
+          ..priority = widget.task?.priority
+          ..dueDate = dateController.text
+          ..notes = convertQuillToHtml(_controller)
+          ..subTitle = [...?widget.task?.subTasks?.map((e) => e.title ?? '')];
+      });
+      print(addTaskRequestModel.toMap());
+    } else {
+      subtaskControllers.addAll([
+        TextEditingController(),
+      ]);
+    }
   }
 
   @override
@@ -47,8 +81,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: const CustomAppBar(
-        title: 'Add New Task',
+      appBar: CustomAppBar(
+        title: '${widget.task != null ? 'Update' : 'Add'} New Task',
       ),
       body: Obx(
         () => SafeArea(
@@ -72,20 +106,26 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                 Row(
                   children: [
                     Expanded(
-                        child: _buildDropdownField(
-                            label: 'Level',
-                            list: controller.levelList,
-                            onChanged: (v) {
-                              addTaskRequestModel.level = v;
-                            },),),
+                      child: _buildDropdownField(
+                        label: 'Level',
+                        val: addTaskRequestModel.level,
+                        list: controller.levelList,
+                        onChanged: (v) {
+                          addTaskRequestModel.level = v;
+                        },
+                      ),
+                    ),
                     const SizedBox(width: 10),
                     Expanded(
-                        child: _buildDropdownField(
-                            label: 'Priority',
-                            list: controller.prioritiesList,
-                            onChanged: (v) {
-                              addTaskRequestModel.priority = v;
-                            },),),
+                      child: _buildDropdownField(
+                        label: 'Priority',
+                        val: addTaskRequestModel.priority,
+                        list: controller.prioritiesList,
+                        onChanged: (v) {
+                          addTaskRequestModel.priority = v;
+                        },
+                      ),
+                    ),
                   ],
                 ),
                 const SizedBox(height: 16),
@@ -104,8 +144,9 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       _buildTextField(
-                          'Subtask ${subtaskControllers.indexOf(entry) + 1}',
-                          entry,),
+                        'Subtask ${subtaskControllers.indexOf(entry) + 1}',
+                        entry,
+                      ),
                       const VerticalSpacing(24),
                     ],
                   );
@@ -217,35 +258,45 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                   children: [
                     Expanded(
                       child: AppOutlinedButton(
-                          text: 'Save',
-                          isLoading: controller.addTaskState.value ==
-                              TheStates.loading,
-                          onPressed: () {
-                            addTaskRequestModel
-                              ..notes = convertQuillToHtml(_controller)
-                              ..subTitle = [];
-                            setState(() {
-                              addTaskRequestModel.subTitle = subtaskControllers
-                                  .map((controller) => controller.text.trim())
-                                  .where((text) => text.isNotEmpty)
-                                  .toList();
-                            });
-                            controller.addTask(body: addTaskRequestModel);
-                          },),
+                        text: widget.task != null ? 'Update' : 'Save',
+                        isLoading:
+                            controller.addTaskState.value == TheStates.loading,
+                        onPressed: () {
+                          addTaskRequestModel
+                            ..notes = convertQuillToHtml(_controller)
+                            ..subTitle = [];
+                          setState(() {
+                            addTaskRequestModel.subTitle = subtaskControllers
+                                .map((controller) => controller.text.trim())
+                                .where((text) => text.isNotEmpty)
+                                .toList();
+                          });
+                          controller.addTask(
+                              body: addTaskRequestModel,
+                              id: widget.task?.id?.toString(),);
+                        },
+                      ),
                     ),
                     const HorizontalSpacing(16),
                     Expanded(
                       child: AppOutlinedButton(
-                          text: 'Delete',
-                          backgroundColor: AppColors.colorEB5757,
-                          onPressed: () {
-                            if (controller.addTaskState.value ==
-                                TheStates.loading) {
-                              controller.cancelRequest();
-                            } else {
-                              Navigator.pop(context);
-                            }
-                          },),
+                        text: widget.task != null ? 'Delete' : 'Cancel',
+                        backgroundColor: AppColors.colorEB5757,
+                        isLoading: widget.task != null &&
+                            controller.delTaskState.value == TheStates.loading,
+                        onPressed: () {
+                          if (controller.addTaskState.value ==
+                              TheStates.loading) {
+                            controller.cancelRequest();
+                          }
+                          if (widget.task != null) {
+                            controller.deleteTask(
+                                taskId: widget.task!.id.toString(),);
+                          } else {
+                            Navigator.pop(context);
+                          }
+                        },
+                      ),
                     ),
                   ],
                 ),
@@ -266,6 +317,15 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     return converter.convert();
   }
 
+  quill.QuillController convertHtmlToQuill(String html) {
+    final delta = HtmlToDelta().convert(html);
+    final document = quill.Document.fromDelta(delta);
+    return quill.QuillController(
+      document: document,
+      selection: const TextSelection.collapsed(offset: 0),
+    );
+  }
+
   Widget _buildTextField(String label, TextEditingController controller) {
     return AppTextFormField(
       enabledBorderSide: const BorderSide(color: AppColors.color354451),
@@ -274,13 +334,16 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     );
   }
 
-  Widget _buildDropdownField(
-      {required String label,
-      required List<String> list,
-      Function(String?)? onChanged,}) {
+  Widget _buildDropdownField({
+    required String label,
+    required List<String> list,
+    String? val,
+    Function(String?)? onChanged,
+  }) {
     return DropdownButtonFormField<String>(
       dropdownColor: const Color(0xFF1E293B),
       validator: ValidationBuilder().required().build(),
+      value: val,
       decoration: InputDecoration(
         labelText: label,
         labelStyle: const TextStyle(
@@ -302,7 +365,9 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           )
           .toList(),
       style: const TextStyle(
-          color: AppColors.textColor50, overflow: TextOverflow.ellipsis,),
+        color: AppColors.textColor50,
+        overflow: TextOverflow.ellipsis,
+      ),
       onChanged: onChanged,
     );
   }
@@ -316,8 +381,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
       onTap: () async {
         var pickedDate = await _handleDatePicker();
         if (pickedDate != null) {
-          dateController.text =
-              '${pickedDate.year}-${pickedDate.month}-${pickedDate.day}';
+          dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
           addTaskRequestModel.dueDate = dateController.text;
         }
       },
@@ -326,8 +390,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           var pickedDate = await _handleDatePicker();
 
           if (pickedDate != null) {
-            dateController.text =
-                '${pickedDate.year}-${pickedDate.month}-${pickedDate.day}';
+            DateFormat('yyyy-MM-dd').format(pickedDate);
           }
         },
         child: Padding(
