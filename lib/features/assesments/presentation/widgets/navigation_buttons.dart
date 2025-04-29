@@ -31,7 +31,7 @@ class NavigationButtons extends StatelessWidget {
               child: Container(
                 alignment: Alignment.center,
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
                 decoration: BoxDecoration(
                   border: Border.all(color: Colors.blue),
                   borderRadius: BorderRadius.circular(30),

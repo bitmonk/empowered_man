@@ -15,7 +15,7 @@ class GetAssessmentBindings extends Bindings {
   }
 }
 
-class HabitInitializer {
+class GetAssessmentInitializer {
   static void initialize() {
     Get
       ..lazyPut(() => GetAssessmentRemoteSource(Get.find()))

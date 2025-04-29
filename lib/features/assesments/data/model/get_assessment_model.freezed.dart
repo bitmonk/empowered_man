@@ -20,11 +20,11 @@ GetAssessmentModel _$GetAssessmentModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GetAssessmentModel {
-  @JsonKey(name: "status")
-  bool get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
-  String get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "data")
+  @JsonKey(name: 'status')
+  bool? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'message')
+  String? get message => throw _privateConstructorUsedError;
+  @JsonKey(name: 'data')
   Data? get data => throw _privateConstructorUsedError;
 
   /// Serializes this GetAssessmentModel to a JSON map.
@@ -44,9 +44,9 @@ abstract class $GetAssessmentModelCopyWith<$Res> {
       _$GetAssessmentModelCopyWithImpl<$Res, GetAssessmentModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool status,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   $DataCopyWith<$Res>? get data;
 }
@@ -66,19 +66,19 @@ class _$GetAssessmentModelCopyWithImpl<$Res, $Val extends GetAssessmentModel>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
-    Object? message = null,
+    Object? status = freezed,
+    Object? message = freezed,
     Object? data = freezed,
   }) {
     return _then(_value.copyWith(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as bool,
-      message: null == message
+              as bool?,
+      message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       data: freezed == data
           ? _value.data
           : data // ignore: cast_nullable_to_non_nullable
@@ -110,9 +110,9 @@ abstract class _$$GetAssessmentModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool status,
-      @JsonKey(name: "message") String message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   @override
   $DataCopyWith<$Res>? get data;
@@ -131,19 +131,19 @@ class __$$GetAssessmentModelImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? status = null,
-    Object? message = null,
+    Object? status = freezed,
+    Object? message = freezed,
     Object? data = freezed,
   }) {
     return _then(_$GetAssessmentModelImpl(
-      status: null == status
+      status: freezed == status
           ? _value.status
           : status // ignore: cast_nullable_to_non_nullable
-              as bool,
-      message: null == message
+              as bool?,
+      message: freezed == message
           ? _value.message
           : message // ignore: cast_nullable_to_non_nullable
-              as String,
+              as String?,
       data: freezed == data
           ? _value.data
           : data // ignore: cast_nullable_to_non_nullable
@@ -156,21 +156,21 @@ class __$$GetAssessmentModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GetAssessmentModelImpl implements _GetAssessmentModel {
   const _$GetAssessmentModelImpl(
-      {@JsonKey(name: "status") required this.status,
-      @JsonKey(name: "message") required this.message,
-      @JsonKey(name: "data") this.data});
+      {@JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'message') this.message,
+      @JsonKey(name: 'data') this.data});
 
   factory _$GetAssessmentModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GetAssessmentModelImplFromJson(json);
 
   @override
-  @JsonKey(name: "status")
-  final bool status;
+  @JsonKey(name: 'status')
+  final bool? status;
   @override
-  @JsonKey(name: "message")
-  final String message;
+  @JsonKey(name: 'message')
+  final String? message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   final Data? data;
 
   @override
@@ -211,21 +211,21 @@ class _$GetAssessmentModelImpl implements _GetAssessmentModel {
 
 abstract class _GetAssessmentModel implements GetAssessmentModel {
   const factory _GetAssessmentModel(
-      {@JsonKey(name: "status") required final bool status,
-      @JsonKey(name: "message") required final String message,
-      @JsonKey(name: "data") final Data? data}) = _$GetAssessmentModelImpl;
+      {@JsonKey(name: 'status') final bool? status,
+      @JsonKey(name: 'message') final String? message,
+      @JsonKey(name: 'data') final Data? data}) = _$GetAssessmentModelImpl;
 
   factory _GetAssessmentModel.fromJson(Map<String, dynamic> json) =
       _$GetAssessmentModelImpl.fromJson;
 
   @override
-  @JsonKey(name: "status")
-  bool get status;
+  @JsonKey(name: 'status')
+  bool? get status;
   @override
-  @JsonKey(name: "message")
-  String get message;
+  @JsonKey(name: 'message')
+  String? get message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   Data? get data;
 
   /// Create a copy of GetAssessmentModel
@@ -242,7 +242,7 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Data {
-  @JsonKey(name: "assessments")
+  @JsonKey(name: 'assessments')
   Assessments? get assessments => throw _privateConstructorUsedError;
 
   /// Serializes this Data to a JSON map.
@@ -259,7 +259,7 @@ abstract class $DataCopyWith<$Res> {
   factory $DataCopyWith(Data value, $Res Function(Data) then) =
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
-  $Res call({@JsonKey(name: "assessments") Assessments? assessments});
+  $Res call({@JsonKey(name: 'assessments') Assessments? assessments});
 
   $AssessmentsCopyWith<$Res>? get assessments;
 }
@@ -311,7 +311,7 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
       __$$DataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: "assessments") Assessments? assessments});
+  $Res call({@JsonKey(name: 'assessments') Assessments? assessments});
 
   @override
   $AssessmentsCopyWith<$Res>? get assessments;
@@ -343,13 +343,13 @@ class __$$DataImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$DataImpl implements _Data {
-  const _$DataImpl({@JsonKey(name: "assessments") this.assessments});
+  const _$DataImpl({@JsonKey(name: 'assessments') this.assessments});
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DataImplFromJson(json);
 
   @override
-  @JsonKey(name: "assessments")
+  @JsonKey(name: 'assessments')
   final Assessments? assessments;
 
   @override
@@ -388,13 +388,13 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-          {@JsonKey(name: "assessments") final Assessments? assessments}) =
+          {@JsonKey(name: 'assessments') final Assessments? assessments}) =
       _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
-  @JsonKey(name: "assessments")
+  @JsonKey(name: 'assessments')
   Assessments? get assessments;
 
   /// Create a copy of Data
@@ -411,8 +411,10 @@ Assessments _$AssessmentsFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Assessments {
-  @JsonKey(name: "Growth")
+  @JsonKey(name: 'Growth')
   List<Growth>? get growth => throw _privateConstructorUsedError;
+  @JsonKey(name: 'Wealth')
+  List<Growth>? get wealth => throw _privateConstructorUsedError;
 
   /// Serializes this Assessments to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -430,7 +432,9 @@ abstract class $AssessmentsCopyWith<$Res> {
           Assessments value, $Res Function(Assessments) then) =
       _$AssessmentsCopyWithImpl<$Res, Assessments>;
   @useResult
-  $Res call({@JsonKey(name: "Growth") List<Growth>? growth});
+  $Res call(
+      {@JsonKey(name: 'Growth') List<Growth>? growth,
+      @JsonKey(name: 'Wealth') List<Growth>? wealth});
 }
 
 /// @nodoc
@@ -449,11 +453,16 @@ class _$AssessmentsCopyWithImpl<$Res, $Val extends Assessments>
   @override
   $Res call({
     Object? growth = freezed,
+    Object? wealth = freezed,
   }) {
     return _then(_value.copyWith(
       growth: freezed == growth
           ? _value.growth
           : growth // ignore: cast_nullable_to_non_nullable
+              as List<Growth>?,
+      wealth: freezed == wealth
+          ? _value.wealth
+          : wealth // ignore: cast_nullable_to_non_nullable
               as List<Growth>?,
     ) as $Val);
   }
@@ -467,7 +476,9 @@ abstract class _$$AssessmentsImplCopyWith<$Res>
       __$$AssessmentsImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: "Growth") List<Growth>? growth});
+  $Res call(
+      {@JsonKey(name: 'Growth') List<Growth>? growth,
+      @JsonKey(name: 'Wealth') List<Growth>? wealth});
 }
 
 /// @nodoc
@@ -484,11 +495,16 @@ class __$$AssessmentsImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? growth = freezed,
+    Object? wealth = freezed,
   }) {
     return _then(_$AssessmentsImpl(
       growth: freezed == growth
           ? _value._growth
           : growth // ignore: cast_nullable_to_non_nullable
+              as List<Growth>?,
+      wealth: freezed == wealth
+          ? _value._wealth
+          : wealth // ignore: cast_nullable_to_non_nullable
               as List<Growth>?,
     ));
   }
@@ -497,15 +513,18 @@ class __$$AssessmentsImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$AssessmentsImpl implements _Assessments {
-  const _$AssessmentsImpl({@JsonKey(name: "Growth") final List<Growth>? growth})
-      : _growth = growth;
+  const _$AssessmentsImpl(
+      {@JsonKey(name: 'Growth') final List<Growth>? growth,
+      @JsonKey(name: 'Wealth') final List<Growth>? wealth})
+      : _growth = growth,
+        _wealth = wealth;
 
   factory _$AssessmentsImpl.fromJson(Map<String, dynamic> json) =>
       _$$AssessmentsImplFromJson(json);
 
   final List<Growth>? _growth;
   @override
-  @JsonKey(name: "Growth")
+  @JsonKey(name: 'Growth')
   List<Growth>? get growth {
     final value = _growth;
     if (value == null) return null;
@@ -514,9 +533,20 @@ class _$AssessmentsImpl implements _Assessments {
     return EqualUnmodifiableListView(value);
   }
 
+  final List<Growth>? _wealth;
+  @override
+  @JsonKey(name: 'Wealth')
+  List<Growth>? get wealth {
+    final value = _wealth;
+    if (value == null) return null;
+    if (_wealth is EqualUnmodifiableListView) return _wealth;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
   @override
   String toString() {
-    return 'Assessments(growth: $growth)';
+    return 'Assessments(growth: $growth, wealth: $wealth)';
   }
 
   @override
@@ -524,13 +554,16 @@ class _$AssessmentsImpl implements _Assessments {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$AssessmentsImpl &&
-            const DeepCollectionEquality().equals(other._growth, _growth));
+            const DeepCollectionEquality().equals(other._growth, _growth) &&
+            const DeepCollectionEquality().equals(other._wealth, _wealth));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_growth));
+  int get hashCode => Object.hash(
+      runtimeType,
+      const DeepCollectionEquality().hash(_growth),
+      const DeepCollectionEquality().hash(_wealth));
 
   /// Create a copy of Assessments
   /// with the given fields replaced by the non-null parameter values.
@@ -550,15 +583,18 @@ class _$AssessmentsImpl implements _Assessments {
 
 abstract class _Assessments implements Assessments {
   const factory _Assessments(
-          {@JsonKey(name: "Growth") final List<Growth>? growth}) =
-      _$AssessmentsImpl;
+      {@JsonKey(name: 'Growth') final List<Growth>? growth,
+      @JsonKey(name: 'Wealth') final List<Growth>? wealth}) = _$AssessmentsImpl;
 
   factory _Assessments.fromJson(Map<String, dynamic> json) =
       _$AssessmentsImpl.fromJson;
 
   @override
-  @JsonKey(name: "Growth")
+  @JsonKey(name: 'Growth')
   List<Growth>? get growth;
+  @override
+  @JsonKey(name: 'Wealth')
+  List<Growth>? get wealth;
 
   /// Create a copy of Assessments
   /// with the given fields replaced by the non-null parameter values.
@@ -574,20 +610,24 @@ Growth _$GrowthFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Growth {
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: "name")
+  @JsonKey(name: 'name')
   String? get name => throw _privateConstructorUsedError;
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
-  @JsonKey(name: "assessment_type")
+  @JsonKey(name: 'assessment_type')
   String? get assessmentType => throw _privateConstructorUsedError;
-  @JsonKey(name: "has_score")
+  @JsonKey(name: 'has_score')
   bool? get hasScore => throw _privateConstructorUsedError;
-  @JsonKey(name: "current_score")
-  dynamic? get currentScore => throw _privateConstructorUsedError;
-  @JsonKey(name: "score_history")
-  List<dynamic>? get scoreHistory => throw _privateConstructorUsedError;
+  @JsonKey(name: 'current_score')
+  dynamic get currentScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_score')
+  int? get totalScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status')
+  String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_history')
+  List<ScoreHistory>? get scoreHistory => throw _privateConstructorUsedError;
 
   /// Serializes this Growth to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -604,13 +644,15 @@ abstract class $GrowthCopyWith<$Res> {
       _$GrowthCopyWithImpl<$Res, Growth>;
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "name") String? name,
-      @JsonKey(name: "image") String? image,
-      @JsonKey(name: "assessment_type") String? assessmentType,
-      @JsonKey(name: "has_score") bool? hasScore,
-      @JsonKey(name: "current_score") dynamic? currentScore,
-      @JsonKey(name: "score_history") List<dynamic>? scoreHistory});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'name') String? name,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'assessment_type') String? assessmentType,
+      @JsonKey(name: 'has_score') bool? hasScore,
+      @JsonKey(name: 'current_score') dynamic currentScore,
+      @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'score_history') List<ScoreHistory>? scoreHistory});
 }
 
 /// @nodoc
@@ -634,6 +676,8 @@ class _$GrowthCopyWithImpl<$Res, $Val extends Growth>
     Object? assessmentType = freezed,
     Object? hasScore = freezed,
     Object? currentScore = freezed,
+    Object? totalScore = freezed,
+    Object? status = freezed,
     Object? scoreHistory = freezed,
   }) {
     return _then(_value.copyWith(
@@ -660,11 +704,19 @@ class _$GrowthCopyWithImpl<$Res, $Val extends Growth>
       currentScore: freezed == currentScore
           ? _value.currentScore
           : currentScore // ignore: cast_nullable_to_non_nullable
-              as dynamic?,
+              as dynamic,
+      totalScore: freezed == totalScore
+          ? _value.totalScore
+          : totalScore // ignore: cast_nullable_to_non_nullable
+              as int?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
       scoreHistory: freezed == scoreHistory
           ? _value.scoreHistory
           : scoreHistory // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
+              as List<ScoreHistory>?,
     ) as $Val);
   }
 }
@@ -677,13 +729,15 @@ abstract class _$$GrowthImplCopyWith<$Res> implements $GrowthCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "name") String? name,
-      @JsonKey(name: "image") String? image,
-      @JsonKey(name: "assessment_type") String? assessmentType,
-      @JsonKey(name: "has_score") bool? hasScore,
-      @JsonKey(name: "current_score") dynamic? currentScore,
-      @JsonKey(name: "score_history") List<dynamic>? scoreHistory});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'name') String? name,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'assessment_type') String? assessmentType,
+      @JsonKey(name: 'has_score') bool? hasScore,
+      @JsonKey(name: 'current_score') dynamic currentScore,
+      @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'score_history') List<ScoreHistory>? scoreHistory});
 }
 
 /// @nodoc
@@ -705,6 +759,8 @@ class __$$GrowthImplCopyWithImpl<$Res>
     Object? assessmentType = freezed,
     Object? hasScore = freezed,
     Object? currentScore = freezed,
+    Object? totalScore = freezed,
+    Object? status = freezed,
     Object? scoreHistory = freezed,
   }) {
     return _then(_$GrowthImpl(
@@ -731,11 +787,19 @@ class __$$GrowthImplCopyWithImpl<$Res>
       currentScore: freezed == currentScore
           ? _value.currentScore
           : currentScore // ignore: cast_nullable_to_non_nullable
-              as dynamic?,
+              as dynamic,
+      totalScore: freezed == totalScore
+          ? _value.totalScore
+          : totalScore // ignore: cast_nullable_to_non_nullable
+              as int?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
       scoreHistory: freezed == scoreHistory
           ? _value._scoreHistory
           : scoreHistory // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
+              as List<ScoreHistory>?,
     ));
   }
 }
@@ -744,40 +808,48 @@ class __$$GrowthImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GrowthImpl implements _Growth {
   const _$GrowthImpl(
-      {@JsonKey(name: "id") this.id,
-      @JsonKey(name: "name") this.name,
-      @JsonKey(name: "image") this.image,
-      @JsonKey(name: "assessment_type") this.assessmentType,
-      @JsonKey(name: "has_score") this.hasScore,
-      @JsonKey(name: "current_score") this.currentScore,
-      @JsonKey(name: "score_history") final List<dynamic>? scoreHistory})
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'name') this.name,
+      @JsonKey(name: 'image') this.image,
+      @JsonKey(name: 'assessment_type') this.assessmentType,
+      @JsonKey(name: 'has_score') this.hasScore,
+      @JsonKey(name: 'current_score') this.currentScore,
+      @JsonKey(name: 'total_score') this.totalScore,
+      @JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'score_history') final List<ScoreHistory>? scoreHistory})
       : _scoreHistory = scoreHistory;
 
   factory _$GrowthImpl.fromJson(Map<String, dynamic> json) =>
       _$$GrowthImplFromJson(json);
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   final int? id;
   @override
-  @JsonKey(name: "name")
+  @JsonKey(name: 'name')
   final String? name;
   @override
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   final String? image;
   @override
-  @JsonKey(name: "assessment_type")
+  @JsonKey(name: 'assessment_type')
   final String? assessmentType;
   @override
-  @JsonKey(name: "has_score")
+  @JsonKey(name: 'has_score')
   final bool? hasScore;
   @override
-  @JsonKey(name: "current_score")
-  final dynamic? currentScore;
-  final List<dynamic>? _scoreHistory;
+  @JsonKey(name: 'current_score')
+  final dynamic currentScore;
   @override
-  @JsonKey(name: "score_history")
-  List<dynamic>? get scoreHistory {
+  @JsonKey(name: 'total_score')
+  final int? totalScore;
+  @override
+  @JsonKey(name: 'status')
+  final String? status;
+  final List<ScoreHistory>? _scoreHistory;
+  @override
+  @JsonKey(name: 'score_history')
+  List<ScoreHistory>? get scoreHistory {
     final value = _scoreHistory;
     if (value == null) return null;
     if (_scoreHistory is EqualUnmodifiableListView) return _scoreHistory;
@@ -787,7 +859,7 @@ class _$GrowthImpl implements _Growth {
 
   @override
   String toString() {
-    return 'Growth(id: $id, name: $name, image: $image, assessmentType: $assessmentType, hasScore: $hasScore, currentScore: $currentScore, scoreHistory: $scoreHistory)';
+    return 'Growth(id: $id, name: $name, image: $image, assessmentType: $assessmentType, hasScore: $hasScore, currentScore: $currentScore, totalScore: $totalScore, status: $status, scoreHistory: $scoreHistory)';
   }
 
   @override
@@ -804,6 +876,9 @@ class _$GrowthImpl implements _Growth {
                 other.hasScore == hasScore) &&
             const DeepCollectionEquality()
                 .equals(other.currentScore, currentScore) &&
+            (identical(other.totalScore, totalScore) ||
+                other.totalScore == totalScore) &&
+            (identical(other.status, status) || other.status == status) &&
             const DeepCollectionEquality()
                 .equals(other._scoreHistory, _scoreHistory));
   }
@@ -818,6 +893,8 @@ class _$GrowthImpl implements _Growth {
       assessmentType,
       hasScore,
       const DeepCollectionEquality().hash(currentScore),
+      totalScore,
+      status,
       const DeepCollectionEquality().hash(_scoreHistory));
 
   /// Create a copy of Growth
@@ -838,43 +915,281 @@ class _$GrowthImpl implements _Growth {
 
 abstract class _Growth implements Growth {
   const factory _Growth(
-          {@JsonKey(name: "id") final int? id,
-          @JsonKey(name: "name") final String? name,
-          @JsonKey(name: "image") final String? image,
-          @JsonKey(name: "assessment_type") final String? assessmentType,
-          @JsonKey(name: "has_score") final bool? hasScore,
-          @JsonKey(name: "current_score") final dynamic? currentScore,
-          @JsonKey(name: "score_history") final List<dynamic>? scoreHistory}) =
-      _$GrowthImpl;
+      {@JsonKey(name: 'id') final int? id,
+      @JsonKey(name: 'name') final String? name,
+      @JsonKey(name: 'image') final String? image,
+      @JsonKey(name: 'assessment_type') final String? assessmentType,
+      @JsonKey(name: 'has_score') final bool? hasScore,
+      @JsonKey(name: 'current_score') final dynamic currentScore,
+      @JsonKey(name: 'total_score') final int? totalScore,
+      @JsonKey(name: 'status') final String? status,
+      @JsonKey(name: 'score_history')
+      final List<ScoreHistory>? scoreHistory}) = _$GrowthImpl;
 
   factory _Growth.fromJson(Map<String, dynamic> json) = _$GrowthImpl.fromJson;
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id;
   @override
-  @JsonKey(name: "name")
+  @JsonKey(name: 'name')
   String? get name;
   @override
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   String? get image;
   @override
-  @JsonKey(name: "assessment_type")
+  @JsonKey(name: 'assessment_type')
   String? get assessmentType;
   @override
-  @JsonKey(name: "has_score")
+  @JsonKey(name: 'has_score')
   bool? get hasScore;
   @override
-  @JsonKey(name: "current_score")
-  dynamic? get currentScore;
+  @JsonKey(name: 'current_score')
+  dynamic get currentScore;
   @override
-  @JsonKey(name: "score_history")
-  List<dynamic>? get scoreHistory;
+  @JsonKey(name: 'total_score')
+  int? get totalScore;
+  @override
+  @JsonKey(name: 'status')
+  String? get status;
+  @override
+  @JsonKey(name: 'score_history')
+  List<ScoreHistory>? get scoreHistory;
 
   /// Create a copy of Growth
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$GrowthImplCopyWith<_$GrowthImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+ScoreHistory _$ScoreHistoryFromJson(Map<String, dynamic> json) {
+  return _ScoreHistory.fromJson(json);
+}
+
+/// @nodoc
+mixin _$ScoreHistory {
+  @JsonKey(name: 'id')
+  int? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'assessment_date')
+  String? get assessmentDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_score')
+  int? get totalScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_completed')
+  bool? get isCompleted => throw _privateConstructorUsedError;
+
+  /// Serializes this ScoreHistory to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of ScoreHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $ScoreHistoryCopyWith<ScoreHistory> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $ScoreHistoryCopyWith<$Res> {
+  factory $ScoreHistoryCopyWith(
+          ScoreHistory value, $Res Function(ScoreHistory) then) =
+      _$ScoreHistoryCopyWithImpl<$Res, ScoreHistory>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'assessment_date') String? assessmentDate,
+      @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'is_completed') bool? isCompleted});
+}
+
+/// @nodoc
+class _$ScoreHistoryCopyWithImpl<$Res, $Val extends ScoreHistory>
+    implements $ScoreHistoryCopyWith<$Res> {
+  _$ScoreHistoryCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of ScoreHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? assessmentDate = freezed,
+    Object? totalScore = freezed,
+    Object? isCompleted = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      assessmentDate: freezed == assessmentDate
+          ? _value.assessmentDate
+          : assessmentDate // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalScore: freezed == totalScore
+          ? _value.totalScore
+          : totalScore // ignore: cast_nullable_to_non_nullable
+              as int?,
+      isCompleted: freezed == isCompleted
+          ? _value.isCompleted
+          : isCompleted // ignore: cast_nullable_to_non_nullable
+              as bool?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$ScoreHistoryImplCopyWith<$Res>
+    implements $ScoreHistoryCopyWith<$Res> {
+  factory _$$ScoreHistoryImplCopyWith(
+          _$ScoreHistoryImpl value, $Res Function(_$ScoreHistoryImpl) then) =
+      __$$ScoreHistoryImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'assessment_date') String? assessmentDate,
+      @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'is_completed') bool? isCompleted});
+}
+
+/// @nodoc
+class __$$ScoreHistoryImplCopyWithImpl<$Res>
+    extends _$ScoreHistoryCopyWithImpl<$Res, _$ScoreHistoryImpl>
+    implements _$$ScoreHistoryImplCopyWith<$Res> {
+  __$$ScoreHistoryImplCopyWithImpl(
+      _$ScoreHistoryImpl _value, $Res Function(_$ScoreHistoryImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of ScoreHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? assessmentDate = freezed,
+    Object? totalScore = freezed,
+    Object? isCompleted = freezed,
+  }) {
+    return _then(_$ScoreHistoryImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      assessmentDate: freezed == assessmentDate
+          ? _value.assessmentDate
+          : assessmentDate // ignore: cast_nullable_to_non_nullable
+              as String?,
+      totalScore: freezed == totalScore
+          ? _value.totalScore
+          : totalScore // ignore: cast_nullable_to_non_nullable
+              as int?,
+      isCompleted: freezed == isCompleted
+          ? _value.isCompleted
+          : isCompleted // ignore: cast_nullable_to_non_nullable
+              as bool?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$ScoreHistoryImpl implements _ScoreHistory {
+  const _$ScoreHistoryImpl(
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'assessment_date') this.assessmentDate,
+      @JsonKey(name: 'total_score') this.totalScore,
+      @JsonKey(name: 'is_completed') this.isCompleted});
+
+  factory _$ScoreHistoryImpl.fromJson(Map<String, dynamic> json) =>
+      _$$ScoreHistoryImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'id')
+  final int? id;
+  @override
+  @JsonKey(name: 'assessment_date')
+  final String? assessmentDate;
+  @override
+  @JsonKey(name: 'total_score')
+  final int? totalScore;
+  @override
+  @JsonKey(name: 'is_completed')
+  final bool? isCompleted;
+
+  @override
+  String toString() {
+    return 'ScoreHistory(id: $id, assessmentDate: $assessmentDate, totalScore: $totalScore, isCompleted: $isCompleted)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$ScoreHistoryImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.assessmentDate, assessmentDate) ||
+                other.assessmentDate == assessmentDate) &&
+            (identical(other.totalScore, totalScore) ||
+                other.totalScore == totalScore) &&
+            (identical(other.isCompleted, isCompleted) ||
+                other.isCompleted == isCompleted));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, id, assessmentDate, totalScore, isCompleted);
+
+  /// Create a copy of ScoreHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$ScoreHistoryImplCopyWith<_$ScoreHistoryImpl> get copyWith =>
+      __$$ScoreHistoryImplCopyWithImpl<_$ScoreHistoryImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$ScoreHistoryImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _ScoreHistory implements ScoreHistory {
+  const factory _ScoreHistory(
+          {@JsonKey(name: 'id') final int? id,
+          @JsonKey(name: 'assessment_date') final String? assessmentDate,
+          @JsonKey(name: 'total_score') final int? totalScore,
+          @JsonKey(name: 'is_completed') final bool? isCompleted}) =
+      _$ScoreHistoryImpl;
+
+  factory _ScoreHistory.fromJson(Map<String, dynamic> json) =
+      _$ScoreHistoryImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'id')
+  int? get id;
+  @override
+  @JsonKey(name: 'assessment_date')
+  String? get assessmentDate;
+  @override
+  @JsonKey(name: 'total_score')
+  int? get totalScore;
+  @override
+  @JsonKey(name: 'is_completed')
+  bool? get isCompleted;
+
+  /// Create a copy of ScoreHistory
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$ScoreHistoryImplCopyWith<_$ScoreHistoryImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

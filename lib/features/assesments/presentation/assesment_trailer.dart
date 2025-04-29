@@ -1,16 +1,25 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/data/model/user_assessment_model.dart';
 import 'package:empowered/features/assesments/presentation/dimensions_screen.dart';
 import 'package:flutter/services.dart';
 
 class AssesmentTrailer extends StatelessWidget {
-  const AssesmentTrailer({super.key});
+  const AssesmentTrailer({
+    super.key,
+    this.id,
+    this.userAssessmentData,
+    this.totalDimensions,
+  });
+  final String? id;
+  final UserAssessmentData? userAssessmentData;
+  final int? totalDimensions;
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         heroTag: 'power-app-bar',
-        title: 'Power 1/5',
+        title: '${userAssessmentData!.userAssessment!.assessment!.name} 1/$totalDimensions',
       ),
       body: SafeArea(
         child: Column(
@@ -83,40 +92,52 @@ class AssesmentTrailer extends StatelessWidget {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.all(24),
-              child: GestureDetector(
-                onTap: () {
-                  HapticFeedback.lightImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const DimensionScreen(),
-                    ),
-                  );
-                },
-                child: Container(
-                  alignment: Alignment.center,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                  decoration: BoxDecoration(
-                    color: AppColors.primary500,
-                    borderRadius: BorderRadius.circular(30),
-                  ),
-                  child: const Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        'Next',
-                        style: AppTextStyles.textBodyB1,
+            // if (userAssessmentData!.userAssessment!.isCompleted == true)
+            //   const SizedBox()
+            // else
+              Padding(
+                padding: const EdgeInsets.all(24),
+                child: GestureDetector(
+                  onTap: () async {
+                    HapticFeedback.lightImpact();
+
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DimensionScreen(
+                          userAssessmentData: userAssessmentData!,
+                          totalDimensions: totalDimensions!,
+                        ),
                       ),
-                      SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, color: AppColors.textColor50),
-                    ],
+                    );
+                  },
+                  child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 14,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.primary500,
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: const Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          'Next',
+                          style: AppTextStyles.textBodyB1,
+                        ),
+                        SizedBox(width: 8),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: AppColors.textColor50,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

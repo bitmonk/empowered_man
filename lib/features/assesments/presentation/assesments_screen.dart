@@ -12,6 +12,7 @@ class AssessmentsScreen extends StatefulWidget {
 
 class _AssessmentsScreenState extends State<AssessmentsScreen> {
   int _selectedTabIndex = 0; // 0: Assessments, 1: History
+  
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
         title: 'Assessments',
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8)
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
             .copyWith(bottom: context.devicePaddingBottom),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

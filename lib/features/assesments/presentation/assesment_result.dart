@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
 
 class AssesmentResult extends StatelessWidget {
@@ -6,6 +7,8 @@ class AssesmentResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+     final controller = Get.find<UserAssessmentController>();
+
     return AppScaffold(
       appBar: const CustomAppBar(
         heroTag: 'power-app-bar',
@@ -70,8 +73,8 @@ class AssesmentResult extends StatelessWidget {
                                       color: AppColors.primary500,
                                       borderRadius: BorderRadius.circular(32),
                                     ),
-                                    child: const Text(
-                                      '86 / 96',
+                                    child:  Text(
+                                      '${controller.scoreQuestionModel.value.data!.totalObtainedScore} / ${controller.scoreQuestionModel.value.data!.totalScore}',
                                       style: TextStyle(
                                         color: AppColors.textColor50,
                                         fontSize: 28,
@@ -172,7 +175,7 @@ class AssesmentResult extends StatelessWidget {
             Hero(
               tag: 'power-nav',
               child: Padding(
-                padding: const EdgeInsets.all(24),
+                padding: const EdgeInsets.all(6),
                 child: NavigationButtons(
                   previousText: 'Download PDF',
                   nextText: 'Complete',

@@ -1,5 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesment_trailer.dart';
+import 'package:empowered/features/assesments/presentation/controllers/get_assessment_controller.dart';
+import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_graph.dart';
 
 class AssessmentCard extends StatefulWidget {
@@ -8,6 +10,9 @@ class AssessmentCard extends StatefulWidget {
     required this.score,
     required this.iconPath,
     required this.onTap,
+    required this.status,
+    required this.id,
+    // required this.isCompleted,
     super.key,
   });
 
@@ -15,6 +20,9 @@ class AssessmentCard extends StatefulWidget {
   final String score;
   final String iconPath;
   final VoidCallback onTap;
+  final String status;
+  final String id;
+  // final bool isCompleted;
 
   @override
   State<AssessmentCard> createState() => _AssessmentCardState();
@@ -60,7 +68,7 @@ class _AssessmentCardState extends State<AssessmentCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      Image.asset(
+                      Image.network(
                         widget.iconPath,
                         width: 32,
                       ),
@@ -77,10 +85,24 @@ class _AssessmentCardState extends State<AssessmentCard> {
                       AppOutlinedButton(
                         height: 36,
                         width: 110,
-                        text: 'Start Now',
+                        text: widget.status,
                         textStyle: AppTextStyles.textBodyB3,
-                        onPressed: () {
-                          Get.to(() => const AssesmentTrailer());
+                        onPressed: () async {
+                          final controller =
+                              Get.find<UserAssessmentController>();
+                          await controller.userAssessment(widget.id);
+                          var totalDimensions = controller.userAssessmentModel
+                              .value.data?.userAssessment?.questions?.length;
+                          if (widget.status != 'Completed') {
+                            Get.to(
+                              () => AssesmentTrailer(
+                                id: widget.id,
+                                userAssessmentData:
+                                    controller.userAssessmentModel.value.data,
+                                totalDimensions: totalDimensions ?? 0,
+                              ),
+                            );
+                          }
                         },
                       ),
                     ],

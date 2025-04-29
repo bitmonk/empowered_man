@@ -36,6 +36,8 @@ class AppEndpoints {
 
   //assessment api
   static const String getAssessmentsUrl ='/user/assessments';
+  static const String createUserAssessement='/user/assessment/';
+  static const String scoreQuestionUrl = '/user/question/score';
   
 
   // Journal Api

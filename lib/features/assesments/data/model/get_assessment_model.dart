@@ -6,8 +6,8 @@ part 'get_assessment_model.freezed.dart';
 @freezed
 class GetAssessmentModel with _$GetAssessmentModel {
   const factory GetAssessmentModel({
-    @JsonKey(name: 'status') required bool status,
-    @JsonKey(name: 'message') required String message,
+    @JsonKey(name: 'status') bool? status,
+    @JsonKey(name: 'message') String? message,
     @JsonKey(name: 'data') Data? data,
   }) = _GetAssessmentModel;
   factory GetAssessmentModel.fromJson(Map<String, dynamic> json) =>
@@ -27,6 +27,7 @@ class Data with _$Data {
 class Assessments with _$Assessments {
   const factory Assessments({
     @JsonKey(name: 'Growth') List<Growth>? growth,
+    @JsonKey(name: 'Wealth') List<Growth>? wealth,
   }) = _Assessments;
   factory Assessments.fromJson(Map<String, dynamic> json) =>
       _$AssessmentsFromJson(json);
@@ -41,8 +42,23 @@ class Growth with _$Growth {
     @JsonKey(name: 'assessment_type') String? assessmentType,
     @JsonKey(name: 'has_score') bool? hasScore,
     @JsonKey(name: 'current_score') dynamic currentScore,
-    @JsonKey(name: 'score_history') List<dynamic>? scoreHistory,
+    @JsonKey(name: 'total_score') int? totalScore,
+    @JsonKey(name: 'status') String? status,
+    @JsonKey(name: 'score_history') List<ScoreHistory>? scoreHistory,
   }) = _Growth;
 
   factory Growth.fromJson(Map<String, dynamic> json) => _$GrowthFromJson(json);
+}
+
+@freezed
+class ScoreHistory with _$ScoreHistory {
+  const factory ScoreHistory({
+    @JsonKey(name: 'id') int? id,
+    @JsonKey(name: 'assessment_date') String? assessmentDate,
+    @JsonKey(name: 'total_score') int? totalScore,
+    @JsonKey(name: 'is_completed') bool? isCompleted,
+  }) = _ScoreHistory;
+
+  factory ScoreHistory.fromJson(Map<String, dynamic> json) =>
+      _$ScoreHistoryFromJson(json);
 }

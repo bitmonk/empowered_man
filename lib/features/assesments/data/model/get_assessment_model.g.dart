@@ -9,8 +9,8 @@ part of 'get_assessment_model.dart';
 _$GetAssessmentModelImpl _$$GetAssessmentModelImplFromJson(
         Map<String, dynamic> json) =>
     _$GetAssessmentModelImpl(
-      status: json['status'] as bool,
-      message: json['message'] as String,
+      status: json['status'] as bool?,
+      message: json['message'] as String?,
       data: json['data'] == null
           ? null
           : Data.fromJson(json['data'] as Map<String, dynamic>),
@@ -40,11 +40,15 @@ _$AssessmentsImpl _$$AssessmentsImplFromJson(Map<String, dynamic> json) =>
       growth: (json['Growth'] as List<dynamic>?)
           ?.map((e) => Growth.fromJson(e as Map<String, dynamic>))
           .toList(),
+      wealth: (json['Wealth'] as List<dynamic>?)
+          ?.map((e) => Growth.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$AssessmentsImplToJson(_$AssessmentsImpl instance) =>
     <String, dynamic>{
       'Growth': instance.growth,
+      'Wealth': instance.wealth,
     };
 
 _$GrowthImpl _$$GrowthImplFromJson(Map<String, dynamic> json) => _$GrowthImpl(
@@ -54,7 +58,11 @@ _$GrowthImpl _$$GrowthImplFromJson(Map<String, dynamic> json) => _$GrowthImpl(
       assessmentType: json['assessment_type'] as String?,
       hasScore: json['has_score'] as bool?,
       currentScore: json['current_score'],
-      scoreHistory: json['score_history'] as List<dynamic>?,
+      totalScore: (json['total_score'] as num?)?.toInt(),
+      status: json['status'] as String?,
+      scoreHistory: (json['score_history'] as List<dynamic>?)
+          ?.map((e) => ScoreHistory.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$GrowthImplToJson(_$GrowthImpl instance) =>
@@ -65,5 +73,23 @@ Map<String, dynamic> _$$GrowthImplToJson(_$GrowthImpl instance) =>
       'assessment_type': instance.assessmentType,
       'has_score': instance.hasScore,
       'current_score': instance.currentScore,
+      'total_score': instance.totalScore,
+      'status': instance.status,
       'score_history': instance.scoreHistory,
+    };
+
+_$ScoreHistoryImpl _$$ScoreHistoryImplFromJson(Map<String, dynamic> json) =>
+    _$ScoreHistoryImpl(
+      id: (json['id'] as num?)?.toInt(),
+      assessmentDate: json['assessment_date'] as String?,
+      totalScore: (json['total_score'] as num?)?.toInt(),
+      isCompleted: json['is_completed'] as bool?,
+    );
+
+Map<String, dynamic> _$$ScoreHistoryImplToJson(_$ScoreHistoryImpl instance) =>
+    <String, dynamic>{
+      'id': instance.id,
+      'assessment_date': instance.assessmentDate,
+      'total_score': instance.totalScore,
+      'is_completed': instance.isCompleted,
     };
