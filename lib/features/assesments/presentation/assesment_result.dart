@@ -7,12 +7,13 @@ class AssesmentResult extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-     final controller = Get.find<UserAssessmentController>();
+    final controller = Get.find<UserAssessmentController>();
 
     return AppScaffold(
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         heroTag: 'power-app-bar',
-        title: 'Power Results',
+        title:
+            '${controller.userAssessmentModel.value.data?.userAssessment?.assessment?.name} Results',
       ),
       body: SafeArea(
         child: Column(
@@ -73,9 +74,9 @@ class AssesmentResult extends StatelessWidget {
                                       color: AppColors.primary500,
                                       borderRadius: BorderRadius.circular(32),
                                     ),
-                                    child:  Text(
+                                    child: Text(
                                       '${controller.scoreQuestionModel.value.data!.totalObtainedScore} / ${controller.scoreQuestionModel.value.data!.totalScore}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: AppColors.textColor50,
                                         fontSize: 28,
                                         fontWeight: FontWeight.w600,

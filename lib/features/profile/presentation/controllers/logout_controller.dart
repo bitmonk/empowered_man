@@ -8,11 +8,12 @@ class LogoutController extends GetxController {
   Rx<TheStates> logoutState = TheStates.initial.obs;
   CancelToken? _cancelToken;
 
-  Future<bool> logout() async {
+  Future<bool> logout(String deviceId) async {
     logoutState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.logout(
       cancelToken: _cancelToken,
+      deviceId: deviceId,
     );
     var res = result.fold(
       (l) {

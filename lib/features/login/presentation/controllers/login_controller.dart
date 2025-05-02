@@ -1,3 +1,5 @@
+
+import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/login/data/source/login_remote_source.dart';
@@ -34,15 +36,20 @@ class LoginController extends GetxController {
 
   Rx<TheStates> logginInState = TheStates.initial.obs;
   CancelToken? _cancelToken;
+ 
 
   Future<bool> login() async {
     ProfileInitializer.initialize();
     logginInState.value = TheStates.loading;
     _cancelToken = CancelToken();
+    final deviceidprint =await getUniqueDeviceId();
+    print('????????????????????????????${deviceidprint}${deviceType}');
     final result = await remoteSource.login(
       email: emailController.text,
       password: passwordController.text,
       cancelToken: _cancelToken,
+      deviceId: await getUniqueDeviceId(),
+      deviceType: deviceType,
     );
     return result.fold(
       (l) {

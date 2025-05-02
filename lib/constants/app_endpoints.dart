@@ -38,7 +38,8 @@ class AppEndpoints {
   static const String getAssessmentsUrl ='/user/assessments';
   static const String createUserAssessement='/user/assessment/';
   static const String scoreQuestionUrl = '/user/question/score';
-  
+  static const String assessmentHistoryUrl = '/user/assessments/history';
+  static const String deleteAssessmentUrl = '/user/assessment/';
 
   // Journal Api
   static const String getJournalEmotionName = '/journals/emotion-names';
@@ -46,6 +47,7 @@ class AppEndpoints {
   static const String postJournalAnswer = '/journal-answers';
   static const String getJournalLibrary = '/journals-library';
   static const String getSeeJournal = '/user-journals';
+
 }
 
 class ExternalEndpoints {}

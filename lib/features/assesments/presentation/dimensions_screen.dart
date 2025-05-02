@@ -54,7 +54,7 @@ class _DimensionScreenState extends State<DimensionScreen> {
   //     Get.toNamed(AppRoutes.assesmentsResult);
   //   }
   // }
-  void goToNextDimension() async {
+  Future<void> goToNextDimension() async {
     if (widget.dimensionIndex < widget.totalDimensions) {
       // Post the current score before navigation
       await controller.scoreQuestion(
@@ -105,7 +105,8 @@ class _DimensionScreenState extends State<DimensionScreen> {
     return AppScaffold(
       appBar: CustomAppBar(
         heroTag: 'power-app-bar',
-        title: 'Power ${widget.dimensionIndex}/${widget.totalDimensions}',
+        title:
+            '${widget.userAssessmentData.userAssessment?.assessment?.name} ${widget.dimensionIndex}/${widget.totalDimensions}',
       ),
       body: SafeArea(
         child: Column(

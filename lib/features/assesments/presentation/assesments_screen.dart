@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesment_summary.dart';
+import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_history.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_pop_up.dart';
 
@@ -12,8 +13,8 @@ class AssessmentsScreen extends StatefulWidget {
 
 class _AssessmentsScreenState extends State<AssessmentsScreen> {
   int _selectedTabIndex = 0; // 0: Assessments, 1: History
-  
-
+  final controller = Get.find<AssessmentHistoryController>();
+  final List<String> selectedIds = [];
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -55,10 +56,17 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                     index: 1,
                   ),
                   const Spacer(),
-                  if (_selectedTabIndex == 1)
-                    const AssesmentPopUp()
-                  else
-                    const VerticalSpacing(35),
+                  AssesmentPopUp(
+                    selectedIds: controller.selectedAssessmentIds,
+                    onDeleteSuccess: () {
+                      controller.getAssessmentHistory(isInitialLoad: true);
+                    },
+                  ),
+
+                  // if (_selectedTabIndex == 1)
+                  //   AssesmentPopUp(selectedIds: selectedIds)
+                  // else
+                  //   const VerticalSpacing(35),
                 ],
               ),
             ),

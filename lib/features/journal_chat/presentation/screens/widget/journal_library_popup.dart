@@ -1,15 +1,8 @@
-import 'dart:io';
-
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:pdf/pdf.dart';
-import 'package:pdf/widgets.dart' as pw;
-import 'package:permission_handler/permission_handler.dart';
-import 'package:share_plus/share_plus.dart';
 
 class JournalLibraryPopUp extends StatefulWidget {
   const JournalLibraryPopUp({
@@ -208,51 +201,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     return buffer.toString();
   }
 
-// Helper method to show loading dialog
-  void _showLoadingDialog(String message) {
-    Get.dialog(
-      Material(
-        color: Colors.transparent,
-        child: Padding(
-          padding: const EdgeInsets.all(40),
-          child: Center(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: AppColors.bgBorder,
-                borderRadius: BorderRadius.circular(8),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    spreadRadius: 2,
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  const CircularProgressIndicator(
-                    strokeWidth: 3,
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    message,
-                    style: AppTextStyles.textBodyB3,
-                    textAlign: TextAlign.center,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ),
-      barrierDismissible: false,
-    );
-  }
-
 // Helper function to check if sharing is available
   Future<bool> canShare(String filePath) async {
     try {
@@ -261,43 +209,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       return false;
     }
   }
-
-  // String _formatJournalDataForPdf() {
-  //   final buffer = StringBuffer();
-  //   for (final journal
-  //       in _controller.userJournalResponse.value.data?.userJournals ?? []) {
-  //     // Add journal emotion/title
-  //     buffer
-  //       ..writeln('${journal.journal?.emotionName ?? "Untitled Journal"}')
-  //       ..writeln('-------------------------------------------');
-
-  //     final journalAnswers = journal.journalAnswers;
-  //     if (journalAnswers != null && journalAnswers.isNotEmpty) {
-  //       for (final answer in journalAnswers) {
-  //         // Add main question and answer
-  //         if (answer.mainQuestion != null) {
-  //           buffer
-  //             ..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
-  //             ..writeln('A: ${answer.text ?? "No answer provided"}')
-  //             ..writeln();
-  //         }
-  //         // Add follow-up question and answer if available
-  //         if (answer.followUpQuestion != null) {
-  //           buffer
-  //             ..writeln(
-  //               'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
-  //             )
-  //             ..writeln('A: ${answer.text ?? "No answer provided"}')
-  //             ..writeln();
-  //         }
-  //       }
-  //     } else {
-  //       buffer.writeln('No answers available for this journal.');
-  //     }
-  //     buffer.writeln('\n\n');
-  //   }
-  //   return buffer.toString();
-  // }
 
   Future<void> _initializeData() async {}
 

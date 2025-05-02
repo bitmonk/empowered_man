@@ -1,4 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
+import 'package:intl/intl.dart';
 
 class AssesmentHistory extends StatefulWidget {
   const AssesmentHistory({super.key});
@@ -8,8 +10,48 @@ class AssesmentHistory extends StatefulWidget {
 }
 
 class _AssesmentHistoryState extends State<AssesmentHistory> {
-  List<bool> _selectedItems = List.generate(20, (index) => false);
-  bool _selectAll = false; // Track the "Select All" state
+  final AssessmentHistoryController controller =
+      Get.find<AssessmentHistoryController>();
+  AssessmentHistoryPagination paginationName =
+      AssessmentHistoryPagination.history;
+  List<bool> _selectedItems = [];
+  final bool _selectAll = false;
+  List<String> selectedIds = [];
+  @override
+  void initState() {
+    super.initState();
+    // controller.getAssessmentHistory(isInitialLoad: true);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeData();
+    });
+  }
+
+  Future<void> _initializeData() async {
+    controller.seletedAssessmentHistoryPagination.value = paginationName;
+    final scrollController = controller.getScrollController(
+      paginationName,
+    );
+    await controller.getAssessmentHistory(isInitialLoad: true);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // if (_controller.tabDataLoaded[paginationName] != true) {
+      controller.selectBulk.value = List.generate(
+        controller.userAssessmentHistoryList.length,
+        (_) => false,
+      );
+      _selectedItems = List.generate(
+        controller.userAssessmentHistoryList.length,
+        (_) => false,
+      );
+      // }
+    });
+    scrollController.addListener(() {
+      if (scrollController.position.pixels >=
+          scrollController.position.maxScrollExtent * 0.8) {
+        controller.loadMoreData(paginationName);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,12 +67,47 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           },
           children: [
             _buildTableHeaderRow(),
-            ...List.generate(20, (index) => _buildTableRow(index)),
+            ...List.generate(
+              controller.userAssessmentHistoryList.length,
+              (index) => _buildTableRow(index),
+            ),
           ],
         ),
       ),
     );
   }
+
+  // void _toggleSelection(int index, bool isSelected) {
+  //   setState(() {
+  //     _selectedItems[index] = isSelected;
+  //     _selectAll = _selectedItems.every((item) => item);
+
+  //     // Update selected IDs
+  //     final assessment = controller.userAssessmentHistoryList[index];
+  //     if (isSelected) {
+  //       if (!selectedIds.contains(assessment.id)) {
+  //         selectedIds.add(assessment.id.toString());
+  //       }
+  //     } else {
+  //       selectedIds.remove(assessment.id);
+  //     }
+  //   });
+  // }
+
+  // void _toggleSelectAll(bool isSelected) {
+  //   setState(() {
+  //     _selectAll = isSelected;
+  //     _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
+
+  //     // Update selected IDs
+  //     selectedIds.clear();
+  //     if (isSelected) {
+  //       selectedIds.addAll(controller.userAssessmentHistoryList
+  //           .where((assessment) => assessment.id != null)
+  //           .map((assessment) => assessment.id.toString()));
+  //     }
+  //   });
+  // }
 
   /// Table Header Row with "Select All"
   TableRow _buildTableHeaderRow() {
@@ -47,12 +124,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           padding: const EdgeInsets.only(top: 16, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () {
-              setState(() {
-                _selectAll = !_selectAll;
-                _selectedItems = List.generate(20, (index) => _selectAll);
-              });
-            },
+            // onTap: () => controller.selectAllAssessments(!_selectAll),
             child: Icon(
               _selectAll
                   ? Icons.radio_button_checked
@@ -70,6 +142,29 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
 
   /// Table Data Row with selection icon
   TableRow _buildTableRow(int index) {
+    final assessments = controller.userAssessmentHistoryList;
+    if (index >= assessments.length) {
+      return TableRow(
+        children: [
+          _tableCell(''),
+          _tableCell(''),
+          _tableCell(''),
+          _tableCell(''),
+        ],
+      );
+    }
+    if (controller.selectBulk.length <= index) {
+      // Expand the list if needed
+      controller.selectBulk.value = List.generate(
+        assessments.length,
+        (i) =>
+            i < controller.selectBulk.length ? controller.selectBulk[i] : false,
+      );
+    }
+    final assessment = assessments[index];
+    var formattedTime = formatDateTime(assessment.assessmentDate ?? 'N/A');
+    final scoreValue =
+        '${assessment.isCompleted! ? assessment.totalObtainedScore : '--'} / ${assessment.totalScore}';
     var isPlaceholder = index == 0 || index == 3;
     return TableRow(
       children: [
@@ -77,10 +172,15 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           padding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
+            // onTap: () => controller.toggleAssessmentSelection(index.toString(), !_selectedItems[index]),
             onTap: () {
               setState(() {
                 _selectedItems[index] = !_selectedItems[index];
-                _selectAll = _selectedItems.every((item) => item);
+                controller.selectBulk.value = List.generate(
+                  controller.userAssessmentHistoryList.length,
+                  (index) => _selectAll,
+                );
+                // _selectAll = _selectedItems.every((item) => item);
               });
             },
             child: Icon(
@@ -91,13 +191,14 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
             ),
           ),
         ),
-        _tableCell('21/12/2024', isLink: !isPlaceholder),
+        _tableCell(formattedTime, isLink: !isPlaceholder),
         _tableCell(
-          isPlaceholder ? 'Production' : 'Production',
+          assessment.assessmentName ?? 'Production',
           isLink: !isPlaceholder,
           isBlue: !isPlaceholder,
         ),
-        _tableCell(isPlaceholder ? '--/96' : '92/96', isLink: !isPlaceholder),
+        _tableCell(scoreValue),
+        // _tableCell(isPlaceholder ? '--/96' : '92/96', isLink: !isPlaceholder),
       ],
     );
   }
@@ -111,6 +212,16 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
       ),
     );
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null) return 'N/A';
+    try {
+      final dateTime = DateTime.parse(dateTimeStr);
+      return DateFormat.yMd().format(dateTime.toLocal());
+    } catch (e) {
+      return 'N/A';
+    }
   }
 
   /// Helper to create table data cells

@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesment_trailer.dart';
-import 'package:empowered/features/assesments/presentation/controllers/get_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_graph.dart';
 

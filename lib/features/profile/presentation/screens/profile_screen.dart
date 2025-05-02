@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/app_directory/presentation/controllers/app_directory_bindings.dart';
@@ -92,8 +93,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 child: _profileController.selectedImage.value !=
                                         null
                                     ? Image.file(
-                                        File(_profileController
-                                            .selectedImage.value!.path,),
+                                        File(
+                                          _profileController
+                                              .selectedImage.value!.path,
+                                        ),
                                         width: 120,
                                         height: 120,
                                         fit: BoxFit.cover,
@@ -326,8 +329,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 ),
                                 onTap: () async {
                                   // final controller = Get.find<LoginController>();
+                                  final deviceId = await getUniqueDeviceId();
+
                                   final result =
-                                      await _logoutController.logout();
+                                      await _logoutController.logout(deviceId);
 
                                   if (result) {
                                     await Get.find<AppSharedPref>().removeAll();

@@ -114,26 +114,26 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
     for (final journal in widget.userJournal!) {
       // Add journal emotion/title
-      buffer.writeln(journal.journal?.emotionName ?? 'Untitled Journal');
-      buffer.writeln('-------------------------------------------');
+      buffer..writeln(journal.journal?.emotionName ?? 'Untitled Journal')
+      ..writeln('-------------------------------------------');
 
       final journalAnswers = journal.journalAnswers;
       if (journalAnswers != null && journalAnswers.isNotEmpty) {
         for (final answer in journalAnswers) {
           // Add main question and answer
           if (answer.mainQuestion != null) {
-            buffer.writeln('Q: ${answer.mainQuestion!.question ?? "Question"}');
-            buffer.writeln('A: ${answer.text ?? "No answer provided"}');
-            buffer.writeln();
+            buffer..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
+            ..writeln('A: ${answer.text ?? "No answer provided"}')
+            ..writeln();
           }
 
           // Add follow-up question and answer if available
           if (answer.followUpQuestion != null) {
-            buffer.writeln(
+            buffer..writeln(
               'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
-            );
-            buffer.writeln('A: ${answer.text ?? "No answer provided"}');
-            buffer.writeln();
+            )
+            ..writeln('A: ${answer.text ?? "No answer provided"}')
+            ..writeln();
           }
         }
       } else {

@@ -16,6 +16,8 @@ class LoginRemoteSource {
   Future<Either<AppError, String>> login({
     required String email,
     required String password,
+    required String deviceId,
+    required String deviceType,
     CancelToken? cancelToken,
   }) async {
     try {
@@ -28,6 +30,8 @@ class LoginRemoteSource {
           'email': email,
           'password': password,
           'device_token': deviceToken ?? 'test_token',
+          'device_id': deviceId,
+          'device_type': deviceType,
         },
         cancelToken: cancelToken,
       );

@@ -396,9 +396,9 @@ Future<void> exportPdf(
           '${emotionNames[i].toLowerCase().replaceAll(' ', '_')}_journal.pdf',
           pdfFiles[i].lengthSync(),
           pdfFiles[i].readAsBytesSync(),
-        ));
+        ),);
       }
-      await zipFile.writeAsBytes(encoder.encode(archive)!);
+      await zipFile.writeAsBytes(encoder.encode(archive));
       
       // Then save the zip file
       final result = await FileSaver.instance.saveAs(
@@ -427,31 +427,6 @@ Future<void> exportPdf(
     }
   }
 }
-
-// class BatchFileManager {
-//   static Future<List<File>> saveMultipleFiles(
-//     List<String> fileContents,
-//     String baseFileName,
-//     Directory directory,
-//   ) async {
-//     final List<File> savedFiles = [];
-
-//     for (int i = 0; i < fileContents.length; i++) {
-//       final fileName = '${baseFileName}_${i + 1}.pdf';
-//       final filePath = '${directory.path}/$fileName';
-
-//       try {
-//         final file = File(filePath);
-//         await file.writeAsString(fileContents[i]);
-//         savedFiles.add(file);
-//       } catch (e) {
-//         print('Error saving file $fileName: $e');
-//       }
-//     }
-
-//     return savedFiles;
-//   }
-// }
 
 class Utils {
   MimeType getMimeType(String ext) {

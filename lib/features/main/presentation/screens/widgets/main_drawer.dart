@@ -1,5 +1,8 @@
+
+import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/features/assesments/presentation/controllers/assessment_history_bindings.dart';
 import 'package:empowered/features/assesments/presentation/controllers/get_assessment_bindings.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
@@ -211,6 +214,8 @@ class MainDrawer extends GetView<MainController> {
                       onTap: () {
                         GetAssessmentInitializer.destroy();
                         GetAssessmentInitializer.initialize();
+                        AssessmentHistoryInitializer.destroy();
+                        AssessmentHistoryInitializer.initialize();
                         Navigator.pop(context);
                         Get.toNamed(AppRoutes.assesmentsScreen);
                       },
@@ -240,7 +245,9 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () async {
                         final controller = Get.find<LogoutController>();
-                        final result = await controller.logout();
+
+                        final deviceId = await getUniqueDeviceId();
+                        final result = await controller.logout(deviceId);
 
                         if (result) {
                           await Get.find<AppSharedPref>().removeAll();
@@ -261,3 +268,4 @@ class MainDrawer extends GetView<MainController> {
     );
   }
 }
+
