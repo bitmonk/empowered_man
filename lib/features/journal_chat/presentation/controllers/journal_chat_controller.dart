@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
+import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/data/source/journal_chat_remote_source.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 
 class JournalChatController extends GetxController {
   JournalChatController({required this.remoteSource});

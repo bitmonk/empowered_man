@@ -15,7 +15,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
   AssessmentHistoryPagination paginationName =
       AssessmentHistoryPagination.history;
   List<bool> _selectedItems = [];
-  final bool _selectAll = false;
+  bool _selectAll = false;
   List<String> selectedIds = [];
   @override
   void initState() {
@@ -53,61 +53,69 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     });
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return ThemedContainer(
-      padding: EdgeInsets.zero,
-      child: SingleChildScrollView(
-        child: Table(
-          columnWidths: const {
-            0: FixedColumnWidth(35), // Selection icon column
-            1: FlexColumnWidth(1.2),
-            2: FlexColumnWidth(),
-            3: FlexColumnWidth(),
-          },
-          children: [
-            _buildTableHeaderRow(),
-            ...List.generate(
-              controller.userAssessmentHistoryList.length,
-              (index) => _buildTableRow(index),
-            ),
-          ],
-        ),
-      ),
-    );
+  void _toggleSelection(int index, bool isSelected) {
+    setState(() {
+      _selectedItems[index] = isSelected;
+      _selectAll = _selectedItems.every((item) => item);
+
+      // Update selected IDs
+      final assessment = controller.userAssessmentHistoryList[index];
+      if (isSelected) {
+        if (!selectedIds.contains(assessment.id.toString())) {
+          selectedIds.add(assessment.id.toString());
+        }
+      } else {
+        selectedIds.remove(assessment.id.toString());
+      }
+    });
   }
 
-  // void _toggleSelection(int index, bool isSelected) {
-  //   setState(() {
-  //     _selectedItems[index] = isSelected;
-  //     _selectAll = _selectedItems.every((item) => item);
+  void _toggleSelectAll(bool isSelected) {
+    setState(() {
+      _selectAll = isSelected;
+      _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
 
-  //     // Update selected IDs
-  //     final assessment = controller.userAssessmentHistoryList[index];
-  //     if (isSelected) {
-  //       if (!selectedIds.contains(assessment.id)) {
-  //         selectedIds.add(assessment.id.toString());
-  //       }
-  //     } else {
-  //       selectedIds.remove(assessment.id);
-  //     }
-  //   });
-  // }
+      // Update selected IDs
+      selectedIds.clear();
+      if (isSelected) {
+        selectedIds.addAll(controller.userAssessmentHistoryList
+            .where((assessment) => assessment.id != null)
+            .map((assessment) => assessment.id.toString()));
+      }
+    });
+  }
 
-  // void _toggleSelectAll(bool isSelected) {
-  //   setState(() {
-  //     _selectAll = isSelected;
-  //     _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
+  @override
+  Widget build(BuildContext context) {
+    return Obx(() {
+      final itemCount = controller.userAssessmentHistoryList.length;
 
-  //     // Update selected IDs
-  //     selectedIds.clear();
-  //     if (isSelected) {
-  //       selectedIds.addAll(controller.userAssessmentHistoryList
-  //           .where((assessment) => assessment.id != null)
-  //           .map((assessment) => assessment.id.toString()));
-  //     }
-  //   });
-  // }
+      // Ensure _selectedItems is correctly initialized
+      if (_selectedItems.length != itemCount) {
+        _selectedItems = List.generate(itemCount, (_) => false);
+      }
+      return ThemedContainer(
+        padding: EdgeInsets.zero,
+        child: SingleChildScrollView(
+          child: Table(
+            columnWidths: const {
+              0: FixedColumnWidth(35), // Selection icon column
+              1: FlexColumnWidth(1.2),
+              2: FlexColumnWidth(),
+              3: FlexColumnWidth(),
+            },
+            children: [
+              _buildTableHeaderRow(),
+              ...List.generate(
+                controller.userAssessmentHistoryList.length,
+                (index) => _buildTableRow(index),
+              ),
+            ],
+          ),
+        ),
+      );
+    });
+  }
 
   /// Table Header Row with "Select All"
   TableRow _buildTableHeaderRow() {
@@ -124,7 +132,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           padding: const EdgeInsets.only(top: 16, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            // onTap: () => controller.selectAllAssessments(!_selectAll),
+            onTap: () => _toggleSelectAll(!_selectAll),
             child: Icon(
               _selectAll
                   ? Icons.radio_button_checked
@@ -172,17 +180,17 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           padding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            // onTap: () => controller.toggleAssessmentSelection(index.toString(), !_selectedItems[index]),
-            onTap: () {
-              setState(() {
-                _selectedItems[index] = !_selectedItems[index];
-                controller.selectBulk.value = List.generate(
-                  controller.userAssessmentHistoryList.length,
-                  (index) => _selectAll,
-                );
-                // _selectAll = _selectedItems.every((item) => item);
-              });
-            },
+            onTap: () => _toggleSelection(index, !_selectedItems[index]),
+            // onTap: () {
+            //   setState(() {
+            //     _selectedItems[index] = !_selectedItems[index];
+            //     controller.selectBulk.value = List.generate(
+            //       controller.userAssessmentHistoryList.length,
+            //       (index) => _selectAll,
+            //     );
+            //     // _selectAll = _selectedItems.every((item) => item);
+            //   });
+            // },
             child: Icon(
               _selectedItems[index]
                   ? Icons.radio_button_checked

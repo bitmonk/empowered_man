@@ -970,14 +970,14 @@ ScoreHistory _$ScoreHistoryFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ScoreHistory {
-  @JsonKey(name: 'id')
-  int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'assessment_date')
-  String? get assessmentDate => throw _privateConstructorUsedError;
-  @JsonKey(name: 'total_score')
-  int? get totalScore => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_completed')
-  bool? get isCompleted => throw _privateConstructorUsedError;
+  @JsonKey(name: 'W1')
+  int? get w1 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'W2')
+  int? get w2 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'W3')
+  int? get w3 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'W4')
+  int? get w4 => throw _privateConstructorUsedError;
 
   /// Serializes this ScoreHistory to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -996,10 +996,10 @@ abstract class $ScoreHistoryCopyWith<$Res> {
       _$ScoreHistoryCopyWithImpl<$Res, ScoreHistory>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'assessment_date') String? assessmentDate,
-      @JsonKey(name: 'total_score') int? totalScore,
-      @JsonKey(name: 'is_completed') bool? isCompleted});
+      {@JsonKey(name: 'W1') int? w1,
+      @JsonKey(name: 'W2') int? w2,
+      @JsonKey(name: 'W3') int? w3,
+      @JsonKey(name: 'W4') int? w4});
 }
 
 /// @nodoc
@@ -1017,28 +1017,28 @@ class _$ScoreHistoryCopyWithImpl<$Res, $Val extends ScoreHistory>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? assessmentDate = freezed,
-    Object? totalScore = freezed,
-    Object? isCompleted = freezed,
+    Object? w1 = freezed,
+    Object? w2 = freezed,
+    Object? w3 = freezed,
+    Object? w4 = freezed,
   }) {
     return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
+      w1: freezed == w1
+          ? _value.w1
+          : w1 // ignore: cast_nullable_to_non_nullable
               as int?,
-      assessmentDate: freezed == assessmentDate
-          ? _value.assessmentDate
-          : assessmentDate // ignore: cast_nullable_to_non_nullable
-              as String?,
-      totalScore: freezed == totalScore
-          ? _value.totalScore
-          : totalScore // ignore: cast_nullable_to_non_nullable
+      w2: freezed == w2
+          ? _value.w2
+          : w2 // ignore: cast_nullable_to_non_nullable
               as int?,
-      isCompleted: freezed == isCompleted
-          ? _value.isCompleted
-          : isCompleted // ignore: cast_nullable_to_non_nullable
-              as bool?,
+      w3: freezed == w3
+          ? _value.w3
+          : w3 // ignore: cast_nullable_to_non_nullable
+              as int?,
+      w4: freezed == w4
+          ? _value.w4
+          : w4 // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -1052,10 +1052,10 @@ abstract class _$$ScoreHistoryImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'assessment_date') String? assessmentDate,
-      @JsonKey(name: 'total_score') int? totalScore,
-      @JsonKey(name: 'is_completed') bool? isCompleted});
+      {@JsonKey(name: 'W1') int? w1,
+      @JsonKey(name: 'W2') int? w2,
+      @JsonKey(name: 'W3') int? w3,
+      @JsonKey(name: 'W4') int? w4});
 }
 
 /// @nodoc
@@ -1071,28 +1071,28 @@ class __$$ScoreHistoryImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = freezed,
-    Object? assessmentDate = freezed,
-    Object? totalScore = freezed,
-    Object? isCompleted = freezed,
+    Object? w1 = freezed,
+    Object? w2 = freezed,
+    Object? w3 = freezed,
+    Object? w4 = freezed,
   }) {
     return _then(_$ScoreHistoryImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
+      w1: freezed == w1
+          ? _value.w1
+          : w1 // ignore: cast_nullable_to_non_nullable
               as int?,
-      assessmentDate: freezed == assessmentDate
-          ? _value.assessmentDate
-          : assessmentDate // ignore: cast_nullable_to_non_nullable
-              as String?,
-      totalScore: freezed == totalScore
-          ? _value.totalScore
-          : totalScore // ignore: cast_nullable_to_non_nullable
+      w2: freezed == w2
+          ? _value.w2
+          : w2 // ignore: cast_nullable_to_non_nullable
               as int?,
-      isCompleted: freezed == isCompleted
-          ? _value.isCompleted
-          : isCompleted // ignore: cast_nullable_to_non_nullable
-              as bool?,
+      w3: freezed == w3
+          ? _value.w3
+          : w3 // ignore: cast_nullable_to_non_nullable
+              as int?,
+      w4: freezed == w4
+          ? _value.w4
+          : w4 // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -1101,30 +1101,30 @@ class __$$ScoreHistoryImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ScoreHistoryImpl implements _ScoreHistory {
   const _$ScoreHistoryImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'assessment_date') this.assessmentDate,
-      @JsonKey(name: 'total_score') this.totalScore,
-      @JsonKey(name: 'is_completed') this.isCompleted});
+      {@JsonKey(name: 'W1') this.w1,
+      @JsonKey(name: 'W2') this.w2,
+      @JsonKey(name: 'W3') this.w3,
+      @JsonKey(name: 'W4') this.w4});
 
   factory _$ScoreHistoryImpl.fromJson(Map<String, dynamic> json) =>
       _$$ScoreHistoryImplFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
-  final int? id;
+  @JsonKey(name: 'W1')
+  final int? w1;
   @override
-  @JsonKey(name: 'assessment_date')
-  final String? assessmentDate;
+  @JsonKey(name: 'W2')
+  final int? w2;
   @override
-  @JsonKey(name: 'total_score')
-  final int? totalScore;
+  @JsonKey(name: 'W3')
+  final int? w3;
   @override
-  @JsonKey(name: 'is_completed')
-  final bool? isCompleted;
+  @JsonKey(name: 'W4')
+  final int? w4;
 
   @override
   String toString() {
-    return 'ScoreHistory(id: $id, assessmentDate: $assessmentDate, totalScore: $totalScore, isCompleted: $isCompleted)';
+    return 'ScoreHistory(w1: $w1, w2: $w2, w3: $w3, w4: $w4)';
   }
 
   @override
@@ -1132,19 +1132,15 @@ class _$ScoreHistoryImpl implements _ScoreHistory {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ScoreHistoryImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.assessmentDate, assessmentDate) ||
-                other.assessmentDate == assessmentDate) &&
-            (identical(other.totalScore, totalScore) ||
-                other.totalScore == totalScore) &&
-            (identical(other.isCompleted, isCompleted) ||
-                other.isCompleted == isCompleted));
+            (identical(other.w1, w1) || other.w1 == w1) &&
+            (identical(other.w2, w2) || other.w2 == w2) &&
+            (identical(other.w3, w3) || other.w3 == w3) &&
+            (identical(other.w4, w4) || other.w4 == w4));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, assessmentDate, totalScore, isCompleted);
+  int get hashCode => Object.hash(runtimeType, w1, w2, w3, w4);
 
   /// Create a copy of ScoreHistory
   /// with the given fields replaced by the non-null parameter values.
@@ -1164,27 +1160,26 @@ class _$ScoreHistoryImpl implements _ScoreHistory {
 
 abstract class _ScoreHistory implements ScoreHistory {
   const factory _ScoreHistory(
-          {@JsonKey(name: 'id') final int? id,
-          @JsonKey(name: 'assessment_date') final String? assessmentDate,
-          @JsonKey(name: 'total_score') final int? totalScore,
-          @JsonKey(name: 'is_completed') final bool? isCompleted}) =
-      _$ScoreHistoryImpl;
+      {@JsonKey(name: 'W1') final int? w1,
+      @JsonKey(name: 'W2') final int? w2,
+      @JsonKey(name: 'W3') final int? w3,
+      @JsonKey(name: 'W4') final int? w4}) = _$ScoreHistoryImpl;
 
   factory _ScoreHistory.fromJson(Map<String, dynamic> json) =
       _$ScoreHistoryImpl.fromJson;
 
   @override
-  @JsonKey(name: 'id')
-  int? get id;
+  @JsonKey(name: 'W1')
+  int? get w1;
   @override
-  @JsonKey(name: 'assessment_date')
-  String? get assessmentDate;
+  @JsonKey(name: 'W2')
+  int? get w2;
   @override
-  @JsonKey(name: 'total_score')
-  int? get totalScore;
+  @JsonKey(name: 'W3')
+  int? get w3;
   @override
-  @JsonKey(name: 'is_completed')
-  bool? get isCompleted;
+  @JsonKey(name: 'W4')
+  int? get w4;
 
   /// Create a copy of ScoreHistory
   /// with the given fields replaced by the non-null parameter values.

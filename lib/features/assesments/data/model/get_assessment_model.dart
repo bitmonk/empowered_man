@@ -50,13 +50,25 @@ class Growth with _$Growth {
   factory Growth.fromJson(Map<String, dynamic> json) => _$GrowthFromJson(json);
 }
 
+// @freezed
+// class ScoreHistory with _$ScoreHistory {
+//   const factory ScoreHistory({
+//     @JsonKey(name: 'id') int? id,
+//     @JsonKey(name: 'assessment_date') String? assessmentDate,
+//     @JsonKey(name: 'total_score') int? totalScore,
+//     @JsonKey(name: 'is_completed') bool? isCompleted,
+//   }) = _ScoreHistory;
+
+//   factory ScoreHistory.fromJson(Map<String, dynamic> json) =>
+//       _$ScoreHistoryFromJson(json);
+// }
 @freezed
 class ScoreHistory with _$ScoreHistory {
   const factory ScoreHistory({
-    @JsonKey(name: 'id') int? id,
-    @JsonKey(name: 'assessment_date') String? assessmentDate,
-    @JsonKey(name: 'total_score') int? totalScore,
-    @JsonKey(name: 'is_completed') bool? isCompleted,
+    @JsonKey(name: 'W1') int? w1,
+    @JsonKey(name: 'W2') int? w2,
+    @JsonKey(name: 'W3') int? w3,
+    @JsonKey(name: 'W4') int? w4,
   }) = _ScoreHistory;
 
   factory ScoreHistory.fromJson(Map<String, dynamic> json) =>

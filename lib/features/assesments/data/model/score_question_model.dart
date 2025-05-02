@@ -19,7 +19,7 @@ class ScoreQuestionModel with _$ScoreQuestionModel {
 class ScoreQuestionData with _$ScoreQuestionData {
   const factory ScoreQuestionData({
     @JsonKey(name: 'question_score') QuestionScore? questionScore,
-    @JsonKey(name: 'total_obtained_score') String? totalObtainedScore,
+    @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
     @JsonKey(name: 'total_score') int? totalScore,
   }) = _ScoreQuestionData;
 
@@ -31,9 +31,9 @@ class ScoreQuestionData with _$ScoreQuestionData {
 class QuestionScore with _$QuestionScore {
   const factory QuestionScore({
     @JsonKey(name: 'id') int? id,
-    @JsonKey(name: 'user_assessment_score_id') int? userAssessmentScoreId,
-    @JsonKey(name: 'assessment_question_id') int? assessmentQuestionId,
-    @JsonKey(name: 'score') String? score,
+    @JsonKey(name: 'user_assessment_score_id') dynamic userAssessmentScoreId,
+    @JsonKey(name: 'assessment_question_id') dynamic assessmentQuestionId,
+    @JsonKey(name: 'score') int? score,
   }) = _QuestionScore;
 
   factory QuestionScore.fromJson(Map<String, dynamic> json) =>

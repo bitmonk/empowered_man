@@ -1,14 +1,104 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 
-class AssesmentPopUp extends StatelessWidget {
+class AssesmentPopUp extends StatefulWidget {
   const AssesmentPopUp({
-    required this.selectedIds,
-    required this.onDeleteSuccess,
+    required this.selectedItems,
+    required this.assessmentHistoryList,
+    required this.onSelected,
+    required this.searchAssessment,
     super.key,
   });
-  final List<String> selectedIds;
-  final VoidCallback onDeleteSuccess;
+  final List<bool> selectedItems;
+  final bool searchAssessment;
+  final Function(List<String> deletedIds, bool shouldClearSelection) onSelected;
+  final List<UserAssessment> assessmentHistoryList;
+
+  @override
+  State<AssesmentPopUp> createState() => _AssesmentPopUpState();
+}
+
+class _AssesmentPopUpState extends State<AssesmentPopUp> {
+  final AssessmentHistoryController controller = Get.find<AssessmentHistoryController>();
+  Future<void> _handleDelete() async {
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      if (widget.selectedItems.where((item) => item).isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No assessment selected for deletion',
+        );
+        return;
+      }
+
+      final shouldDelete = await Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: AppColors.bgBorder,
+          title: const Text(
+            'Delete assessments',
+            style: AppTextStyles.textHeadingH3,
+          ),
+          content: const Text(
+            'Are you sure you want to delete the selected assessments? This action cannot be undone.',
+            style: AppTextStyles.textBodyB2,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textColor50),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldDelete != true) return;
+
+      final assessmentIds = <String>[];
+      final assessments = widget.searchAssessment
+          ? controller.userAssessmentSearchList
+          : controller.userAssessmentHistoryList;
+
+      for (var i = 0; i < widget.selectedItems.length; i++) {
+        if (widget.selectedItems[i] && i < assessments.length) {
+          assessmentIds.add(assessments[i].id.toString());
+        }
+      }
+
+      if (assessmentIds.isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No valid assessments found for deletion',
+        );
+        return;
+      }
+
+      try {
+        final result = await controller.deleteAssessments(assessmentIds);
+        if (result == true) {
+          widget.onSelected(assessmentIds, true);
+          await controller.getAssessmentHistory(
+            isInitialLoad: true,
+            searchAssessment: widget.searchAssessment,
+          );
+          // Get.close(1);
+        }
+      } catch (e) {
+        print('Error deleting journals: $e');
+        AppUtils.showErrorSnackbar(
+          message: 'Failed to delete journals: $e',
+        );
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<AssessmentHistoryController>();
@@ -18,16 +108,13 @@ class AssesmentPopUp extends StatelessWidget {
       icon: Assets.images.cirlceThreeDot.svg(), // Uses the three-dot icon
       color: AppColors.bgBorder, // Background color matching the UI
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      onSelected: (value) async{
+      onSelected: (value) async {
         switch (value) {
           case 'download':
             // Handle download action
             break;
           case 'delete':
-            final success = await _handleDelete(controller, context);
-            if (success == true) {
-              onDeleteSuccess();
-            }
+            _handleDelete();
           case 'share':
             // Handle share action
             break;
@@ -47,36 +134,6 @@ class AssesmentPopUp extends StatelessWidget {
         _buildPopupMenuItem('Share', Assets.images.sharePop.path, 'share'),
       ],
     );
-  }
-
-Future<bool?> _handleDelete(
-    AssessmentHistoryController controller,
-    BuildContext context,
-  ) async {
-    if (selectedIds.isEmpty) return false;
-    
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Delete Assessments'),
-        content: Text(
-          'Are you sure you want to delete ${selectedIds.length} selected assessment(s)?',),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
-          ),
-        ],
-      ),
-    );
-    
-    if (confirmed != true) return false;
-    
-    return  controller.deleteAssessments(selectedIds);
   }
 
   PopupMenuItem<String> _buildPopupMenuItem(

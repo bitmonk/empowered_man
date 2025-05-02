@@ -7,7 +7,7 @@ import 'package:empowered/features/tasks/presentation/screens/widget/priority_co
 class SubTaskTile extends StatefulWidget {
   const SubTaskTile({required this.subtask, required this.mainTask, super.key});
   final Task mainTask;
-  final Task subtask;
+  final SubTask subtask;
   @override
   State<SubTaskTile> createState() => _SubTaskTileState();
 }
@@ -64,41 +64,45 @@ class _SubTaskTileState extends State<SubTaskTile> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(5),
-                  child: controller.mmarkSubTaskCompletedState.value ==
-                          TheStates.loading
-                      ? const AppLoadingWidget.small(
-                          size: 16,
-                        )
-                      : InkWell(
-                          onTap: () async {
-                            var res = await controller.markSubTaskCompleted(
-                                taskId: widget.mainTask.id.toString(),
-                                subTaskId: widget.subtask.id.toString(),);
-                            if (res) {
-                              setState(() {
-                                isSubTaskDone = res;
-                              });
-                            }
-                          },
-                          child: isSubTaskDone
-                              ? Assets.images.tickCircle.svg()
-                              : Row(
-                                  children: [
-                                    const Icon(
-                                      Icons.circle_outlined,
-                                      color: AppColors.colorC1C9D1,
-                                      size: 20,
+                  child:
+                      (controller.markingSubTaskIds.contains(widget.subtask.id))
+                          ? const AppLoadingWidget.small(
+                              size: 16,
+                            )
+                          : InkWell(
+                              onTap: () async {
+                                if (widget.subtask.status == isCompleted) {
+                                  return;
+                                }
+                                var res = await controller.markSubTaskCompleted(
+                                  taskId: widget.mainTask.id.toString(),
+                                  subTaskId: widget.subtask.id.toString(),
+                                );
+                                if (res) {
+                                  setState(() {
+                                    isSubTaskDone = res;
+                                  });
+                                }
+                              },
+                              child: isSubTaskDone
+                                  ? Assets.images.tickCircle.svg()
+                                  : Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.circle_outlined,
+                                          color: AppColors.colorC1C9D1,
+                                          size: 20,
+                                        ),
+                                        Text(
+                                          ' Done',
+                                          style: AppTextStyles.titleSm.copyWith(
+                                            color: AppColors.colorC1C9D1,
+                                            fontSize: 11,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                    Text(
-                                      ' Done',
-                                      style: AppTextStyles.titleSm.copyWith(
-                                        color: AppColors.colorC1C9D1,
-                                        fontSize: 11,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                        ),
+                            ),
                 ),
               ],
             ),

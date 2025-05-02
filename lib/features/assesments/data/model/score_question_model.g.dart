@@ -31,7 +31,7 @@ _$ScoreQuestionDataImpl _$$ScoreQuestionDataImplFromJson(
           ? null
           : QuestionScore.fromJson(
               json['question_score'] as Map<String, dynamic>),
-      totalObtainedScore: json['total_obtained_score'] as String?,
+      totalObtainedScore: (json['total_obtained_score'] as num?)?.toInt(),
       totalScore: (json['total_score'] as num?)?.toInt(),
     );
 
@@ -46,10 +46,9 @@ Map<String, dynamic> _$$ScoreQuestionDataImplToJson(
 _$QuestionScoreImpl _$$QuestionScoreImplFromJson(Map<String, dynamic> json) =>
     _$QuestionScoreImpl(
       id: (json['id'] as num?)?.toInt(),
-      userAssessmentScoreId:
-          (json['user_assessment_score_id'] as num?)?.toInt(),
-      assessmentQuestionId: (json['assessment_question_id'] as num?)?.toInt(),
-      score: json['score'] as String?,
+      userAssessmentScoreId: json['user_assessment_score_id'],
+      assessmentQuestionId: json['assessment_question_id'],
+      score: (json['score'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$QuestionScoreImplToJson(_$QuestionScoreImpl instance) =>

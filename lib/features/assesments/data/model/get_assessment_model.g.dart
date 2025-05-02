@@ -80,16 +80,16 @@ Map<String, dynamic> _$$GrowthImplToJson(_$GrowthImpl instance) =>
 
 _$ScoreHistoryImpl _$$ScoreHistoryImplFromJson(Map<String, dynamic> json) =>
     _$ScoreHistoryImpl(
-      id: (json['id'] as num?)?.toInt(),
-      assessmentDate: json['assessment_date'] as String?,
-      totalScore: (json['total_score'] as num?)?.toInt(),
-      isCompleted: json['is_completed'] as bool?,
+      w1: (json['W1'] as num?)?.toInt(),
+      w2: (json['W2'] as num?)?.toInt(),
+      w3: (json['W3'] as num?)?.toInt(),
+      w4: (json['W4'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$ScoreHistoryImplToJson(_$ScoreHistoryImpl instance) =>
     <String, dynamic>{
-      'id': instance.id,
-      'assessment_date': instance.assessmentDate,
-      'total_score': instance.totalScore,
-      'is_completed': instance.isCompleted,
+      'W1': instance.w1,
+      'W2': instance.w2,
+      'W3': instance.w3,
+      'W4': instance.w4,
     };

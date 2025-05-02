@@ -1026,11 +1026,15 @@ AssessmentQuestion _$AssessmentQuestionFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$AssessmentQuestion {
+  @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'assessment_id')
   int? get assessmentId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
   String? get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'description')
   String? get description => throw _privateConstructorUsedError;
+  @JsonKey(name: 'answered')
   bool? get answered => throw _privateConstructorUsedError;
   Answer? get answer => throw _privateConstructorUsedError;
 
@@ -1051,11 +1055,11 @@ abstract class $AssessmentQuestionCopyWith<$Res> {
       _$AssessmentQuestionCopyWithImpl<$Res, AssessmentQuestion>;
   @useResult
   $Res call(
-      {int? id,
+      {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'assessment_id') int? assessmentId,
-      String? title,
-      String? description,
-      bool? answered,
+      @JsonKey(name: 'title') String? title,
+      @JsonKey(name: 'description') String? description,
+      @JsonKey(name: 'answered') bool? answered,
       Answer? answer});
 
   $AnswerCopyWith<$Res>? get answer;
@@ -1135,11 +1139,11 @@ abstract class _$$AssessmentQuestionImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {int? id,
+      {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'assessment_id') int? assessmentId,
-      String? title,
-      String? description,
-      bool? answered,
+      @JsonKey(name: 'title') String? title,
+      @JsonKey(name: 'description') String? description,
+      @JsonKey(name: 'answered') bool? answered,
       Answer? answer});
 
   @override
@@ -1199,26 +1203,30 @@ class __$$AssessmentQuestionImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$AssessmentQuestionImpl implements _AssessmentQuestion {
   const _$AssessmentQuestionImpl(
-      {this.id,
+      {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'assessment_id') this.assessmentId,
-      this.title,
-      this.description,
-      this.answered,
+      @JsonKey(name: 'title') this.title,
+      @JsonKey(name: 'description') this.description,
+      @JsonKey(name: 'answered') this.answered,
       this.answer});
 
   factory _$AssessmentQuestionImpl.fromJson(Map<String, dynamic> json) =>
       _$$AssessmentQuestionImplFromJson(json);
 
   @override
+  @JsonKey(name: 'id')
   final int? id;
   @override
   @JsonKey(name: 'assessment_id')
   final int? assessmentId;
   @override
+  @JsonKey(name: 'title')
   final String? title;
   @override
+  @JsonKey(name: 'description')
   final String? description;
   @override
+  @JsonKey(name: 'answered')
   final bool? answered;
   @override
   final Answer? answer;
@@ -1268,26 +1276,30 @@ class _$AssessmentQuestionImpl implements _AssessmentQuestion {
 
 abstract class _AssessmentQuestion implements AssessmentQuestion {
   const factory _AssessmentQuestion(
-      {final int? id,
+      {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'assessment_id') final int? assessmentId,
-      final String? title,
-      final String? description,
-      final bool? answered,
+      @JsonKey(name: 'title') final String? title,
+      @JsonKey(name: 'description') final String? description,
+      @JsonKey(name: 'answered') final bool? answered,
       final Answer? answer}) = _$AssessmentQuestionImpl;
 
   factory _AssessmentQuestion.fromJson(Map<String, dynamic> json) =
       _$AssessmentQuestionImpl.fromJson;
 
   @override
+  @JsonKey(name: 'id')
   int? get id;
   @override
   @JsonKey(name: 'assessment_id')
   int? get assessmentId;
   @override
+  @JsonKey(name: 'title')
   String? get title;
   @override
+  @JsonKey(name: 'description')
   String? get description;
   @override
+  @JsonKey(name: 'answered')
   bool? get answered;
   @override
   Answer? get answer;

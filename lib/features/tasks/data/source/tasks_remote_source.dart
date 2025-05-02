@@ -50,12 +50,13 @@ class TasksRemoteSource {
 
   Future<Either<AppError, String>> addTask({
     required AddTaskRequestModel body,
+    String? id,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.post(
-        AppEndpoints.addTask,
-        body: body.toMap(),
+        id != null ? AppEndpoints.updateTask(id) : AppEndpoints.addTask,
+        body: {...body.toMap(), if (id != null) '_method': 'put'},
         cancelToken: cancelToken,
       );
       return right(response['message']);
@@ -89,11 +90,17 @@ class TasksRemoteSource {
 
   Future<Either<AppError, String>> changeTaskLevel({
     required String taskId,
+    String? level,
+    String? completionStatus,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.patch(
         AppEndpoints.changeLevel(taskId),
+        body: {
+          'level': level ?? '',
+          'completion_status': completionStatus ?? '',
+        },
         cancelToken: cancelToken,
       );
       return right(response['message']);

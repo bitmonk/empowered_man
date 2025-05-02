@@ -58,27 +58,25 @@ class Assessment with _$Assessment {
 @freezed
 class AssessmentQuestion with _$AssessmentQuestion {
   const factory AssessmentQuestion({
-    int? id,
+    @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'assessment_id') int? assessmentId,
-    String? title,
-    String? description,
-    bool? answered,
+    @JsonKey(name: 'title') String? title,
+    @JsonKey(name: 'description') String? description,
+    @JsonKey(name: 'answered') bool? answered,
     Answer? answer,
   }) = _AssessmentQuestion;
 
   factory AssessmentQuestion.fromJson(Map<String, dynamic> json) =>
       _$AssessmentQuestionFromJson(json);
 }
+
 @freezed
 class Answer with _$Answer {
-    const factory Answer({
-        @JsonKey(name: 'id')
-        required int id,
-        @JsonKey(name: 'user_assessment_score_id')
-        required int userAssessmentScoreId,
-        @JsonKey(name: 'score')
-        required int score,
-    }) = _Answer;
-    factory Answer.fromJson(Map<String, dynamic> json) =>
-      _$AnswerFromJson(json);
+  const factory Answer({
+    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'user_assessment_score_id')
+    required int userAssessmentScoreId,
+    @JsonKey(name: 'score') required int score,
+  }) = _Answer;
+  factory Answer.fromJson(Map<String, dynamic> json) => _$AnswerFromJson(json);
 }

@@ -246,7 +246,7 @@ mixin _$ScoreQuestionData {
   @JsonKey(name: 'question_score')
   QuestionScore? get questionScore => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_obtained_score')
-  String? get totalObtainedScore => throw _privateConstructorUsedError;
+  int? get totalObtainedScore => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_score')
   int? get totalScore => throw _privateConstructorUsedError;
 
@@ -268,7 +268,7 @@ abstract class $ScoreQuestionDataCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'question_score') QuestionScore? questionScore,
-      @JsonKey(name: 'total_obtained_score') String? totalObtainedScore,
+      @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
       @JsonKey(name: 'total_score') int? totalScore});
 
   $QuestionScoreCopyWith<$Res>? get questionScore;
@@ -301,7 +301,7 @@ class _$ScoreQuestionDataCopyWithImpl<$Res, $Val extends ScoreQuestionData>
       totalObtainedScore: freezed == totalObtainedScore
           ? _value.totalObtainedScore
           : totalObtainedScore // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       totalScore: freezed == totalScore
           ? _value.totalScore
           : totalScore // ignore: cast_nullable_to_non_nullable
@@ -334,7 +334,7 @@ abstract class _$$ScoreQuestionDataImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'question_score') QuestionScore? questionScore,
-      @JsonKey(name: 'total_obtained_score') String? totalObtainedScore,
+      @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
       @JsonKey(name: 'total_score') int? totalScore});
 
   @override
@@ -366,7 +366,7 @@ class __$$ScoreQuestionDataImplCopyWithImpl<$Res>
       totalObtainedScore: freezed == totalObtainedScore
           ? _value.totalObtainedScore
           : totalObtainedScore // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       totalScore: freezed == totalScore
           ? _value.totalScore
           : totalScore // ignore: cast_nullable_to_non_nullable
@@ -391,7 +391,7 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
   final QuestionScore? questionScore;
   @override
   @JsonKey(name: 'total_obtained_score')
-  final String? totalObtainedScore;
+  final int? totalObtainedScore;
   @override
   @JsonKey(name: 'total_score')
   final int? totalScore;
@@ -438,10 +438,10 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
 
 abstract class _ScoreQuestionData implements ScoreQuestionData {
   const factory _ScoreQuestionData(
-      {@JsonKey(name: 'question_score') final QuestionScore? questionScore,
-      @JsonKey(name: 'total_obtained_score') final String? totalObtainedScore,
-      @JsonKey(name: 'total_score')
-      final int? totalScore}) = _$ScoreQuestionDataImpl;
+          {@JsonKey(name: 'question_score') final QuestionScore? questionScore,
+          @JsonKey(name: 'total_obtained_score') final int? totalObtainedScore,
+          @JsonKey(name: 'total_score') final int? totalScore}) =
+      _$ScoreQuestionDataImpl;
 
   factory _ScoreQuestionData.fromJson(Map<String, dynamic> json) =
       _$ScoreQuestionDataImpl.fromJson;
@@ -451,7 +451,7 @@ abstract class _ScoreQuestionData implements ScoreQuestionData {
   QuestionScore? get questionScore;
   @override
   @JsonKey(name: 'total_obtained_score')
-  String? get totalObtainedScore;
+  int? get totalObtainedScore;
   @override
   @JsonKey(name: 'total_score')
   int? get totalScore;
@@ -473,11 +473,11 @@ mixin _$QuestionScore {
   @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_assessment_score_id')
-  int? get userAssessmentScoreId => throw _privateConstructorUsedError;
+  dynamic get userAssessmentScoreId => throw _privateConstructorUsedError;
   @JsonKey(name: 'assessment_question_id')
-  int? get assessmentQuestionId => throw _privateConstructorUsedError;
+  dynamic get assessmentQuestionId => throw _privateConstructorUsedError;
   @JsonKey(name: 'score')
-  String? get score => throw _privateConstructorUsedError;
+  int? get score => throw _privateConstructorUsedError;
 
   /// Serializes this QuestionScore to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -497,9 +497,9 @@ abstract class $QuestionScoreCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'user_assessment_score_id') int? userAssessmentScoreId,
-      @JsonKey(name: 'assessment_question_id') int? assessmentQuestionId,
-      @JsonKey(name: 'score') String? score});
+      @JsonKey(name: 'user_assessment_score_id') dynamic userAssessmentScoreId,
+      @JsonKey(name: 'assessment_question_id') dynamic assessmentQuestionId,
+      @JsonKey(name: 'score') int? score});
 }
 
 /// @nodoc
@@ -530,15 +530,15 @@ class _$QuestionScoreCopyWithImpl<$Res, $Val extends QuestionScore>
       userAssessmentScoreId: freezed == userAssessmentScoreId
           ? _value.userAssessmentScoreId
           : userAssessmentScoreId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       assessmentQuestionId: freezed == assessmentQuestionId
           ? _value.assessmentQuestionId
           : assessmentQuestionId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       score: freezed == score
           ? _value.score
           : score // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
     ) as $Val);
   }
 }
@@ -553,9 +553,9 @@ abstract class _$$QuestionScoreImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'user_assessment_score_id') int? userAssessmentScoreId,
-      @JsonKey(name: 'assessment_question_id') int? assessmentQuestionId,
-      @JsonKey(name: 'score') String? score});
+      @JsonKey(name: 'user_assessment_score_id') dynamic userAssessmentScoreId,
+      @JsonKey(name: 'assessment_question_id') dynamic assessmentQuestionId,
+      @JsonKey(name: 'score') int? score});
 }
 
 /// @nodoc
@@ -584,15 +584,15 @@ class __$$QuestionScoreImplCopyWithImpl<$Res>
       userAssessmentScoreId: freezed == userAssessmentScoreId
           ? _value.userAssessmentScoreId
           : userAssessmentScoreId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       assessmentQuestionId: freezed == assessmentQuestionId
           ? _value.assessmentQuestionId
           : assessmentQuestionId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       score: freezed == score
           ? _value.score
           : score // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
     ));
   }
 }
@@ -614,13 +614,13 @@ class _$QuestionScoreImpl implements _QuestionScore {
   final int? id;
   @override
   @JsonKey(name: 'user_assessment_score_id')
-  final int? userAssessmentScoreId;
+  final dynamic userAssessmentScoreId;
   @override
   @JsonKey(name: 'assessment_question_id')
-  final int? assessmentQuestionId;
+  final dynamic assessmentQuestionId;
   @override
   @JsonKey(name: 'score')
-  final String? score;
+  final int? score;
 
   @override
   String toString() {
@@ -633,17 +633,21 @@ class _$QuestionScoreImpl implements _QuestionScore {
         (other.runtimeType == runtimeType &&
             other is _$QuestionScoreImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.userAssessmentScoreId, userAssessmentScoreId) ||
-                other.userAssessmentScoreId == userAssessmentScoreId) &&
-            (identical(other.assessmentQuestionId, assessmentQuestionId) ||
-                other.assessmentQuestionId == assessmentQuestionId) &&
+            const DeepCollectionEquality()
+                .equals(other.userAssessmentScoreId, userAssessmentScoreId) &&
+            const DeepCollectionEquality()
+                .equals(other.assessmentQuestionId, assessmentQuestionId) &&
             (identical(other.score, score) || other.score == score));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, userAssessmentScoreId, assessmentQuestionId, score);
+      runtimeType,
+      id,
+      const DeepCollectionEquality().hash(userAssessmentScoreId),
+      const DeepCollectionEquality().hash(assessmentQuestionId),
+      score);
 
   /// Create a copy of QuestionScore
   /// with the given fields replaced by the non-null parameter values.
@@ -665,9 +669,10 @@ abstract class _QuestionScore implements QuestionScore {
   const factory _QuestionScore(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'user_assessment_score_id')
-      final int? userAssessmentScoreId,
-      @JsonKey(name: 'assessment_question_id') final int? assessmentQuestionId,
-      @JsonKey(name: 'score') final String? score}) = _$QuestionScoreImpl;
+      final dynamic userAssessmentScoreId,
+      @JsonKey(name: 'assessment_question_id')
+      final dynamic assessmentQuestionId,
+      @JsonKey(name: 'score') final int? score}) = _$QuestionScoreImpl;
 
   factory _QuestionScore.fromJson(Map<String, dynamic> json) =
       _$QuestionScoreImpl.fromJson;
@@ -677,13 +682,13 @@ abstract class _QuestionScore implements QuestionScore {
   int? get id;
   @override
   @JsonKey(name: 'user_assessment_score_id')
-  int? get userAssessmentScoreId;
+  dynamic get userAssessmentScoreId;
   @override
   @JsonKey(name: 'assessment_question_id')
-  int? get assessmentQuestionId;
+  dynamic get assessmentQuestionId;
   @override
   @JsonKey(name: 'score')
-  String? get score;
+  int? get score;
 
   /// Create a copy of QuestionScore
   /// with the given fields replaced by the non-null parameter values.

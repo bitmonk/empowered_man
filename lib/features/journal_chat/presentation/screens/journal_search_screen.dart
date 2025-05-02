@@ -173,13 +173,11 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                             verticlePadding:
                                 const EdgeInsets.symmetric(vertical: 200),
                             onPressed: () async {
-                              final result = _controller.getJournalLibrary(
+                              _controller.getJournalLibrary(
                                 searchJournal: true,
                                 isInitialLoad: true,
                                 mainQuestion: searchController.text,
                               );
-                              print(
-                                  '#################################################>>>>>>>>>>>>>>>>>>>>>>>>result $result',);
                             },
                           )
                         : Expanded(
@@ -257,7 +255,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               setState(() {
                 _selectAll = !_selectAll;
                 _controller.selectSeaarchBulk.value = List.generate(
-                  _controller.journalSearchList.length ?? 0,
+                  _controller.journalSearchList.length,
                   (index) => _selectAll,
                 );
               });
@@ -316,10 +314,6 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                   _selectAll =
                       _controller.selectSeaarchBulk.every((item) => item);
                 }
-                // _controller.selectSeaarchBulk[index] =
-                //     !_controller.selectSeaarchBulk[index];
-                // _selectAll =
-                //     _controller.selectSeaarchBulk.every((item) => item);
               });
             },
             child: Icon(

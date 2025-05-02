@@ -1,5 +1,5 @@
 class AppEndpoints {
-  static const String baseUrl = 'http://54.253.13.54/api';
+  static const String baseUrl = 'http://3.27.90.50/api';
   static const String login = '/login';
   static const String logout = '/user/logout';
   static const String signUp = '/register';
@@ -25,6 +25,7 @@ class AppEndpoints {
 
   // Task Api
   static const String addTask = '/tasks';
+  static String updateTask(String id) => '/tasks/$id';
   static const String getTask = '/tasks';
   static String delTask(String taskId) => '/tasks/$taskId';
   static String markMainTaskCompleted(String taskId) =>

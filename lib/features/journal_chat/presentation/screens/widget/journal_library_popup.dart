@@ -65,48 +65,51 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       }
 
       // Show loading indicator
-
-      Get.dialog(
-        Material(
-          color: Colors.transparent,
-          child: Padding(
-            padding: const EdgeInsets.all(40),
-            child: Center(
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.bgBorder,
-                  borderRadius: BorderRadius.circular(8),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      spreadRadius: 2,
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const CircularProgressIndicator(
-                      strokeWidth: 3,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Preparing ${userJournals.length} journals for export...',
-                      style: AppTextStyles.textBodyB3,
-                      textAlign: TextAlign.center,
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        barrierDismissible: false,
+      AppUtils.showDownloadingDialog(
+        message: 'Preparing ${userJournals.length} journals for export...',
       );
+
+      // Get.dialog(
+      //   Material(
+      //     color: Colors.transparent,
+      //     child: Padding(
+      //       padding: const EdgeInsets.all(40),
+      //       child: Center(
+      //         child: Container(
+      //           padding: const EdgeInsets.all(16),
+      //           decoration: BoxDecoration(
+      //             color: AppColors.bgBorder,
+      //             borderRadius: BorderRadius.circular(8),
+      //             boxShadow: [
+      //               BoxShadow(
+      //                 color: Colors.black.withOpacity(0.1),
+      //                 spreadRadius: 2,
+      //                 blurRadius: 4,
+      //                 offset: const Offset(0, 2),
+      //               ),
+      //             ],
+      //           ),
+      //           child: Column(
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               const CircularProgressIndicator(
+      //                 strokeWidth: 3,
+      //                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+      //               ),
+      //               const SizedBox(height: 16),
+      //               Text(
+      //                 'Preparing ${userJournals.length} journals for export...',
+      //                 style: AppTextStyles.textBodyB3,
+      //                 textAlign: TextAlign.center,
+      //               ),
+      //             ],
+      //           ),
+      //         ),
+      //       ),
+      //     ),
+      //   ),
+      //   barrierDismissible: false,
+      // );
 
       // Format data for PDF
       var formattedData = '';
@@ -145,7 +148,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
 
       AppUtils.showSnackbar(message: 'Journals exported successfully');
     } catch (e) {
-      // Close loading dialog if it was shown
 
       if (Get.isDialogOpen ?? false) {
         Get.back();
@@ -154,9 +156,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       print('Error sharing journals to PDF: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
     } finally {
-      // Always dismiss dialog in finally block to ensure it gets executed
 
-      // Add a small delay to ensure UI has time to process
       await Future.delayed(const Duration(milliseconds: 200));
       if (Get.isDialogOpen ?? false) {
         Get.back();

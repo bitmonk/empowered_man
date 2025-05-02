@@ -15,6 +15,26 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   int _selectedTabIndex = 0; // 0: Assessments, 1: History
   final controller = Get.find<AssessmentHistoryController>();
   final List<String> selectedIds = [];
+
+  @override
+  void initState() {
+    super.initState();
+    controller.selectedAssessment.value = null;
+  }
+
+  List<String> getSelectedAssessmentIds() {
+    final selectedIds = <String>[];
+    for (var i = 0; i < controller.userAssessmentHistoryList.length; i++) {
+      if (i < controller.selectBulk.length && controller.selectBulk[i]) {
+        final assessment = controller.userAssessmentHistoryList[i];
+        if (assessment.id != null) {
+          selectedIds.add(assessment.id!.toString());
+        }
+      }
+    }
+    return selectedIds;
+  }
+
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
@@ -56,12 +76,18 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                     index: 1,
                   ),
                   const Spacer(),
-                  AssesmentPopUp(
-                    selectedIds: controller.selectedAssessmentIds,
-                    onDeleteSuccess: () {
-                      controller.getAssessmentHistory(isInitialLoad: true);
-                    },
-                  ),
+                 // if (controller.selectBulk.any((item) => item))
+                    AssesmentPopUp(
+                      searchAssessment: false,
+                      selectedItems: controller.selectBulk,
+                      assessmentHistoryList:
+                          controller.userAssessmentHistoryList,
+                      onSelected: (deletedIds, shouldClearSelection) {
+                        if (shouldClearSelection) {
+                          controller.selectBulk.clear();
+                        }
+                      },
+                    ),
 
                   // if (_selectedTabIndex == 1)
                   //   AssesmentPopUp(selectedIds: selectedIds)

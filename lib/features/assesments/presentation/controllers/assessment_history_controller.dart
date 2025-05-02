@@ -42,17 +42,18 @@ class AssessmentHistoryController extends GetxController {
   RxList<bool> selectSeaarchBulk = <bool>[].obs;
   Rx<String?> searchError = Rx<String?>(null);
   Rx<String?> historyError = Rx<String?>(null);
-  RxList<String> selectedAssessmentIds = <String>[].obs;
+  Rx<String?> selectedAssessment = Rx<String?>(null);
+  final Rx<String?> selectedAssessmentIds = Rx<String?>(null);
 
   Future<void> getAssessmentHistory({
-    bool searchJournal = false,
+    bool searchAssessment = false,
     bool isInitialLoad = false,
   }) async {
     await getPaginatedData(
-      state: searchJournal
+      state: searchAssessment
           ? getAssessmentHistorySearchState
           : getAssessmentHistoryState,
-      groupsPaginationName: searchJournal
+      groupsPaginationName: searchAssessment
           ? AssessmentHistoryPagination.search
           : AssessmentHistoryPagination.history,
       apiCall: (pageKey, search) => remoteSource.getAssessmentHistory(
@@ -64,7 +65,7 @@ class AssessmentHistoryController extends GetxController {
         perPage: 20,
       ),
       dataToClear: () {
-        if (searchJournal) {
+        if (searchAssessment) {
           userAssessmentHistoryList.clear();
           selectSeaarchBulk.clear();
         } else {
@@ -73,14 +74,14 @@ class AssessmentHistoryController extends GetxController {
         }
       },
       onError: (r) {
-        if (searchJournal) {
+        if (searchAssessment) {
           searchError.value = r.message;
         } else {
           historyError.value = r.message;
         }
       },
       dataToAdd: (res) {
-        if (searchJournal) {
+        if (searchAssessment) {
           userAssessmentSearchList.clear();
           userAssessmentSearchList.addAll(res.data?.userAssessments ?? []);
           selectSeaarchBulk.value = List.generate(
@@ -209,7 +210,7 @@ class AssessmentHistoryController extends GetxController {
       if (tab == AssessmentHistoryPagination.history) {
         getAssessmentHistory();
       } else if (tab == AssessmentHistoryPagination.search) {
-        getAssessmentHistory(isInitialLoad: true, searchJournal: true);
+        getAssessmentHistory(isInitialLoad: true, searchAssessment: true);
       } else {}
     }
   }
@@ -217,26 +218,26 @@ class AssessmentHistoryController extends GetxController {
   void setTabDataLoaded(AssessmentHistoryPagination index, bool loaded) {
     tabDataLoaded[index] = loaded;
   }
-void toggleAssessmentSelection(String id, bool isSelected) {
-    if (isSelected) {
-      if (!selectedAssessmentIds.contains(id)) {
-        selectedAssessmentIds.add(id);
-      }
-    } else {
-      selectedAssessmentIds.remove(id);
-    }
-  }
+// void toggleAssessmentSelection(String id, bool isSelected) {
+//     if (isSelected) {
+//       if (!selectedAssessmentIds.contains(id)) {
+//         selectedAssessmentIds.add(id);
+//       }
+//     } else {
+//       selectedAssessmentIds.remove(id);
+//     }
+//   }
 
-  void selectAllAssessments(bool selectAll) {
-    selectedAssessmentIds.clear();
-    if (selectAll) {
-      selectedAssessmentIds.addAll(
-        userAssessmentHistoryList
-            .where((assessment) => assessment.id != null)
-            .map((assessment) => assessment.id!.toString()),
-      );
-    }
-  }
+//   void selectAllAssessments(bool selectAll) {
+//     selectedAssessmentIds.clear();
+//     if (selectAll) {
+//       selectedAssessmentIds.addAll(
+//         userAssessmentHistoryList
+//             .where((assessment) => assessment.id != null)
+//             .map((assessment) => assessment.id!.toString()),
+//       );
+//     }
+//   }
   Future<bool?> deleteAssessments(
     List<String>? assessmentId,
   ) async {
