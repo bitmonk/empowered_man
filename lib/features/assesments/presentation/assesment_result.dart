@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/controllers/get_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
 
@@ -187,7 +188,9 @@ class AssesmentResult extends StatelessWidget {
                           route.settings.name == AppRoutes.assesmentsScreen,
                     );
                   },
-                  onNext: () {
+                  onNext: () async{
+                    var getAssessmentController =   Get.find<GetAssessmentController>();
+                    await getAssessmentController.getAssessment();
                     Navigator.popUntil(
                       context,
                       (route) =>

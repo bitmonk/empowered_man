@@ -40,7 +40,7 @@ class AppEndpoints {
   static const String createUserAssessement='/user/assessment/';
   static const String scoreQuestionUrl = '/user/question/score';
   static const String assessmentHistoryUrl = '/user/assessments/history';
-  static const String deleteAssessmentUrl = '/user/assessment/';
+  static const String deleteAssessmentUrl = '/user/assessments-delete';
 
   // Journal Api
   static const String getJournalEmotionName = '/journals/emotion-names';

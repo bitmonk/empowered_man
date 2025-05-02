@@ -54,36 +54,44 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
   }
 
   void _toggleSelection(int index, bool isSelected) {
-    setState(() {
-      _selectedItems[index] = isSelected;
-      _selectAll = _selectedItems.every((item) => item);
-
-      // Update selected IDs
-      final assessment = controller.userAssessmentHistoryList[index];
-      if (isSelected) {
-        if (!selectedIds.contains(assessment.id.toString())) {
-          selectedIds.add(assessment.id.toString());
-        }
-      } else {
-        selectedIds.remove(assessment.id.toString());
+  setState(() {
+    _selectedItems[index] = isSelected;
+    // Update the controller's selectBulk list to match your local state
+    controller.selectBulk[index] = isSelected;
+    
+    _selectAll = _selectedItems.every((item) => item);
+    
+    // Update selected IDs
+    final assessment = controller.userAssessmentHistoryList[index];
+    if (isSelected) {
+      if (!selectedIds.contains(assessment.id.toString())) {
+        selectedIds.add(assessment.id.toString());
       }
-    });
-  }
+    } else {
+      selectedIds.remove(assessment.id.toString());
+    }
+  });
+}
 
-  void _toggleSelectAll(bool isSelected) {
-    setState(() {
-      _selectAll = isSelected;
-      _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
-
-      // Update selected IDs
-      selectedIds.clear();
-      if (isSelected) {
-        selectedIds.addAll(controller.userAssessmentHistoryList
-            .where((assessment) => assessment.id != null)
-            .map((assessment) => assessment.id.toString()));
-      }
-    });
-  }
+void _toggleSelectAll(bool isSelected) {
+  setState(() {
+    _selectAll = isSelected;
+    _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
+    
+    // Update the controller's selectBulk list as well
+    for (int i = 0; i < controller.selectBulk.length; i++) {
+      controller.selectBulk[i] = isSelected;
+    }
+    
+    // Update selected IDs
+    selectedIds.clear();
+    if (isSelected) {
+      selectedIds.addAll(controller.userAssessmentHistoryList
+          .where((assessment) => assessment.id != null)
+          .map((assessment) => assessment.id.toString()));
+    }
+  });
+}
 
   @override
   Widget build(BuildContext context) {
