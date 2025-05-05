@@ -11,15 +11,19 @@ class AssessmentHistoryRemoteSource {
 
   Future<Either<AppError, AssessmentHistoryModel>> getAssessmentHistory({
     required int? page,
+    required String? query,
     // required String? emotionName,
     // required String? mainQuestion,
     // required String? sortBy,
     // required String? sortOrder,
-    required int? perPage,
+    required int? perPage, CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.assessmentHistoryUrl,
+        queryParameters: {         
+          if (query != null) 'search': query,
+        },cancelToken: cancelToken,
       );
 
       return right(AssessmentHistoryModel.fromJson(response));

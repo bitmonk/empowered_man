@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
 import 'package:empowered/features/assesments/data/source/assessment_history_remote_source.dart';
@@ -44,10 +45,12 @@ class AssessmentHistoryController extends GetxController {
   Rx<String?> historyError = Rx<String?>(null);
   Rx<String?> selectedAssessment = Rx<String?>(null);
   final Rx<String?> selectedAssessmentIds = Rx<String?>(null);
-
+  Rx<String?> queryText = Rx<String?>(null);
   Future<void> getAssessmentHistory({
+    CancelToken? cancelToken,
     bool searchAssessment = false,
     bool isInitialLoad = false,
+    String? query,
   }) async {
     await getPaginatedData(
       state: searchAssessment
@@ -58,11 +61,13 @@ class AssessmentHistoryController extends GetxController {
           : AssessmentHistoryPagination.history,
       apiCall: (pageKey, search) => remoteSource.getAssessmentHistory(
         page: pageKey,
+        query: query ?? queryText.value,
         // emotionName: emotionName,
         // mainQuestion: mainQuestion,
         // sortBy: sortBy,
         // sortOrder: sortOrder,
         perPage: 20,
+        cancelToken: cancelToken,
       ),
       dataToClear: () {
         if (searchAssessment) {

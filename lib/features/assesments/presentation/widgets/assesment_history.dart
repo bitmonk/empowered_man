@@ -32,7 +32,16 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
       paginationName,
     );
     await controller.getAssessmentHistory(isInitialLoad: true);
-
+    if (controller.queryText.value != null &&
+        controller.queryText.value!.isNotEmpty) {
+      await controller.getAssessmentHistory(
+        isInitialLoad: true,
+        searchAssessment: true,
+        query: controller.queryText.value,
+      );
+    } else {
+      await controller.getAssessmentHistory(isInitialLoad: true);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // if (_controller.tabDataLoaded[paginationName] != true) {
       controller.selectBulk.value = List.generate(
@@ -48,78 +57,192 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent * 0.8) {
-        controller.loadMoreData(paginationName);
+        if (controller.queryText.value != null &&
+            controller.queryText.value!.isNotEmpty) {
+          controller.loadMoreData(AssessmentHistoryPagination.search);
+        } else {
+          controller.loadMoreData(paginationName);
+        }
       }
     });
   }
 
-  void _toggleSelection(int index, bool isSelected) {
-  setState(() {
-    _selectedItems[index] = isSelected;
-    // Update the controller's selectBulk list to match your local state
-    controller.selectBulk[index] = isSelected;
-    
-    _selectAll = _selectedItems.every((item) => item);
-    
-    // Update selected IDs
-    final assessment = controller.userAssessmentHistoryList[index];
-    if (isSelected) {
-      if (!selectedIds.contains(assessment.id.toString())) {
-        selectedIds.add(assessment.id.toString());
-      }
-    } else {
-      selectedIds.remove(assessment.id.toString());
-    }
-  });
-}
+  // void _toggleSelection(int index, bool isSelected) {
+  //   setState(() {
+  //     _selectedItems[index] = isSelected;
+  //     // Update the controller's selectBulk list to match your local state
+  //     controller.selectBulk[index] = isSelected;
 
-void _toggleSelectAll(bool isSelected) {
-  setState(() {
-    _selectAll = isSelected;
-    _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
-    
-    // Update the controller's selectBulk list as well
-    for (int i = 0; i < controller.selectBulk.length; i++) {
-      controller.selectBulk[i] = isSelected;
-    }
-    
-    // Update selected IDs
-    selectedIds.clear();
-    if (isSelected) {
-      selectedIds.addAll(controller.userAssessmentHistoryList
-          .where((assessment) => assessment.id != null)
-          .map((assessment) => assessment.id.toString()));
-    }
-  });
-}
+  //     _selectAll = _selectedItems.every((item) => item);
+
+  //     // Update selected IDs
+  //     final assessment = controller.userAssessmentHistoryList[index];
+  //     if (isSelected) {
+  //       if (!selectedIds.contains(assessment.id.toString())) {
+  //         selectedIds.add(assessment.id.toString());
+  //       }
+  //     } else {
+  //       selectedIds.remove(assessment.id.toString());
+  //     }
+  //   });
+  // }
+  void _toggleSelection(int index, bool isSelected) {
+    setState(() {
+      _selectedItems[index] = isSelected;
+
+      final isSearchActive = controller.queryText.value != null &&
+          controller.queryText.value!.isNotEmpty;
+
+      if (isSearchActive) {
+        controller.selectSeaarchBulk[index] = isSelected;
+      } else {
+        controller.selectBulk[index] = isSelected;
+      }
+
+      _selectAll = _selectedItems.every((item) => item);
+
+      final assessment = isSearchActive
+          ? controller.userAssessmentSearchList[index]
+          : controller.userAssessmentHistoryList[index];
+
+      if (isSelected) {
+        if (!selectedIds.contains(assessment.id.toString())) {
+          selectedIds.add(assessment.id.toString());
+        }
+      } else {
+        selectedIds.remove(assessment.id.toString());
+      }
+    });
+  }
+
+  void _toggleSelectAll(bool isSelected) {
+    setState(() {
+      _selectAll = isSelected;
+      _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
+
+      final isSearchActive = controller.queryText.value != null &&
+          controller.queryText.value!.isNotEmpty;
+      // for (var i = 0; i < controller.selectBulk.length; i++) {
+      //   controller.selectBulk[i] = isSelected;
+      // }
+      if (isSearchActive) {
+        for (var i = 0; i < controller.selectSeaarchBulk.length; i++) {
+          controller.selectSeaarchBulk[i] = isSelected;
+        }
+      } else {
+        for (var i = 0; i < controller.selectBulk.length; i++) {
+          controller.selectBulk[i] = isSelected;
+        }
+      }
+
+      // Update selected IDs
+      selectedIds.clear();
+      if (isSelected) {
+        final assessmentList = isSearchActive
+            ? controller.userAssessmentSearchList
+            : controller.userAssessmentHistoryList;
+
+        selectedIds.addAll(assessmentList
+            .where((assessment) => assessment.id != null)
+            .map((assessment) => assessment.id.toString()));
+      }
+      // if (isSelected) {
+      //   selectedIds.addAll(controller.userAssessmentHistoryList
+      //       .where((assessment) => assessment.id != null)
+      //       .map((assessment) => assessment.id.toString()));
+      // }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final itemCount = controller.userAssessmentHistoryList.length;
+      final assessmentList = controller.queryText.value != null &&
+              controller.queryText.value!.isNotEmpty
+          ? controller.userAssessmentSearchList
+          : controller.userAssessmentHistoryList;
 
-      // Ensure _selectedItems is correctly initialized
+      final itemCount = assessmentList.length;
+      final isSearchActive = controller.queryText.value != null &&
+          controller.queryText.value!.isNotEmpty;
+
       if (_selectedItems.length != itemCount) {
         _selectedItems = List.generate(itemCount, (_) => false);
       }
       return ThemedContainer(
         padding: EdgeInsets.zero,
-        child: SingleChildScrollView(
-          child: Table(
-            columnWidths: const {
-              0: FixedColumnWidth(35), // Selection icon column
-              1: FlexColumnWidth(1.2),
-              2: FlexColumnWidth(),
-              3: FlexColumnWidth(),
-            },
-            children: [
-              _buildTableHeaderRow(),
-              ...List.generate(
-                controller.userAssessmentHistoryList.length,
-                (index) => _buildTableRow(index),
+        child: Column(
+          children: [
+            if (isSearchActive)
+              Padding(
+                padding: const EdgeInsets.all(12),
+                child: Row(
+                  children: [
+                    Text(
+                      'Search results for "${controller.queryText.value}"',
+                      style: AppTextStyles.textBodyB3,
+                    ),
+                    const Spacer(),
+                    Text(
+                      '${assessmentList.length} found',
+                      style: AppTextStyles.textBodyB4
+                          .copyWith(color: AppColors.textColor300),
+                    ),
+                  ],
+                ),
               ),
-            ],
-          ),
+            if (controller.getAssessmentHistorySearchState.value ==
+                    TheStates.loading &&
+                isSearchActive)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(child: CircularProgressIndicator()),
+              ),
+            if (controller.searchError.value != null && isSearchActive)
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Center(
+                  child: Text(
+                    controller.searchError.value!,
+                    style: AppTextStyles.textBodyB3.copyWith(color: Colors.red),
+                  ),
+                ),
+              ),
+            if (assessmentList.isEmpty &&
+                controller.getAssessmentHistorySearchState.value !=
+                    TheStates.loading &&
+                isSearchActive)
+              const Padding(
+                padding: EdgeInsets.all(20),
+                child: Center(
+                  child: Text(
+                    'No assessments found matching your search',
+                    style: TextStyle(color: AppColors.textColor300),
+                  ),
+                ),
+              ),
+            if (assessmentList.isNotEmpty)
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Table(
+                    columnWidths: const {
+                      0: FixedColumnWidth(35), // Selection icon column
+                      1: FlexColumnWidth(1.2),
+                      2: FlexColumnWidth(),
+                      3: FlexColumnWidth(),
+                    },
+                    children: [
+                      _buildTableHeaderRow(),
+                      ...List.generate(
+                        assessmentList.length,
+                        // controller.userAssessmentHistoryList.length,
+                        (index) => _buildTableRow(index, isSearchActive),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+          ],
         ),
       );
     });
@@ -157,8 +280,10 @@ void _toggleSelectAll(bool isSelected) {
   }
 
   /// Table Data Row with selection icon
-  TableRow _buildTableRow(int index) {
-    final assessments = controller.userAssessmentHistoryList;
+  TableRow _buildTableRow(int index, bool isSearchResults) {
+    final assessments = isSearchResults
+        ? controller.userAssessmentSearchList
+        : controller.userAssessmentHistoryList;
     if (index >= assessments.length) {
       return TableRow(
         children: [
@@ -176,6 +301,27 @@ void _toggleSelectAll(bool isSelected) {
         (i) =>
             i < controller.selectBulk.length ? controller.selectBulk[i] : false,
       );
+    }
+    final selectionList =
+        isSearchResults ? controller.selectSeaarchBulk : controller.selectBulk;
+
+    if (selectionList.length <= index) {
+      // Expand the list if needed
+      if (isSearchResults) {
+        controller.selectSeaarchBulk.value = List.generate(
+          assessments.length,
+          (i) => i < controller.selectSeaarchBulk.length
+              ? controller.selectSeaarchBulk[i]
+              : false,
+        );
+      } else {
+        controller.selectBulk.value = List.generate(
+          assessments.length,
+          (i) => i < controller.selectBulk.length
+              ? controller.selectBulk[i]
+              : false,
+        );
+      }
     }
     final assessment = assessments[index];
     var formattedTime = formatDateTime(assessment.assessmentDate ?? 'N/A');
@@ -197,6 +343,16 @@ void _toggleSelectAll(bool isSelected) {
             //       (index) => _selectAll,
             //     );
             //     // _selectAll = _selectedItems.every((item) => item);
+            //   });
+            // },
+            //   onTap: () {
+            //   setState(() {
+            //     _selectedItems[index] = !_selectedItems[index];
+            //     if (isSearchResults) {
+            //       controller.selectSeaarchBulk[index] = _selectedItems[index];
+            //     } else {
+            //       controller.selectBulk[index] = _selectedItems[index];
+            //     }
             //   });
             // },
             child: Icon(
