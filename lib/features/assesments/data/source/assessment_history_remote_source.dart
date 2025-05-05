@@ -41,7 +41,7 @@ class AssessmentHistoryRemoteSource {
   }) async {
     try {
       final response = await _client.delete(
-        '${AppEndpoints.deleteAssessmentUrl}',
+        AppEndpoints.deleteAssessmentUrl,
         body: {
           'ids': assessmentId,
         },

@@ -63,7 +63,7 @@ class AssessmentQuestion with _$AssessmentQuestion {
     @JsonKey(name: 'title') String? title,
     @JsonKey(name: 'description') String? description,
     @JsonKey(name: 'answered') bool? answered,
-    Answer? answer,
+    @JsonKey(name: 'answer') Answer? answer,
   }) = _AssessmentQuestion;
 
   factory AssessmentQuestion.fromJson(Map<String, dynamic> json) =>

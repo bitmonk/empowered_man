@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 import 'package:empowered/features/assesments/presentation/assesment_trailer.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_graph.dart';
@@ -11,6 +12,7 @@ class AssessmentCard extends StatefulWidget {
     required this.onTap,
     required this.status,
     required this.id,
+    required this.scoreHistory,
     // required this.isCompleted,
     super.key,
   });
@@ -21,6 +23,7 @@ class AssessmentCard extends StatefulWidget {
   final VoidCallback onTap;
   final String status;
   final String id;
+  final List<ScoreHistory>? scoreHistory;
   // final bool isCompleted;
 
   @override
@@ -67,16 +70,23 @@ class _AssessmentCardState extends State<AssessmentCard> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Row(
                     children: [
-                      Image.network(
-                        widget.iconPath,
-                        width: 32,
+                      AppCachedImage(
+                        imgUrl: widget.iconPath,
+                        width: 28,
+                        height: 28,
+                        errorWid: const Icon(
+                          Icons.image_not_supported,
+                          size: 20,
+                          color: AppColors.primary500,
+                        ),
+                        // color: AppColors.primary500,
                       ),
                       const HorizontalSpacing(12),
                       Text(
                         widget.title,
                         style: const TextStyle(
                           color: AppColors.textColor50,
-                          fontSize: 22,
+                          fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -143,7 +153,11 @@ class _AssessmentCardState extends State<AssessmentCard> {
                 ),
               ],
             ),
-            children: const [AssessmentGraph()],
+            children: [
+              AssessmentGraph(
+                scoreHistory: widget.scoreHistory ?? [],
+              )
+            ],
           ),
         );
       },

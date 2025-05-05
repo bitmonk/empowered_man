@@ -204,35 +204,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                       );
                     }
                     return const SizedBox();
-                  })
-                  // Obx(() {
-                  //   final selectedIds = getSelectedAssessmentIds();
-                  //   if (selectedIds.isNotEmpty) {
-                  //     return AssesmentPopUp(
-                  //       selectedItems: _selectedItems,
-                  //       assessmentHistoryList: assessmentList,
-                  //       searchAssessment: isSearchActive,
-                  //       onSelected: _handleSelectedItems,
-                  //     );
-                  //   }
-                  //   return const SizedBox();
-                  // }),
-                  // // if (controller.selectBulk.any((item) => item))
-                  // AssesmentPopUp(
-                  //   searchAssessment: false,
-                  //   selectedItems: controller.selectBulk,
-                  //   assessmentHistoryList: controller.userAssessmentHistoryList,
-                  //   onSelected: (deletedIds, shouldClearSelection) {
-                  //     if (shouldClearSelection) {
-                  //       controller.selectBulk.clear();
-                  //     }
-                  //   },
-                  // ),
-
-                  // if (_selectedTabIndex == 1)
-                  //   AssesmentPopUp(selectedIds: selectedIds)
-                  // else
-                  //   const VerticalSpacing(35),
+                  }),
+                  
                 ],
               ),
             ),

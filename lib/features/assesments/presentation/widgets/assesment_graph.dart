@@ -1,8 +1,29 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class AssessmentGraph extends StatelessWidget {
-  const AssessmentGraph({super.key});
+  final List<ScoreHistory> scoreHistory;
+  const AssessmentGraph({super.key, required this.scoreHistory});
+
+  List<FlSpot> _generateSpots() {
+    // Create a map of week number to value from scoreHistory
+    final Map<int, double> weekMap = {};
+    for (var entry in scoreHistory) {
+      final data = entry.toJson();
+      final weekStr = data.keys.first;
+      final weekNum = int.tryParse(weekStr.replaceAll('W', '')) ?? 0;
+      final value = double.tryParse(data[weekStr].toString()) ?? 0;
+      weekMap[weekNum] = value;
+    }
+
+    // Generate FlSpots for weeks 1 to 4, filling missing ones with 0
+    return List.generate(4, (i) {
+      final week = i + 1;
+      final value = weekMap[week] ?? 0;
+      return FlSpot(week.toDouble(), value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +60,17 @@ class AssessmentGraph extends StatelessWidget {
             height: 150,
             child: LineChart(
               LineChartData(
-                gridData: const FlGridData(show: false),
+                minY: -1, maxY: 110,
+                gridData: FlGridData(
+                  show: true,
+                  drawVerticalLine: false,
+                  horizontalInterval: 50,
+                  getDrawingHorizontalLine: (value) => FlLine(
+                    color: Colors.white.withOpacity(0.1),
+                    strokeWidth: 1,
+                  ),
+                ),
+                // gridData: const FlGridData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
@@ -62,13 +93,13 @@ class AssessmentGraph extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         switch (value.toInt()) {
                           case 1:
-                            return _buildTitle('Q1');
+                            return _buildTitle('W1');
                           case 2:
-                            return _buildTitle('Q2');
+                            return _buildTitle('W2');
                           case 3:
-                            return _buildTitle('Q3');
+                            return _buildTitle('W3');
                           case 4:
-                            return _buildTitle('Q4');
+                            return _buildTitle('W4');
                           default:
                             return const SizedBox.shrink();
                         }
@@ -81,13 +112,7 @@ class AssessmentGraph extends StatelessWidget {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: [
-                      const FlSpot(1, 40),
-                      const FlSpot(2, 60),
-                      const FlSpot(3, 100),
-                      const FlSpot(3.5, 70),
-                      const FlSpot(4, 90),
-                    ],
+                    spots: _generateSpots(),
                     isCurved: true,
                     color: Colors.blueAccent,
                     isStrokeCapRound: true,

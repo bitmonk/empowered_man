@@ -20,175 +20,97 @@ class AssesmentPopUp extends StatefulWidget {
 }
 
 class _AssesmentPopUpState extends State<AssesmentPopUp> {
-  final AssessmentHistoryController controller = Get.find<AssessmentHistoryController>();
-  // Future<void> _handleDelete() async {
-  //   Future.delayed(const Duration(milliseconds: 100), () async {
-  //     if (widget.selectedItems.where((item) => item).isEmpty) {
-  //       AppUtils.showErrorSnackbar(
-  //         message: 'No assessment selected for deletion',
-  //       );
-  //       return;
-  //     }
+  final AssessmentHistoryController controller =
+      Get.find<AssessmentHistoryController>();
 
-  //     final shouldDelete = await Get.dialog<bool>(
-  //       AlertDialog(
-  //         backgroundColor: AppColors.bgBorder,
-  //         title: const Text(
-  //           'Delete assessments',
-  //           style: AppTextStyles.textHeadingH3,
-  //         ),
-  //         content: const Text(
-  //           'Are you sure you want to delete the selected assessments? This action cannot be undone.',
-  //           style: AppTextStyles.textBodyB2,
-  //         ),
-  //         actions: [
-  //           TextButton(
-  //             onPressed: () => Get.back(result: false),
-  //             child: const Text(
-  //               'Cancel',
-  //               style: TextStyle(color: AppColors.textColor50),
-  //             ),
-  //           ),
-  //           TextButton(
-  //             onPressed: () => Get.back(result: true),
-  //             child: const Text(
-  //               'Delete',
-  //               style: TextStyle(color: Colors.redAccent),
-  //             ),
-  //           ),
-  //         ],
-  //       ),
-  //     );
-
-  //     if (shouldDelete != true) return;
-
-  //     final assessmentIds = <String>[];
-  //     final assessments = widget.searchAssessment
-  //         ? controller.userAssessmentSearchList
-  //         : controller.userAssessmentHistoryList;
-
-  //     for (var i = 0; i < widget.selectedItems.length; i++) {
-  //       if (widget.selectedItems[i] && i < assessments.length) {
-  //         assessmentIds.add(assessments[i].id.toString());
-  //       }
-  //     }
-
-  //     if (assessmentIds.isEmpty) {
-  //       AppUtils.showErrorSnackbar(
-  //         message: 'No valid assessments found for deletion',
-  //       );
-  //       return;
-  //     }
-
-  //     try {
-  //       final result = await controller.deleteAssessments(assessmentIds);
-  //       if (result == true) {
-  //         widget.onSelected(assessmentIds, true);
-          
-  //         await controller.getAssessmentHistory(
-  //           isInitialLoad: true,
-  //           searchAssessment: widget.searchAssessment,
-  //         );
-  //         // Get.close(1);
-  //       }
-  //     } catch (e) {
-  //       print('Error deleting journals: $e');
-  //       AppUtils.showErrorSnackbar(
-  //         message: 'Failed to delete journals: $e',
-  //       );
-  //     }
-  //   });
-  // }
   Future<void> _handleDelete() async {
-  Future.delayed(const Duration(milliseconds: 100), () async {
-    // First determine which assessment list to use based on search status
-    final assessments = widget.searchAssessment
-        ? controller.userAssessmentSearchList
-        : controller.userAssessmentHistoryList;
-    
-    // Get the active selection list
-    final selectionList = widget.searchAssessment
-        ? controller.selectSeaarchBulk
-        : controller.selectBulk;
-    
-    // Check if any items are selected
-    if (selectionList.where((item) => item).isEmpty) {
-      AppUtils.showErrorSnackbar(
-        message: 'No assessment selected for deletion',
-      );
-      return;
-    }
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      // First determine which assessment list to use based on search status
+      final assessments = widget.searchAssessment
+          ? controller.userAssessmentSearchList
+          : controller.userAssessmentHistoryList;
 
-    final shouldDelete = await Get.dialog<bool>(
-      AlertDialog(
-        backgroundColor: AppColors.bgBorder,
-        title: const Text(
-          'Delete assessments',
-          style: AppTextStyles.textHeadingH3,
-        ),
-        content: const Text(
-          'Are you sure you want to delete the selected assessments? This action cannot be undone.',
-          style: AppTextStyles.textBodyB2,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(result: false),
-            child: const Text(
-              'Cancel',
-              style: TextStyle(color: AppColors.textColor50),
-            ),
-          ),
-          TextButton(
-            onPressed: () => Get.back(result: true),
-            child: const Text(
-              'Delete',
-              style: TextStyle(color: Colors.redAccent),
-            ),
-          ),
-        ],
-      ),
-    );
+      // Get the active selection list
+      final selectionList = widget.searchAssessment
+          ? controller.selectSeaarchBulk
+          : controller.selectBulk;
 
-    if (shouldDelete != true) return;
-
-    final assessmentIds = <String>[];
-    
-    // Correctly collect IDs from the appropriate list
-    for (var i = 0; i < selectionList.length; i++) {
-      if (selectionList[i] && i < assessments.length) {
-        assessmentIds.add(assessments[i].id.toString());
+      // Check if any items are selected
+      if (selectionList.where((item) => item).isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No assessment selected for deletion',
+        );
+        return;
       }
-    }
 
-    if (assessmentIds.isEmpty) {
-      AppUtils.showErrorSnackbar(
-        message: 'No valid assessments found for deletion',
+      final shouldDelete = await Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: AppColors.bgBorder,
+          title: const Text(
+            'Delete assessments',
+            style: AppTextStyles.textHeadingH3,
+          ),
+          content: const Text(
+            'Are you sure you want to delete the selected assessments? This action cannot be undone.',
+            style: AppTextStyles.textBodyB2,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textColor50),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        ),
       );
-      return;
-    }
 
-    try {
-      final result = await controller.deleteAssessments(assessmentIds);
-      if (result == true) {
-        widget.onSelected(assessmentIds, true);
-        
-        await controller.getAssessmentHistory(
-          isInitialLoad: true,
-          searchAssessment: widget.searchAssessment,
+      if (shouldDelete != true) return;
+
+      final assessmentIds = <String>[];
+
+      // Correctly collect IDs from the appropriate list
+      for (var i = 0; i < selectionList.length; i++) {
+        if (selectionList[i] && i < assessments.length) {
+          assessmentIds.add(assessments[i].id.toString());
+        }
+      }
+
+      if (assessmentIds.isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No valid assessments found for deletion',
+        );
+        return;
+      }
+
+      try {
+        final result = await controller.deleteAssessments(assessmentIds);
+        if (result == true) {
+          widget.onSelected(assessmentIds, true);
+
+          await controller.getAssessmentHistory(
+            isInitialLoad: true,
+            searchAssessment: widget.searchAssessment,
+          );
+        }
+      } catch (e) {
+        AppUtils.showErrorSnackbar(
+          message: 'Failed to delete assessments: $e',
         );
       }
-    } catch (e) {
-      print('Error deleting assessments: $e');
-      AppUtils.showErrorSnackbar(
-        message: 'Failed to delete assessments: $e',
-      );
-    }
-  });
-}
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-
     return PopupMenuButton<String>(
       offset: const Offset(0, 50),
       icon: Assets.images.cirlceThreeDot.svg(), // Uses the three-dot icon

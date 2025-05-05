@@ -61,6 +61,7 @@ class UserAssessmentController extends GetxController {
       },
       (r) async {
         scoreQuestionModel.value = r;
+        
         scoreQuestionState.value = TheStates.success;
       },
     );

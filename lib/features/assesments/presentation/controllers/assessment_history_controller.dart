@@ -27,25 +27,208 @@ class AssessmentHistoryController extends GetxController {
       assessmentHistoryPaginationPageController =
       <AssessmentHistoryPagination, AssessmentHistoryPaginationPageController>{}
           .obs;
+
   Rx<AssessmentHistoryPagination> seletedAssessmentHistoryPagination =
       AssessmentHistoryPagination.history.obs;
+
   bool hasMorePages(AssessmentHistoryPagination tab) =>
       assessmentHistoryPaginationPageController[tab]!.currentPage.value <
       assessmentHistoryPaginationPageController[tab]!.lastPage.value;
 
-  Map<AssessmentHistoryPagination, ScrollController> scrollControllers =
-      {}; // Keep separate scroll controllers for each tab
+  Map<AssessmentHistoryPagination, ScrollController> scrollControllers = {};
   RxMap<AssessmentHistoryPagination, bool> tabDataLoaded =
       <AssessmentHistoryPagination, bool>{}.obs;
+
   RxList<UserAssessment> userAssessmentHistoryList = <UserAssessment>[].obs;
   RxList<UserAssessment> userAssessmentSearchList = <UserAssessment>[].obs;
+
+  // Selection state management
   RxList<bool> selectBulk = <bool>[].obs;
   RxList<bool> selectSeaarchBulk = <bool>[].obs;
+  RxBool selectAllFlag = false.obs;
+  RxList<String> selectedIds = <String>[].obs;
+
   Rx<String?> searchError = Rx<String?>(null);
   Rx<String?> historyError = Rx<String?>(null);
   Rx<String?> selectedAssessment = Rx<String?>(null);
   final Rx<String?> selectedAssessmentIds = Rx<String?>(null);
   Rx<String?> queryText = Rx<String?>(null);
+
+  @override
+  void onInit() {
+    super.onInit();
+    // Initialize pagination controllers for both tabs
+    assessmentHistoryPaginationPageController[AssessmentHistoryPagination
+        .history] = AssessmentHistoryPaginationPageController();
+
+    assessmentHistoryPaginationPageController[AssessmentHistoryPagination
+        .search] = AssessmentHistoryPaginationPageController();
+  }
+
+  // Initialize selection data
+  void initializeSelectionData() {
+    final isSearchActive =
+        queryText.value != null && queryText.value!.isNotEmpty;
+    final assessmentList =
+        isSearchActive ? userAssessmentSearchList : userAssessmentHistoryList;
+
+    if (isSearchActive) {
+      selectSeaarchBulk.value = List.generate(
+        assessmentList.length,
+        (_) => false,
+      );
+    } else {
+      selectBulk.value = List.generate(
+        assessmentList.length,
+        (_) => false,
+      );
+    }
+
+    // Reset selected IDs when initializing
+    selectedIds.clear();
+    selectAllFlag.value = false;
+  }
+
+  // Toggle individual selection
+  void toggleSelection(int index, bool isSelected) {
+    final isSearchActive =
+        queryText.value != null && queryText.value!.isNotEmpty;
+    final assessmentList =
+        isSearchActive ? userAssessmentSearchList : userAssessmentHistoryList;
+
+    if (index >= assessmentList.length) return;
+
+    if (isSearchActive) {
+      // Ensure the search selection list is long enough
+      if (selectSeaarchBulk.length <= index) {
+        selectSeaarchBulk.value = List.generate(
+          assessmentList.length,
+          (i) => i < selectSeaarchBulk.length ? selectSeaarchBulk[i] : false,
+        );
+      }
+
+      // Update the selection state
+      final newList = List<bool>.from(selectSeaarchBulk);
+      newList[index] = isSelected;
+      selectSeaarchBulk.value = newList;
+    } else {
+      // Ensure the history selection list is long enough
+      if (selectBulk.length <= index) {
+        selectBulk.value = List.generate(
+          assessmentList.length,
+          (i) => i < selectBulk.length ? selectBulk[i] : false,
+        );
+      }
+
+      // Update the selection state
+      final newList = List<bool>.from(selectBulk);
+      newList[index] = isSelected;
+      selectBulk.value = newList;
+    }
+
+    // Update selected IDs
+    final assessment = assessmentList[index];
+    final id = assessment.id?.toString();
+
+    if (id != null) {
+      if (isSelected) {
+        if (!selectedIds.contains(id)) {
+          selectedIds.add(id);
+        }
+      } else {
+        selectedIds.remove(id);
+      }
+    }
+
+    // Update select all state
+    updateSelectAllState();
+  }
+
+  // Toggle select all
+  void toggleSelectAll(bool isSelected) {
+    final isSearchActive =
+        queryText.value != null && queryText.value!.isNotEmpty;
+    final assessmentList =
+        isSearchActive ? userAssessmentSearchList : userAssessmentHistoryList;
+
+    // Update all selection states
+    if (isSearchActive) {
+      selectSeaarchBulk.value = List.generate(
+        assessmentList.length,
+        (_) => isSelected,
+      );
+    } else {
+      selectBulk.value = List.generate(
+        assessmentList.length,
+        (_) => isSelected,
+      );
+    }
+
+    // Update select all flag
+    selectAllFlag.value = isSelected;
+
+    // Update selected IDs
+    selectedIds.clear();
+    if (isSelected && assessmentList.isNotEmpty) {
+      selectedIds.value = assessmentList
+          .where((assessment) => assessment.id != null)
+          .map((assessment) => assessment.id.toString())
+          .toList();
+    }
+  }
+
+  // Check if everything is selected and update selectAllFlag
+  void updateSelectAllState() {
+    final isSearchActive =
+        queryText.value != null && queryText.value!.isNotEmpty;
+    final selectionList = isSearchActive ? selectSeaarchBulk : selectBulk;
+
+    if (selectionList.isEmpty) {
+      selectAllFlag.value = false;
+      return;
+    }
+
+    // Check if all items are selected
+    selectAllFlag.value = selectionList.every((isSelected) => isSelected);
+  }
+
+  // Method to perform a search
+  Future<void> searchAssessments(String query) async {
+    // Set the query text
+    queryText.value = query;
+
+    // Reset pagination for search
+    assessmentHistoryPaginationPageController[
+            AssessmentHistoryPagination.search]
+        ?.currentPage
+        .value = 1;
+
+    // Clear existing search results
+    userAssessmentSearchList.clear();
+    selectSeaarchBulk.clear();
+
+    // Clear selected IDs and selection state
+    selectedIds.clear();
+    selectAllFlag.value = false;
+
+    // Load search results
+    await getAssessmentHistory(
+      isInitialLoad: true,
+      searchAssessment: true,
+      query: query,
+    );
+  }
+
+  // Clear search
+  void clearSearch() {
+    queryText.value = null;
+    userAssessmentSearchList.clear();
+    selectSeaarchBulk.clear();
+    selectedIds.clear();
+    selectAllFlag.value = false;
+    searchError.value = null;
+  }
+
   Future<void> getAssessmentHistory({
     CancelToken? cancelToken,
     bool searchAssessment = false,
@@ -62,10 +245,7 @@ class AssessmentHistoryController extends GetxController {
       apiCall: (pageKey, search) => remoteSource.getAssessmentHistory(
         page: pageKey,
         query: query ?? queryText.value,
-        // emotionName: emotionName,
-        // mainQuestion: mainQuestion,
-        // sortBy: sortBy,
-        // sortOrder: sortOrder,
+      
         perPage: 20,
         cancelToken: cancelToken,
       ),
@@ -87,15 +267,17 @@ class AssessmentHistoryController extends GetxController {
       },
       dataToAdd: (res) {
         if (searchAssessment) {
-          userAssessmentSearchList.clear();
-          userAssessmentSearchList.addAll(res.data?.userAssessments ?? []);
+          userAssessmentSearchList
+            ..clear()
+            ..addAll(res.data?.userAssessments ?? []);
           selectSeaarchBulk.value = List.generate(
             userAssessmentSearchList.length,
             (index) => false,
           );
         } else {
-          userAssessmentHistoryList.clear();
-          userAssessmentHistoryList.addAll(res.data?.userAssessments ?? []);
+          userAssessmentHistoryList
+            ..clear()
+            ..addAll(res.data?.userAssessments ?? []);
           selectBulk.value = List.generate(
             userAssessmentHistoryList.length,
             (index) => false,
@@ -223,48 +405,51 @@ class AssessmentHistoryController extends GetxController {
   void setTabDataLoaded(AssessmentHistoryPagination index, bool loaded) {
     tabDataLoaded[index] = loaded;
   }
-// void toggleAssessmentSelection(String id, bool isSelected) {
-//     if (isSelected) {
-//       if (!selectedAssessmentIds.contains(id)) {
-//         selectedAssessmentIds.add(id);
-//       }
-//     } else {
-//       selectedAssessmentIds.remove(id);
-//     }
-//   }
 
-//   void selectAllAssessments(bool selectAll) {
-//     selectedAssessmentIds.clear();
-//     if (selectAll) {
-//       selectedAssessmentIds.addAll(
-//         userAssessmentHistoryList
-//             .where((assessment) => assessment.id != null)
-//             .map((assessment) => assessment.id!.toString()),
-//       );
-//     }
-//   }
-  Future<bool?> deleteAssessments(
-    List<String>? assessmentId,
-  ) async {
+  Future<bool?> deleteAssessments(List<String>? assessmentIds) async {
+    if (assessmentIds == null || assessmentIds.isEmpty) return false;
+
     getAssessmentHistoryState.value = TheStates.loading;
 
     final result = await remoteSource.deleteAssessments(
-      assessmentId: assessmentId,
+      assessmentId: assessmentIds,
     );
+
     var res = result.fold(
       (l) {
         getAssessmentHistoryState.value = TheStates.error;
         AppUtils.showErrorSnackbar(message: l.message);
-
         return false;
       },
       (r) {
         getAssessmentHistoryState.value = TheStates.success;
-
         AppUtils.showSnackbar(message: r);
+
+        // Refresh data after successful deletion
+        getAssessmentHistory(isInitialLoad: true);
+
+        // Also refresh search results if there's an active search
+        if (queryText.value != null && queryText.value!.isNotEmpty) {
+          getAssessmentHistory(
+            isInitialLoad: true,
+            searchAssessment: true,
+            query: queryText.value,
+          );
+        }
+
         return true;
       },
     );
+
     return res;
+  }
+
+  @override
+  void onClose() {
+    // Dispose of all scroll controllers
+    for (final controller in scrollControllers.values) {
+      controller.dispose();
+    }
+    super.onClose();
   }
 }

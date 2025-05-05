@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
 import 'package:empowered/features/assesments/presentation/controllers/get_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
@@ -15,6 +16,11 @@ class AssesmentResult extends StatelessWidget {
         heroTag: 'power-app-bar',
         title:
             '${controller.userAssessmentModel.value.data?.userAssessment?.assessment?.name} Results',
+        onTap: () async {
+          Get
+            ..find<GetAssessmentController>().getAssessment()
+            ..to(() => const AssessmentsScreen());
+        },
       ),
       body: SafeArea(
         child: Column(
@@ -135,40 +141,40 @@ class AssesmentResult extends StatelessWidget {
                         ),
                       ),
                       const VerticalSpacing(24),
-
-                      // List of Scores
                       Column(
-                        children: List.generate(5, (index) {
-                          return ThemedContainer(
-                            margin: const EdgeInsets.only(bottom: 24),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                const Text(
-                                  '9',
-                                  style: TextStyle(
-                                    color: AppColors.primary400,
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const HorizontalSpacing(16),
-                                Expanded(
-                                  child: Text(
-                                    index == 0
-                                        ? 'Balance - My marriage/relationship score'
-                                        : 'Placeholder Text',
-                                    textAlign: TextAlign.left,
-                                    style: const TextStyle(
-                                      color: AppColors.textColor300,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          );
-                        }),
+                        children: _buildQuestionScoresList(controller),
                       ),
+                      // List of Scores
+                      // Column(
+                      //   children: List.generate(5, (index) {
+                      //     return ThemedContainer(
+                      //       margin: const EdgeInsets.only(bottom: 24),
+                      //       child: Row(
+                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      //         children: [
+                      //           const Text(
+                      //             '9',
+                      //             style: TextStyle(
+                      //               color: AppColors.primary400,
+                      //               fontSize: 24,
+                      //               fontWeight: FontWeight.bold,
+                      //             ),
+                      //           ),
+                      //           const HorizontalSpacing(16),
+                      //           Expanded(
+                      //             child: Text(
+                      //               '${controller.userAssessmentModel.value.data!.userAssessment!.questions?[index].title} score ${controller.scoreQuestionModel.value.data?.questionScore ?? '0'}',
+                      //               textAlign: TextAlign.left,
+                      //               style: const TextStyle(
+                      //                 color: AppColors.textColor300,
+                      //               ),
+                      //             ),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //     );
+                      //   }),
+                      // ),
                     ],
                   ),
                 ),
@@ -188,8 +194,9 @@ class AssesmentResult extends StatelessWidget {
                           route.settings.name == AppRoutes.assesmentsScreen,
                     );
                   },
-                  onNext: () async{
-                    var getAssessmentController =   Get.find<GetAssessmentController>();
+                  onNext: () async {
+                    var getAssessmentController =
+                        Get.find<GetAssessmentController>();
                     await getAssessmentController.getAssessment();
                     Navigator.popUntil(
                       context,
@@ -204,5 +211,54 @@ class AssesmentResult extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  List<Widget> _buildQuestionScoresList(UserAssessmentController controller) {
+    final questions = controller.scoreQuestionModel.value.data?.questions;
+
+    // If questions is null or empty, return an empty list
+    if (questions == null || questions.isEmpty) {
+      return [
+        const ThemedContainer(
+          child: Text(
+            'No questions available',
+            style: TextStyle(color: AppColors.textColor300),
+          ),
+        ),
+      ];
+    }
+
+    // Build the list of question score items
+    return List.generate(questions.length, (index) {
+      final question = questions[index];
+      final score = question.answer?.score;
+
+      return ThemedContainer(
+        margin: const EdgeInsets.only(bottom: 24),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              '$score',
+              style: const TextStyle(
+                color: AppColors.primary400,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            const HorizontalSpacing(16),
+            Expanded(
+              child: Text(
+                question.title ?? 'Unknown question',
+                textAlign: TextAlign.left,
+                style: const TextStyle(
+                  color: AppColors.textColor300,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    });
   }
 }

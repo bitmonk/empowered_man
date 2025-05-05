@@ -14,9 +14,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
       Get.find<AssessmentHistoryController>();
   AssessmentHistoryPagination paginationName =
       AssessmentHistoryPagination.history;
-  List<bool> _selectedItems = [];
-  bool _selectAll = false;
-  List<String> selectedIds = [];
+
   @override
   void initState() {
     super.initState();
@@ -31,7 +29,18 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     final scrollController = controller.getScrollController(
       paginationName,
     );
+    controller.userAssessmentSearchList.clear();
+
+    // Reset selection states
+    controller.selectBulk.clear();
+    controller.selectSeaarchBulk.clear();
+    controller.selectedIds.clear();
+    controller.selectAllFlag.value = false;
+
+    // Initial load of assessment history
     await controller.getAssessmentHistory(isInitialLoad: true);
+
+    // If there's an active query, load search results as well
     if (controller.queryText.value != null &&
         controller.queryText.value!.isNotEmpty) {
       await controller.getAssessmentHistory(
@@ -39,26 +48,17 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
         searchAssessment: true,
         query: controller.queryText.value,
       );
-    } else {
-      await controller.getAssessmentHistory(isInitialLoad: true);
     }
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      // if (_controller.tabDataLoaded[paginationName] != true) {
-      controller.selectBulk.value = List.generate(
-        controller.userAssessmentHistoryList.length,
-        (_) => false,
-      );
-      _selectedItems = List.generate(
-        controller.userAssessmentHistoryList.length,
-        (_) => false,
-      );
-      // }
-    });
+
+    // Initialize selection data after data is loaded
+    controller.initializeSelectionData();
     scrollController.addListener(() {
       if (scrollController.position.pixels >=
           scrollController.position.maxScrollExtent * 0.8) {
-        if (controller.queryText.value != null &&
-            controller.queryText.value!.isNotEmpty) {
+        final isSearchActive = controller.queryText.value != null &&
+            controller.queryText.value!.isNotEmpty;
+
+        if (isSearchActive) {
           controller.loadMoreData(AssessmentHistoryPagination.search);
         } else {
           controller.loadMoreData(paginationName);
@@ -67,108 +67,15 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     });
   }
 
-  // void _toggleSelection(int index, bool isSelected) {
-  //   setState(() {
-  //     _selectedItems[index] = isSelected;
-  //     // Update the controller's selectBulk list to match your local state
-  //     controller.selectBulk[index] = isSelected;
-
-  //     _selectAll = _selectedItems.every((item) => item);
-
-  //     // Update selected IDs
-  //     final assessment = controller.userAssessmentHistoryList[index];
-  //     if (isSelected) {
-  //       if (!selectedIds.contains(assessment.id.toString())) {
-  //         selectedIds.add(assessment.id.toString());
-  //       }
-  //     } else {
-  //       selectedIds.remove(assessment.id.toString());
-  //     }
-  //   });
-  // }
-  void _toggleSelection(int index, bool isSelected) {
-    setState(() {
-      _selectedItems[index] = isSelected;
-
-      final isSearchActive = controller.queryText.value != null &&
-          controller.queryText.value!.isNotEmpty;
-
-      if (isSearchActive) {
-        controller.selectSeaarchBulk[index] = isSelected;
-      } else {
-        controller.selectBulk[index] = isSelected;
-      }
-
-      _selectAll = _selectedItems.every((item) => item);
-
-      final assessment = isSearchActive
-          ? controller.userAssessmentSearchList[index]
-          : controller.userAssessmentHistoryList[index];
-
-      if (isSelected) {
-        if (!selectedIds.contains(assessment.id.toString())) {
-          selectedIds.add(assessment.id.toString());
-        }
-      } else {
-        selectedIds.remove(assessment.id.toString());
-      }
-    });
-  }
-
-  void _toggleSelectAll(bool isSelected) {
-    setState(() {
-      _selectAll = isSelected;
-      _selectedItems = List.generate(_selectedItems.length, (_) => isSelected);
-
-      final isSearchActive = controller.queryText.value != null &&
-          controller.queryText.value!.isNotEmpty;
-      // for (var i = 0; i < controller.selectBulk.length; i++) {
-      //   controller.selectBulk[i] = isSelected;
-      // }
-      if (isSearchActive) {
-        for (var i = 0; i < controller.selectSeaarchBulk.length; i++) {
-          controller.selectSeaarchBulk[i] = isSelected;
-        }
-      } else {
-        for (var i = 0; i < controller.selectBulk.length; i++) {
-          controller.selectBulk[i] = isSelected;
-        }
-      }
-
-      // Update selected IDs
-      selectedIds.clear();
-      if (isSelected) {
-        final assessmentList = isSearchActive
-            ? controller.userAssessmentSearchList
-            : controller.userAssessmentHistoryList;
-
-        selectedIds.addAll(assessmentList
-            .where((assessment) => assessment.id != null)
-            .map((assessment) => assessment.id.toString()));
-      }
-      // if (isSelected) {
-      //   selectedIds.addAll(controller.userAssessmentHistoryList
-      //       .where((assessment) => assessment.id != null)
-      //       .map((assessment) => assessment.id.toString()));
-      // }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final assessmentList = controller.queryText.value != null &&
-              controller.queryText.value!.isNotEmpty
+      final isSearchActive = controller.queryText.value != null &&
+          controller.queryText.value!.isNotEmpty;
+      final assessmentList = isSearchActive
           ? controller.userAssessmentSearchList
           : controller.userAssessmentHistoryList;
 
-      final itemCount = assessmentList.length;
-      final isSearchActive = controller.queryText.value != null &&
-          controller.queryText.value!.isNotEmpty;
-
-      if (_selectedItems.length != itemCount) {
-        _selectedItems = List.generate(itemCount, (_) => false);
-      }
       return ThemedContainer(
         padding: EdgeInsets.zero,
         child: Column(
@@ -235,12 +142,31 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
                       _buildTableHeaderRow(),
                       ...List.generate(
                         assessmentList.length,
-                        // controller.userAssessmentHistoryList.length,
                         (index) => _buildTableRow(index, isSearchActive),
                       ),
                     ],
                   ),
                 ),
+              ),
+            if ((isSearchActive &&
+                    controller.getAssessmentHistorySearchState.value ==
+                        TheStates.loading &&
+                    !controller
+                        .assessmentHistoryPaginationPageController[
+                            AssessmentHistoryPagination.search]!
+                        .isInitialLoading
+                        .value) ||
+                (!isSearchActive &&
+                    controller.getAssessmentHistoryState.value ==
+                        TheStates.loading &&
+                    !controller
+                        .assessmentHistoryPaginationPageController[
+                            paginationName]!
+                        .isInitialLoading
+                        .value))
+              const Padding(
+                padding: EdgeInsets.all(10),
+                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           ],
         ),
@@ -248,7 +174,6 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     });
   }
 
-  /// Table Header Row with "Select All"
   TableRow _buildTableHeaderRow() {
     return TableRow(
       decoration: const BoxDecoration(
@@ -263,12 +188,15 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           padding: const EdgeInsets.only(top: 16, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => _toggleSelectAll(!_selectAll),
-            child: Icon(
-              _selectAll
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: AppColors.color8798A7,
+            onTap: () =>
+                controller.toggleSelectAll(!controller.selectAllFlag.value),
+            child: Obx(
+              () => Icon(
+                controller.selectAllFlag.value
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: AppColors.color8798A7,
+              ),
             ),
           ),
         ),
@@ -294,82 +222,51 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
         ],
       );
     }
-    if (controller.selectBulk.length <= index) {
-      // Expand the list if needed
-      controller.selectBulk.value = List.generate(
-        assessments.length,
-        (i) =>
-            i < controller.selectBulk.length ? controller.selectBulk[i] : false,
-      );
-    }
-    final selectionList =
-        isSearchResults ? controller.selectSeaarchBulk : controller.selectBulk;
 
-    if (selectionList.length <= index) {
-      // Expand the list if needed
-      if (isSearchResults) {
-        controller.selectSeaarchBulk.value = List.generate(
-          assessments.length,
-          (i) => i < controller.selectSeaarchBulk.length
-              ? controller.selectSeaarchBulk[i]
-              : false,
-        );
-      } else {
-        controller.selectBulk.value = List.generate(
-          assessments.length,
-          (i) => i < controller.selectBulk.length
-              ? controller.selectBulk[i]
-              : false,
-        );
-      }
-    }
     final assessment = assessments[index];
     var formattedTime = formatDateTime(assessment.assessmentDate ?? 'N/A');
     final scoreValue =
-        '${assessment.isCompleted! ? assessment.totalObtainedScore : '--'} / ${assessment.totalScore}';
-    var isPlaceholder = index == 0 || index == 3;
+        '${assessment.isCompleted! ? assessment.totalObtainedScore : '--'} / ${assessment.isCompleted! ? assessment.totalScore : '--'}';
+
     return TableRow(
       children: [
         Padding(
           padding: const EdgeInsets.only(top: 12, bottom: 12, left: 12),
           child: GestureDetector(
             behavior: HitTestBehavior.translucent,
-            onTap: () => _toggleSelection(index, !_selectedItems[index]),
-            // onTap: () {
-            //   setState(() {
-            //     _selectedItems[index] = !_selectedItems[index];
-            //     controller.selectBulk.value = List.generate(
-            //       controller.userAssessmentHistoryList.length,
-            //       (index) => _selectAll,
-            //     );
-            //     // _selectAll = _selectedItems.every((item) => item);
-            //   });
-            // },
-            //   onTap: () {
-            //   setState(() {
-            //     _selectedItems[index] = !_selectedItems[index];
-            //     if (isSearchResults) {
-            //       controller.selectSeaarchBulk[index] = _selectedItems[index];
-            //     } else {
-            //       controller.selectBulk[index] = _selectedItems[index];
-            //     }
-            //   });
-            // },
-            child: Icon(
-              _selectedItems[index]
-                  ? Icons.radio_button_checked
-                  : Icons.radio_button_unchecked,
-              color: AppColors.color8798A7,
-            ),
+            onTap: () {
+              final selectionList = isSearchResults
+                  ? controller.selectSeaarchBulk
+                  : controller.selectBulk;
+
+              final isSelected =
+                  index < selectionList.length ? selectionList[index] : false;
+
+              controller.toggleSelection(index, !isSelected);
+            },
+            child: Obx(() {
+              final selectionList = isSearchResults
+                  ? controller.selectSeaarchBulk
+                  : controller.selectBulk;
+              final isSelected =
+                  index < selectionList.length ? selectionList[index] : false;
+
+              return Icon(
+                isSelected
+                    ? Icons.radio_button_checked
+                    : Icons.radio_button_unchecked,
+                color: AppColors.color8798A7,
+              );
+            }),
           ),
         ),
-        _tableCell(formattedTime, isLink: !isPlaceholder),
+        _tableCell(formattedTime, isLink: !assessment.isCompleted!),
         _tableCell(
           assessment.assessmentName ?? 'Production',
-          isLink: !isPlaceholder,
-          isBlue: !isPlaceholder,
+          isLink: assessment.isCompleted!,
+          isBlue: assessment.isCompleted!,
         ),
-        _tableCell(scoreValue),
+        _tableCell(scoreValue, isLink: assessment.isCompleted!),
         // _tableCell(isPlaceholder ? '--/96' : '92/96', isLink: !isPlaceholder),
       ],
     );
