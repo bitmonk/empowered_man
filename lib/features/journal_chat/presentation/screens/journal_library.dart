@@ -385,7 +385,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
           ),
         ),
         _tableCell(emotionName),
-        _tableCell(firstQuestion),
+        _tableCell(firstQuestion.capitalizeFirst.toString()),
         _tableCell(formattedTime),
       ],
     );

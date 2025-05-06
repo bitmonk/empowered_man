@@ -2,6 +2,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
 import 'package:empowered/features/assesments/presentation/controllers/get_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
+import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
 
 class AssesmentResult extends StatelessWidget {
@@ -91,9 +92,9 @@ class AssesmentResult extends StatelessWidget {
                                     ),
                                   ),
                                   const VerticalSpacing(16),
-                                  const Text(
-                                    "You're inside of prosperity!!",
-                                    style: TextStyle(
+                                  Text(
+                                    "You're inside of ${controller.scoreQuestionModel.value.data?.scoreOverview}!!",
+                                    style: const TextStyle(
                                       color: AppColors.textColor50,
                                       fontSize: 16,
                                       fontWeight: FontWeight.w700,
@@ -112,30 +113,38 @@ class AssesmentResult extends StatelessWidget {
                               ),
                             ),
                             const VerticalSpacing(12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Assets.images.increaseArrow.svg(width: 10),
-                                const HorizontalSpacing(6),
-                                const Text(
-                                  '+12.5%',
-                                  style: TextStyle(
-                                    color: Color(0xff5CE0A0),
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const VerticalSpacing(12),
+                            if (controller.scoreQuestionModel.value.data
+                                    ?.totalGrowth ==
+                                0)
+                              AveragePercentage(
+                                w1Value: 0,
+                                w4Value: 0,
+                                percentage: controller
+                                    .scoreQuestionModel.value.data?.totalGrowth
+                                    ?.toDouble(),
+                              ),
+                            if (controller.scoreQuestionModel.value.data
+                                    ?.totalGrowth ==
+                                0)
+                              const VerticalSpacing(12),
                             const Text(
-                              'Score Overview\n0-48 = Scarcity\n49-80 = Abundance\n81-96 = Prosperity',
+                              'Score Overview',
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 color: AppColors.textColor300,
                                 fontSize: 16,
                               ),
                             ),
+                            ...?controller.scoreQuestionModel.value.data
+                                ?.scoreOverviewList
+                                ?.map((e) => Text(
+                                      e,
+                                      textAlign: TextAlign.center,
+                                      style: const TextStyle(
+                                        color: AppColors.textColor300,
+                                        fontSize: 16,
+                                      ),
+                                    ),),
                             const VerticalSpacing(22),
                           ],
                         ),
@@ -144,37 +153,6 @@ class AssesmentResult extends StatelessWidget {
                       Column(
                         children: _buildQuestionScoresList(controller),
                       ),
-                      // List of Scores
-                      // Column(
-                      //   children: List.generate(5, (index) {
-                      //     return ThemedContainer(
-                      //       margin: const EdgeInsets.only(bottom: 24),
-                      //       child: Row(
-                      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //         children: [
-                      //           const Text(
-                      //             '9',
-                      //             style: TextStyle(
-                      //               color: AppColors.primary400,
-                      //               fontSize: 24,
-                      //               fontWeight: FontWeight.bold,
-                      //             ),
-                      //           ),
-                      //           const HorizontalSpacing(16),
-                      //           Expanded(
-                      //             child: Text(
-                      //               '${controller.userAssessmentModel.value.data!.userAssessment!.questions?[index].title} score ${controller.scoreQuestionModel.value.data?.questionScore ?? '0'}',
-                      //               textAlign: TextAlign.left,
-                      //               style: const TextStyle(
-                      //                 color: AppColors.textColor300,
-                      //               ),
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //     );
-                      //   }),
-                      // ),
                     ],
                   ),
                 ),
@@ -195,9 +173,7 @@ class AssesmentResult extends StatelessWidget {
                     );
                   },
                   onNext: () async {
-                    var getAssessmentController =
-                        Get.find<GetAssessmentController>();
-                    await getAssessmentController.getAssessment();
+                    Get.find<GetAssessmentController>().getAssessment();
                     Navigator.popUntil(
                       context,
                       (route) =>

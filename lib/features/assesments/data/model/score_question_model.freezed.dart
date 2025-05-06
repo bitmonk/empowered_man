@@ -249,6 +249,12 @@ mixin _$ScoreQuestionData {
   int? get totalObtainedScore => throw _privateConstructorUsedError;
   @JsonKey(name: 'total_score')
   int? get totalScore => throw _privateConstructorUsedError;
+  @JsonKey(name: 'total_growth')
+  int? get totalGrowth => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_overview_list')
+  List<String>? get scoreOverviewList => throw _privateConstructorUsedError;
+  @JsonKey(name: 'score_overview')
+  String? get scoreOverview => throw _privateConstructorUsedError;
   List<Question>? get questions => throw _privateConstructorUsedError;
 
   /// Serializes this ScoreQuestionData to a JSON map.
@@ -271,6 +277,9 @@ abstract class $ScoreQuestionDataCopyWith<$Res> {
       {@JsonKey(name: 'question_score') QuestionScore? questionScore,
       @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
       @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'total_growth') int? totalGrowth,
+      @JsonKey(name: 'score_overview_list') List<String>? scoreOverviewList,
+      @JsonKey(name: 'score_overview') String? scoreOverview,
       List<Question>? questions});
 
   $QuestionScoreCopyWith<$Res>? get questionScore;
@@ -294,6 +303,9 @@ class _$ScoreQuestionDataCopyWithImpl<$Res, $Val extends ScoreQuestionData>
     Object? questionScore = freezed,
     Object? totalObtainedScore = freezed,
     Object? totalScore = freezed,
+    Object? totalGrowth = freezed,
+    Object? scoreOverviewList = freezed,
+    Object? scoreOverview = freezed,
     Object? questions = freezed,
   }) {
     return _then(_value.copyWith(
@@ -309,6 +321,18 @@ class _$ScoreQuestionDataCopyWithImpl<$Res, $Val extends ScoreQuestionData>
           ? _value.totalScore
           : totalScore // ignore: cast_nullable_to_non_nullable
               as int?,
+      totalGrowth: freezed == totalGrowth
+          ? _value.totalGrowth
+          : totalGrowth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      scoreOverviewList: freezed == scoreOverviewList
+          ? _value.scoreOverviewList
+          : scoreOverviewList // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
+      scoreOverview: freezed == scoreOverview
+          ? _value.scoreOverview
+          : scoreOverview // ignore: cast_nullable_to_non_nullable
+              as String?,
       questions: freezed == questions
           ? _value.questions
           : questions // ignore: cast_nullable_to_non_nullable
@@ -343,6 +367,9 @@ abstract class _$$ScoreQuestionDataImplCopyWith<$Res>
       {@JsonKey(name: 'question_score') QuestionScore? questionScore,
       @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
       @JsonKey(name: 'total_score') int? totalScore,
+      @JsonKey(name: 'total_growth') int? totalGrowth,
+      @JsonKey(name: 'score_overview_list') List<String>? scoreOverviewList,
+      @JsonKey(name: 'score_overview') String? scoreOverview,
       List<Question>? questions});
 
   @override
@@ -365,6 +392,9 @@ class __$$ScoreQuestionDataImplCopyWithImpl<$Res>
     Object? questionScore = freezed,
     Object? totalObtainedScore = freezed,
     Object? totalScore = freezed,
+    Object? totalGrowth = freezed,
+    Object? scoreOverviewList = freezed,
+    Object? scoreOverview = freezed,
     Object? questions = freezed,
   }) {
     return _then(_$ScoreQuestionDataImpl(
@@ -380,6 +410,18 @@ class __$$ScoreQuestionDataImplCopyWithImpl<$Res>
           ? _value.totalScore
           : totalScore // ignore: cast_nullable_to_non_nullable
               as int?,
+      totalGrowth: freezed == totalGrowth
+          ? _value.totalGrowth
+          : totalGrowth // ignore: cast_nullable_to_non_nullable
+              as int?,
+      scoreOverviewList: freezed == scoreOverviewList
+          ? _value._scoreOverviewList
+          : scoreOverviewList // ignore: cast_nullable_to_non_nullable
+              as List<String>?,
+      scoreOverview: freezed == scoreOverview
+          ? _value.scoreOverview
+          : scoreOverview // ignore: cast_nullable_to_non_nullable
+              as String?,
       questions: freezed == questions
           ? _value._questions
           : questions // ignore: cast_nullable_to_non_nullable
@@ -395,8 +437,13 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
       {@JsonKey(name: 'question_score') this.questionScore,
       @JsonKey(name: 'total_obtained_score') this.totalObtainedScore,
       @JsonKey(name: 'total_score') this.totalScore,
+      @JsonKey(name: 'total_growth') this.totalGrowth,
+      @JsonKey(name: 'score_overview_list')
+      final List<String>? scoreOverviewList,
+      @JsonKey(name: 'score_overview') this.scoreOverview,
       final List<Question>? questions})
-      : _questions = questions;
+      : _scoreOverviewList = scoreOverviewList,
+        _questions = questions;
 
   factory _$ScoreQuestionDataImpl.fromJson(Map<String, dynamic> json) =>
       _$$ScoreQuestionDataImplFromJson(json);
@@ -410,6 +457,24 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
   @override
   @JsonKey(name: 'total_score')
   final int? totalScore;
+  @override
+  @JsonKey(name: 'total_growth')
+  final int? totalGrowth;
+  final List<String>? _scoreOverviewList;
+  @override
+  @JsonKey(name: 'score_overview_list')
+  List<String>? get scoreOverviewList {
+    final value = _scoreOverviewList;
+    if (value == null) return null;
+    if (_scoreOverviewList is EqualUnmodifiableListView)
+      return _scoreOverviewList;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  @JsonKey(name: 'score_overview')
+  final String? scoreOverview;
   final List<Question>? _questions;
   @override
   List<Question>? get questions {
@@ -422,7 +487,7 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
 
   @override
   String toString() {
-    return 'ScoreQuestionData(questionScore: $questionScore, totalObtainedScore: $totalObtainedScore, totalScore: $totalScore, questions: $questions)';
+    return 'ScoreQuestionData(questionScore: $questionScore, totalObtainedScore: $totalObtainedScore, totalScore: $totalScore, totalGrowth: $totalGrowth, scoreOverviewList: $scoreOverviewList, scoreOverview: $scoreOverview, questions: $questions)';
   }
 
   @override
@@ -436,6 +501,12 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
                 other.totalObtainedScore == totalObtainedScore) &&
             (identical(other.totalScore, totalScore) ||
                 other.totalScore == totalScore) &&
+            (identical(other.totalGrowth, totalGrowth) ||
+                other.totalGrowth == totalGrowth) &&
+            const DeepCollectionEquality()
+                .equals(other._scoreOverviewList, _scoreOverviewList) &&
+            (identical(other.scoreOverview, scoreOverview) ||
+                other.scoreOverview == scoreOverview) &&
             const DeepCollectionEquality()
                 .equals(other._questions, _questions));
   }
@@ -447,6 +518,9 @@ class _$ScoreQuestionDataImpl implements _ScoreQuestionData {
       questionScore,
       totalObtainedScore,
       totalScore,
+      totalGrowth,
+      const DeepCollectionEquality().hash(_scoreOverviewList),
+      scoreOverview,
       const DeepCollectionEquality().hash(_questions));
 
   /// Create a copy of ScoreQuestionData
@@ -471,6 +545,10 @@ abstract class _ScoreQuestionData implements ScoreQuestionData {
       {@JsonKey(name: 'question_score') final QuestionScore? questionScore,
       @JsonKey(name: 'total_obtained_score') final int? totalObtainedScore,
       @JsonKey(name: 'total_score') final int? totalScore,
+      @JsonKey(name: 'total_growth') final int? totalGrowth,
+      @JsonKey(name: 'score_overview_list')
+      final List<String>? scoreOverviewList,
+      @JsonKey(name: 'score_overview') final String? scoreOverview,
       final List<Question>? questions}) = _$ScoreQuestionDataImpl;
 
   factory _ScoreQuestionData.fromJson(Map<String, dynamic> json) =
@@ -485,6 +563,15 @@ abstract class _ScoreQuestionData implements ScoreQuestionData {
   @override
   @JsonKey(name: 'total_score')
   int? get totalScore;
+  @override
+  @JsonKey(name: 'total_growth')
+  int? get totalGrowth;
+  @override
+  @JsonKey(name: 'score_overview_list')
+  List<String>? get scoreOverviewList;
+  @override
+  @JsonKey(name: 'score_overview')
+  String? get scoreOverview;
   @override
   List<Question>? get questions;
 

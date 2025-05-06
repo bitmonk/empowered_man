@@ -69,6 +69,16 @@ class EditProfileController extends GetxController {
     return isValid;
   }
 
+  bool get isProfileChanged {
+    return nameController.text !=
+            _profileController.userProfile.value.fullName ||
+        emailController.text != _profileController.userProfile.value.email ||
+        mobileNumberController.text !=
+            _profileController.userProfile.value.phoneNumber ||
+        occupationController.text !=
+            _profileController.userProfile.value.occupation;
+  }
+
   Future<bool> updateProfile() async {
     editProfileState.value = TheStates.loading;
     _cancelToken = CancelToken();

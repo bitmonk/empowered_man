@@ -17,9 +17,9 @@ class AssesmentTrailer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: CustomAppBar(
+      appBar: const CustomAppBar(
         heroTag: 'power-app-bar',
-        title: '${userAssessmentData!.userAssessment!.assessment!.name} 1/$totalDimensions',
+        title: 'Introduction',
       ),
       body: SafeArea(
         child: Column(
@@ -95,49 +95,48 @@ class AssesmentTrailer extends StatelessWidget {
             // if (userAssessmentData!.userAssessment!.isCompleted == true)
             //   const SizedBox()
             // else
-              Padding(
-                padding: const EdgeInsets.all(24),
-                child: GestureDetector(
-                  onTap: () async {
-                    HapticFeedback.lightImpact();
-
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => DimensionScreen(
-                          userAssessmentData: userAssessmentData!,
-                          totalDimensions: totalDimensions!,
-                        ),
+            Padding(
+              padding: const EdgeInsets.all(24),
+              child: GestureDetector(
+                onTap: () async {
+                  HapticFeedback.lightImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => DimensionScreen(
+                        userAssessmentData: userAssessmentData!,
+                        totalDimensions: totalDimensions!,
                       ),
-                    );
-                  },
-                  child: Container(
-                    alignment: Alignment.center,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 14,
                     ),
-                    decoration: BoxDecoration(
-                      color: AppColors.primary500,
-                      borderRadius: BorderRadius.circular(30),
-                    ),
-                    child: const Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          'Next',
-                          style: AppTextStyles.textBodyB1,
-                        ),
-                        SizedBox(width: 8),
-                        Icon(
-                          Icons.arrow_forward,
-                          color: AppColors.textColor50,
-                        ),
-                      ],
-                    ),
+                  );
+                },
+                child: Container(
+                  alignment: Alignment.center,
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary500,
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  child: const Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'Next',
+                        style: AppTextStyles.textBodyB1,
+                      ),
+                      SizedBox(width: 8),
+                      Icon(
+                        Icons.arrow_forward,
+                        color: AppColors.textColor50,
+                      ),
+                    ],
                   ),
                 ),
               ),
+            ),
           ],
         ),
       ),

@@ -24,7 +24,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   quill.QuillController _controller = quill.QuillController.basic();
   AddTaskRequestModel addTaskRequestModel = AddTaskRequestModel();
   final controller = Get.find<TasksController>();
-
+  final GlobalKey<FormState> formKey = GlobalKey<FormState>();
   @override
   void initState() {
     super.initState();
@@ -92,233 +92,241 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         () => SafeArea(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 10),
-                AppTextFormField(
-                  enabledBorderSide:
-                      const BorderSide(color: AppColors.color354451),
-                  labelText: 'Title',
-                  controller: titleController,
-                  validator: ValidationBuilder().required().build(),
-                  onChanged: (v) {
-                    addTaskRequestModel.title = v;
-                  },
-                ),
-                AppTextFormField(
-                  enabledBorderSide:
-                      const BorderSide(color: AppColors.color354451),
-                  labelText: 'Description',
-                  controller: descriptionController,
-                  validator: ValidationBuilder().required().build(),
-                  onChanged: (v) {
-                    addTaskRequestModel.description = v;
-                  },
-                ),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(
-                      child: _buildDropdownField(
-                        label: 'Level',
-                        val: addTaskRequestModel.level,
-                        list: controller.levelList,
-                        onChanged: (v) {
-                          addTaskRequestModel.level = v;
-                        },
-                      ),
-                    ),
-                    const SizedBox(width: 10),
-                    Expanded(
-                      child: _buildDropdownField(
-                        label: 'Priority',
-                        val: addTaskRequestModel.priority,
-                        list: controller.prioritiesList,
-                        onChanged: (v) {
-                          addTaskRequestModel.priority = v;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                _buildDatePicker('Select Date'),
-                const SizedBox(height: 16),
-                Row(
-                  children: [
-                    Expanded(child: _buildOutlinedButton('Start Journal')),
-                    const SizedBox(width: 10),
-                    Expanded(child: _buildOutlinedButton('Add Subtask')),
-                  ],
-                ),
-                const VerticalSpacing(20),
-                ...subtaskControllers.map((entry) {
-                  return Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Form(
+              key: formKey,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 10),
+                  AppTextFormField(
+                    enabledBorderSide:
+                        const BorderSide(color: AppColors.color354451),
+                    labelText: 'Title',
+                    controller: titleController,
+                    validator: ValidationBuilder().required().build(),
+                    onChanged: (v) {
+                      addTaskRequestModel.title = v;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  AppTextFormField(
+                    enabledBorderSide:
+                        const BorderSide(color: AppColors.color354451),
+                    labelText: 'Description',
+                    controller: descriptionController,
+                    validator: ValidationBuilder().required().build(),
+                    onChanged: (v) {
+                      addTaskRequestModel.description = v;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  Row(
                     children: [
-                      _buildTextField(
-                        'Subtask ${subtaskControllers.indexOf(entry) + 1}',
-                        entry,
+                      Expanded(
+                        child: _buildDropdownField(
+                          label: 'Level',
+                          val: addTaskRequestModel.level,
+                          list: controller.levelList,
+                          onChanged: (v) {
+                            addTaskRequestModel.level = v;
+                          },
+                        ),
                       ),
-                      const VerticalSpacing(24),
-                    ],
-                  );
-                }),
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      subtaskControllers.add(TextEditingController());
-                    });
-                  },
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Assets.images.addCirlceTask.svg(),
-                      const HorizontalSpacing(8),
-                      Text(
-                        'Add Another Subtask',
-                        style: AppTextStyles.textBodyB3.copyWith(
-                          color: AppColors.primary500,
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: _buildDropdownField(
+                          label: 'Priority',
+                          val: addTaskRequestModel.priority,
+                          list: controller.prioritiesList,
+                          onChanged: (v) {
+                            addTaskRequestModel.priority = v;
+                          },
                         ),
                       ),
                     ],
                   ),
-                ),
-                const VerticalSpacing(24),
-                const Text(
-                  'Notes',
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: AppColors.textColor100,
-                  ),
-                ),
-                const VerticalSpacing(12),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                      color: AppColors.bgBorderVLight,
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Theme(
-                        data: Theme.of(context).copyWith(
-                          iconTheme: const IconThemeData(
-                            color: Colors.white,
-                          ), // Set tool icons to white
-                          buttonTheme: const ButtonThemeData(
-                            buttonColor: Colors.white,
-                          ), // For buttons, if applicable
+                  const SizedBox(height: 16),
+                  _buildDatePicker('Select Date'),
+                  const SizedBox(height: 24),
+                  // Row(
+                  //   children: [
+                  //     Expanded(child: _buildOutlinedButton('Start Journal')),
+                  //     const SizedBox(width: 10),
+                  //     Expanded(child: _buildOutlinedButton('Add Subtask')),
+                  //   ],
+                  // ),
+                  // const VerticalSpacing(20),
+                  ...subtaskControllers.map((entry) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildTextField(
+                          'Subtask ${subtaskControllers.indexOf(entry) + 1}',
+                          entry,
+                          subtaskControllers.indexOf(entry),
                         ),
-                        child: quill.QuillSimpleToolbar(
-                          controller: _controller,
-                          configurations:
-                              const quill.QuillSimpleToolbarConfigurations(
-                            toolbarSectionSpacing: 2,
-                            showJustifyAlignment: false,
-                            showListBullets: false,
-                            showCenterAlignment: false,
-                            showClearFormat: false,
-                            showFontFamily: false,
-                            showFontSize: false,
-                            showBackgroundColorButton: false,
-                            showColorButton: false,
-                            showHeaderStyle: false,
-                            showLink: false,
-                            showUndo: false,
-                            showRedo: false,
-                            showListCheck: false,
-                            showIndent: false,
-                            showSubscript: false,
-                            showSuperscript: false,
-                            showSearchButton: false,
-                            showClipboardCut: false,
-                            showClipboardCopy: false,
-                            showClipboardPaste: false,
-                            multiRowsDisplay: false,
-                            color: AppColors.transparent,
+                        const VerticalSpacing(16),
+                      ],
+                    );
+                  }),
+                  InkWell(
+                    onTap: () {
+                      setState(() {
+                        subtaskControllers.add(TextEditingController());
+                      });
+                    },
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Assets.images.addCirlceTask.svg(),
+                        const HorizontalSpacing(8),
+                        Text(
+                          'Add Another Subtask',
+                          style: AppTextStyles.textBodyB3.copyWith(
+                            color: AppColors.primary500,
                           ),
                         ),
-                      ),
-                      const AppDivider(
+                      ],
+                    ),
+                  ),
+                  const VerticalSpacing(24),
+                  const Text(
+                    'Notes',
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: AppColors.textColor100,
+                    ),
+                  ),
+                  const VerticalSpacing(12),
+                  Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
                         color: AppColors.bgBorderVLight,
                       ),
-                      DefaultTextStyle(
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: AppColors.textColor100,
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.all(8),
-                          child: quill.QuillEditor.basic(
+                    ),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Theme(
+                          data: Theme.of(context).copyWith(
+                            iconTheme: const IconThemeData(
+                              color: Colors.white,
+                            ), // Set tool icons to white
+                            buttonTheme: const ButtonThemeData(
+                              buttonColor: Colors.white,
+                            ), // For buttons, if applicable
+                          ),
+                          child: quill.QuillSimpleToolbar(
                             controller: _controller,
                             configurations:
-                                const quill.QuillEditorConfigurations(
-                              minHeight: 120,
-                              maxContentWidth: 400,
+                                const quill.QuillSimpleToolbarConfigurations(
+                              toolbarSectionSpacing: 2,
+                              showJustifyAlignment: false,
+                              showListBullets: false,
+                              showCenterAlignment: false,
+                              showClearFormat: false,
+                              showFontFamily: false,
+                              showFontSize: false,
+                              showBackgroundColorButton: false,
+                              showColorButton: false,
+                              showHeaderStyle: false,
+                              showLink: false,
+                              showUndo: false,
+                              showRedo: false,
+                              showListCheck: false,
+                              showIndent: false,
+                              showSubscript: false,
+                              showSuperscript: false,
+                              showSearchButton: false,
+                              showClipboardCut: false,
+                              showClipboardCopy: false,
+                              showClipboardPaste: false,
+                              multiRowsDisplay: false,
+                              color: AppColors.transparent,
                             ),
                           ),
                         ),
+                        const AppDivider(
+                          color: AppColors.bgBorderVLight,
+                        ),
+                        DefaultTextStyle(
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textColor100,
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: quill.QuillEditor.basic(
+                              controller: _controller,
+                              configurations:
+                                  const quill.QuillEditorConfigurations(
+                                minHeight: 120,
+                                maxContentWidth: 400,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const VerticalSpacing(30),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: AppOutlinedButton(
+                          text: widget.task != null ? 'Update' : 'Save',
+                          isLoading: controller.addTaskState.value ==
+                              TheStates.loading,
+                          onPressed: () {
+                            addTaskRequestModel
+                              ..notes = convertQuillToHtml(_controller)
+                              ..subTitle = [];
+                            setState(() {
+                              addTaskRequestModel.subTitle = subtaskControllers
+                                  .map((controller) => controller.text.trim())
+                                  .where((text) => text.isNotEmpty)
+                                  .toList();
+                            });
+
+                            if (formKey.currentState!.validate()) {
+                              controller.addTask(
+                                body: addTaskRequestModel,
+                                id: widget.task?.id?.toString(),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const HorizontalSpacing(16),
+                      Expanded(
+                        child: AppOutlinedButton(
+                          text: widget.task != null ? 'Delete' : 'Cancel',
+                          backgroundColor: AppColors.colorEB5757,
+                          isLoading: widget.task != null &&
+                              controller.delTaskState.value ==
+                                  TheStates.loading,
+                          onPressed: () {
+                            if (controller.addTaskState.value ==
+                                TheStates.loading) {
+                              controller.cancelRequest();
+                            }
+                            if (widget.task != null) {
+                              controller.deleteTask(
+                                taskId: widget.task!.id.toString(),
+                              );
+                            } else {
+                              Navigator.pop(context);
+                            }
+                          },
+                        ),
                       ),
                     ],
                   ),
-                ),
-                const VerticalSpacing(30),
-                Row(
-                  children: [
-                    Expanded(
-                      child: AppOutlinedButton(
-                        text: widget.task != null ? 'Update' : 'Save',
-                        isLoading:
-                            controller.addTaskState.value == TheStates.loading,
-                        onPressed: () {
-                          addTaskRequestModel
-                            ..notes = convertQuillToHtml(_controller)
-                            ..subTitle = [];
-                          setState(() {
-                            addTaskRequestModel.subTitle = subtaskControllers
-                                .map((controller) => controller.text.trim())
-                                .where((text) => text.isNotEmpty)
-                                .toList();
-                          });
-
-                          controller.addTask(
-                            body: addTaskRequestModel,
-                            id: widget.task?.id?.toString(),
-                          );
-                        },
-                      ),
-                    ),
-                    const HorizontalSpacing(16),
-                    Expanded(
-                      child: AppOutlinedButton(
-                        text: widget.task != null ? 'Delete' : 'Cancel',
-                        backgroundColor: AppColors.colorEB5757,
-                        isLoading: widget.task != null &&
-                            controller.delTaskState.value == TheStates.loading,
-                        onPressed: () {
-                          if (controller.addTaskState.value ==
-                              TheStates.loading) {
-                            controller.cancelRequest();
-                          }
-                          if (widget.task != null) {
-                            controller.deleteTask(
-                              taskId: widget.task!.id.toString(),
-                            );
-                          } else {
-                            Navigator.pop(context);
-                          }
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                const VerticalSpacing(30),
-              ],
+                  const VerticalSpacing(30),
+                ],
+              ),
             ),
           ),
         ),
@@ -343,11 +351,36 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     );
   }
 
-  Widget _buildTextField(String label, TextEditingController controller) {
-    return AppTextFormField(
-      enabledBorderSide: const BorderSide(color: AppColors.color354451),
-      labelText: label,
-      controller: controller,
+  Widget _buildTextField(
+    String label,
+    TextEditingController controller,
+    int index,
+  ) {
+    return Row(
+      children: [
+        Expanded(
+          child: AppTextFormField(
+            enabledBorderSide: const BorderSide(color: AppColors.color354451),
+            labelText: label,
+            controller: controller,
+          ),
+        ),
+        if (index != 0)
+          InkWell(
+            onTap: () {
+              setState(() {
+                subtaskControllers.removeAt(index);
+              });
+            },
+            child: const Padding(
+              padding: EdgeInsets.all(8),
+              child: Icon(
+                Icons.remove,
+                color: AppColors.appRed,
+              ),
+            ),
+          ),
+      ],
     );
   }
 
@@ -392,6 +425,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   Widget _buildDatePicker(String label) {
     return AppTextFormField(
       labelText: 'Date',
+      validator: ValidationBuilder().required().build(),
       enabledBorderSide: const BorderSide(color: AppColors.color354451),
       controller: dateController,
       isReadOnly: true,
@@ -442,17 +476,6 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           child: child!,
         );
       },
-    );
-  }
-
-  Widget _buildOutlinedButton(String text) {
-    return OutlinedButton(
-      onPressed: () {},
-      style: OutlinedButton.styleFrom(
-        side: const BorderSide(color: Colors.blue),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-      ),
-      child: Text(text, style: const TextStyle(color: AppColors.textColor50)),
     );
   }
 }

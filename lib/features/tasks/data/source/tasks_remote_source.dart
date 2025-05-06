@@ -1,7 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:empowered/constants/app_endpoints.dart';
+import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
-import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tasks/data/model/add_task_request_model.dart';
 import 'package:empowered/features/tasks/data/model/task_enums_model.dart';
 import 'package:empowered/features/tasks/data/model/task_model.dart';
@@ -56,7 +57,8 @@ class TasksRemoteSource {
     try {
       final response = await _client.post(
         id != null ? AppEndpoints.updateTask(id) : AppEndpoints.addTask,
-        body: {...body.toMap(), if (id != null) '_method': 'put'},
+        body: FormData.fromMap(
+            {...body.toMap(), if (id != null) '_method': 'put'},),
         cancelToken: cancelToken,
       );
       return right(response['message']);

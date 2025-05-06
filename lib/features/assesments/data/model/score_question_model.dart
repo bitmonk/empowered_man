@@ -21,6 +21,9 @@ class ScoreQuestionData with _$ScoreQuestionData {
     @JsonKey(name: 'question_score') QuestionScore? questionScore,
     @JsonKey(name: 'total_obtained_score') int? totalObtainedScore,
     @JsonKey(name: 'total_score') int? totalScore,
+    @JsonKey(name: 'total_growth') int? totalGrowth,
+    @JsonKey(name: 'score_overview_list') List<String>? scoreOverviewList,
+    @JsonKey(name: 'score_overview') String? scoreOverview,
     List<Question>? questions,
   }) = _ScoreQuestionData;
 

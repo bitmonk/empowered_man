@@ -1,35 +1,38 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
+import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 import 'package:fl_chart/fl_chart.dart';
-import 'package:flutter/material.dart';
 
 class AssessmentGraph extends StatelessWidget {
-  const AssessmentGraph(
-      {required this.scoreHistory, required this.totalScore, super.key});
+  const AssessmentGraph({
+    required this.scoreHistory,
+    required this.totalScore,
+    super.key,
+  });
   final List<ScoreHistory> scoreHistory;
   final String totalScore;
 
   List<FlSpot> _generateSpots() {
-    print("ScoreHistory data: $scoreHistory");
+    print('ScoreHistory data: $scoreHistory');
 
     final weekValues = [0.0, 0.0, 0.0, 0.0];
 
-    for (var entry in scoreHistory) {
+    for (final entry in scoreHistory) {
       if (entry.w1 != null) {
         weekValues[0] = entry.w1!.toDouble();
-        print("Found W1 value: ${entry.w1}");
+        print('Found W1 value: ${entry.w1}');
       }
       if (entry.w2 != null) {
         weekValues[1] = entry.w2!.toDouble();
-        print("Found W2 value: ${entry.w2}");
+        print('Found W2 value: ${entry.w2}');
       }
       if (entry.w3 != null) {
         weekValues[2] = entry.w3!.toDouble();
-        print("Found W3 value: ${entry.w3}");
+        print('Found W3 value: ${entry.w3}');
       }
       if (entry.w4 != null) {
         weekValues[3] = entry.w4!.toDouble();
-        print("Found W4 value: ${entry.w4}");
+        print('Found W4 value: ${entry.w4}');
       }
     }
 
@@ -37,12 +40,12 @@ class AssessmentGraph extends StatelessWidget {
       final week = i + 1;
       final value = weekValues[i];
 
-      print("Creating spot: week=$week, value=$value");
+      print('Creating spot: week=$week, value=$value');
 
       return FlSpot(week.toDouble(), value);
     });
 
-    print("Generated spots: $spots");
+    print('Generated spots: $spots');
 
     return spots;
   }
@@ -68,16 +71,9 @@ class AssessmentGraph extends StatelessWidget {
                 style: AppTextStyles.textSmallS2,
               ),
               const Spacer(),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 4),
-                child: Assets.images.increaseArrow.svg(),
-              ),
-              const Text(
-                '+12.5%',
-                style: TextStyle(
-                  color: AppColors.color5CE0A0,
-                  fontSize: 12,
-                ),
+              AveragePercentage(
+                w1Value: scoreHistory.first.w1?.toDouble(),
+                w4Value: scoreHistory.first.w4?.toDouble(),
               ),
             ],
           ),
@@ -92,7 +88,6 @@ class AssessmentGraph extends StatelessWidget {
                 maxY: maxScore,
                 gridData: FlGridData(
                   drawVerticalLine: false,
-                  drawHorizontalLine: true,
                   horizontalInterval: yInterval,
                   verticalInterval: 1,
                   getDrawingHorizontalLine: (value) => FlLine(
@@ -121,12 +116,8 @@ class AssessmentGraph extends StatelessWidget {
                       reservedSize: 30,
                     ),
                   ),
-                  rightTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
-                  topTitles: const AxisTitles(
-                    sideTitles: SideTitles(showTitles: false),
-                  ),
+                  rightTitles: const AxisTitles(),
+                  topTitles: const AxisTitles(),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,

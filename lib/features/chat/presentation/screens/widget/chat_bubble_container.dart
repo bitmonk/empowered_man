@@ -590,7 +590,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
               borderRadius: BorderRadius.circular(12),
               color: Colors.black12,
             ),
-            child: const Center(child: CircularProgressIndicator()),
+            child: const LoadingWidget(),
           ),
         ],
       );
@@ -742,7 +742,7 @@ class _FullscreenVideoViewState extends State<FullscreenVideoView> {
         child: Center(
           child: _isInitialized && _chewieController != null
               ? Chewie(controller: _chewieController!)
-              : const CircularProgressIndicator(),
+              : const LoadingWidget(),
         ),
       ),
     );

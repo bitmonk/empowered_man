@@ -98,10 +98,10 @@ class _AssessmentCardState extends State<AssessmentCard> {
                         width: 110,
                         text: widget.status,
                         textStyle: AppTextStyles.textBodyB3,
-                        onPressed: () async {
+                        onPressed: () {
                           final controller =
                               Get.find<UserAssessmentController>();
-                          await controller.userAssessment(widget.id);
+                          controller.userAssessment(widget.id);
                           var totalDimensions = controller.userAssessmentModel
                               .value.data?.userAssessment?.questions?.length;
                           if (widget.status != 'Completed') {

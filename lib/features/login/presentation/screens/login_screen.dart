@@ -65,6 +65,19 @@ class LoginScreen extends GetView<LoginController> {
                     ),
                   ),
                   VerticalSpacing(16.h),
+                  if (controller.logginInState.value == TheStates.error &&
+                      (controller.loginError.value
+                              ?.toLowerCase()
+                              .contains('invalid') ??
+                          false))
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      child: Text(
+                        'Opps! Password incorrect try again',
+                        style: AppTextStyles.textSmallS2
+                            .copyWith(color: AppColors.appRed),
+                      ),
+                    ),
                   AppOutlinedButton(
                     text: 'Login',
                     isLoading:

@@ -11,48 +11,53 @@ class AssessmentSummary extends StatelessWidget {
 
     return Obx(() {
       if (controller.getAssessmentState.value == TheStates.loading) {
-        return const Center(child: CircularProgressIndicator());
+        return const LoadingWidget();
       }
 
       final model = controller.getAssessmentModel.value;
       if (model.data == null) {
         return const Center(child: Text('No assessments available'));
       }
-      return SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildSectionTitle('The Growth Assessments'),
-            ...?model.data!.assessments?.growth?.map(
-              (growth) => AssessmentCard(
-                title: growth.name ?? 'Untitled',
-                score: '${growth.currentScore ?? 0} / ${growth.totalScore}',
-                iconPath: growth.image ?? '',
-                id: growth.id.toString(),
-                onTap: () {},
-                status: growth.status ?? 'Start Now',
-                scoreHistory: growth.scoreHistory,
-                totalScore: growth.totalScore.toString(),
-                //  onTap: () => _handleAssessmentTap(growth),
+      return RefreshIndicator(
+        onRefresh: () async {
+          Get.find<GetAssessmentController>().getAssessment();
+        },
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildSectionTitle('The Growth Assessments'),
+              ...?model.data!.assessments?.growth?.map(
+                (growth) => AssessmentCard(
+                  title: growth.name ?? 'Untitled',
+                  score: '${growth.currentScore ?? 0} / ${growth.totalScore}',
+                  iconPath: growth.image ?? '',
+                  id: growth.id.toString(),
+                  onTap: () {},
+                  status: growth.status ?? 'Start Now',
+                  scoreHistory: growth.scoreHistory,
+                  totalScore: growth.totalScore.toString(),
+                  //  onTap: () => _handleAssessmentTap(growth),
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildSectionTitle('The Wealth Assessments'),
-            ...?model.data!.assessments?.wealth?.map(
-              (wealth) => AssessmentCard(
-                title: wealth.name ?? 'Untitled',
-                score: '${wealth.currentScore ?? 0} / ${wealth.totalScore}',
-                iconPath: wealth.image ?? '',
-                status: wealth.status ?? 'Start Now',
-                id: wealth.id.toString(),
-                scoreHistory: wealth.scoreHistory,
-                totalScore: wealth.totalScore.toString(),
-                onTap: () {},
+              const SizedBox(height: 16),
+              _buildSectionTitle('The Wealth Assessments'),
+              ...?model.data!.assessments?.wealth?.map(
+                (wealth) => AssessmentCard(
+                  title: wealth.name ?? 'Untitled',
+                  score: '${wealth.currentScore ?? 0} / ${wealth.totalScore}',
+                  iconPath: wealth.image ?? '',
+                  status: wealth.status ?? 'Start Now',
+                  id: wealth.id.toString(),
+                  scoreHistory: wealth.scoreHistory,
+                  totalScore: wealth.totalScore.toString(),
+                  onTap: () {},
+                ),
               ),
-            ),
-            const BottomSpacing(),
-          ],
+              const BottomSpacing(),
+            ],
+          ),
         ),
       );
     });

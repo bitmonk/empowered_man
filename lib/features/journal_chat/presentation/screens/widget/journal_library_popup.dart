@@ -69,48 +69,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         message: 'Preparing ${userJournals.length} journals for export...',
       );
 
-      // Get.dialog(
-      //   Material(
-      //     color: Colors.transparent,
-      //     child: Padding(
-      //       padding: const EdgeInsets.all(40),
-      //       child: Center(
-      //         child: Container(
-      //           padding: const EdgeInsets.all(16),
-      //           decoration: BoxDecoration(
-      //             color: AppColors.bgBorder,
-      //             borderRadius: BorderRadius.circular(8),
-      //             boxShadow: [
-      //               BoxShadow(
-      //                 color: Colors.black.withOpacity(0.1),
-      //                 spreadRadius: 2,
-      //                 blurRadius: 4,
-      //                 offset: const Offset(0, 2),
-      //               ),
-      //             ],
-      //           ),
-      //           child: Column(
-      //             mainAxisSize: MainAxisSize.min,
-      //             children: [
-      //               const CircularProgressIndicator(
-      //                 strokeWidth: 3,
-      //                 valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-      //               ),
-      //               const SizedBox(height: 16),
-      //               Text(
-      //                 'Preparing ${userJournals.length} journals for export...',
-      //                 style: AppTextStyles.textBodyB3,
-      //                 textAlign: TextAlign.center,
-      //               ),
-      //             ],
-      //           ),
-      //         ),
-      //       ),
-      //     ),
-      //   ),
-      //   barrierDismissible: false,
-      // );
-
       // Format data for PDF
       var formattedData = '';
       var fromToDate = '';
@@ -148,7 +106,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
 
       AppUtils.showSnackbar(message: 'Journals exported successfully');
     } catch (e) {
-
       if (Get.isDialogOpen ?? false) {
         Get.back();
       }
@@ -156,7 +113,6 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
       print('Error sharing journals to PDF: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
     } finally {
-
       await Future.delayed(const Duration(milliseconds: 200));
       if (Get.isDialogOpen ?? false) {
         Get.back();
@@ -296,8 +252,8 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
     Future<void> seeJournal() async {
       if (selectedCount > 0) {
         final journalIds = List<String>.empty(growable: true);
-        final journals =
-            _controller.journalLibraryIndexModel.value.data?.userJournals;
+
+        _controller.journalLibraryIndexModel.value.data?.userJournals;
         for (var i = 0; i < widget.selectedItems.length; i++) {
           if (widget.selectedItems[i] && i < widget.journalList.length) {
             journalIds.add(widget.journalList[i].id.toString());
@@ -320,7 +276,7 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         }
 
         // Call API
-        final result = await _controller.getBulkSeeJournal(journalIds);
+        await _controller.getBulkSeeJournal(journalIds);
 
         final userJournals =
             _controller.userJournalResponse.value.data?.userJournals;

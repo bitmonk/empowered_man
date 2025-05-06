@@ -306,8 +306,9 @@ Future<void> exportPdf(
 
               for (var j = 0; j < lines.length; j += 2) {
                 if (j < lines.length) {
-                  final question =
-                      lines[j].startsWith('Q: ') ? lines[j].substring(3) : lines[j];
+                  final question = lines[j].startsWith('Q: ')
+                      ? lines[j].substring(3)
+                      : lines[j];
 
                   paragraphs.add(
                     pw.Text(
@@ -386,22 +387,24 @@ Future<void> exportPdf(
       // Create a zip file containing all PDFs
       final tempDir = await getTemporaryDirectory();
       final zipFile = File('${tempDir.path}/journals_export.zip');
-      
+
       // Here you would implement the zip functionality
       // For example using the 'archive' package:
       final encoder = ZipEncoder();
       final archive = Archive();
       for (var i = 0; i < pdfFiles.length; i++) {
-        archive.addFile(ArchiveFile(
-          '${emotionNames[i].toLowerCase().replaceAll(' ', '_')}_journal.pdf',
-          pdfFiles[i].lengthSync(),
-          pdfFiles[i].readAsBytesSync(),
-        ),);
+        archive.addFile(
+          ArchiveFile(
+            '${emotionNames[i].toLowerCase().replaceAll(' ', '_')}_journal.pdf',
+            pdfFiles[i].lengthSync(),
+            pdfFiles[i].readAsBytesSync(),
+          ),
+        );
       }
       await zipFile.writeAsBytes(encoder.encode(archive));
-      
+
       // Then save the zip file
-      final result = await FileSaver.instance.saveAs(
+      await FileSaver.instance.saveAs(
         name: 'journals_export',
         ext: 'zip',
         file: zipFile,
@@ -447,7 +450,7 @@ class Utils {
   }
 
   // Optional: handle file saving for other file types (images, videos, etc.)
-  fileDownloadBoth(
+  Future<void> fileDownloadBoth(
     BuildContext context, {
     required String fileName,
     required String ext,

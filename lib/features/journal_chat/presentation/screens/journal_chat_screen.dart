@@ -320,7 +320,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             .journalWithQuestionsAndAnswers.value.data?.journal;
                         if (journal == null) {
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            child: LoadingWidget(),
                           );
                         }
 

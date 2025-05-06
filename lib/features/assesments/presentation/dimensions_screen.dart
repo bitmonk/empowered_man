@@ -22,38 +22,12 @@ class DimensionScreen extends StatefulWidget {
 }
 
 class _DimensionScreenState extends State<DimensionScreen> {
-  double selectedScore = 4;
+  double selectedScore = 1;
   int? expandedIndex;
-
-  // static const int totalDimensions = 5; // Total number of pages
-
-  // final List<String> levels = [
-  //   '[1-3] BODY - FITNESS LEVEL 1: ASLEEP',
-  //   '[4-6] TITLE PLACEHOLDER',
-  //   '[7-9] TITLE PLACEHOLDER',
-  //   '[10-12] BODY - TITLE PLACEHOLDER',
-  // ];
 
   void navigateToDetail(String title) {}
   final controller = Get.find<UserAssessmentController>();
 
-  // void goToNextDimension() {
-  //   if (widget.dimensionIndex < widget.totalDimensions) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => DimensionScreen(
-  //           dimensionIndex: widget.dimensionIndex + 1,
-  //           userAssessmentData: widget.userAssessmentData,
-  //           totalDimensions:
-  //               widget.userAssessmentData.userAssessment!.questions!.length,
-  //         ),
-  //       ),
-  //     );
-  //   } else {
-  //     Get.toNamed(AppRoutes.assesmentsResult);
-  //   }
-  // }
   Future<void> goToNextDimension() async {
     if (widget.dimensionIndex < widget.totalDimensions) {
       // Post the current score before navigation
@@ -135,11 +109,6 @@ class _DimensionScreenState extends State<DimensionScreen> {
                       // 'DIMENSION #${widget.dimensionIndex}: BODY, SECTION #1: FITNESS',
                       style: AppTextStyles.textHeadingH3,
                     ),
-                    // const VerticalSpacing(16),
-                    // const Text(
-                    //   'The state and condition of being physically sound and healthy, especially as the result of exercise.',
-                    //   style: AppTextStyles.textBodyB2,
-                    // ),
                     const VerticalSpacing(8),
                     Column(
                       children: [

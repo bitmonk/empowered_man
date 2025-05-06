@@ -42,8 +42,6 @@ extension TheStatesExtension on TheStates {
         return error?.call() ?? orElse?.call() ?? const SizedBox();
       case TheStates.loading:
         return loading?.call() ?? orElse?.call() ?? const SizedBox();
-      default:
-        return orElse?.call() ?? const SizedBox();
     }
   }
 }
