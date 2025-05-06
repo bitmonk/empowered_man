@@ -10,13 +10,10 @@ class AssessmentGraph extends StatelessWidget {
   final String totalScore;
 
   List<FlSpot> _generateSpots() {
-    
     print("ScoreHistory data: $scoreHistory");
 
-    // Initialize array for all 4 weeks with default value 0
     final weekValues = [0.0, 0.0, 0.0, 0.0];
 
-    // Process each score history entry and extract values
     for (var entry in scoreHistory) {
       if (entry.w1 != null) {
         weekValues[0] = entry.w1!.toDouble();
@@ -36,18 +33,15 @@ class AssessmentGraph extends StatelessWidget {
       }
     }
 
-    // Generate FlSpots for weeks 1 to 4
     final spots = List.generate(4, (i) {
       final week = i + 1;
       final value = weekValues[i];
 
-      // Debug print for each spot
       print("Creating spot: week=$week, value=$value");
 
       return FlSpot(week.toDouble(), value);
     });
 
-    // Debug print generated spots
     print("Generated spots: $spots");
 
     return spots;
@@ -55,13 +49,8 @@ class AssessmentGraph extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Parse totalScore to double for calculations
     final maxScore = double.parse(totalScore);
-
-    // Calculate y-axis interval by dividing max score by 3 (to get 4 points)
     final yInterval = maxScore / 3;
-
-    // Generate spots before building
     final spots = _generateSpots();
 
     return Container(
@@ -120,7 +109,6 @@ class AssessmentGraph extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        // Show only 4 points: 0, yInterval, 2*yInterval, maxScore
                         if (value == 0 ||
                             (value.toInt() == yInterval.toInt()) ||
                             (value.toInt() == (2 * yInterval).toInt()) ||
@@ -143,7 +131,6 @@ class AssessmentGraph extends StatelessWidget {
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        // Only show labels for the 4 weeks
                         if (value >= 1 &&
                             value <= 4 &&
                             value.toInt() == value) {
@@ -151,7 +138,7 @@ class AssessmentGraph extends StatelessWidget {
                         }
                         return const SizedBox.shrink();
                       },
-                      interval: 1, // Set interval to 1 to show each week
+                      interval: 1,
                       reservedSize: 24,
                     ),
                   ),
@@ -159,11 +146,11 @@ class AssessmentGraph extends StatelessWidget {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: spots, // Use pre-generated spots
+                    spots: spots,
                     isCurved: true,
                     color: Colors.blueAccent,
                     isStrokeCapRound: true,
-                    barWidth: 3, // Slightly wider line for better visibility
+                    barWidth: 3,
                     belowBarData: BarAreaData(
                       show: true,
                       color: Colors.blueAccent.withOpacity(0.2),
@@ -171,7 +158,7 @@ class AssessmentGraph extends StatelessWidget {
                     dotData: FlDotData(
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
-                          radius: 5, // Slightly larger dots
+                          radius: 5,
                           color: Colors.blueAccent,
                           strokeWidth: 2,
                           strokeColor: Colors.white,

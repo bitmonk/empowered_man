@@ -139,7 +139,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Assets.images.search.svg(),
                 ),
-                labelText: 'Search...',
+                hintText: 'Search...',
                 fillColor: AppColors.bgMedium,
                 enabledBorderSide: const BorderSide(color: AppColors.transparent),
                 onChanged: (value) {
