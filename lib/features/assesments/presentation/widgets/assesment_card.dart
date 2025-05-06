@@ -13,6 +13,7 @@ class AssessmentCard extends StatefulWidget {
     required this.status,
     required this.id,
     required this.scoreHistory,
+    required this.totalScore,
     // required this.isCompleted,
     super.key,
   });
@@ -24,6 +25,7 @@ class AssessmentCard extends StatefulWidget {
   final String status;
   final String id;
   final List<ScoreHistory>? scoreHistory;
+  final String totalScore;
   // final bool isCompleted;
 
   @override
@@ -156,7 +158,8 @@ class _AssessmentCardState extends State<AssessmentCard> {
             children: [
               AssessmentGraph(
                 scoreHistory: widget.scoreHistory ?? [],
-              )
+                totalScore: widget.totalScore,
+              ),
             ],
           ),
         );

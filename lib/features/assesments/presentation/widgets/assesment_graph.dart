@@ -1,32 +1,69 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter/material.dart';
 
 class AssessmentGraph extends StatelessWidget {
+  const AssessmentGraph(
+      {required this.scoreHistory, required this.totalScore, super.key});
   final List<ScoreHistory> scoreHistory;
-  const AssessmentGraph({super.key, required this.scoreHistory});
+  final String totalScore;
 
   List<FlSpot> _generateSpots() {
-    // Create a map of week number to value from scoreHistory
-    final Map<int, double> weekMap = {};
+    
+    print("ScoreHistory data: $scoreHistory");
+
+    // Initialize array for all 4 weeks with default value 0
+    final weekValues = [0.0, 0.0, 0.0, 0.0];
+
+    // Process each score history entry and extract values
     for (var entry in scoreHistory) {
-      final data = entry.toJson();
-      final weekStr = data.keys.first;
-      final weekNum = int.tryParse(weekStr.replaceAll('W', '')) ?? 0;
-      final value = double.tryParse(data[weekStr].toString()) ?? 0;
-      weekMap[weekNum] = value;
+      if (entry.w1 != null) {
+        weekValues[0] = entry.w1!.toDouble();
+        print("Found W1 value: ${entry.w1}");
+      }
+      if (entry.w2 != null) {
+        weekValues[1] = entry.w2!.toDouble();
+        print("Found W2 value: ${entry.w2}");
+      }
+      if (entry.w3 != null) {
+        weekValues[2] = entry.w3!.toDouble();
+        print("Found W3 value: ${entry.w3}");
+      }
+      if (entry.w4 != null) {
+        weekValues[3] = entry.w4!.toDouble();
+        print("Found W4 value: ${entry.w4}");
+      }
     }
 
-    // Generate FlSpots for weeks 1 to 4, filling missing ones with 0
-    return List.generate(4, (i) {
+    // Generate FlSpots for weeks 1 to 4
+    final spots = List.generate(4, (i) {
       final week = i + 1;
-      final value = weekMap[week] ?? 0;
+      final value = weekValues[i];
+
+      // Debug print for each spot
+      print("Creating spot: week=$week, value=$value");
+
       return FlSpot(week.toDouble(), value);
     });
+
+    // Debug print generated spots
+    print("Generated spots: $spots");
+
+    return spots;
   }
 
   @override
   Widget build(BuildContext context) {
+    // Parse totalScore to double for calculations
+    final maxScore = double.parse(totalScore);
+
+    // Calculate y-axis interval by dividing max score by 3 (to get 4 points)
+    final yInterval = maxScore / 3;
+
+    // Generate spots before building
+    final spots = _generateSpots();
+
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 35),
       decoration: BoxDecoration(
@@ -60,51 +97,61 @@ class AssessmentGraph extends StatelessWidget {
             height: 150,
             child: LineChart(
               LineChartData(
-                minY: -1, maxY: 110,
+                minX: 1,
+                maxX: 4,
+                minY: 0,
+                maxY: maxScore,
                 gridData: FlGridData(
-                  show: true,
                   drawVerticalLine: false,
-                  horizontalInterval: 50,
+                  drawHorizontalLine: true,
+                  horizontalInterval: yInterval,
+                  verticalInterval: 1,
                   getDrawingHorizontalLine: (value) => FlLine(
                     color: Colors.white.withOpacity(0.1),
                     strokeWidth: 1,
                   ),
+                  getDrawingVerticalLine: (value) => FlLine(
+                    color: Colors.white.withOpacity(0.1),
+                    strokeWidth: 1,
+                  ),
                 ),
-                // gridData: const FlGridData(show: false),
                 titlesData: FlTitlesData(
                   leftTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        if (value == 0 || value == 50 || value == 100) {
+                        // Show only 4 points: 0, yInterval, 2*yInterval, maxScore
+                        if (value == 0 ||
+                            (value.toInt() == yInterval.toInt()) ||
+                            (value.toInt() == (2 * yInterval).toInt()) ||
+                            (value.toInt() == maxScore.toInt())) {
                           return _buildTitle(value.toInt().toString());
                         }
                         return const SizedBox.shrink();
                       },
-                      interval: 50, // Adjusts the step size for labels
-                      reservedSize: 30, // Space for Y-axis values
+                      interval: yInterval,
+                      reservedSize: 30,
                     ),
                   ),
-                  rightTitles: const AxisTitles(),
-                  topTitles: const AxisTitles(),
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
                   bottomTitles: AxisTitles(
                     sideTitles: SideTitles(
                       showTitles: true,
                       getTitlesWidget: (value, meta) {
-                        switch (value.toInt()) {
-                          case 1:
-                            return _buildTitle('W1');
-                          case 2:
-                            return _buildTitle('W2');
-                          case 3:
-                            return _buildTitle('W3');
-                          case 4:
-                            return _buildTitle('W4');
-                          default:
-                            return const SizedBox.shrink();
+                        // Only show labels for the 4 weeks
+                        if (value >= 1 &&
+                            value <= 4 &&
+                            value.toInt() == value) {
+                          return _buildTitle('W${value.toInt()}');
                         }
+                        return const SizedBox.shrink();
                       },
-                      interval: 1,
+                      interval: 1, // Set interval to 1 to show each week
                       reservedSize: 24,
                     ),
                   ),
@@ -112,12 +159,25 @@ class AssessmentGraph extends StatelessWidget {
                 borderData: FlBorderData(show: false),
                 lineBarsData: [
                   LineChartBarData(
-                    spots: _generateSpots(),
+                    spots: spots, // Use pre-generated spots
                     isCurved: true,
                     color: Colors.blueAccent,
                     isStrokeCapRound: true,
-                    belowBarData: BarAreaData(),
-                    dotData: const FlDotData(show: false),
+                    barWidth: 3, // Slightly wider line for better visibility
+                    belowBarData: BarAreaData(
+                      show: true,
+                      color: Colors.blueAccent.withOpacity(0.2),
+                    ),
+                    dotData: FlDotData(
+                      getDotPainter: (spot, percent, barData, index) {
+                        return FlDotCirclePainter(
+                          radius: 5, // Slightly larger dots
+                          color: Colors.blueAccent,
+                          strokeWidth: 2,
+                          strokeColor: Colors.white,
+                        );
+                      },
+                    ),
                   ),
                 ],
               ),

@@ -111,7 +111,8 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
                 child: Center(
                   child: Text(
                     controller.searchError.value!,
-                    style: AppTextStyles.textBodyB3.copyWith(color: Colors.red),
+                    style:
+                        AppTextStyles.textBodyB3.copyWith(color: Colors.red),
                   ),
                 ),
               ),
@@ -166,7 +167,8 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
                         .value))
               const Padding(
                 padding: EdgeInsets.all(10),
-                child: Center(child: CircularProgressIndicator(strokeWidth: 2)),
+                child:
+                    Center(child: CircularProgressIndicator(strokeWidth: 2)),
               ),
           ],
         ),
