@@ -101,8 +101,6 @@ class JournalEmotionNameController extends GetxController {
             !tabDataLoaded[JournalPagination.search]!) {
           getJournalLibrary(isInitialLoad: true, searchJournal: true);
         }
-      default:
-        break;
     }
   }
 

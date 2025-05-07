@@ -79,21 +79,12 @@ class _MyWidgetState extends State<EditProfileScreen> {
                       if (!AppUtils.validateForm(controller.formKey)) {
                         return;
                       }
-
+                      if (!controller.isProfileChanged) {
+                        return;
+                      }
                       if (await controller.updateProfile()) {
                         Navigator.pop(context);
                       }
-
-                      // Navigator.pop(Get.overlayContext!);
-
-                      // if (controller.editProfileState.value ==
-                      //     TheStates.success) {
-                      //   if (context.mounted) {
-                      //     Navigator.pop(
-                      //       context,
-                      //     );
-                      //   }
-                      // }
                     },
                   ),
                 ],

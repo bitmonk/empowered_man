@@ -4,6 +4,7 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
+import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 
 class AssessmentHistoryRemoteSource {
   const AssessmentHistoryRemoteSource(this._client);
@@ -16,14 +17,16 @@ class AssessmentHistoryRemoteSource {
     // required String? mainQuestion,
     // required String? sortBy,
     // required String? sortOrder,
-    required int? perPage, CancelToken? cancelToken,
+    required int? perPage,
+    CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.assessmentHistoryUrl,
-        queryParameters: {         
+        queryParameters: {
           if (query != null) 'search': query,
-        },cancelToken: cancelToken,
+        },
+        cancelToken: cancelToken,
       );
 
       return right(AssessmentHistoryModel.fromJson(response));
@@ -36,7 +39,7 @@ class AssessmentHistoryRemoteSource {
     }
   }
 
-   Future<Either<AppError, String>> deleteAssessments({
+  Future<Either<AppError, String>> deleteAssessments({
     required List<String>? assessmentId,
   }) async {
     try {
@@ -47,6 +50,25 @@ class AssessmentHistoryRemoteSource {
         },
       );
       return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, GetAssessmentModel>> getAssessment({
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.getAssessmentsUrl,
+        cancelToken: cancelToken,
+      );
+
+      return right(GetAssessmentModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

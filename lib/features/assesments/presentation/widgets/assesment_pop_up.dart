@@ -95,11 +95,7 @@ class _AssesmentPopUpState extends State<AssesmentPopUp> {
         final result = await controller.deleteAssessments(assessmentIds);
         if (result == true) {
           widget.onSelected(assessmentIds, true);
-
-          await controller.getAssessmentHistory(
-            isInitialLoad: true,
-            searchAssessment: widget.searchAssessment,
-          );
+          _resetStateAfterDeletion();
         }
       } catch (e) {
         AppUtils.showErrorSnackbar(
@@ -107,6 +103,15 @@ class _AssesmentPopUpState extends State<AssesmentPopUp> {
         );
       }
     });
+  }
+
+  Future<void> _resetStateAfterDeletion() async {
+    widget.onSelected([], true);
+
+    if (controller.queryText.value != null &&
+        controller.queryText.value!.isNotEmpty) {
+      controller.clearSearch();
+    }
   }
 
   @override

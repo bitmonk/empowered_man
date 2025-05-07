@@ -62,8 +62,9 @@ class _TaskTileState extends State<TaskTile> {
                               builder: (context) => Transform.translate(
                                 offset: const Offset(-60, 0),
                                 child: TaskMenuDialog(
-                                    task: widget.task,
-                                    currentLevel: widget.task.level.toString(),),
+                                  task: widget.task,
+                                  currentLevel: widget.task.level.toString(),
+                                ),
                               ),
                             );
                           },
@@ -91,8 +92,10 @@ class _TaskTileState extends State<TaskTile> {
                           borderColor: AppColors.colorE6F4FF,
                           borderRadius: 5,
                           color: AppColors.bgBorder,
-                          title:
-                              DateFormat('MMM dd').format(widget.task.dueDate!),
+                          title: widget.task.dueDate == null
+                              ? 'N/A'
+                              : DateFormat('MMM dd')
+                                  .format(widget.task.dueDate!),
                           textStyle: AppTextStyles.lightBodySubHeader,
                           //font => inter
                         ),

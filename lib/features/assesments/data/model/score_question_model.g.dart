@@ -33,6 +33,11 @@ _$ScoreQuestionDataImpl _$$ScoreQuestionDataImplFromJson(
               json['question_score'] as Map<String, dynamic>),
       totalObtainedScore: (json['total_obtained_score'] as num?)?.toInt(),
       totalScore: (json['total_score'] as num?)?.toInt(),
+      totalGrowth: (json['total_growth'] as num?)?.toInt(),
+      scoreOverviewList: (json['score_overview_list'] as List<dynamic>?)
+          ?.map((e) => e as String)
+          .toList(),
+      scoreOverview: json['score_overview'] as String?,
       questions: (json['questions'] as List<dynamic>?)
           ?.map((e) => Question.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -44,6 +49,9 @@ Map<String, dynamic> _$$ScoreQuestionDataImplToJson(
       'question_score': instance.questionScore,
       'total_obtained_score': instance.totalObtainedScore,
       'total_score': instance.totalScore,
+      'total_growth': instance.totalGrowth,
+      'score_overview_list': instance.scoreOverviewList,
+      'score_overview': instance.scoreOverview,
       'questions': instance.questions,
     };
 

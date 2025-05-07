@@ -2,7 +2,9 @@ import 'package:dartz/dartz.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
+import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 import 'package:empowered/features/assesments/data/source/assessment_history_remote_source.dart';
+import 'package:empowered/features/assesments/presentation/controllers/user_assessment_bindings.dart';
 
 enum AssessmentHistoryPagination {
   history,
@@ -20,6 +22,11 @@ class AssessmentHistoryController extends GetxController {
   AssessmentHistoryController({required this.remoteSource});
   final AssessmentHistoryRemoteSource remoteSource;
 
+  Rx<TheStates> getAssessmentState = TheStates.initial.obs;
+  Rx<GetAssessmentModel> getAssessmentModel = const GetAssessmentModel().obs;
+  Rx<String?> getAssessmentError = Rx<String?>(null);
+
+  CancelToken? _cancelToken;
   Rx<TheStates> getAssessmentHistoryState = TheStates.initial.obs;
   Rx<TheStates> getAssessmentHistorySearchState = TheStates.initial.obs;
 
@@ -57,6 +64,9 @@ class AssessmentHistoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+    getAssessment();
+    UserAssessmentInitializer.destroy();
+    UserAssessmentInitializer.initialize();
     // Initialize pagination controllers for both tabs
     assessmentHistoryPaginationPageController[AssessmentHistoryPagination
         .history] = AssessmentHistoryPaginationPageController();
@@ -219,7 +229,6 @@ class AssessmentHistoryController extends GetxController {
     );
   }
 
-  // Clear search
   void clearSearch() {
     queryText.value = null;
     userAssessmentSearchList.clear();
@@ -245,7 +254,6 @@ class AssessmentHistoryController extends GetxController {
       apiCall: (pageKey, search) => remoteSource.getAssessmentHistory(
         page: pageKey,
         query: query ?? queryText.value,
-      
         perPage: 20,
         cancelToken: cancelToken,
       ),
@@ -421,22 +429,21 @@ class AssessmentHistoryController extends GetxController {
         AppUtils.showErrorSnackbar(message: l.message);
         return false;
       },
-      (r) {
+      (r)  {
         getAssessmentHistoryState.value = TheStates.success;
         AppUtils.showSnackbar(message: r);
 
-        // Refresh data after successful deletion
-        getAssessmentHistory(isInitialLoad: true);
-
         // Also refresh search results if there's an active search
         if (queryText.value != null && queryText.value!.isNotEmpty) {
-          getAssessmentHistory(
-            isInitialLoad: true,
-            searchAssessment: true,
-            query: queryText.value,
-          );
+          queryText.value = null;
+          userAssessmentSearchList.clear();
+          // getAssessmentHistory(
+          //   isInitialLoad: true,
+          //   searchAssessment: true,
+          //   query: queryText.value,
+          // );
         }
-
+        getAssessmentHistory(isInitialLoad: true);
         return true;
       },
     );
@@ -451,5 +458,25 @@ class AssessmentHistoryController extends GetxController {
       controller.dispose();
     }
     super.onClose();
+  }
+
+  Future<void> getAssessment() async {
+    getAssessmentState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    final result = await remoteSource.getAssessment(
+      cancelToken: _cancelToken,
+    );
+
+    result.fold(
+      (l) {
+        getAssessmentState.value = TheStates.error;
+        getAssessmentError.value = l.message;
+        AppUtils.showErrorSnackbar(message: l.message);
+      },
+      (r) async {
+        getAssessmentModel.value = r;
+        getAssessmentState.value = TheStates.success;
+      },
+    );
   }
 }

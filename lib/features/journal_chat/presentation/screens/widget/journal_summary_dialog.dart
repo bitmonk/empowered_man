@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class JournalSummaryDialog extends StatefulWidget {
   const JournalSummaryDialog({required this.userJournal, super.key});
@@ -114,26 +115,29 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
     for (final journal in widget.userJournal!) {
       // Add journal emotion/title
-      buffer..writeln(journal.journal?.emotionName ?? 'Untitled Journal')
-      ..writeln('-------------------------------------------');
+      buffer
+        ..writeln(journal.journal?.emotionName ?? 'Untitled Journal')
+        ..writeln('-------------------------------------------');
 
       final journalAnswers = journal.journalAnswers;
       if (journalAnswers != null && journalAnswers.isNotEmpty) {
         for (final answer in journalAnswers) {
           // Add main question and answer
           if (answer.mainQuestion != null) {
-            buffer..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
-            ..writeln('A: ${answer.text ?? "No answer provided"}')
-            ..writeln();
+            buffer
+              ..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
           }
 
           // Add follow-up question and answer if available
           if (answer.followUpQuestion != null) {
-            buffer..writeln(
-              'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
-            )
-            ..writeln('A: ${answer.text ?? "No answer provided"}')
-            ..writeln();
+            buffer
+              ..writeln(
+                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
+              )
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
           }
         }
       } else {
@@ -385,9 +389,9 @@ class JournalSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 4),
-        Text(
+        HtmlWidget(
           content,
-          style: const TextStyle(
+          textStyle: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
           ),

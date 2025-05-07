@@ -320,7 +320,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             .journalWithQuestionsAndAnswers.value.data?.journal;
                         if (journal == null) {
                           return const Center(
-                            child: CircularProgressIndicator(),
+                            child: LoadingWidget(),
                           );
                         }
 
@@ -484,7 +484,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                     },
                                   ),
                                 ),
-                              if (allQuestionsAnswered && firstFollowUpAnswered)
+                              if (allQuestionsAnswered )
                                 // Show follow-up questions
                                 showFollowUpQuestions(),
                               const SizedBox(height: 60),

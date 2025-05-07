@@ -130,17 +130,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (_isUploading)
                               Positioned.fill(
                                 child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.black.withOpacity(0.3),
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  child: const Center(
-                                    child: CircularProgressIndicator(
-                                      color: AppColors.white,
-                                      strokeWidth: 2,
+                                    decoration: BoxDecoration(
+                                      color: Colors.black.withOpacity(0.3),
+                                      borderRadius: BorderRadius.circular(16),
                                     ),
-                                  ),
-                                ),
+                                    child: const LoadingWidget(),),
                               ),
                             Positioned(
                               right: -10,

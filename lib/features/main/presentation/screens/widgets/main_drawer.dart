@@ -1,9 +1,7 @@
-
 import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_bindings.dart';
-import 'package:empowered/features/assesments/presentation/controllers/get_assessment_bindings.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
@@ -212,8 +210,6 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
-                        GetAssessmentInitializer.destroy();
-                        GetAssessmentInitializer.initialize();
                         AssessmentHistoryInitializer.destroy();
                         AssessmentHistoryInitializer.initialize();
                         Navigator.pop(context);
@@ -268,4 +264,3 @@ class MainDrawer extends GetView<MainController> {
     );
   }
 }
-

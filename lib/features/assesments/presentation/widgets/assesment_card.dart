@@ -34,7 +34,8 @@ class AssessmentCard extends StatefulWidget {
 
 class _AssessmentCardState extends State<AssessmentCard> {
   final ValueNotifier<bool> _isExpanded = ValueNotifier(false);
-
+  bool _isLoading = false;
+  final controller = Get.find<UserAssessmentController>();
   @override
   void dispose() {
     _isExpanded.dispose();
@@ -96,25 +97,43 @@ class _AssessmentCardState extends State<AssessmentCard> {
                       AppOutlinedButton(
                         height: 36,
                         width: 110,
-                        text: widget.status,
+                        text: _isLoading ? 'Loading...' : widget.status,
                         textStyle: AppTextStyles.textBodyB3,
-                        onPressed: () async {
-                          final controller =
-                              Get.find<UserAssessmentController>();
-                          await controller.userAssessment(widget.id);
-                          var totalDimensions = controller.userAssessmentModel
-                              .value.data?.userAssessment?.questions?.length;
-                          if (widget.status != 'Completed') {
-                            Get.to(
-                              () => AssesmentTrailer(
-                                id: widget.id,
-                                userAssessmentData:
-                                    controller.userAssessmentModel.value.data,
-                                totalDimensions: totalDimensions ?? 0,
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _isLoading
+                            ? null
+                            : () async {
+                                setState(() {
+                                  _isLoading = true;
+                                });
+
+                                try {
+                                  await controller.userAssessment(widget.id);
+
+                                  var totalDimensions = controller
+                                      .userAssessmentModel
+                                      .value
+                                      .data
+                                      ?.userAssessment
+                                      ?.questions
+                                      ?.length;
+
+                                  if (widget.status != 'Completed') {
+                                    await Get.to(
+                                      () => AssesmentTrailer(
+                                        id: widget.id,
+                                        userAssessmentData: controller
+                                            .userAssessmentModel.value.data,
+                                        totalDimensions: totalDimensions ?? 0,
+                                        title: widget.title,
+                                      ),
+                                    );
+                                  }
+                                } finally {
+                                  setState(() {
+                                    _isLoading = false;
+                                  });
+                                }
+                              },
                       ),
                     ],
                   ),

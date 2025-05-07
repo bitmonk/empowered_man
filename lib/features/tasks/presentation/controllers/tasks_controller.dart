@@ -16,7 +16,12 @@ class TasksController extends GetxController {
   RxList<String> taskCategoryTitle = <String>[].obs;
   List<String> getTaskCategoryTitle(String level) {
     var level0 = level.toLowerCase();
-
+    print(level0);
+    if (level0.contains('done')) {
+      level0 = 'done list';
+    } else if (level0.contains('achieved')) {
+      level0 = 'achieved list';
+    }
     // Forward mapping
     final forward = <String, List<String>>{
       'hit list': ['Mit List', 'Do List'],
@@ -43,6 +48,7 @@ class TasksController extends GetxController {
     } else {
       taskCategoryTitle.assignAll(combined);
     }
+    print(taskCategoryTitle);
     return taskCategoryTitle;
   }
 
@@ -232,7 +238,7 @@ class TasksController extends GetxController {
         },
         (r) {
           // changeTaskLevelState.value = TheStates.success;
-          AppUtils.showErrorSnackbar(message: r);
+          AppUtils.showSnackbar(message: r);
           getTask();
         },
       );
