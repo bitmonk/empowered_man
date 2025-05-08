@@ -22,10 +22,6 @@ class AssessmentHistoryController extends GetxController {
   AssessmentHistoryController({required this.remoteSource});
   final AssessmentHistoryRemoteSource remoteSource;
 
-  Rx<TheStates> getAssessmentState = TheStates.initial.obs;
-  Rx<GetAssessmentModel> getAssessmentModel = const GetAssessmentModel().obs;
-  Rx<String?> getAssessmentError = Rx<String?>(null);
-
   CancelToken? _cancelToken;
   Rx<TheStates> getAssessmentHistoryState = TheStates.initial.obs;
   Rx<TheStates> getAssessmentHistorySearchState = TheStates.initial.obs;
@@ -64,7 +60,6 @@ class AssessmentHistoryController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getAssessment();
     UserAssessmentInitializer.destroy();
     UserAssessmentInitializer.initialize();
     // Initialize pagination controllers for both tabs
@@ -429,7 +424,7 @@ class AssessmentHistoryController extends GetxController {
         AppUtils.showErrorSnackbar(message: l.message);
         return false;
       },
-      (r)  {
+      (r) {
         getAssessmentHistoryState.value = TheStates.success;
         AppUtils.showSnackbar(message: r);
 
@@ -458,25 +453,5 @@ class AssessmentHistoryController extends GetxController {
       controller.dispose();
     }
     super.onClose();
-  }
-
-  Future<void> getAssessment() async {
-    getAssessmentState.value = TheStates.loading;
-    _cancelToken = CancelToken();
-    final result = await remoteSource.getAssessment(
-      cancelToken: _cancelToken,
-    );
-
-    result.fold(
-      (l) {
-        getAssessmentState.value = TheStates.error;
-        getAssessmentError.value = l.message;
-        AppUtils.showErrorSnackbar(message: l.message);
-      },
-      (r) async {
-        getAssessmentModel.value = r;
-        getAssessmentState.value = TheStates.success;
-      },
-    );
   }
 }

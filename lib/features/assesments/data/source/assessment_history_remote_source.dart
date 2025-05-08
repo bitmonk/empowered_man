@@ -58,23 +58,4 @@ class AssessmentHistoryRemoteSource {
       }
     }
   }
-
-  Future<Either<AppError, GetAssessmentModel>> getAssessment({
-    CancelToken? cancelToken,
-  }) async {
-    try {
-      final response = await _client.get(
-        AppEndpoints.getAssessmentsUrl,
-        cancelToken: cancelToken,
-      );
-
-      return right(GetAssessmentModel.fromJson(response));
-    } catch (e) {
-      if (e is ApiErrorResponse) {
-        return left(e);
-      } else {
-        return left(InternalAppError(message: e.toString()));
-      }
-    }
-  }
 }

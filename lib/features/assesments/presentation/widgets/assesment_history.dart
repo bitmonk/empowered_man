@@ -84,7 +84,7 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           //           AppTextStyles.textBodyB3.copyWith(color: AppColors.white),
           //     ),
           //   )
-          ? Center(child: LoadingWidget())
+          ? const Center(child: LoadingWidget())
           : ThemedContainer(
               padding: EdgeInsets.zero,
               child: RefreshIndicator(

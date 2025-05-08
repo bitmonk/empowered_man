@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
-import 'package:empowered/features/assesments/presentation/assesment_trailer.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_trailer.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_graph.dart';
 
@@ -34,7 +34,7 @@ class AssessmentCard extends StatefulWidget {
 
 class _AssessmentCardState extends State<AssessmentCard> {
   final ValueNotifier<bool> _isExpanded = ValueNotifier(false);
-  bool _isLoading = false;
+
   final controller = Get.find<UserAssessmentController>();
   @override
   void dispose() {
@@ -85,55 +85,41 @@ class _AssessmentCardState extends State<AssessmentCard> {
                         // color: AppColors.primary500,
                       ),
                       const HorizontalSpacing(12),
-                      Text(
-                        widget.title,
-                        style: const TextStyle(
-                          color: AppColors.textColor50,
-                          fontSize: 18,
-                          fontWeight: FontWeight.w600,
+                      Expanded(
+                        child: Text(
+                          widget.title,
+                          maxLines: 2,
+                          style: const TextStyle(
+                            overflow: TextOverflow.ellipsis,
+                            color: AppColors.textColor50,
+                            fontSize: 18,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      const Spacer(),
                       AppOutlinedButton(
                         height: 36,
                         width: 110,
-                        text: _isLoading ? 'Loading...' : widget.status,
+                        text: widget.status,
                         textStyle: AppTextStyles.textBodyB3,
-                        onPressed: _isLoading
-                            ? null
-                            : () async {
-                                setState(() {
-                                  _isLoading = true;
-                                });
+                        onPressed: () async {
+                          controller.startAssessment(widget.id);
 
-                                try {
-                                  await controller.userAssessment(widget.id);
+                          var totalDimensions = controller.userAssessmentModel
+                              .value.data?.userAssessment?.questions?.length;
 
-                                  var totalDimensions = controller
-                                      .userAssessmentModel
-                                      .value
-                                      .data
-                                      ?.userAssessment
-                                      ?.questions
-                                      ?.length;
-
-                                  if (widget.status != 'Completed') {
-                                    await Get.to(
-                                      () => AssesmentTrailer(
-                                        id: widget.id,
-                                        userAssessmentData: controller
-                                            .userAssessmentModel.value.data,
-                                        totalDimensions: totalDimensions ?? 0,
-                                        title: widget.title,
-                                      ),
-                                    );
-                                  }
-                                } finally {
-                                  setState(() {
-                                    _isLoading = false;
-                                  });
-                                }
-                              },
+                          if (widget.status != 'Completed') {
+                            await Get.to(
+                              () => AssesmentTrailer(
+                                id: widget.id,
+                                userAssessmentData:
+                                    controller.userAssessmentModel.value.data,
+                                totalDimensions: totalDimensions ?? 0,
+                                title: widget.title,
+                              ),
+                            );
+                          }
+                        },
                       ),
                     ],
                   ),

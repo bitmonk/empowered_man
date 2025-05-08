@@ -175,7 +175,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () async {
-                      await Navigator.push(
+                      _controller.getJournalLibrarySearchState.value =
+                          TheStates.initial;
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const JournalSearchScreen(),
@@ -357,7 +359,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
         ? journal.journal!.mainQuestions!
                 .firstWhereOrNull((e) => e.keywords == 'title')
-                ?.keywords ??
+                ?.question ??
             'N/A'
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';

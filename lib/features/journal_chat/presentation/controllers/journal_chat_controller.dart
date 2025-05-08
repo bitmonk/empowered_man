@@ -8,8 +8,8 @@ import 'package:empowered/features/journal_chat/data/source/journal_chat_remote_
 class JournalChatController extends GetxController {
   JournalChatController({required this.remoteSource});
   final JournalChatRemoteSource remoteSource;
-  RxList<String> filterList = ['All', 'Threads', 'Squads'].obs;
-  RxInt selectedFilterindex = 0.obs;
+  // RxList<String> filterList = ['All', 'Threads', 'Squads'].obs;
+  // RxInt selectedFilterindex = 0.obs;
   late TextEditingController chatController;
   late ScrollController scrollController;
   RxString title = 'Rage'.obs;

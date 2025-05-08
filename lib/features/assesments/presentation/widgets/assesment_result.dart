@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
-import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
@@ -12,7 +11,7 @@ class AssesmentResult extends StatelessWidget {
   Widget build(BuildContext context) {
     final controller = Get.find<UserAssessmentController>();
     Future<void> navigateToAssessmentScreen() async {
-      await Get.find<AssessmentHistoryController>().getAssessment();
+      controller.getAssessment();
       Get.offUntil(
         GetPageRoute(
           page: () => const AssessmentsScreen(),

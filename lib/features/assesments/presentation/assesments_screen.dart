@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
-import 'package:empowered/features/assesments/presentation/assesment_summary.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_list.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_history.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_pop_up.dart';
@@ -194,7 +194,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
               child: IndexedStack(
                 index: _selectedTabIndex,
                 children: const [
-                  AssessmentSummary(),
+                  AssessmentListScreen(),
                   AssesmentHistory(), // Table View
                 ],
               ),
