@@ -28,7 +28,7 @@ class JournalChatInputField extends StatefulWidget {
 class _JournalChatInputFieldState extends State<JournalChatInputField> {
   final controller = Get.find<JournalChatController>();
   final quill.QuillController _controller = quill.QuillController.basic();
-  bool showEditor = false;
+  bool showEditor = true;
   List<String> _selectedMediaPaths = [];
   bool isVoiceRecording = false;
   bool isRecordingPlaying = false;
@@ -265,7 +265,8 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
                   focusNode: widget.focusNode,
                   controller: _controller,
                   configurations: quill.QuillEditorConfigurations(
-                    minHeight: showEditor ? 120 : 50,
+                    minHeight: showEditor ? 50 : 50,
+                    placeholder:  'Message...',
                   ),
                 ),
               ),
@@ -310,18 +311,18 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
             ),
           Row(
             children: [
-              if (showEditor)
-                InkWell(
-                  onTap: () {
-                    setState(() {
-                      showEditor = false;
-                    });
-                  },
-                  child: const Icon(
-                    Icons.close,
-                    color: AppColors.primary500,
-                  ).paddingOnly(right: 4),
-                ),
+              // if (showEditor)
+              //   InkWell(
+              //     onTap: () {
+              //       setState(() {
+              //         showEditor = false;
+              //       });
+              //     },
+              //     child: const Icon(
+              //       Icons.close,
+              //       color: AppColors.primary500,
+              //     ).paddingOnly(right: 4),
+              //   ),
               if (showEditor)
                 Expanded(
                   child: Theme(
@@ -375,7 +376,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
                     if (_selectedMediaPaths.isNotEmpty ||
                         controller.chatController.text.trim().isNotEmpty ||
                         recordingPath != null) {
-                      // Send text if available
                       if (controller.chatController.text.trim().isNotEmpty) {
                         controller.sendMessage(
                           widget.journalId,
@@ -385,8 +385,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
                           widget.followupQuestionId,
                         );
                       }
-
-                      // Send any attached media
+                      
                       for (final filePath in _selectedMediaPaths) {
                         controller.sendMessage(
                           widget.journalId,

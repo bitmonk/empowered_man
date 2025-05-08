@@ -59,7 +59,7 @@ class _AveragePercentageState extends State<AveragePercentage> {
                 .svg(width: 10, color: AppColors.appRed),
           ),
         const HorizontalSpacing(6),
-        Text('${widget.w1Value} ${widget.w4Value}'),
+        // Text('${widget.w1Value} ${widget.w4Value}'),
         Text(
           '${result >= 0 ? '+' : ''}${result.toStringAsFixed(2)}%',
           style: TextStyle(

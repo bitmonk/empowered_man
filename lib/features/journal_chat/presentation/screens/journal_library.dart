@@ -404,10 +404,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
   /// Helper to create table header cells
   Widget _tableHeaderCell(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
       child: Text(
         title,
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
+        textAlign: TextAlign.center,
       ),
     );
   }

@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 import 'package:intl/intl.dart';
 
@@ -14,23 +15,35 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
       Get.find<AssessmentHistoryController>();
   AssessmentHistoryPagination paginationName =
       AssessmentHistoryPagination.history;
+  late TextEditingController _searchController;
 
   @override
   void initState() {
     super.initState();
+    _searchController = TextEditingController();
+
     // controller.getAssessmentHistory(isInitialLoad: true);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeData();
     });
   }
 
+  bool get isSearchActive =>
+      controller.queryText.value != null &&
+      controller.queryText.value!.isNotEmpty;
+
+  List<UserAssessment> get assessmentList => isSearchActive
+      ? controller.userAssessmentSearchList
+      : controller.userAssessmentHistoryList;
+
   Future<void> _initializeData() async {
     controller.seletedAssessmentHistoryPagination.value = paginationName;
     final scrollController = controller.getScrollController(
       paginationName,
     );
+    _searchController.clear();
+    controller.queryText.value = null;
     controller.userAssessmentSearchList.clear();
-
     // Reset selection states
     controller.selectBulk.clear();
     controller.selectSeaarchBulk.clear();
@@ -67,6 +80,23 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
     });
   }
 
+  String? getEmptyMessage(bool isSearchActive) {
+    if (!isSearchActive &&
+        controller.getAssessmentHistoryState.value == TheStates.initial) {
+      return 'Loading your assessment history...';
+    }
+
+    if (controller.getAssessmentHistoryState.value == TheStates.error) {
+      return controller.searchError.value ?? 'Failed to load assessments.';
+    }
+
+    if (isSearchActive) {
+      return 'No assessments found matching your search';
+    }
+
+    return 'No assessments available yet.';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -76,135 +106,205 @@ class _AssesmentHistoryState extends State<AssesmentHistory> {
           ? controller.userAssessmentSearchList
           : controller.userAssessmentHistoryList;
 
-      return assessmentList.isEmpty
-          // ? Center(
-          //     child: Text(
-          //       'No data found.',
-          //       style:
-          //           AppTextStyles.textBodyB3.copyWith(color: AppColors.white),
-          //     ),
-          //   )
-          ? Center(child: LoadingWidget())
-          : ThemedContainer(
-              padding: EdgeInsets.zero,
-              child: RefreshIndicator(
-                onRefresh: () async {
-                  _initializeData();
-                },
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return Column(
+      return Column(
+        children: [
+          const VerticalSpacing(12),
+          AppTextFormField(
+            controller: _searchController,
+            prefixIcon: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Assets.images.search.svg(),
+            ),
+            hintText: 'Search...',
+            textInputAction: TextInputAction.search,
+            fillColor: AppColors.bgMedium,
+            enabledBorderSide: const BorderSide(color: AppColors.transparent),
+            onChanged: (value) {
+              if (value.isEmpty) {
+                controller.queryText.value = null;
+                controller.getAssessmentHistory(isInitialLoad: true);
+              } else {
+                controller.queryText.value = value;
+                controller.getAssessmentHistory(
+                  isInitialLoad: true,
+                  searchAssessment: true,
+                  query: value,
+                );
+              }
+            },
+            suffixIcon: Obx(
+              () => controller.queryText.value != null &&
+                      controller.queryText.value!.isNotEmpty
+                  ? GestureDetector(
+                      onTap: () {
+                        _searchController.clear();
+                        controller.queryText.value = null;
+                        context.hideKeyboard();
+                        controller.getAssessmentHistory(
+                          isInitialLoad: true,
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.only(left: 16, right: 16),
+                        child: Icon(Icons.clear),
+                      ),
+                    )
+                  : const SizedBox(),
+            ),
+          ),
+          const VerticalSpacing(12),
+          Expanded(
+            child: assessmentList.isEmpty
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        if (isSearchActive)
-                          Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Row(
-                              children: [
-                                Text(
-                                  'Search results for "${controller.queryText.value}"',
-                                  style: AppTextStyles.textBodyB3,
-                                ),
-                                const Spacer(),
-                                Text(
-                                  '${assessmentList.length} found',
-                                  style: AppTextStyles.textBodyB4
-                                      .copyWith(color: AppColors.textColor300),
-                                ),
-                              ],
-                            ),
+                        if (controller.getAssessmentHistoryState.value ==
+                                TheStates.loading ||
+                            controller.getAssessmentHistorySearchState.value ==
+                                TheStates.loading)
+                          const LoadingWidget()
+                        else
+                          Text(
+                            getEmptyMessage(isSearchActive) ??
+                                'No assessments available yet.',
+                            textAlign: TextAlign.center,
+                            style: AppTextStyles.textBodyB3
+                                .copyWith(color: AppColors.textColor300),
                           ),
-                        if (controller.getAssessmentHistorySearchState.value ==
-                                TheStates.loading &&
-                            isSearchActive)
-                          const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Center(child: LoadingWidget()),
-                          ),
-                        if (controller.searchError.value != null &&
-                            isSearchActive)
-                          Padding(
-                            padding: const EdgeInsets.all(20),
-                            child: Center(
-                              child: Text(
-                                controller.searchError.value!,
-                                style: AppTextStyles.textBodyB3
-                                    .copyWith(color: Colors.red),
-                              ),
-                            ),
-                          ),
-                        if (assessmentList.isEmpty &&
-                            controller.getAssessmentHistorySearchState.value !=
-                                TheStates.loading &&
-                            isSearchActive)
-                          const Padding(
-                            padding: EdgeInsets.all(20),
-                            child: Center(
-                              child: Text(
-                                'No assessments found matching your search',
-                                style: TextStyle(color: AppColors.textColor300),
-                              ),
-                            ),
-                          ),
-                        if (assessmentList.isNotEmpty)
-                          Expanded(
-                            child: SingleChildScrollView(
-                              physics: const AlwaysScrollableScrollPhysics(),
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: constraints.maxHeight,
-                                ),
-                                child: IntrinsicHeight(
-                                  child: Table(
-                                    columnWidths: const {
-                                      0: FixedColumnWidth(
-                                        35,
-                                      ), // Selection icon column
-                                      1: FlexColumnWidth(1.2),
-                                      2: FlexColumnWidth(),
-                                      3: FlexColumnWidth(),
-                                    },
+                      ],
+                    ),
+                  )
+                : ThemedContainer(
+                    padding: EdgeInsets.zero,
+                    child: RefreshIndicator(
+                      onRefresh: () async {
+                        _initializeData();
+                      },
+                      child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          return Column(
+                            children: [
+                              if (isSearchActive)
+                                Padding(
+                                  padding: const EdgeInsets.all(12),
+                                  child: Row(
                                     children: [
-                                      _buildTableHeaderRow(),
-                                      ...List.generate(
-                                        assessmentList.length,
-                                        (index) => _buildTableRow(
-                                          index,
-                                          isSearchActive,
-                                        ),
+                                      Text(
+                                        'Search results for "${controller.queryText.value}"',
+                                        style: AppTextStyles.textBodyB3,
+                                      ),
+                                      const Spacer(),
+                                      Text(
+                                        '${assessmentList.length} found',
+                                        style: AppTextStyles.textBodyB4
+                                            .copyWith(
+                                                color: AppColors.textColor300),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ),
-                            ),
-                          ),
-                        if ((isSearchActive &&
-                                controller.getAssessmentHistorySearchState
-                                        .value ==
-                                    TheStates.loading &&
-                                !controller
-                                    .assessmentHistoryPaginationPageController[
-                                        AssessmentHistoryPagination.search]!
-                                    .isInitialLoading
-                                    .value) ||
-                            (!isSearchActive &&
-                                controller.getAssessmentHistoryState.value ==
-                                    TheStates.loading &&
-                                !controller
-                                    .assessmentHistoryPaginationPageController[
-                                        paginationName]!
-                                    .isInitialLoading
-                                    .value))
-                          const Padding(
-                            padding: EdgeInsets.all(10),
-                            child: Center(child: LoadingWidget()),
-                          ),
-                      ],
-                    );
-                  },
-                ),
-              ),
-            );
+                              if (controller.getAssessmentHistorySearchState
+                                          .value ==
+                                      TheStates.loading &&
+                                  isSearchActive)
+                                const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Center(child: LoadingWidget()),
+                                ),
+                              if (controller.searchError.value != null &&
+                                  isSearchActive)
+                                Padding(
+                                  padding: const EdgeInsets.all(20),
+                                  child: Center(
+                                    child: Text(
+                                      controller.searchError.value!,
+                                      style: AppTextStyles.textBodyB3
+                                          .copyWith(color: Colors.red),
+                                    ),
+                                  ),
+                                ),
+                              if (assessmentList.isEmpty &&
+                                  controller.getAssessmentHistorySearchState
+                                          .value !=
+                                      TheStates.loading &&
+                                  isSearchActive)
+                                const Padding(
+                                  padding: EdgeInsets.all(20),
+                                  child: Center(
+                                    child: Text(
+                                      'No assessments found matching your search',
+                                      style: TextStyle(
+                                          color: AppColors.textColor300),
+                                    ),
+                                  ),
+                                ),
+                              if (assessmentList.isNotEmpty)
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minHeight: constraints.maxHeight,
+                                      ),
+                                      child: IntrinsicHeight(
+                                        child: Table(
+                                          columnWidths: const {
+                                            0: FixedColumnWidth(
+                                              35,
+                                            ), // Selection icon column
+                                            1: FlexColumnWidth(1.2),
+                                            2: FlexColumnWidth(),
+                                            3: FlexColumnWidth(),
+                                          },
+                                          children: [
+                                            _buildTableHeaderRow(),
+                                            ...List.generate(
+                                              assessmentList.length,
+                                              (index) => _buildTableRow(
+                                                index,
+                                                isSearchActive,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              if ((isSearchActive &&
+                                      controller.getAssessmentHistorySearchState
+                                              .value ==
+                                          TheStates.loading &&
+                                      !controller
+                                          .assessmentHistoryPaginationPageController[
+                                              AssessmentHistoryPagination
+                                                  .search]!
+                                          .isInitialLoading
+                                          .value) ||
+                                  (!isSearchActive &&
+                                      controller.getAssessmentHistoryState
+                                              .value ==
+                                          TheStates.loading &&
+                                      !controller
+                                          .assessmentHistoryPaginationPageController[
+                                              paginationName]!
+                                          .isInitialLoading
+                                          .value))
+                                const Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Center(child: LoadingWidget()),
+                                ),
+                            ],
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+          ),
+        ],
+      );
     });
   }
 

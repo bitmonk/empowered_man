@@ -17,22 +17,12 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   final controller = Get.find<AssessmentHistoryController>();
   List<String> selectedIds = [];
   List<bool> _selectedItems = [];
-
-  TextEditingController searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
+    controller.getAssessmentHistory(isInitialLoad: true);
     controller.selectedAssessment.value = null;
   }
-
-  bool get isSearchActive =>
-      controller.queryText.value != null &&
-      controller.queryText.value!.isNotEmpty;
-
-  List<UserAssessment> get assessmentList => isSearchActive
-      ? controller.userAssessmentSearchList
-      : controller.userAssessmentHistoryList;
 
   void _handleSelectedItems(
     List<String> deletedIds,
@@ -40,7 +30,6 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   ) {
     if (shouldClearSelection) {
       _resetSelectionState();
-      searchController.clear();
     } else {
       for (final id in deletedIds) {
         selectedIds.remove(id);
@@ -99,48 +88,6 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Search Bar
-            AppTextFormField(
-              controller: searchController,
-              prefixIcon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Assets.images.search.svg(),
-              ),
-              hintText: 'Search...',
-              fillColor: AppColors.bgMedium,
-              enabledBorderSide: const BorderSide(color: AppColors.transparent),
-              onChanged: (value) {
-                if (value.isEmpty) {
-                  controller.queryText.value = null;
-                  controller.getAssessmentHistory(isInitialLoad: true);
-                } else {
-                  controller.queryText.value = value;
-                  controller.getAssessmentHistory(
-                    isInitialLoad: true,
-                    searchAssessment: true,
-                    query: value,
-                  );
-                }
-              },
-              suffixIcon: Obx(
-                () => controller.queryText.value != null &&
-                        controller.queryText.value!.isNotEmpty
-                    ? GestureDetector(
-                        onTap: () {
-                          searchController.clear();
-                          controller.queryText.value = null;
-                          context.hideKeyboard();
-                          controller.getAssessmentHistory(
-                            isInitialLoad: true,
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.only(left: 16, right: 16),
-                          child: Icon(Icons.clear),
-                        ),
-                      )
-                    : const SizedBox(),
-              ),
-            ),
 
             const VerticalSpacing(12),
 
@@ -215,6 +162,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
       onTap: () {
         setState(() {
           _selectedTabIndex = index;
+          context.hideKeyboard();
         });
       },
       child: Container(

@@ -484,7 +484,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                     },
                                   ),
                                 ),
-                              if (allQuestionsAnswered )
+                              if (allQuestionsAnswered)
                                 // Show follow-up questions
                                 showFollowUpQuestions(),
                               const SizedBox(height: 60),

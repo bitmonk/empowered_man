@@ -26,47 +26,88 @@ class DimensionScreen extends StatefulWidget {
 class _DimensionScreenState extends State<DimensionScreen> {
   double selectedScore = 1;
   int? expandedIndex;
-
+  bool isLoading = false;
   void navigateToDetail(String title) {}
   final controller = Get.find<UserAssessmentController>();
 
   Future<void> goToNextDimension() async {
     if (widget.dimensionIndex < widget.totalDimensions) {
       // Post the current score before navigation
-      await controller.scoreQuestion(
-        widget.userAssessmentData.userAssessment!.id.toString(),
-        widget.userAssessmentData.userAssessment!
-            .questions![widget.dimensionIndex - 1].id
-            .toString(),
-        selectedScore.toInt().toString(),
-      );
-
-      if (controller.scoreQuestionState.value == TheStates.success) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => DimensionScreen(
-              dimensionIndex: widget.dimensionIndex + 1,
-              userAssessmentData: widget.userAssessmentData,
-              totalDimensions:
-                  widget.userAssessmentData.userAssessment!.questions!.length,
-              title: widget.title,
-            ),
-          ),
+      setState(() => isLoading = true);
+      try {
+        await controller.scoreQuestion(
+          widget.userAssessmentData.userAssessment!.id.toString(),
+          widget.userAssessmentData.userAssessment!
+              .questions![widget.dimensionIndex - 1].id
+              .toString(),
+          selectedScore.toInt().toString(),
         );
+        if (controller.scoreQuestionState.value == TheStates.success) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => DimensionScreen(
+                dimensionIndex: widget.dimensionIndex + 1,
+                userAssessmentData: widget.userAssessmentData,
+                totalDimensions:
+                    widget.userAssessmentData.userAssessment!.questions!.length,
+                title: widget.title,
+              ),
+            ),
+          );
+        }
+      } finally {
+        setState(() => isLoading = false);
       }
     } else {
-      // Post the final score before showing results
-      await controller.scoreQuestion(
-        widget.userAssessmentData.userAssessment!.id.toString(),
-        widget.userAssessmentData.userAssessment!
-            .questions![widget.dimensionIndex - 1].id
-            .toString(),
-        selectedScore.toInt().toString(),
+      // Show confirmation dialog before final submission
+      final confirmed = await showDialog<bool>(
+        context: context,
+        builder: (context) => AlertDialog(
+          backgroundColor: AppColors.bgBorder,
+          title: const Text(
+            'Submit Assessment',
+            style: AppTextStyles.textHeadingH3,
+          ),
+          content: const Text(
+            'Are you sure you want to submit your answers?',
+            style: AppTextStyles.textBodyB2,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text(
+                'No',
+                style: TextStyle(color: AppColors.textColor50),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text(
+                'Yes',
+                style: TextStyle(color: Colors.green),
+              ),
+            ),
+          ],
+        ),
       );
 
-      if (controller.scoreQuestionState.value == TheStates.success) {
-        Get.toNamed(AppRoutes.assesmentsResult);
+      if (confirmed ?? false) {
+        setState(() => isLoading = true);
+        try {
+          await controller.scoreQuestion(
+            widget.userAssessmentData.userAssessment!.id.toString(),
+            widget.userAssessmentData.userAssessment!
+                .questions![widget.dimensionIndex - 1].id
+                .toString(),
+            selectedScore.toInt().toString(),
+          );
+          if (controller.scoreQuestionState.value == TheStates.success) {
+            Get.toNamed(AppRoutes.assesmentsResult);
+          }
+        } finally {
+          setState(() => isLoading = false);
+        }
       }
     }
   }
@@ -163,47 +204,6 @@ class _DimensionScreenState extends State<DimensionScreen> {
                             // textStyle: AppTextStyles.textBodyB2,
                           ),
                         ],
-                        // children: List.generate(levels.length, (index) {
-                        //   return ExpansionTile(
-                        //     tilePadding: EdgeInsets.zero,
-                        //     expandedAlignment: Alignment.centerLeft,
-                        //     expandedCrossAxisAlignment:
-                        //         CrossAxisAlignment.start,
-                        //     onExpansionChanged: (expanded) {
-                        //       setState(() {
-                        //         expandedIndex = expanded ? index : null;
-                        //       });
-                        //     },
-                        //     title: Text(
-                        //       levels[index],
-                        //       style: const TextStyle(
-                        //         fontSize: 16,
-                        //         fontWeight: FontWeight.w600,
-                        //         color: AppColors.primary300,
-                        //       ),
-                        //     ),
-                        //     trailing: expandedIndex == index
-                        //         ? const Icon(
-                        //             Icons.keyboard_arrow_up,
-                        //             color: AppColors.textColor300,
-                        //           )
-                        //         : const Icon(
-                        //             Icons.keyboard_arrow_down,
-                        //             color: AppColors.textColor300,
-                        //           ),
-                        //     children: [
-                        //       const Text(
-                        //         'Your Body Is Irrelevant To You',
-                        //         style: AppTextStyles.textBodyB2,
-                        //       ),
-                        //       const VerticalSpacing(16),
-                        //       Text(
-                        //         testPower,
-                        //         style: AppTextStyles.textBodyB3,
-                        //       ),
-                        //     ],
-                        //   );
-                        // }),
                       ),
                     ),
                   ],
@@ -217,6 +217,7 @@ class _DimensionScreenState extends State<DimensionScreen> {
                 child: NavigationButtons(
                   onPrevious: goToPreviousDimension,
                   onNext: goToNextDimension,
+                  isLoading: isLoading,
                 ),
               ),
             ),

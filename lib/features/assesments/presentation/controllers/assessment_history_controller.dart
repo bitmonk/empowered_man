@@ -460,11 +460,12 @@ class AssessmentHistoryController extends GetxController {
     super.onClose();
   }
 
-  Future<void> getAssessment() async {
+  Future<void> getAssessment({String? searchQuery}) async {
     getAssessmentState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.getAssessment(
       cancelToken: _cancelToken,
+      searchQuery: searchQuery,
     );
 
     result.fold(
