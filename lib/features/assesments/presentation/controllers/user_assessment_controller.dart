@@ -22,11 +22,12 @@ class UserAssessmentController extends GetxController {
   Rx<GetAssessmentModel> getAssessmentModel = const GetAssessmentModel().obs;
   Rx<String?> getAssessmentError = Rx<String?>(null);
 
-  Future<void> getAssessment() async {
+  Future<void> getAssessment({String? searchQuery}) async {
     getAssessmentState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.getAssessment(
       cancelToken: _cancelToken,
+      searchQuery: searchQuery,
     );
 
     result.fold(

@@ -306,7 +306,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         body: SafeArea(
           child: Obx(
             () => controller.journalChatConversationState.value.showWidget(
-                orElse: () => LoadingWidget(),
+                orElse: () => const LoadingWidget(),
                 error: () => Center(
                       child: CustomErrorWidget(
                         onPressed: () {
@@ -613,7 +613,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             }
                           }),
                       ],
-                    )),
+                    ),),
           ),
         ),
       ),

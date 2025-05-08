@@ -1,8 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
-import 'package:empowered/features/assesments/presentation/widgets/assesment_list.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_history.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_list.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_pop_up.dart';
 
 class AssessmentsScreen extends StatefulWidget {
@@ -17,22 +16,12 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   final controller = Get.find<AssessmentHistoryController>();
   List<String> selectedIds = [];
   List<bool> _selectedItems = [];
-
-  TextEditingController searchController = TextEditingController();
-
   @override
   void initState() {
     super.initState();
+    controller.getAssessmentHistory(isInitialLoad: true);
     controller.selectedAssessment.value = null;
   }
-
-  bool get isSearchActive =>
-      controller.queryText.value != null &&
-      controller.queryText.value!.isNotEmpty;
-
-  List<UserAssessment> get assessmentList => isSearchActive
-      ? controller.userAssessmentSearchList
-      : controller.userAssessmentHistoryList;
 
   void _handleSelectedItems(
     List<String> deletedIds,
@@ -40,7 +29,6 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
   ) {
     if (shouldClearSelection) {
       _resetSelectionState();
-      searchController.clear();
     } else {
       for (final id in deletedIds) {
         selectedIds.remove(id);
@@ -98,55 +86,8 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Search Bar
-            AppTextFormField(
-              controller: searchController,
-              prefixIcon: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Assets.images.search.svg(),
-              ),
-              hintText: 'Search...',
-              fillColor: AppColors.bgMedium,
-              enabledBorderSide: const BorderSide(color: AppColors.transparent),
-              onChanged: (value) {
-                if (value.isEmpty) {
-                  controller.queryText.value = null;
-                  controller.getAssessmentHistory(isInitialLoad: true);
-                } else {
-                  controller.queryText.value = value;
-                  controller.getAssessmentHistory(
-                    isInitialLoad: true,
-                    searchAssessment: true,
-                    query: value,
-                  );
-                }
-              },
-              suffixIcon: Obx(
-                () => controller.queryText.value != null &&
-                        controller.queryText.value!.isNotEmpty
-                    ? GestureDetector(
-                        onTap: () {
-                          searchController.clear();
-                          controller.queryText.value = null;
-                          context.hideKeyboard();
-                          controller.getAssessmentHistory(
-                            isInitialLoad: true,
-                          );
-                        },
-                        child: const Padding(
-                          padding: EdgeInsets.only(left: 16, right: 16),
-                          child: Icon(Icons.clear),
-                        ),
-                      )
-                    : const SizedBox(),
-              ),
-            ),
-
-            const VerticalSpacing(12),
-
-            // Tabs
             Padding(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Row(
                 children: [
                   _buildTab(
@@ -187,7 +128,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                 ],
               ),
             ),
-            // const VerticalSpacing(18),
+            const VerticalSpacing(8),
 
             // IndexedStack for switching content
             Expanded(
@@ -215,6 +156,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
       onTap: () {
         setState(() {
           _selectedTabIndex = index;
+          context.hideKeyboard();
         });
       },
       child: Container(

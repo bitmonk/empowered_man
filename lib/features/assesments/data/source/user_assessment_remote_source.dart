@@ -12,14 +12,21 @@ class UserAssessmentRemoteSource {
   final DioApiClient _client;
   Future<Either<AppError, GetAssessmentModel>> getAssessment({
     CancelToken? cancelToken,
+    String? searchQuery,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getAssessmentsUrl,
         cancelToken: cancelToken,
+        queryParameters: {
+          if (searchQuery != null) 'search': searchQuery,
+        },
       );
-
-      return right(GetAssessmentModel.fromJson(response));
+      if (response['data']['assessments'] is List) {
+        return right(GetAssessmentModel.empty());
+      } else {
+        return right(GetAssessmentModel.fromJson(response));
+      }
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

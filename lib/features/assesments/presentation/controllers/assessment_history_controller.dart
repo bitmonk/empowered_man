@@ -2,7 +2,6 @@ import 'package:dartz/dartz.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
-import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 import 'package:empowered/features/assesments/data/source/assessment_history_remote_source.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_bindings.dart';
 
@@ -22,7 +21,6 @@ class AssessmentHistoryController extends GetxController {
   AssessmentHistoryController({required this.remoteSource});
   final AssessmentHistoryRemoteSource remoteSource;
 
-  CancelToken? _cancelToken;
   Rx<TheStates> getAssessmentHistoryState = TheStates.initial.obs;
   Rx<TheStates> getAssessmentHistorySearchState = TheStates.initial.obs;
 
@@ -195,33 +193,6 @@ class AssessmentHistoryController extends GetxController {
 
     // Check if all items are selected
     selectAllFlag.value = selectionList.every((isSelected) => isSelected);
-  }
-
-  // Method to perform a search
-  Future<void> searchAssessments(String query) async {
-    // Set the query text
-    queryText.value = query;
-
-    // Reset pagination for search
-    assessmentHistoryPaginationPageController[
-            AssessmentHistoryPagination.search]
-        ?.currentPage
-        .value = 1;
-
-    // Clear existing search results
-    userAssessmentSearchList.clear();
-    selectSeaarchBulk.clear();
-
-    // Clear selected IDs and selection state
-    selectedIds.clear();
-    selectAllFlag.value = false;
-
-    // Load search results
-    await getAssessmentHistory(
-      isInitialLoad: true,
-      searchAssessment: true,
-      query: query,
-    );
   }
 
   void clearSearch() {

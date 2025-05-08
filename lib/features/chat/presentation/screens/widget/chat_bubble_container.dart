@@ -2,6 +2,7 @@ import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
 import 'package:just_audio/just_audio.dart';
@@ -561,8 +562,17 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: ClipOval(
-                      child: Assets.images.chatUserPicOne
-                          .image(height: 25, width: 25),
+                      child: AppCachedImage(
+                              width: 25,
+                              height: 25,
+                              fit: BoxFit.cover,
+                              errorWid: const Icon(Icons.person),
+                              imgUrl: Get.find<ProfileController>()
+                                      .userProfile
+                                      .value
+                                      .image ??
+                                  '',
+                            ),
                     ),
                   ),
               ],

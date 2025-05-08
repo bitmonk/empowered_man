@@ -80,7 +80,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
               _buildSectionTitle('Reframes'),
               Expanded(
                   child: controller.journalEmotionNameState.value.showWidget(
-                loading: () => LoadingWidget(),
+                loading: () => const LoadingWidget(),
                 error: () => CustomErrorWidget(
                   error: 'Failed to fetch emotions.',
                   onPressed: () {
@@ -109,7 +109,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
                     ],
                   ),
                 ),
-              )),
+              ),),
               Padding(
                 padding: const EdgeInsets.only(right: 40),
                 child: AppOutlinedButton(

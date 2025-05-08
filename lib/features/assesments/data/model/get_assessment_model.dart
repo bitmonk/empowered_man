@@ -12,6 +12,9 @@ class GetAssessmentModel with _$GetAssessmentModel {
   }) = _GetAssessmentModel;
   factory GetAssessmentModel.fromJson(Map<String, dynamic> json) =>
       _$GetAssessmentModelFromJson(json);
+  factory GetAssessmentModel.empty() {
+    return const GetAssessmentModel();
+  }
 }
 
 @freezed

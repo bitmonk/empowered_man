@@ -336,7 +336,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
           ),
         ),
         _tableCell(emotionName),
-        _tableCell(firstQuestion ?? 'N/A'),
+        _tableCell(firstQuestion),
         _tableCell(formattedTime),
       ],
     );

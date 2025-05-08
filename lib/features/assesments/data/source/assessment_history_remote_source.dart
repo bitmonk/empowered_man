@@ -4,7 +4,6 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/assesments/data/model/assessment_history_model.dart';
-import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
 
 class AssessmentHistoryRemoteSource {
   const AssessmentHistoryRemoteSource(this._client);

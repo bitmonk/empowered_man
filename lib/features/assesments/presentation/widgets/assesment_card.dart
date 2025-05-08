@@ -1,8 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/data/model/get_assessment_model.dart';
-import 'package:empowered/features/assesments/presentation/widgets/assesment_trailer.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
 import 'package:empowered/features/assesments/presentation/widgets/assesment_graph.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_trailer.dart';
 
 class AssessmentCard extends StatefulWidget {
   const AssessmentCard({

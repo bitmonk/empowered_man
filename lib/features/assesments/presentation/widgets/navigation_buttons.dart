@@ -8,11 +8,13 @@ class NavigationButtons extends StatelessWidget {
     super.key,
     this.previousText,
     this.nextText,
+    this.isLoading = false,
   });
   final VoidCallback onPrevious;
   final VoidCallback onNext;
   final String? previousText;
   final String? nextText;
+  final bool isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -58,8 +60,10 @@ class NavigationButtons extends StatelessWidget {
           Expanded(
             child: GestureDetector(
               onTap: () {
-                HapticFeedback.lightImpact();
-                onNext.call();
+                if (!isLoading) {
+                  HapticFeedback.lightImpact();
+                  onNext.call();
+                }
               },
               child: Container(
                 alignment: Alignment.center,
@@ -81,6 +85,20 @@ class NavigationButtons extends StatelessWidget {
                       Icons.arrow_forward,
                       color: AppColors.textColor50,
                     ),
+                    if (isLoading)
+                      const Padding(
+                        padding: EdgeInsets.only(left: 8),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              AppColors.textColor50,
+                            ),
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ),
