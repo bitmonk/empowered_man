@@ -103,18 +103,17 @@ class _AssessmentCardState extends State<AssessmentCard> {
                         text: widget.status,
                         textStyle: AppTextStyles.textBodyB3,
                         onPressed: () async {
-                          controller.startAssessment(widget.id);
-
-                          var totalDimensions = controller.userAssessmentModel
-                              .value.data?.userAssessment?.questions?.length;
-
                           if (widget.status != 'Completed') {
-                            await Get.to(
+                            controller.startAssessment(widget.id);
+
+                            // var totalDimensions = controller.userAssessmentModel
+                            //     .value.data?.userAssessment?.questions?.length;
+                            Get.to(
                               () => AssesmentTrailer(
                                 id: widget.id,
-                                userAssessmentData:
-                                    controller.userAssessmentModel.value.data,
-                                totalDimensions: totalDimensions ?? 0,
+                                // userAssessmentData:
+                                //     controller.userAssessmentModel.value.data,
+                                // totalDimensions: totalDimensions ?? 0,
                                 title: widget.title,
                               ),
                             );

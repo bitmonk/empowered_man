@@ -113,7 +113,7 @@ class _AssessmentsScreenState extends State<AssessmentsScreen> {
                     final hasSelections =
                         selectionList.any((element) => element == true);
 
-                    if (hasSelections) {
+                    if (hasSelections && _selectedTabIndex == 1) {
                       return AssesmentPopUp(
                         selectedItems: selectionList,
                         assessmentHistoryList: isSearchActive

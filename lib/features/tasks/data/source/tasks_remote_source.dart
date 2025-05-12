@@ -30,13 +30,13 @@ class TasksRemoteSource {
   }
 
   Future<Either<AppError, TaskModel>> getTask({
-    String? day,
+    required String day,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getTask,
-        queryParameters: {if (day != null) 'week': day},
+        queryParameters: {'date': day},
         cancelToken: cancelToken,
       );
       return right(TaskModel.fromJson(response));
@@ -58,7 +58,8 @@ class TasksRemoteSource {
       final response = await _client.post(
         id != null ? AppEndpoints.updateTask(id) : AppEndpoints.addTask,
         body: FormData.fromMap(
-            {...body.toMap(), if (id != null) '_method': 'put'},),
+          {...body.toMap(), if (id != null) '_method': 'put'},
+        ),
         cancelToken: cancelToken,
       );
       return right(response['message']);

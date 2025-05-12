@@ -141,15 +141,14 @@ class AssessmentGraph extends StatelessWidget {
                     isCurved: true,
                     color: Colors.blueAccent,
                     isStrokeCapRound: true,
-                    barWidth: 3,
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: Colors.blueAccent.withOpacity(0.2),
-                    ),
+                    // belowBarData: BarAreaData(
+                    //   show: true,
+                    //   color: Colors.blueAccent.withOpacity(0.2),
+                    // ),
                     dotData: FlDotData(
                       getDotPainter: (spot, percent, barData, index) {
                         return FlDotCirclePainter(
-                          radius: 5,
+                          radius: 2,
                           color: Colors.blueAccent,
                           strokeWidth: 2,
                           strokeColor: Colors.white,

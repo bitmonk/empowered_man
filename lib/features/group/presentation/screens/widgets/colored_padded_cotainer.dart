@@ -27,21 +27,23 @@ class ColoredPaddedCotainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: Container(
-        width: width,
-        alignment: Alignment.center,
-        padding: EdgeInsets.symmetric(
-          horizontal: horizontalPadding,
-          vertical: verticalPadding ?? 0,
-        ),
-        decoration: BoxDecoration(
-          border: Border.all(color: borderColor),
-          color: color,
-          borderRadius: BorderRadius.circular(
-            borderRadius,
+      child: IntrinsicWidth(
+        child: Container(
+          width: width,
+          alignment: Alignment.center,
+          padding: EdgeInsets.symmetric(
+            horizontal: horizontalPadding,
+            vertical: verticalPadding ?? 0,
           ),
+          decoration: BoxDecoration(
+            border: Border.all(color: borderColor),
+            color: color,
+            borderRadius: BorderRadius.circular(
+              borderRadius,
+            ),
+          ),
+          child: Center(child: Text(title, style: textStyle)),
         ),
-        child: Center(child: Text(title, style: textStyle)),
       ),
     );
   }

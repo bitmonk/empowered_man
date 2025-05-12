@@ -148,7 +148,7 @@ class TasksController extends GetxController {
     _cancelToken = CancelToken();
     final result = await remoteSource.getTask(
       cancelToken: _cancelToken,
-      day: DateFormat('EEEE').format(selectedDate.value),
+      day: DateFormat('yyyy-MM-dd').format(selectedDate.value),
     );
     result.fold(
       (l) {

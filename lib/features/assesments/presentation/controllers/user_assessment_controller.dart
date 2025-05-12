@@ -69,7 +69,7 @@ class UserAssessmentController extends GetxController {
     String assessmentQuestionId,
     String score,
   ) async {
-    userAssessmentState.value = TheStates.loading;
+    scoreQuestionState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final result = await remoteSource.scoreQuestion(
       cancelToken: _cancelToken,

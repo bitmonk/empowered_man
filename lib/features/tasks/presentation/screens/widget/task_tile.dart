@@ -57,16 +57,22 @@ class _TaskTileState extends State<TaskTile> {
                         const Spacer(),
                         InkWell(
                           onTap: () {
-                            showDialog(
-                              context: context,
-                              builder: (context) => Transform.translate(
-                                offset: const Offset(-60, 0),
-                                child: TaskMenuDialog(
-                                  task: widget.task,
-                                  currentLevel: widget.task.level.toString(),
+                            if (widget.task.status.toString().toLowerCase() ==
+                                'completed') {
+                              showDialog(
+                                context: context,
+                                builder: (context) => Transform.translate(
+                                  offset: const Offset(-60, 0),
+                                  child: TaskMenuDialog(
+                                    task: widget.task,
+                                    currentLevel: widget.task.level.toString(),
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
+                            } else {
+                              AppUtils.showErrorSnackbar(
+                                  message: 'Please complete task first.',);
+                            }
                           },
                           child: Padding(
                             padding: const EdgeInsets.all(5),
@@ -85,7 +91,10 @@ class _TaskTileState extends State<TaskTile> {
                       ),
                     ),
                     const VerticalSpacing(12),
-                    Row(
+                    Wrap(
+                      spacing: 15, // horizontal spacing
+                      runSpacing: 10, // vertical spacing
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         ColoredPaddedCotainer(
                           horizontalPadding: 8,
@@ -99,30 +108,25 @@ class _TaskTileState extends State<TaskTile> {
                           textStyle: AppTextStyles.lightBodySubHeader,
                           //font => inter
                         ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 15,
-                          ),
-                          child: ColoredPaddedCotainer(
-                            horizontalPadding: 8,
-                            borderColor:
-                                priorityColor(priority: widget.task.priority!),
-                            borderRadius: 5,
-                            color: AppColors.bgBorder,
-                            title: widget.task.priority ?? '',
-                            //font => inter
-                            textStyle:
-                                AppTextStyles.lightBodySubHeader.copyWith(
-                              color: priorityColor(
-                                priority: widget.task.priority!,
-                              ),
+                        ColoredPaddedCotainer(
+                          horizontalPadding: 8,
+                          borderColor:
+                              priorityColor(priority: widget.task.priority!),
+                          borderRadius: 5,
+                          color: AppColors.bgBorder,
+                          title: widget.task.priority ?? '',
+                          //font => inter
+                          textStyle: AppTextStyles.lightBodySubHeader.copyWith(
+                            color: priorityColor(
+                              priority: widget.task.priority!,
                             ),
                           ),
                         ),
-                        const Spacer(),
+
                         if (!isExpandedTaskTile &&
                             (widget.task.subTasks?.isNotEmpty ?? false))
                           Row(
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Assets.images.subTaskBranchIcon.svg(),
                               Padding(
@@ -161,6 +165,7 @@ class _TaskTileState extends State<TaskTile> {
                               child: widget.task.status == 'completed'
                                   ? Assets.images.tickCircle.svg()
                                   : Row(
+                                      mainAxisSize: MainAxisSize.min,
                                       children: [
                                         const Icon(
                                           Icons.circle_outlined,
@@ -223,7 +228,7 @@ class _TaskTileState extends State<TaskTile> {
                 height: 50,
                 width: 4,
                 decoration: BoxDecoration(
-                  color: AppColors.colorFFB032,
+                  color: _priorityColor(widget.task.priority!),
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
@@ -232,5 +237,17 @@ class _TaskTileState extends State<TaskTile> {
         ),
       ),
     );
+  }
+
+  Color _priorityColor(String val) {
+    if (val == controller.prioritiesList[0]) {
+      return AppColors.colorFFB032;
+    } else if (val == controller.prioritiesList[1]) {
+      return AppColors.appRed;
+    } else if (val == controller.prioritiesList[2]) {
+      return AppColors.appGreen;
+    } else {
+      return AppColors.primaryMedium;
+    }
   }
 }
