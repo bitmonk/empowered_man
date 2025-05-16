@@ -49,11 +49,25 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     controller.getJournalWithQuestionsAndAnswers();
   }
 
-  void _onFocusChange() {
-    setState(() {
-      _isKeyboardVisible = focusNode.hasFocus;
-    });
-  }
+ void _onFocusChange() {
+  setState(() {
+    _isKeyboardVisible = focusNode.hasFocus;
+    if (_isKeyboardVisible) {
+      // Calculate the scroll position to move content above keyboard
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          final height = MediaQuery.of(context).viewInsets.bottom;
+          
+          controller.scrollController.animateTo(
+            controller.scrollController.position.maxScrollExtent + height,
+            duration: const Duration(milliseconds: 300),
+            curve: Curves.easeInOut,
+          );
+        }
+      });
+    }
+  });
+}
 
   void startJournaling() {
     setState(() {
@@ -295,6 +309,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         }
       },
       child: Scaffold(
+        resizeToAvoidBottomInset: true,
         appBar: CustomAppBar(
           onTap: () async {
             // Existing AppBar onTap logic
@@ -361,6 +376,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               questionIds['followUpQuestionId'];
                           return SingleChildScrollView(
                             controller: controller.scrollController,
+                           
                             child: Column(
                               children: [
                                 ListView.builder(
