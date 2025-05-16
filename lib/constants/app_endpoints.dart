@@ -1,5 +1,5 @@
 class AppEndpoints {
-  static const String baseUrl = 'http://54.253.13.54/api';
+  static const String baseUrl = 'http://3.27.90.50/api';
   static const String login = '/login';
   static const String logout = '/user/logout';
   static const String signUp = '/register';
@@ -25,6 +25,7 @@ class AppEndpoints {
 
   // Task Api
   static const String addTask = '/tasks';
+  static String updateTask(String id) => '/tasks/$id';
   static const String getTask = '/tasks';
   static String delTask(String taskId) => '/tasks/$taskId';
   static String markMainTaskCompleted(String taskId) =>
@@ -34,12 +35,20 @@ class AppEndpoints {
   static const String getTaskEnums = '/tasks/enums';
   static String changeLevel(String taskId) => '/tasks/$taskId/change-level';
 
+  //assessment api
+  static const String getAssessmentsUrl ='/user/assessments';
+  static const String createUserAssessement='/user/assessment/';
+  static const String scoreQuestionUrl = '/user/question/score';
+  static const String assessmentHistoryUrl = '/user/assessments/history';
+  static const String deleteAssessmentUrl = '/user/assessments-delete';
+
   // Journal Api
   static const String getJournalEmotionName = '/journals/emotion-names';
   static const String getJournalWithQuestionsAndAnswers = '/journals/';
   static const String postJournalAnswer = '/journal-answers';
   static const String getJournalLibrary = '/journals-library';
   static const String getSeeJournal = '/user-journals';
+
 }
 
 class ExternalEndpoints {}

@@ -1,8 +1,12 @@
 import 'package:empowered/core/extension/extensions.dart';
 
 class CustomErrorWidget extends StatelessWidget {
-  const CustomErrorWidget(
-      {super.key, this.error, this.onPressed, this.verticlePadding,});
+  const CustomErrorWidget({
+    super.key,
+    this.error,
+    this.onPressed,
+    this.verticlePadding,
+  });
   final String? error;
   final Function()? onPressed;
   final EdgeInsetsGeometry? verticlePadding;
@@ -25,7 +29,7 @@ class CustomErrorWidget extends StatelessWidget {
             if (onPressed != null)
               Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 100, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                 child: AppOutlinedButton(
                   text: 'Retry',
                   onPressed: onPressed,

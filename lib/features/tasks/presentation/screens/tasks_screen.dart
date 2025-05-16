@@ -71,6 +71,10 @@ class _TasksScreenState extends State<TasksScreen> {
                           isCompleted: false,
                           isDone: true,
                           onTap: () {
+                            if (controller.hitData.value?.tasks?.isEmpty ??
+                                false) {
+                              return;
+                            }
                             controller.isExpandedHitList.value =
                                 !controller.isExpandedHitList.value;
                           },
@@ -86,6 +90,10 @@ class _TasksScreenState extends State<TasksScreen> {
                           isCompleted: false,
                           isDone: true,
                           onTap: () {
+                            if (controller.mitData.value?.tasks?.isEmpty ??
+                                false) {
+                              return;
+                            }
                             controller.isExpandedMitList.value =
                                 !controller.isExpandedMitList.value;
                           },
@@ -102,6 +110,10 @@ class _TasksScreenState extends State<TasksScreen> {
                           isDone: true,
                           taskCompletionPoint: 12,
                           onTap: () {
+                            if (controller.doData.value?.tasks?.isEmpty ??
+                                false) {
+                              return;
+                            }
                             controller.isExpandedDoList.value =
                                 !controller.isExpandedDoList.value;
                           },
@@ -122,6 +134,10 @@ class _TasksScreenState extends State<TasksScreen> {
                               controller.achievedData.value?.tasks?.length,
                           collapseBorderSideColor: AppColors.color2AD674,
                           onTap: () {
+                            if (controller.achievedData.value?.tasks?.isEmpty ??
+                                false) {
+                              return;
+                            }
                             controller.isExpandedAchievedList.value =
                                 !controller.isExpandedAchievedList.value;
                           },
@@ -142,6 +158,10 @@ class _TasksScreenState extends State<TasksScreen> {
                               controller.doneData.value?.tasks?.length,
                           collapseBorderSideColor: AppColors.color2AD674,
                           onTap: () {
+                            if (controller.doneData.value?.tasks?.isEmpty ??
+                                false) {
+                              return;
+                            }
                             controller.isExpandedDoneList.value =
                                 !controller.isExpandedDoneList.value;
                           },

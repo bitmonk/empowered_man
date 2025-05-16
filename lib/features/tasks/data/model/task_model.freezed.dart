@@ -1168,7 +1168,7 @@ mixin _$Task {
   @JsonKey(name: 'notes')
   String? get notes => throw _privateConstructorUsedError;
   @JsonKey(name: 'sub_tasks')
-  List<Task>? get subTasks => throw _privateConstructorUsedError;
+  List<SubTask>? get subTasks => throw _privateConstructorUsedError;
 
   /// Serializes this Task to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1195,7 +1195,7 @@ abstract class $TaskCopyWith<$Res> {
       @JsonKey(name: 'priority') String? priority,
       @JsonKey(name: 'level') String? level,
       @JsonKey(name: 'notes') String? notes,
-      @JsonKey(name: 'sub_tasks') List<Task>? subTasks});
+      @JsonKey(name: 'sub_tasks') List<SubTask>? subTasks});
 }
 
 /// @nodoc
@@ -1269,7 +1269,7 @@ class _$TaskCopyWithImpl<$Res, $Val extends Task>
       subTasks: freezed == subTasks
           ? _value.subTasks
           : subTasks // ignore: cast_nullable_to_non_nullable
-              as List<Task>?,
+              as List<SubTask>?,
     ) as $Val);
   }
 }
@@ -1292,7 +1292,7 @@ abstract class _$$TaskImplCopyWith<$Res> implements $TaskCopyWith<$Res> {
       @JsonKey(name: 'priority') String? priority,
       @JsonKey(name: 'level') String? level,
       @JsonKey(name: 'notes') String? notes,
-      @JsonKey(name: 'sub_tasks') List<Task>? subTasks});
+      @JsonKey(name: 'sub_tasks') List<SubTask>? subTasks});
 }
 
 /// @nodoc
@@ -1363,7 +1363,7 @@ class __$$TaskImplCopyWithImpl<$Res>
       subTasks: freezed == subTasks
           ? _value._subTasks
           : subTasks // ignore: cast_nullable_to_non_nullable
-              as List<Task>?,
+              as List<SubTask>?,
     ));
   }
 }
@@ -1382,7 +1382,7 @@ class _$TaskImpl implements _Task {
       @JsonKey(name: 'priority') this.priority,
       @JsonKey(name: 'level') this.level,
       @JsonKey(name: 'notes') this.notes,
-      @JsonKey(name: 'sub_tasks') final List<Task>? subTasks})
+      @JsonKey(name: 'sub_tasks') final List<SubTask>? subTasks})
       : _subTasks = subTasks;
 
   factory _$TaskImpl.fromJson(Map<String, dynamic> json) =>
@@ -1418,10 +1418,10 @@ class _$TaskImpl implements _Task {
   @override
   @JsonKey(name: 'notes')
   final String? notes;
-  final List<Task>? _subTasks;
+  final List<SubTask>? _subTasks;
   @override
   @JsonKey(name: 'sub_tasks')
-  List<Task>? get subTasks {
+  List<SubTask>? get subTasks {
     final value = _subTasks;
     if (value == null) return null;
     if (_subTasks is EqualUnmodifiableListView) return _subTasks;
@@ -1499,7 +1499,7 @@ abstract class _Task implements Task {
       @JsonKey(name: 'priority') final String? priority,
       @JsonKey(name: 'level') final String? level,
       @JsonKey(name: 'notes') final String? notes,
-      @JsonKey(name: 'sub_tasks') final List<Task>? subTasks}) = _$TaskImpl;
+      @JsonKey(name: 'sub_tasks') final List<SubTask>? subTasks}) = _$TaskImpl;
 
   factory _Task.fromJson(Map<String, dynamic> json) = _$TaskImpl.fromJson;
 
@@ -1535,12 +1535,351 @@ abstract class _Task implements Task {
   String? get notes;
   @override
   @JsonKey(name: 'sub_tasks')
-  List<Task>? get subTasks;
+  List<SubTask>? get subTasks;
 
   /// Create a copy of Task
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$TaskImplCopyWith<_$TaskImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+SubTask _$SubTaskFromJson(Map<String, dynamic> json) {
+  return _SubTask.fromJson(json);
+}
+
+/// @nodoc
+mixin _$SubTask {
+  @JsonKey(name: 'id')
+  int? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'title')
+  String? get title => throw _privateConstructorUsedError;
+  @JsonKey(name: 'description')
+  String? get description => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status')
+  String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'user_id')
+  int? get userId => throw _privateConstructorUsedError;
+  @JsonKey(name: 'due_date')
+  DateTime? get dueDate => throw _privateConstructorUsedError;
+  @JsonKey(name: 'priority')
+  String? get priority => throw _privateConstructorUsedError;
+  @JsonKey(name: 'level')
+  String? get level => throw _privateConstructorUsedError;
+  @JsonKey(name: 'notes')
+  String? get notes => throw _privateConstructorUsedError;
+
+  /// Serializes this SubTask to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of SubTask
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $SubTaskCopyWith<SubTask> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $SubTaskCopyWith<$Res> {
+  factory $SubTaskCopyWith(SubTask value, $Res Function(SubTask) then) =
+      _$SubTaskCopyWithImpl<$Res, SubTask>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'title') String? title,
+      @JsonKey(name: 'description') String? description,
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'user_id') int? userId,
+      @JsonKey(name: 'due_date') DateTime? dueDate,
+      @JsonKey(name: 'priority') String? priority,
+      @JsonKey(name: 'level') String? level,
+      @JsonKey(name: 'notes') String? notes});
+}
+
+/// @nodoc
+class _$SubTaskCopyWithImpl<$Res, $Val extends SubTask>
+    implements $SubTaskCopyWith<$Res> {
+  _$SubTaskCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of SubTask
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? title = freezed,
+    Object? description = freezed,
+    Object? status = freezed,
+    Object? userId = freezed,
+    Object? dueDate = freezed,
+    Object? priority = freezed,
+    Object? level = freezed,
+    Object? notes = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      title: freezed == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String?,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      dueDate: freezed == dueDate
+          ? _value.dueDate
+          : dueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      priority: freezed == priority
+          ? _value.priority
+          : priority // ignore: cast_nullable_to_non_nullable
+              as String?,
+      level: freezed == level
+          ? _value.level
+          : level // ignore: cast_nullable_to_non_nullable
+              as String?,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$SubTaskImplCopyWith<$Res> implements $SubTaskCopyWith<$Res> {
+  factory _$$SubTaskImplCopyWith(
+          _$SubTaskImpl value, $Res Function(_$SubTaskImpl) then) =
+      __$$SubTaskImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'title') String? title,
+      @JsonKey(name: 'description') String? description,
+      @JsonKey(name: 'status') String? status,
+      @JsonKey(name: 'user_id') int? userId,
+      @JsonKey(name: 'due_date') DateTime? dueDate,
+      @JsonKey(name: 'priority') String? priority,
+      @JsonKey(name: 'level') String? level,
+      @JsonKey(name: 'notes') String? notes});
+}
+
+/// @nodoc
+class __$$SubTaskImplCopyWithImpl<$Res>
+    extends _$SubTaskCopyWithImpl<$Res, _$SubTaskImpl>
+    implements _$$SubTaskImplCopyWith<$Res> {
+  __$$SubTaskImplCopyWithImpl(
+      _$SubTaskImpl _value, $Res Function(_$SubTaskImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of SubTask
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? title = freezed,
+    Object? description = freezed,
+    Object? status = freezed,
+    Object? userId = freezed,
+    Object? dueDate = freezed,
+    Object? priority = freezed,
+    Object? level = freezed,
+    Object? notes = freezed,
+  }) {
+    return _then(_$SubTaskImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      title: freezed == title
+          ? _value.title
+          : title // ignore: cast_nullable_to_non_nullable
+              as String?,
+      description: freezed == description
+          ? _value.description
+          : description // ignore: cast_nullable_to_non_nullable
+              as String?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
+      userId: freezed == userId
+          ? _value.userId
+          : userId // ignore: cast_nullable_to_non_nullable
+              as int?,
+      dueDate: freezed == dueDate
+          ? _value.dueDate
+          : dueDate // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      priority: freezed == priority
+          ? _value.priority
+          : priority // ignore: cast_nullable_to_non_nullable
+              as String?,
+      level: freezed == level
+          ? _value.level
+          : level // ignore: cast_nullable_to_non_nullable
+              as String?,
+      notes: freezed == notes
+          ? _value.notes
+          : notes // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$SubTaskImpl implements _SubTask {
+  const _$SubTaskImpl(
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'title') this.title,
+      @JsonKey(name: 'description') this.description,
+      @JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'user_id') this.userId,
+      @JsonKey(name: 'due_date') this.dueDate,
+      @JsonKey(name: 'priority') this.priority,
+      @JsonKey(name: 'level') this.level,
+      @JsonKey(name: 'notes') this.notes});
+
+  factory _$SubTaskImpl.fromJson(Map<String, dynamic> json) =>
+      _$$SubTaskImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'id')
+  final int? id;
+  @override
+  @JsonKey(name: 'title')
+  final String? title;
+  @override
+  @JsonKey(name: 'description')
+  final String? description;
+  @override
+  @JsonKey(name: 'status')
+  final String? status;
+  @override
+  @JsonKey(name: 'user_id')
+  final int? userId;
+  @override
+  @JsonKey(name: 'due_date')
+  final DateTime? dueDate;
+  @override
+  @JsonKey(name: 'priority')
+  final String? priority;
+  @override
+  @JsonKey(name: 'level')
+  final String? level;
+  @override
+  @JsonKey(name: 'notes')
+  final String? notes;
+
+  @override
+  String toString() {
+    return 'SubTask(id: $id, title: $title, description: $description, status: $status, userId: $userId, dueDate: $dueDate, priority: $priority, level: $level, notes: $notes)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$SubTaskImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.title, title) || other.title == title) &&
+            (identical(other.description, description) ||
+                other.description == description) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.userId, userId) || other.userId == userId) &&
+            (identical(other.dueDate, dueDate) || other.dueDate == dueDate) &&
+            (identical(other.priority, priority) ||
+                other.priority == priority) &&
+            (identical(other.level, level) || other.level == level) &&
+            (identical(other.notes, notes) || other.notes == notes));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, id, title, description, status,
+      userId, dueDate, priority, level, notes);
+
+  /// Create a copy of SubTask
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$SubTaskImplCopyWith<_$SubTaskImpl> get copyWith =>
+      __$$SubTaskImplCopyWithImpl<_$SubTaskImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$SubTaskImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _SubTask implements SubTask {
+  const factory _SubTask(
+      {@JsonKey(name: 'id') final int? id,
+      @JsonKey(name: 'title') final String? title,
+      @JsonKey(name: 'description') final String? description,
+      @JsonKey(name: 'status') final String? status,
+      @JsonKey(name: 'user_id') final int? userId,
+      @JsonKey(name: 'due_date') final DateTime? dueDate,
+      @JsonKey(name: 'priority') final String? priority,
+      @JsonKey(name: 'level') final String? level,
+      @JsonKey(name: 'notes') final String? notes}) = _$SubTaskImpl;
+
+  factory _SubTask.fromJson(Map<String, dynamic> json) = _$SubTaskImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'id')
+  int? get id;
+  @override
+  @JsonKey(name: 'title')
+  String? get title;
+  @override
+  @JsonKey(name: 'description')
+  String? get description;
+  @override
+  @JsonKey(name: 'status')
+  String? get status;
+  @override
+  @JsonKey(name: 'user_id')
+  int? get userId;
+  @override
+  @JsonKey(name: 'due_date')
+  DateTime? get dueDate;
+  @override
+  @JsonKey(name: 'priority')
+  String? get priority;
+  @override
+  @JsonKey(name: 'level')
+  String? get level;
+  @override
+  @JsonKey(name: 'notes')
+  String? get notes;
+
+  /// Create a copy of SubTask
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$SubTaskImplCopyWith<_$SubTaskImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

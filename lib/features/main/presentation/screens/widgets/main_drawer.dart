@@ -1,5 +1,7 @@
+import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/features/assesments/presentation/controllers/assessment_history_bindings.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
@@ -123,38 +125,16 @@ class MainDrawer extends GetView<MainController> {
                         // final loadingDialog =
                         //     AppUtils.showLoadingDialog(context);
 
-                        try {
-                          final emotionController =
-                              Get.find<JournalEmotionNameController>();
-                          await emotionController.getJournalEmotionName();
+                        // try {
 
-                          // final emotionId = emotionController.journalEmotionName
-                          //     .value.data?.emotionNames?.first.id;
-                          // if (emotionId == null) {
-                          //   AppUtils.hideLoadingDialog(context);
-                          //   return;
-                          // }
+                        Get.find<JournalEmotionNameController>()
+                            .getJournalEmotionName();
 
-                          // await Get.find<JournalChatController>()
-                          //     .getJournalWithQuestionsAndAnswers(
-                          //         emotionId.toString(),);
-
-                          // Hide loading dialog before navigation
-                          //  AppUtils.hideLoadingDialog(context);
-
-                          // await Get.to(
-                          //   () => const JournalChatScreen(
-                          //       //    initialEmotionId: emotionId,
-                          //       ),
-                          // );
-
-                          // await Future.delayed(Durations.short4);
-                          AppWidgetKey.mainScaffold.currentState
-                              ?.openEndDrawer();
-                        } finally {
-                          // This ensures the dialog is hidden even if an error occurs
-                          AppUtils.hideLoadingDialog(context);
-                        }
+                        AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
+                        // } finally {
+                        //   // This ensures the dialog is hidden even if an error occurs
+                        //   AppUtils.hideLoadingDialog(context);
+                        // }
                       },
                       title: 'Journal',
                       image: Assets.images.journalSvg.path,
@@ -208,6 +188,8 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
+                        AssessmentHistoryInitializer.destroy();
+                        AssessmentHistoryInitializer.initialize();
                         Navigator.pop(context);
                         Get.toNamed(AppRoutes.assesmentsScreen);
                       },
@@ -237,7 +219,9 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () async {
                         final controller = Get.find<LogoutController>();
-                        final result = await controller.logout();
+
+                        final deviceId = await getUniqueDeviceId();
+                        final result = await controller.logout(deviceId);
 
                         if (result) {
                           await Get.find<AppSharedPref>().removeAll();

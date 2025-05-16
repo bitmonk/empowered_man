@@ -1,0 +1,2 @@
+D:/unoTech/empoweredman-mobile/android/app/.cxx/Debug/4h59572t/armeabi-v7a/CMakeFiles/edit_cache.dir
+D:/unoTech/empoweredman-mobile/android/app/.cxx/Debug/4h59572t/armeabi-v7a/CMakeFiles/rebuild_cache.dir

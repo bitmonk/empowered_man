@@ -9,7 +9,7 @@ class SubTaskList extends GetView<TasksController> {
     required this.mainTask,
     super.key,
   });
-  final List<Task> subTaskList;
+  final List<SubTask> subTaskList;
   final Task mainTask;
 
   @override

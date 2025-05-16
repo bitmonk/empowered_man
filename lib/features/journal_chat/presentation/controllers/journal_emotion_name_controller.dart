@@ -101,8 +101,6 @@ class JournalEmotionNameController extends GetxController {
             !tabDataLoaded[JournalPagination.search]!) {
           getJournalLibrary(isInitialLoad: true, searchJournal: true);
         }
-      default:
-        break;
     }
   }
 
@@ -171,15 +169,17 @@ class JournalEmotionNameController extends GetxController {
       },
       dataToAdd: (res) {
         if (searchJournal) {
-          journalSearchList.clear();
-          journalSearchList.addAll(res.data?.userJournals ?? []);
+          journalSearchList
+            ..clear()
+            ..addAll(res.data?.userJournals ?? []);
           selectSeaarchBulk.value = List.generate(
             journalSearchList.length,
             (index) => false,
           );
         } else {
-          journalLibraryList.clear();
-          journalLibraryList.addAll(res.data?.userJournals ?? []);
+          journalLibraryList
+            ..clear()
+            ..addAll(res.data?.userJournals ?? []);
           selectBulk.value = List.generate(
             journalLibraryList.length,
             (index) => false,

@@ -74,8 +74,26 @@ class Task with _$Task {
     @JsonKey(name: 'priority') String? priority,
     @JsonKey(name: 'level') String? level,
     @JsonKey(name: 'notes') String? notes,
-    @JsonKey(name: 'sub_tasks') List<Task>? subTasks,
+    @JsonKey(name: 'sub_tasks') List<SubTask>? subTasks,
   }) = _Task;
 
   factory Task.fromJson(Map<String, dynamic> json) => _$TaskFromJson(json);
+}
+
+@freezed
+class SubTask with _$SubTask {
+  const factory SubTask({
+    @JsonKey(name: 'id') int? id,
+    @JsonKey(name: 'title') String? title,
+    @JsonKey(name: 'description') String? description,
+    @JsonKey(name: 'status') String? status,
+    @JsonKey(name: 'user_id') int? userId,
+    @JsonKey(name: 'due_date') DateTime? dueDate,
+    @JsonKey(name: 'priority') String? priority,
+    @JsonKey(name: 'level') String? level,
+    @JsonKey(name: 'notes') String? notes,
+  }) = _SubTask;
+
+  factory SubTask.fromJson(Map<String, dynamic> json) =>
+      _$SubTaskFromJson(json);
 }

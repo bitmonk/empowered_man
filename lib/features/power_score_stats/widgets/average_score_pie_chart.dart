@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 
 class AverageScorePieChart extends StatelessWidget {
   const AverageScorePieChart({super.key});
@@ -23,11 +24,11 @@ class AverageScorePieChart extends StatelessWidget {
           _buildProgressCircle(AppColors.color5CE0A0, 0.35, 6, 120),
 
           // Centered Score Text
-          Positioned(
+          const Positioned(
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Text(
+                Text(
                   '46%',
                   style: TextStyle(
                     color: AppColors.textColor50,
@@ -35,17 +36,10 @@ class AverageScorePieChart extends StatelessWidget {
                     fontSize: 28,
                   ),
                 ),
-                const VerticalSpacing(4),
-                Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Assets.images.increaseArrow.svg(width: 8),
-                    const HorizontalSpacing(4),
-                    const Text(
-                      '12.5%',
-                      style: TextStyle(color: AppColors.color5CE0A0),
-                    ),
-                  ],
+                VerticalSpacing(4),
+                AveragePercentage(
+                  w1Value: 50,
+                  w4Value: 75,
                 ),
               ],
             ),

@@ -69,6 +69,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
+      resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(
         title: 'Search Journal From Library',
         onTap: () {
@@ -111,6 +112,8 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                                     setState(() {
                                       searchController.clear();
                                       _controller.journalSearchList.clear();
+                                      _controller.getJournalLibrarySearchState
+                                          .value = TheStates.initial;
                                     });
                                   },
                                 )
@@ -140,98 +143,101 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                 ],
               ),
             ),
-            if (_controller.journalSearchList.isEmpty)
-              CustomErrorWidget(
-                error: searchController.text.isNotEmpty &&
-                        _controller.journalSearchList.isEmpty
-                    ? 'No data found'
-                    : 'Enter keyword to search',
-              )
-            else
-              Obx(
-                () => _controller.getJournalLibrarySearchState.value.showWidget(
-                  orElse: () => const Padding(
-                    padding: EdgeInsets.symmetric(vertical: 50),
-                    child: LoadingWidget(),
-                  ),
-                  error: () => CustomErrorWidget(
-                    error: _controller.libraryError.value,
-                    verticlePadding: const EdgeInsets.symmetric(vertical: 200),
-                    onPressed: () async {
-                      _controller.getJournalLibrary(
-                        searchJournal: true,
-                        isInitialLoad: true,
-                        mainQuestion: searchController.text,
-                      ); // Load data if not already loaded
-                    },
-                  ),
-                  success: () {
-                    final journals = _controller.journalSearchList;
-                    return (journals.isEmpty)
-                        ? CustomErrorWidget(
-                            error: 'No journals found',
-                            verticlePadding:
-                                const EdgeInsets.symmetric(vertical: 200),
-                            onPressed: () async {
-                              final result = _controller.getJournalLibrary(
-                                searchJournal: true,
-                                isInitialLoad: true,
-                                mainQuestion: searchController.text,
-                              );
-                              print(
-                                  '#################################################>>>>>>>>>>>>>>>>>>>>>>>>result $result',);
-                            },
-                          )
-                        : Expanded(
-                            child: Padding(
-                              padding: const EdgeInsets.only(bottom: 8),
-                              child: ThemedContainer(
-                                padding: EdgeInsets.zero,
-                                margin: const EdgeInsets.all(12),
-                                child: LayoutBuilder(
-                                  builder: (context, constraints) {
-                                    return SingleChildScrollView(
-                                      physics:
-                                          const AlwaysScrollableScrollPhysics(),
-                                      controller:
-                                          _controller.getScrollController(
-                                        paginationName,
-                                      ),
-                                      child: ConstrainedBox(
-                                        constraints: BoxConstraints(
-                                          minHeight: constraints.maxHeight,
-                                        ),
-                                        child: IntrinsicHeight(
-                                          child: Table(
-                                            columnWidths: const {
-                                              0: FixedColumnWidth(35),
-                                              1: FlexColumnWidth(70),
-                                              2: FlexColumnWidth(90),
-                                              3: FlexColumnWidth(80),
-                                            },
-                                            children: [
-                                              _buildTableHeaderRow(),
-                                              if (_controller
-                                                  .journalSearchList.isNotEmpty)
-                                                ...List.generate(
-                                                  _controller
-                                                      .journalSearchList.length,
-                                                  (index) =>
-                                                      _buildTableRow(index),
-                                                ),
-                                            ],
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                ),
-                              ),
-                            ),
-                          );
+            // if (_controller.journalSearchList.isEmpty)
+            //   CustomErrorWidget(
+            //     error: searchController.text.isNotEmpty &&
+            //             _controller.journalSearchList.isEmpty
+            //         ? 'No data found'
+            //         : 'Enter keyword to search',
+            //   )
+            // else
+            Obx(
+              () => _controller.getJournalLibrarySearchState.value.showWidget(
+                initial: () => CustomErrorWidget(
+                  error: searchController.text.isNotEmpty &&
+                          _controller.journalSearchList.isEmpty
+                      ? 'No data found'
+                      : 'Enter keyword to search',
+                ),
+                loading: () => const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 50),
+                  child: LoadingWidget(),
+                ),
+                error: () => CustomErrorWidget(
+                  error: _controller.libraryError.value,
+                  // verticlePadding: const EdgeInsets.symmetric(vertical: 200),
+                  onPressed: () async {
+                    _controller.getJournalLibrary(
+                      searchJournal: true,
+                      isInitialLoad: true,
+                      mainQuestion: searchController.text,
+                    ); // Load data if not already loaded
                   },
                 ),
+                success: () {
+                  final journals = _controller.journalSearchList;
+                  return (journals.isEmpty)
+                      ? CustomErrorWidget(
+                          error: 'No journals found',
+                          verticlePadding:
+                              const EdgeInsets.symmetric(vertical: 200),
+                          onPressed: () async {
+                            _controller.getJournalLibrary(
+                              searchJournal: true,
+                              isInitialLoad: true,
+                              mainQuestion: searchController.text,
+                            );
+                          },
+                        )
+                      : Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.only(bottom: 8),
+                            child: ThemedContainer(
+                              padding: EdgeInsets.zero,
+                              margin: const EdgeInsets.all(12),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  return SingleChildScrollView(
+                                    physics:
+                                        const AlwaysScrollableScrollPhysics(),
+                                    controller: _controller.getScrollController(
+                                      paginationName,
+                                    ),
+                                    child: ConstrainedBox(
+                                      constraints: BoxConstraints(
+                                        minHeight: constraints.maxHeight,
+                                      ),
+                                      child: IntrinsicHeight(
+                                        child: Table(
+                                          columnWidths: const {
+                                            0: FixedColumnWidth(35),
+                                            1: FlexColumnWidth(70),
+                                            2: FlexColumnWidth(90),
+                                            3: FlexColumnWidth(80),
+                                          },
+                                          children: [
+                                            _buildTableHeaderRow(),
+                                            if (_controller
+                                                .journalSearchList.isNotEmpty)
+                                              ...List.generate(
+                                                _controller
+                                                    .journalSearchList.length,
+                                                (index) =>
+                                                    _buildTableRow(index),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                },
               ),
+            ),
           ],
         );
       }),
@@ -257,7 +263,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
               setState(() {
                 _selectAll = !_selectAll;
                 _controller.selectSeaarchBulk.value = List.generate(
-                  _controller.journalSearchList.length ?? 0,
+                  _controller.journalSearchList.length,
                   (index) => _selectAll,
                 );
               });
@@ -294,9 +300,11 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
 
     final journal = journals[index];
 
-    // Safely get the first question
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
-        ? journal.journal!.mainQuestions!.first.question
+        ? journal.journal!.mainQuestions!
+                .firstWhereOrNull((e) => e.keywords == 'title')
+                ?.question ??
+            'N/A'
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
     var formattedTime =
@@ -316,10 +324,6 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
                   _selectAll =
                       _controller.selectSeaarchBulk.every((item) => item);
                 }
-                // _controller.selectSeaarchBulk[index] =
-                //     !_controller.selectSeaarchBulk[index];
-                // _selectAll =
-                //     _controller.selectSeaarchBulk.every((item) => item);
               });
             },
             child: Icon(
@@ -332,7 +336,7 @@ class _JournalSearchScreenState extends State<JournalSearchScreen> {
           ),
         ),
         _tableCell(emotionName),
-        _tableCell(firstQuestion ?? 'N/A'),
+        _tableCell(firstQuestion),
         _tableCell(formattedTime),
       ],
     );

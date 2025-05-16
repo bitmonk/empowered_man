@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
+import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
@@ -166,7 +167,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   // If not in main questions, check follow-up questions
                   if (mainQuestion != null) {
                     questionId = mainQuestion.id?.toString() ?? '';
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
+                    // print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   } else {
                     FollowUpQuestion? followUpQuestion;
                     try {
@@ -179,7 +180,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                       followUpQuestion = null;
                     }
                     questionId = followUpQuestion?.id?.toString() ?? '';
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
+                    // print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> $questionId');
                   }
 
                   if (questionId.isNotEmpty) {
@@ -304,332 +305,318 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         ),
         body: SafeArea(
           child: Obx(
-            () => Column(
-              children: [
-                // Padding(
-                //   padding: const EdgeInsets.symmetric(
-                //       horizontal: 16, vertical: 20),
-                //   child:
-                // ),
-                if (controller.selectedEmotion.value == null)
-                  const CustomErrorWidget(
-                    error: 'Not found',
-                  )
-                else
-                  Expanded(
-                    child: controller.journalChatConversationState.value
-                        .showWidget(
-                      // orElse: () => CustomErrorWidget(
-                      //       onPressed: () {},
-                      //     ),
-                      // loading: () => const LoadingWidget(),
-                      success: () {
-                        final journal = controller
-                            .journalWithQuestionsAndAnswers.value.data?.journal;
-                        if (journal == null) {
-                          return const Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        }
-                        // if (controller.isLoading.value) {
-                        //   return const Center(
-                        //     child: CircularProgressIndicator(),
-                        //   );
-                        // }
-                        var items = <MessageItem>[];
-                        var shouldShowQuestion = true;
-
-                        // Check if all main questions are answered
-                        var allQuestionsAnswered = journal.mainQuestions
-                                ?.every((q) => q.answered ?? false) ??
-                            false;
-
-                        for (var i = 0;
-                            i < (journal.mainQuestions?.length ?? 0);
-                            i++) {
-                          final mainQuestion = journal.mainQuestions![i];
-                          var questionTimestamp = '';
-                          // Check if question should be shown
-                          if (i > 0) {
-                            final previousQuestion =
-                                journal.mainQuestions![i - 1];
-                            shouldShowQuestion =
-                                previousQuestion.answered ?? false;
-                            if (shouldShowQuestion &&
-                                previousQuestion.answer?.createdAt != null) {
-                              questionTimestamp =
-                                  previousQuestion.answer?.createdAt ?? '';
-                            }
-                          }
-
-                          if (shouldShowQuestion) {
-                            // Add main question
-                            items.add(
-                              MessageItem(
-                                type: MessageType.question,
-                                message: mainQuestion.question!,
-                                timestamp: i == 0
-                                    ? DateTime.now().toString()
-                                    : questionTimestamp,
-                                isMine: false,
-                              ),
-                            );
-
-                            // Add answer if exists
-                            if (mainQuestion.answered == true) {
-                              items.add(
-                                MessageItem(
-                                  type: MessageType.answer,
-                                  message: mainQuestion.answer?.text ?? '',
-                                  timestamp: mainQuestion.answer?.createdAt ??
-                                      DateTime.now().toString(),
-                                  isMine: true,
-                                  images: mainQuestion.answer?.media?.images,
-                                  videos: mainQuestion.answer?.media?.videos,
-                                  voices: mainQuestion.answer?.media?.voices,
-                                ),
-                              );
-                            }
-                          }
-                        }
-
-                        final firstFollowUpAnswered =
-                            journal.followUpQuestions?.isNotEmpty == true &&
-                                (journal.followUpQuestions![0].answered ??
-                                    false);
-                        return SingleChildScrollView(
-                          controller: controller.scrollController,
-                          child: Column(
-                            children: [
-                              ListView.builder(
-                                // reverse: true,
-                                shrinkWrap: true,
-                                // controller: controller.scrollController,
-                                physics: const NeverScrollableScrollPhysics(),
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                itemCount: items.length,
-                                // itemCount: items.length,
-                                itemBuilder: (context, index) {
-                                  final item = items[index];
-                                  final messageItem = MessageItem(
-                                    type: item.type,
-                                    message: item.message,
-                                    timestamp: item.timestamp,
-                                    isMine: item.isMine,
-                                    images: item.images,
-                                    videos: item.videos,
-                                    voices: item.voices,
-                                    isLoading: _isSendingMessage &&
-                                        item.isMine &&
-                                        item.type == MessageType.answer,
-                                    isYesNoQuestion: item.isYesNoQuestion,
+            () => controller.journalChatConversationState.value.showWidget(
+                orElse: () => const LoadingWidget(),
+                error: () => Center(
+                      child: CustomErrorWidget(
+                        onPressed: () {
+                          controller.getJournalWithQuestionsAndAnswers();
+                        },
+                      ),
+                    ),
+                success: () => Column(
+                      children: [
+                        if (controller.selectedEmotion.value == null)
+                          const CustomErrorWidget(
+                            error: 'Not found',
+                          )
+                        else
+                          Expanded(
+                            child: controller.journalChatConversationState.value
+                                .showWidget(
+                              success: () {
+                                final journal = controller
+                                    .journalWithQuestionsAndAnswers
+                                    .value
+                                    .data
+                                    ?.journal;
+                                if (journal == null) {
+                                  return const Center(
+                                    child: LoadingWidget(),
                                   );
+                                }
 
-                                  // Create the base message widget
-                                  Widget messageWidget = ChatBubbleContainer(
-                                    isJournal: true,
-                                    message: messageItem.message,
-                                    isMine: messageItem.isMine,
-                                    timeStamp: messageItem.timestamp ?? '',
-                                    onLike: () {},
-                                    images: messageItem.images,
-                                    videos: messageItem.videos,
-                                    voices: messageItem.voices,
-                                    isLoading: messageItem.isLoading,
-                                    isYesNoQuestion:
-                                        messageItem.isYesNoQuestion,
-                                  );
+                                var items = <MessageItem>[];
+                                var shouldShowQuestion = true;
 
-                                  // Add spacing between questions and their answers
-                                  if (item.type == MessageType.question &&
-                                      index < items.length - 1) {
-                                    final nextItem = items[index + 1];
-                                    if (nextItem.type == MessageType.answer) {
-                                      messageWidget = Column(
-                                        children: [
-                                          messageWidget,
-                                          const SizedBox(height: 8),
-                                        ],
-                                      );
-                                    }
+                                // Check if all main questions are answered
+                                var allQuestionsAnswered = journal.mainQuestions
+                                        ?.every((q) => q.answered ?? false) ??
+                                    false;
 
-                                    if (index == 0) {
-                                      final timestamp = items.length == 1
-                                          ? DateTime.now().toString()
-                                          : nextItem.timestamp;
-                                      messageWidget = ChatBubbleContainer(
-                                        isJournal: true,
-                                        message: item.message,
-                                        isMine: item.isMine,
-                                        timeStamp: timestamp ?? '',
-                                        onLike: () {},
-                                        images: item.images,
-                                        videos: item.videos,
-                                        voices: item.voices,
-                                        // onYesNoOptionSelected: (option) {},
-                                      );
+                                for (var i = 0;
+                                    i < (journal.mainQuestions?.length ?? 0);
+                                    i++) {
+                                  final mainQuestion =
+                                      journal.mainQuestions![i];
+                                  var questionTimestamp = '';
+                                  // Check if question should be shown
+                                  if (i > 0) {
+                                    final previousQuestion =
+                                        journal.mainQuestions![i - 1];
+                                    shouldShowQuestion =
+                                        previousQuestion.answered ?? false;
+                                    if (shouldShowQuestion &&
+                                        previousQuestion.answer?.createdAt !=
+                                            null) {
+                                      questionTimestamp =
+                                          previousQuestion.answer?.createdAt ??
+                                              '';
                                     }
                                   }
 
-                                  return messageWidget;
-                                },
-                              ),
-                              if (controller.showBeginJournallButton.value)
-                                Padding(
-                                  padding: const EdgeInsets.only(
-                                    top: 32,
-                                    left: 40,
-                                    right: 40,
+                                  if (shouldShowQuestion) {
+                                    // Add main question
+                                    items.add(
+                                      MessageItem(
+                                        type: MessageType.question,
+                                        message: mainQuestion.question!,
+                                        timestamp: i == 0
+                                            ? DateTime.now().toString()
+                                            : questionTimestamp,
+                                        isMine: false,
+                                      ),
+                                    );
+
+                                    // Add answer if exists
+                                    if (mainQuestion.answered == true) {
+                                      items.add(
+                                        MessageItem(
+                                          type: MessageType.answer,
+                                          message:
+                                              mainQuestion.answer?.text ?? '',
+                                          timestamp:
+                                              mainQuestion.answer?.createdAt ??
+                                                  DateTime.now().toString(),
+                                          isMine: true,
+                                          images: mainQuestion
+                                              .answer?.media?.images,
+                                          videos: mainQuestion
+                                              .answer?.media?.videos,
+                                          voices: mainQuestion
+                                              .answer?.media?.voices,
+                                        ),
+                                      );
+                                    }
+                                  }
+                                }
+
+                                journal.followUpQuestions?.isNotEmpty == true &&
+                                    (journal.followUpQuestions![0].answered ??
+                                        false);
+                                return SingleChildScrollView(
+                                  controller: controller.scrollController,
+                                  child: Column(
+                                    children: [
+                                      ListView.builder(
+                                        // reverse: true,
+                                        shrinkWrap: true,
+                                        // controller: controller.scrollController,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        keyboardDismissBehavior:
+                                            ScrollViewKeyboardDismissBehavior
+                                                .onDrag,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 16,
+                                        ),
+                                        itemCount: items.length,
+                                        // itemCount: items.length,
+                                        itemBuilder: (context, index) {
+                                          final item = items[index];
+                                          final messageItem = MessageItem(
+                                            type: item.type,
+                                            message: item.message,
+                                            timestamp: item.timestamp,
+                                            isMine: item.isMine,
+                                            images: item.images,
+                                            videos: item.videos,
+                                            voices: item.voices,
+                                            isLoading: _isSendingMessage &&
+                                                item.isMine &&
+                                                item.type == MessageType.answer,
+                                            isYesNoQuestion:
+                                                item.isYesNoQuestion,
+                                          );
+
+                                          // Create the base message widget
+                                          Widget messageWidget =
+                                              ChatBubbleContainer(
+                                            isJournal: true,
+                                            message: messageItem.message,
+                                            isMine: messageItem.isMine,
+                                            timeStamp:
+                                                messageItem.timestamp ?? '',
+                                            onLike: () {},
+                                            images: messageItem.images,
+                                            videos: messageItem.videos,
+                                            voices: messageItem.voices,
+                                            isLoading: messageItem.isLoading,
+                                            isYesNoQuestion:
+                                                messageItem.isYesNoQuestion,
+                                          );
+
+                                          // Add spacing between questions and their answers
+                                          if (item.type ==
+                                                  MessageType.question &&
+                                              index < items.length - 1) {
+                                            final nextItem = items[index + 1];
+                                            if (nextItem.type ==
+                                                MessageType.answer) {
+                                              messageWidget = Column(
+                                                children: [
+                                                  messageWidget,
+                                                  const SizedBox(height: 8),
+                                                ],
+                                              );
+                                            }
+
+                                            if (index == 0) {
+                                              final timestamp = items.length ==
+                                                      1
+                                                  ? DateTime.now().toString()
+                                                  : nextItem.timestamp;
+                                              messageWidget =
+                                                  ChatBubbleContainer(
+                                                isJournal: true,
+                                                message: item.message,
+                                                isMine: item.isMine,
+                                                timeStamp: timestamp ?? '',
+                                                onLike: () {},
+                                                images: item.images,
+                                                videos: item.videos,
+                                                voices: item.voices,
+                                                // onYesNoOptionSelected: (option) {},
+                                              );
+                                            }
+                                          }
+
+                                          return messageWidget;
+                                        },
+                                      ),
+                                      if (controller
+                                          .showBeginJournallButton.value)
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 32,
+                                            left: 40,
+                                            right: 40,
+                                          ),
+                                          child: AppOutlinedButton(
+                                            text: 'Begin Journaling',
+                                            onPressed: () {
+                                              startJournaling();
+                                              setState(() {
+                                                controller
+                                                    .showBeginJournallButton
+                                                    .value = false;
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                      if (allQuestionsAnswered)
+                                        // Show follow-up questions
+                                        showFollowUpQuestions(),
+                                      const SizedBox(height: 60),
+                                      const SizedBox(
+                                        height: 1,
+                                        width: double.infinity,
+                                        key: ValueKey('scroll-bottom-anchor'),
+                                      ),
+                                    ],
                                   ),
-                                  child: AppOutlinedButton(
-                                    text: 'Begin Journaling',
-                                    onPressed: () {
-                                      startJournaling();
-                                      setState(() {
-                                        controller.showBeginJournallButton
-                                            .value = false;
-                                      });
-                                    },
-                                  ),
-                                ),
-                              if (allQuestionsAnswered && firstFollowUpAnswered)
-                                // Show follow-up questions
-                                showFollowUpQuestions(),
-                              const SizedBox(height: 60),
-                              const SizedBox(
-                                height: 1,
-                                width: double.infinity,
-                                key: ValueKey('scroll-bottom-anchor'),
-                              ),
-                            ],
+                                );
+                              },
+                            ),
                           ),
-                        );
-                      },
-                    ),
-                  ),
-                if (controller.selectedEmotion.value != null)
-                  Obx(() {
-                    final journalCompleted = controller
-                            .journalWithQuestionsAndAnswers
-                            .value
-                            .data
-                            ?.isCompleted ??
-                        false;
-                    final journal = controller
-                        .journalWithQuestionsAndAnswers.value.data?.journal;
-                    String? mainQuestionId;
-                    String? followupQuestionId;
-                    var isYesNoQuestion = false;
+                        if (controller.selectedEmotion.value != null)
+                          Obx(() {
+                            final journalCompleted = controller
+                                    .journalWithQuestionsAndAnswers
+                                    .value
+                                    .data
+                                    ?.isCompleted ??
+                                false;
+                            final journal = controller
+                                .journalWithQuestionsAndAnswers
+                                .value
+                                .data
+                                ?.journal;
+                            String? mainQuestionId;
+                            String? followupQuestionId;
+                            var isYesNoQuestion = false;
 
-                    // Check if all main questions are answered
-                    final allMainQuestionsAnswered = journal?.mainQuestions
-                            ?.every((q) => q.answered ?? false) ??
-                        false;
+                            // Check if all main questions are answered
+                            final allMainQuestionsAnswered = journal
+                                    ?.mainQuestions
+                                    ?.every((q) => q.answered ?? false) ??
+                                false;
 
-                    if (!allMainQuestionsAnswered) {
-                      mainQuestionId = _getLastVisibleQuestionId(journal);
-                      followupQuestionId = null;
-                    } else {
-                      followupQuestionId =
-                          _getLastVisibleFollowUpQuestionId(journal);
-                      mainQuestionId = null;
-                      if (followupQuestionId != null) {
-                        final question =
-                            journal?.followUpQuestions?.firstWhereOrNull(
-                          (q) => q.id?.toString() == followupQuestionId,
-                        );
-                        isYesNoQuestion = question?.questionType == 'yes_no';
-                      }
-                    }
-                    if (!controller.showBeginJournallButton.value) {
-                      if (journalCompleted == false &&
-                          isYesNoQuestion == false) {
-                        return JournalChatInputField(
-                          focusNode: focusNode,
-                          journalId: journal?.id?.toString() ?? '',
-                          mainQuestionId: mainQuestionId,
-                          followupQuestionId: followupQuestionId,
-                          onMessageSent: () async {
-                            setState(() {
-                              _isSendingMessage = true;
-                            });
-                            // Force scroll to bottom whenever a message is sent
-                            WidgetsBinding.instance.addPostFrameCallback((_) {
-                              controller.autoScrollEnabled.value = true;
-                              controller.scrollToBottom();
-                            });
-                            try {
-                              // Add your message locally first to show with loading indicator
-                              final newMessage = MessageItem(
-                                type: MessageType.answer,
-                                message: controller.chatController.text.trim(),
-                                timestamp: DateTime.now().toString(),
-                                isMine: true,
-                                isLoading: true,
-                              );
-                              await controller.sendMessage(
-                                journal?.id?.toString() ?? '',
-                                null, // mediaPath
-                                controller.chatController.text.trim(),
-                                mainQuestionId,
-                                followupQuestionId,
-                              );
-                            } finally {
-                              if (mounted) {
-                                setState(() {
-                                  _isSendingMessage = false;
-                                });
+                            if (!allMainQuestionsAnswered) {
+                              mainQuestionId =
+                                  _getLastVisibleQuestionId(journal);
+                              followupQuestionId = null;
+                            } else {
+                              followupQuestionId =
+                                  _getLastVisibleFollowUpQuestionId(journal);
+                              mainQuestionId = null;
+                              if (followupQuestionId != null) {
+                                final question = journal?.followUpQuestions
+                                    ?.firstWhereOrNull(
+                                  (q) => q.id?.toString() == followupQuestionId,
+                                );
+                                isYesNoQuestion =
+                                    question?.questionType == 'yes_no';
                               }
                             }
-                          },
-                        );
-                      } else {
-                        return const SizedBox.shrink();
-                      }
-                    } else {
-                      return const SizedBox.shrink();
-                    }
-                  }),
-              ],
-            ),
+                            if (!controller.showBeginJournallButton.value) {
+                              if (journalCompleted == false &&
+                                  isYesNoQuestion == false) {
+                                return JournalChatInputField(
+                                  focusNode: focusNode,
+                                  journalId: journal?.id?.toString() ?? '',
+                                  mainQuestionId: mainQuestionId,
+                                  followupQuestionId: followupQuestionId,
+                                  onMessageSent: () async {
+                                    setState(() {
+                                      _isSendingMessage = true;
+                                    });
+                                    // Force scroll to bottom whenever a message is sent
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      controller.autoScrollEnabled.value = true;
+                                      controller.scrollToBottom();
+                                    });
+                                    try {
+                                      // Add your message locally first to show with loading indicator
+                                      await controller.sendMessage(
+                                        journal?.id?.toString() ?? '',
+                                        null, // mediaPath
+                                        controller.chatController.text.trim(),
+                                        mainQuestionId,
+                                        followupQuestionId,
+                                      );
+                                    } finally {
+                                      if (mounted) {
+                                        setState(() {
+                                          _isSendingMessage = false;
+                                        });
+                                      }
+                                    }
+                                  },
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          }),
+                      ],
+                    ),),
           ),
         ),
       ),
     );
   }
 }
-
-class MessageItem {
-  MessageItem({
-    required this.type,
-    required this.message,
-    required this.isMine,
-    this.timestamp,
-    this.images,
-    this.videos,
-    this.voices,
-    this.isLoading = false,
-    this.isYesNoQuestion = false,
-    this.selectedOption,
-    this.questionId,
-    this.answered = false,
-  });
-  final MessageType type;
-  final String message;
-  final String? timestamp;
-  final bool isMine;
-  final List<String>? images;
-  final List<String>? videos;
-  final List<String>? voices;
-  final bool isLoading;
-  final bool isYesNoQuestion;
-  final String? selectedOption;
-  final String? questionId;
-  final bool answered;
-}
-
-enum MessageType { question, answer, option }

@@ -1,6 +1,6 @@
-import 'package:empowered/features/assesments/assesment_result.dart';
-import 'package:empowered/features/assesments/assesment_trailer.dart';
-import 'package:empowered/features/assesments/assesments_screen.dart';
+import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_result.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_trailer.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';

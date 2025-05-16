@@ -86,6 +86,52 @@ class AppUtils {
     }
   }
 
+  static void showDownloadingDialog({
+    required String message,
+  }) {
+    Get.dialog(
+      Material(
+        color: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Center(
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.bgBorder,
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 2,
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    message,
+                    style: AppTextStyles.textBodyB3,
+                    textAlign: TextAlign.center,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+      barrierDismissible: false,
+    );
+  }
+
   static void showErrorSnackbar({
     String message = 'Invalid Url',
     void Function()? onRetry,

@@ -9,13 +9,13 @@ class LogoutRemoteSource {
   final DioApiClient _client;
 
   Future<Either<AppError, String>> logout({
-    CancelToken? cancelToken,
+    required String deviceId, CancelToken? cancelToken,
   }) async {
     try {
       resetUnauthorizedFlag();
       final response = await _client.post(
         AppEndpoints.logout,
-        // body: {},
+        body: {'device_id': deviceId},
         cancelToken: cancelToken,
       );
       return right(response['message']);

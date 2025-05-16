@@ -40,7 +40,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
         emotionNames = _controller.journalEmotionName.value.data?.emotionNames;
       });
     } catch (e) {
-      print('Error fetching emotion names: $e');
+      debugPrint('Error fetching emotion names: $e');
     }
   }
 
@@ -175,7 +175,9 @@ class _JournalLibraryState extends State<JournalLibrary> {
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () async {
-                      await Navigator.push(
+                      _controller.getJournalLibrarySearchState.value =
+                          TheStates.initial;
+                      Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) => const JournalSearchScreen(),
@@ -357,7 +359,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
     final firstQuestion = (journal.journal?.mainQuestions?.isNotEmpty ?? false)
         ? journal.journal!.mainQuestions!
                 .firstWhereOrNull((e) => e.keywords == 'title')
-                ?.keywords ??
+                ?.question ??
             'N/A'
         : 'N/A';
     final emotionName = journal.journal?.emotionName ?? 'N/A';
@@ -385,7 +387,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
           ),
         ),
         _tableCell(emotionName),
-        _tableCell(firstQuestion ?? 'N/A'),
+        _tableCell(firstQuestion.capitalizeFirst.toString()),
         _tableCell(formattedTime),
       ],
     );
@@ -404,10 +406,11 @@ class _JournalLibraryState extends State<JournalLibrary> {
   /// Helper to create table header cells
   Widget _tableHeaderCell(String title) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 18),
+      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 22),
       child: Text(
         title,
         style: AppTextStyles.textBodyB1.copyWith(color: AppColors.white),
+        textAlign: TextAlign.center,
       ),
     );
   }

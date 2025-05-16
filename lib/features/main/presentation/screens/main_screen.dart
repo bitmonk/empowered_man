@@ -9,7 +9,7 @@ import 'package:empowered/features/habits/presentation/controllers/habit_binding
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_drawer.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_drawer.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
