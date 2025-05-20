@@ -172,7 +172,7 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                           .containsKey('remotePath')
                                   ? [chat.body.toJson()['remotePath']]
                                   : null,
-                              videos: chat.body is ChatVideoMessageBody &&
+                              videos: chat.body.toJson()['type'] == 'video' &&
                                       chat.body
                                           .toJson()
                                           .containsKey('remotePath')

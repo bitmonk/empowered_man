@@ -99,7 +99,7 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
     return widget.chapter.videoUrl.isNullOrEmpty()
         ? const SizedBox.shrink()
         : AppVideoPlayer(
-            videoUrl: widget.chapter.videoUrl!,
+            videoUrl: widget.chapter.videoUrl,
             showListener: true,
             onProgressUpdate: (v) {
               setState(() {

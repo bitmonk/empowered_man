@@ -275,7 +275,8 @@ class ChatController extends GetxController {
         messages.insertAll(0, result.data);
         await fetchReactionsForMessages(newMessages);
         await Future.delayed(
-            const Duration(milliseconds: 100),); // Wait for UI update
+          const Duration(milliseconds: 100),
+        ); // Wait for UI update
 
         // Calculate estimated height of newly inserted messages
         final newContentHeight = _calculateNewContentHeight(newMessages.length);

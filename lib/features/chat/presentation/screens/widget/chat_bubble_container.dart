@@ -577,33 +577,32 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
       return const SizedBox();
     }
 
-    if (!_isVideoInitialized || _videoController == null) {
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.black12,
-            ),
-            child: const LoadingWidget(),
-          ),
-        ],
-      );
-    }
+    // if (!_isVideoInitialized || _videoController == null) {
+    //   return Wrap(
+    //     spacing: 8,
+    //     runSpacing: 8,
+    //     children: [
+    //       Container(
+    //         width: 150,
+    //         height: 150,
+    //         decoration: BoxDecoration(
+    //           borderRadius: BorderRadius.circular(12),
+    //           color: Colors.black12,
+    //         ),
+    //         child: const LoadingWidget(),
+    //       ),
+    //     ],
+    //   );
+    // }
     return InkWell(
       onTap: () {
         if (widget.videos!.isNotEmpty) {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => FullscreenVideoView(
-                videoPath: widget.videos!.first,
-              ),
-            ),
+                builder: (context) => AppVideoPlayer(
+                      videoUrl: widget.videos!.first,
+                    )),
           );
         }
       },
@@ -623,7 +622,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
               child: Stack(
                 alignment: Alignment.center,
                 children: [
-                  VideoPlayer(_videoController!),
                   if (!_videoController!.value.isPlaying)
                     const Icon(
                       Icons.play_circle_fill,

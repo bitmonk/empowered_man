@@ -5,12 +5,14 @@ import 'package:video_player/video_player.dart';
 
 class AppVideoPlayer extends StatefulWidget {
   const AppVideoPlayer({
-    required this.videoUrl,
+    this.videoUrl,
     super.key,
     this.showListener = false,
     this.onProgressUpdate,
+    this.assets,
   });
-  final String videoUrl;
+  final String? videoUrl;
+  final String? assets;
   final bool showListener;
   final ValueChanged<double>? onProgressUpdate;
 
@@ -34,9 +36,13 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
       setState(() {
         _errorMessage = null;
       });
-      _videoController = VideoPlayerController.networkUrl(
-        Uri.parse(widget.videoUrl),
-      );
+      _videoController = widget.assets != null
+          ? VideoPlayerController.asset(
+              widget.assets!,
+            )
+          : VideoPlayerController.networkUrl(
+              Uri.parse(widget.videoUrl!),
+            );
 
       await _videoController.initialize();
 

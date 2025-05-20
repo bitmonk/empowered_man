@@ -39,8 +39,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
   Future<void> pickImagesFromGallery() async {
     final picker = ImagePicker();
-    final picked =
-        await picker.pickImage(source: ImageSource.gallery, imageQuality: 100);
+    final picked = await picker.pickVideo(source: ImageSource.gallery);
     if (picked != null) {
       setState(() {
         selectedImageFromGallery = File(picked.path);
@@ -60,7 +59,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
   }
 
   Future<void> pickFile() async {
-    final result = await FilePicker.platform.pickFiles();
+    final result = await FilePicker.platform.pickFiles(
+      allowCompression: true,
+    );
     if (result != null && result.files.single.path != null) {
       setState(() {
         selectedFile = File(result.files.single.path!);
@@ -103,7 +104,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
           Container(
             margin: const EdgeInsets.only(bottom: 8),
             height: 100,
-            child: Image.file(selectedImageFromGallery!, fit: BoxFit.cover),
+            child: isVideoFile(selectedImageFromGallery!)
+                ? AppVideoPlayer(
+                    assets: selectedImageFromGallery!.path,) // Custom widget
+                : Image.file(selectedImageFromGallery!, fit: BoxFit.cover),
           ),
           Positioned(
             right: 0,
@@ -133,6 +137,11 @@ class _ChatInputFieldState extends State<ChatInputField> {
       );
     }
     return const SizedBox();
+  }
+
+  bool isVideoFile(File file) {
+    final ext = file.path.toLowerCase();
+    return ext.endsWith('.mp4') || ext.endsWith('.mov') || ext.endsWith('.avi');
   }
 
   bool get isAnyMediaSelected =>
@@ -236,9 +245,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
                   } else {
                     controller
                         .sendMessage(
-                            text: controller.chatController.text,
-                            filePath: getSelectedFilePath(),
-                            audioPath: selectedAudioPath,)
+                          text: controller.chatController.text,
+                          filePath: getSelectedFilePath(),
+                          audioPath: selectedAudioPath,
+                        )
                         .then((_) => clearSelection());
                   }
                 },
