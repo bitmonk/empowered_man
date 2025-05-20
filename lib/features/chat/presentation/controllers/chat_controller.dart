@@ -26,7 +26,7 @@ class ChatController extends GetxController {
   final RxList<ChatMessage> messages = <ChatMessage>[].obs;
   final Rx<ChatConversation?> selectedConversation =
       Rx<ChatConversation?>(null);
-  final int messageQuantity = 15;
+  final int messageQuantity = 10;
 
   @override
   void onInit() {
@@ -130,14 +130,17 @@ class ChatController extends GetxController {
           lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
         }
         final unreadCount = await convo.unreadCount();
-        wrappedConversations.add(ChatConversationWrapper(
+        wrappedConversations.add(
+          ChatConversationWrapper(
             conversation: convo,
             userName: userInfo?.nickName ?? convo.id,
             avatarUrl: userInfo?.avatarUrl,
             isOnline: true,
             latestMessage: latestMessage,
             lastChattedTime: lastTime,
-            unreadCount: unreadCount,),);
+            unreadCount: unreadCount,
+          ),
+        );
       }
 
       if (!isInitialLoad) {
@@ -162,9 +165,7 @@ class ChatController extends GetxController {
 
       // Optionally: Update your local conversation unread count to 0
       final index = allConversations.indexWhere(
-        (element) =>
-            element.conversation.id ==
-            selectedConversation.value!.id,
+        (element) => element.conversation.id == selectedConversation.value!.id,
       );
 
       if (index != -1) {
@@ -195,11 +196,37 @@ class ChatController extends GetxController {
   bool get canLoadMore =>
       _nextConversationCursor != null &&
       fetchConversationState.value != TheStates.loadingMore;
+  RxMap<String, List<ChatMessageReaction>> reactionMap =
+      <String, List<ChatMessageReaction>>{}.obs;
+  Future<void> fetchReactionsForMessages(List<ChatMessage> msgs) async {
+    try {
+      final messageIds = msgs.map((e) => e.msgId).toList();
+
+      final reactionsResult =
+          await ChatClient.getInstance.chatManager.fetchReactionList(
+        messageIds: messageIds,
+        chatType: ChatType.Chat,
+      );
+
+      for (final entry in reactionsResult.entries) {
+        final msgId = entry.key;
+        final reactions = entry.value;
+        if (reactions.isNotEmpty) {
+          reactionMap[msgId] = reactions;
+        }
+      }
+
+      print('✅ Reaction map updated');
+    } catch (e) {
+      print('❌ Failed to fetch reactions: $e');
+    }
+  }
 
   Rx<TheStates> loadingMessageState = TheStates.initial.obs;
   RxnString loadingMessageError = RxnString();
   Future<void> loadMessages() async {
     try {
+      reactionMap.clear();
       loadingMessageState.value = TheStates.loading;
 
       final result =
@@ -208,7 +235,12 @@ class ChatController extends GetxController {
         pageSize: messageQuantity,
       );
 
-      messages.value = result.data;
+      final loadedMessages = result.data;
+
+      // Optional: Fetch reactions for messages
+      await fetchReactionsForMessages(loadedMessages);
+
+      messages.value = loadedMessages;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToBottom();
       });
@@ -235,17 +267,18 @@ class ChatController extends GetxController {
         pageSize: messageQuantity,
         startMsgId: oldestMessage.msgId,
       );
-
-      if (result.data.isNotEmpty) {
+      final newMessages = result.data;
+      if (newMessages.isNotEmpty) {
         final currentOffset = chatScreenScrollController.offset;
 
         // Prepend older messages to the list
         messages.insertAll(0, result.data);
-
-        await Future.delayed(const Duration(milliseconds: 100)); // Wait for UI update
+        await fetchReactionsForMessages(newMessages);
+        await Future.delayed(
+            const Duration(milliseconds: 100),); // Wait for UI update
 
         // Calculate estimated height of newly inserted messages
-        final newContentHeight = _calculateNewContentHeight(result.data.length);
+        final newContentHeight = _calculateNewContentHeight(newMessages.length);
 
         // Maintain scroll offset to avoid jump
         chatScreenScrollController.jumpTo(currentOffset + newContentHeight);
@@ -376,6 +409,31 @@ class ChatController extends GetxController {
     // }
   }
 
+  Future<void> addReaction(String msgId, String reaction) async {
+    try {
+      await ChatClient.getInstance.chatManager.addReaction(
+        messageId: msgId,
+        reaction: reaction,
+      );
+      print('Reaction added');
+    } catch (e) {
+      print('Failed to add reaction: $e');
+    }
+  }
+
+  Future<void> removeReaction(String msgId, String reaction) async {
+    try {
+      await ChatClient.getInstance.chatManager.removeReaction(
+        messageId: msgId,
+        reaction: reaction,
+      );
+      reactionMap.remove(msgId);
+      print('Reaction removed');
+    } catch (e) {
+      print('Failed to remove reaction: $e');
+    }
+  }
+
   void _addListeners() {
     ChatClient.getInstance.chatManager.addMessageEvent(
       chatListenerId,
@@ -424,11 +482,11 @@ class ChatController extends GetxController {
   }
 
   Future<void> createGroupAndChat(
-      String groupName, List<String> members,) async {
+    String groupName,
+    List<String> members,
+  ) async {
     print('a');
-    final options = ChatGroupOptions(
-      
-    );
+    final options = ChatGroupOptions();
     final group = await ChatClient.getInstance.groupManager.createGroup(
       groupName: groupName,
       desc: r'Group chat: $groupName',

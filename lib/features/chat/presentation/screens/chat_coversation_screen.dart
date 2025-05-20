@@ -146,6 +146,9 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                             var chat = controller.messages[index - 1];
                             final isMe =
                                 chat.from == controller.currentUserId.value;
+                            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
+                            print(chat.toJson());
+                            print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>');
 
                             return ChatBubbleContainer(
                               message: switch (chat.body) {
@@ -188,8 +191,16 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                           .containsKey('remotePath')
                                   ? [chat.body.toJson()['remotePath']]
                                   : null,
-
-                              onLike: () {},
+                              isLiked: controller.reactionMap
+                                  .containsKey(chat.msgId),
+                              onLike: () {
+                                if (controller.reactionMap
+                                    .containsKey(chat.msgId)) {
+                                  controller.removeReaction(chat.msgId, '👍');
+                                } else {
+                                  controller.addReaction(chat.msgId, '👍');
+                                }
+                              },
                             );
                           },
                         ),
