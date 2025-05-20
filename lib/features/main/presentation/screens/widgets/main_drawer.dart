@@ -130,7 +130,7 @@ class MainDrawer extends GetView<MainController> {
                         Get.find<JournalEmotionNameController>()
                             .getJournalEmotionName();
 
-                        AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
+                        AppWidgetKey.journalScaffold.currentState?.openDrawer();
                         // } finally {
                         //   // This ensures the dialog is hidden even if an error occurs
                         //   AppUtils.hideLoadingDialog(context);

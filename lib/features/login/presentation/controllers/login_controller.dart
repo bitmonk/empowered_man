@@ -39,6 +39,7 @@ class LoginController extends GetxController {
 
   Future<bool> login() async {
     ProfileInitializer.initialize();
+    
     logginInState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final deviceidprint = await getUniqueDeviceId();

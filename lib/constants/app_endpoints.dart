@@ -49,6 +49,13 @@ class AppEndpoints {
   static const String getJournalLibrary = '/journals-library';
   static const String getSeeJournal = '/user-journals';
 
+  //Reflection Api
+  static const String getReflectionByType = '/reflections/type';
+  static const String postReflectionAnswer = '/reflection-answers';
+  static const String reflectionLibrary = '/reflections-library';
+  static const String getUserReflectionBulkDetail ='/user-reflections/details';
+  static const String deleteBulkReflection = '/user-reflections';
+
 }
 
 class ExternalEndpoints {}

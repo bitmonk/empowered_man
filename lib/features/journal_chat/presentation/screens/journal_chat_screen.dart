@@ -3,6 +3,7 @@ import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_library.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_input_field.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -25,14 +26,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
   late FocusNode focusNode;
   bool hasStartedJournaling = false;
-
-  // bool buttonPressed = false;
-  // String? currentMainQuestionId;
-  // String? currentFollowUpQuestionId;
+  bool _hasShownCompletionMessage = false;
   bool _isSendingMessage = false;
   bool _isKeyboardVisible = false;
   Map<String, String> _yesNoAnswers = {};
-
+  bool showCompletionMessage = false;
+  bool _isThinking = false;
   @override
   void initState() {
     super.initState();
@@ -42,6 +41,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.scrollToBottom();
       AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
+      final journalCompleted =
+          controller.journalWithQuestionsAndAnswers.value.data?.isCompleted ??
+              false;
+      if (journalCompleted && !_hasShownCompletionMessage) {
+        _handleJournalCompletion();
+      }
     });
   }
 
@@ -50,25 +55,23 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     controller.getJournalWithQuestionsAndAnswers();
   }
 
- void _onFocusChange() {
-  setState(() {
-    _isKeyboardVisible = focusNode.hasFocus;
-    if (_isKeyboardVisible) {
-      // Calculate the scroll position to move content above keyboard
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          final height = MediaQuery.of(context).viewInsets.bottom;
-          
-          controller.scrollController.animateTo(
-            controller.scrollController.position.maxScrollExtent + height,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeInOut,
-          );
-        }
-      });
-    }
-  });
-}
+  void _onFocusChange() {
+    setState(() {
+      _isKeyboardVisible = focusNode.hasFocus;
+      if (_isKeyboardVisible) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            final height = MediaQuery.of(context).viewInsets.bottom;
+            controller.scrollController.animateTo(
+              controller.scrollController.position.maxScrollExtent + height,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeInOut,
+            );
+          }
+        });
+      }
+    });
+  }
 
   void startJournaling() {
     setState(() {
@@ -81,7 +84,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   @override
   void dispose() {
     focusNode.removeListener(_onFocusChange);
-
     super.dispose();
   }
 
@@ -113,10 +115,11 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           message: mainQuestion.question!,
           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
           isMine: false,
+          isThinking: false,
         ),
       );
 
-      // If this main question is not answered, stop here - don't show next questions
+      // If this main question is not answered, stop here
       if (mainQuestion.answered != true) {
         stopAddingQuestions = true;
         break;
@@ -136,7 +139,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         ),
       );
 
-      // Process follow-up questions for this main question only if not stopped
+      // Process follow-up questions for this main question
       if (!stopAddingQuestions && mainQuestion.followUpQuestions != null) {
         for (var followUp in mainQuestion.followUpQuestions!) {
           // Add follow-up question
@@ -147,6 +150,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               timestamp: DateTime.now().toString(),
               isMine: false,
               isYesNoQuestion: followUp.questionType == 'yes_no',
+              isThinking: false,
             ),
           );
 
@@ -172,13 +176,61 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         }
       }
 
-      // If we've encountered an unanswered question, stop processing further main questions
       if (stopAddingQuestions) {
         break;
       }
     }
 
+    // Add thinking indicator if currently processing
+    if (_isThinking) {
+      print("Adding thinking indicator to message list");
+      items.add(
+        MessageItem(
+          type: MessageType.thinking,
+          message: '',
+          timestamp: DateTime.now().toString(),
+          isMine: false,
+          isThinking: true,
+        ),
+      );
+    }
+
+    // Check if all questions are answered for completion message
+    bool allQuestionsAnswered = true;
+    for (var mainQuestion in journal.mainQuestions!) {
+      if (mainQuestion.answered != true) {
+        allQuestionsAnswered = false;
+        break;
+      }
+
+      if (mainQuestion.followUpQuestions != null) {
+        for (var followUp in mainQuestion.followUpQuestions!) {
+          if (followUp.answered != true) {
+            allQuestionsAnswered = false;
+            break;
+          }
+        }
+        if (!allQuestionsAnswered) break;
+      }
+    }
+
+    if (allQuestionsAnswered && !showCompletionMessage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            showCompletionMessage = true;
+          });
+        }
+      });
+    }
+
     return items;
+  }
+
+  void navigateToLibrary() {
+    if (controller.journalWithQuestionsAndAnswers.value.data?.journal !=
+        null) {}
+    Get.back();
   }
 
   Map<String, String?> getNextQuestionIds(Journal? journal) {
@@ -186,9 +238,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
       return {'mainQuestionId': null, 'followUpQuestionId': null};
     }
 
-    // Look through main questions in order
     for (final mainQuestion in journal.mainQuestions!) {
-      // If the main question is not answered yet, return its ID
       if (mainQuestion.answered != true) {
         return {
           'mainQuestionId': mainQuestion.id?.toString(),
@@ -196,7 +246,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         };
       }
 
-      // If main question is answered, check its follow-up questions
       if (mainQuestion.followUpQuestions != null) {
         for (final followUpQuestion in mainQuestion.followUpQuestions!) {
           if (followUpQuestion.answered != true) {
@@ -207,57 +256,111 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           }
         }
       }
-
-      // At this point, the current main question and all its follow-ups are answered
-      // The loop will continue to the next main question
     }
 
-    // All questions (main and follow-up) are answered
     return {'mainQuestionId': null, 'followUpQuestionId': null};
   }
 
   Future<void> _handleYesNoSelection(String option, String questionId) async {
+    // Set thinking state immediately
     setState(() {
+      print('Setting thinking indicator to true for yes/no');
       _yesNoAnswers[questionId] = option;
       _isSendingMessage = true;
+      _isThinking = true;
+    });
+
+    // Force an immediate rebuild to show thinking indicator
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {}); // Force rebuild explicitly
+        controller.scrollToBottom();
+      }
     });
 
     try {
       final journal =
           controller.journalWithQuestionsAndAnswers.value.data?.journal;
-
-      // Get the main question ID and follow-up question ID
       final questionIds = getNextQuestionIds(journal);
       final mainQuestionId = questionIds['mainQuestionId'];
       final followupQuestionId = questionIds['followUpQuestionId'];
 
-      // Send the yes/no selection as a message
+      // Ensure the thinking indicator has time to display
+      await Future.delayed(const Duration(seconds: 3));
+
       await controller.sendMessage(
         journal?.id?.toString() ?? '',
-        null, // mediaPath
-        option, // Send "Yes" or "No" as the message text
+        null,
+        option,
         mainQuestionId,
         followupQuestionId,
       );
 
-      // Update the journal to reflect the new answer
+      // Add delay to show thinking animation
+      await Future.delayed(const Duration(seconds: 3));
       await controller.getJournalWithQuestionsAndAnswers();
 
-      // Automatically scroll to bottom after sending message
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        controller.autoScrollEnabled.value = true;
-        controller.scrollToBottom();
+        if (mounted) {
+          controller.autoScrollEnabled.value = true;
+          controller.scrollToBottom();
+        }
       });
+    } catch (e) {
+      print('Error in yes/no selection: $e');
     } finally {
       if (mounted) {
         setState(() {
+          print('Setting thinking indicator to false for yes/no');
           _isSendingMessage = false;
+          _isThinking = false;
         });
       }
     }
   }
 
-  /// Checks if a question is a yes/no type
+  void _handleJournalCompletion() {
+    if (!_hasShownCompletionMessage) {
+      _hasShownCompletionMessage = true;
+
+      Container(
+        padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        decoration: BoxDecoration(
+          color: Theme.of(context).cardColor,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.1),
+              blurRadius: 5,
+              offset: const Offset(0, -3),
+            ),
+          ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              'Journal Completed!',
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Redirecting to journal library...',
+              style: Theme.of(context).textTheme.bodyMedium,
+            ),
+          ],
+        ),
+      );
+
+      Future.delayed(const Duration(seconds: 5), () {
+        if (mounted) {
+          Get.to(JournalLibrary());
+        }
+      });
+    }
+  }
+
   bool isYesNoQuestionType(Journal? journal, String? followUpQuestionId) {
     if (journal == null ||
         journal.mainQuestions == null ||
@@ -265,7 +368,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
       return false;
     }
 
-    // Search through all main questions and their follow-ups to find the specific question
     for (final mainQuestion in journal.mainQuestions!) {
       if (mainQuestion.followUpQuestions != null) {
         final followUpQuestion = mainQuestion.followUpQuestions!
@@ -284,7 +386,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // Existing WillPopScope logic
         final isCompleted =
             controller.journalWithQuestionsAndAnswers.value.data?.isCompleted ??
                 false;
@@ -296,7 +397,10 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             useSafeArea: true,
             context: context,
             builder: (context) => JournalChatExitBottomsheet(
-              controller: controller,
+              message:
+                  'You can continue this journal from dashboard or journal library',
+
+              // controller: controller,
               onPressed: () {
                 Get.back();
               },
@@ -313,7 +417,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         resizeToAvoidBottomInset: true,
         appBar: CustomAppBar(
           onTap: () async {
-            // Existing AppBar onTap logic
             final isCompleted = controller
                     .journalWithQuestionsAndAnswers.value.data?.isCompleted ??
                 false;
@@ -325,7 +428,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                 useSafeArea: true,
                 context: context,
                 builder: (context) => JournalChatExitBottomsheet(
-                  controller: controller,
+                  message:
+                      'You can continue this journal from dashboard or journal library',
+                  // controller: controller,
                   onPressed: () {
                     Get.back();
                   },
@@ -338,12 +443,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           title: controller.selectedEmotion.value?.emotionName ?? '',
         ),
         body: KeyboardVisibilityBuilder(
-          builder: (context,isKeyboardVisible ) {
+          builder: (context, isKeyboardVisible) {
             if (isKeyboardVisible) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        controller.scrollToBottom();
-      });
-    }
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                controller.scrollToBottom();
+              });
+            }
             return SafeArea(
               child: Obx(
                 () => controller.journalChatConversationState.value.showWidget(
@@ -376,22 +481,24 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   child: LoadingWidget(),
                                 );
                               }
-            
-                              // Get the complete message list
+
+                              // Get the complete message list (this will include thinking indicator if active)
                               final items = buildCompleteMessageList(journal);
                               final questionIds = getNextQuestionIds(journal);
                               final followupQuestionId =
                                   questionIds['followUpQuestionId'];
+
                               return SingleChildScrollView(
                                 controller: controller.scrollController,
-                               
                                 child: Column(
                                   children: [
                                     ListView.builder(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       keyboardDismissBehavior:
-                                          ScrollViewKeyboardDismissBehavior.onDrag,
+                                          ScrollViewKeyboardDismissBehavior
+                                              .onDrag,
                                       padding: const EdgeInsets.symmetric(
                                         horizontal: 16,
                                       ),
@@ -405,6 +512,16 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                                 index < items.length - 1 &&
                                                 items[index + 1].type !=
                                                     MessageType.answer;
+                                        if (item.type == MessageType.thinking) {
+                                          return ChatBubbleContainer(
+                                            isJournal: true,
+                                            message: '',
+                                            isMine: false,
+                                            timeStamp: item.timestamp ?? '',
+                                            isThinking: true,
+                                            onLike: () {},
+                                          );
+                                        }
                                         final messageItem = MessageItem(
                                           type: item.type,
                                           message: item.message,
@@ -419,19 +536,22 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                           isYesNoQuestion: item.isYesNoQuestion,
                                           selectedOption: item.selectedOption,
                                           answered: item.answered,
+                                          isThinking: item.isThinking,
                                         );
-            
-                                        // Create the base message widget
-                                        Widget messageWidget = ChatBubbleContainer(
+
+                                        Widget messageWidget =
+                                            ChatBubbleContainer(
                                           isJournal: true,
                                           message: messageItem.message,
                                           isMine: messageItem.isMine,
-                                          timeStamp: messageItem.timestamp ?? '',
+                                          timeStamp:
+                                              messageItem.timestamp ?? '',
                                           onLike: () {},
                                           images: messageItem.images,
                                           videos: messageItem.videos,
                                           voices: messageItem.voices,
                                           isLoading: messageItem.isLoading,
+                                          isThinking: messageItem.isThinking,
                                           isYesNoQuestion:
                                               messageItem.isYesNoQuestion,
                                           selectedOption:
@@ -443,18 +563,20 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                                   option, followupQuestionId);
                                             }
                                           },
-                                          isAnswered: messageItem.isYesNoQuestion &&
-                                              item.type == MessageType.question &&
-                                              index < items.length - 1 &&
-                                              items[index + 1].type ==
-                                                  MessageType.answer,
+                                          isAnswered:
+                                              messageItem.isYesNoQuestion &&
+                                                  item.type ==
+                                                      MessageType.question &&
+                                                  index < items.length - 1 &&
+                                                  items[index + 1].type ==
+                                                      MessageType.answer,
                                         );
-            
-                                        // Add spacing between questions and their answers
+
                                         if (item.type == MessageType.question &&
                                             index < items.length - 1) {
                                           final nextItem = items[index + 1];
-                                          if (nextItem.type == MessageType.answer) {
+                                          if (nextItem.type ==
+                                              MessageType.answer) {
                                             messageWidget = Column(
                                               children: [
                                                 messageWidget,
@@ -463,11 +585,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             );
                                           }
                                         }
-            
+
                                         return messageWidget;
                                       },
                                     ),
-                                    if (controller.showBeginJournallButton.value)
+                                    if (controller
+                                        .showBeginJournallButton.value)
                                       Padding(
                                         padding: const EdgeInsets.only(
                                           top: 32,
@@ -485,6 +608,12 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                           },
                                         ),
                                       ),
+                                    // if (showCompletionMessage)
+                                    //   JournalCompletedWidget(
+                                    //     onContinuePressed: () {
+                                    //       navigateToLibrary();
+                                    //     },
+                                    //   ),
                                     const SizedBox(height: 60),
                                     const SizedBox(
                                       height: 1,
@@ -506,18 +635,19 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   ?.isCompleted ??
                               false;
                           final journal = controller
-                              .journalWithQuestionsAndAnswers.value.data?.journal;
-            
-                          // Get the next question IDs to be answered
+                              .journalWithQuestionsAndAnswers
+                              .value
+                              .data
+                              ?.journal;
+
                           final questionIds = getNextQuestionIds(journal);
                           final mainQuestionId = questionIds['mainQuestionId'];
                           final followupQuestionId =
                               questionIds['followUpQuestionId'];
-            
-                          // Check if the follow-up question is a yes/no type
+
                           final isYesNoQuestion =
                               isYesNoQuestionType(journal, followupQuestionId);
-            
+
                           if (!controller.showBeginJournallButton.value) {
                             if (journalCompleted == false &&
                                 isYesNoQuestion == false) {
@@ -527,34 +657,50 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                 mainQuestionId: mainQuestionId,
                                 followupQuestionId: followupQuestionId,
                                 onMessageSent: () async {
+                                  // Set thinking state immediately
                                   setState(() {
+                                    print(
+                                        'Setting thinking indicator to true for text input');
                                     _isSendingMessage = true;
+                                    _isThinking = true;
                                   });
-                                  // Force scroll to bottom whenever a message is sent
-                                  WidgetsBinding.instance.addPostFrameCallback((_) {
-                                    controller.autoScrollEnabled.value = true;
-                                    controller.scrollToBottom();
+
+                                  // Force immediate rebuild and scroll
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    if (mounted) {
+                                      setState(() {});
+                                      controller.autoScrollEnabled.value = true;
+                                      controller.scrollToBottom();
+                                    }
                                   });
+
                                   try {
-                                    // Add your message locally first to show with loading indicator
                                     await controller.sendMessage(
                                       journal?.id?.toString() ?? '',
-                                      null, // mediaPath
+                                      null,
                                       controller.chatController.text.trim(),
                                       mainQuestionId,
                                       followupQuestionId,
                                     );
-            
-                                    // Update the journal to reflect the new answer
+
+                                    // Add delay to show thinking animation
+                                    await Future.delayed(
+                                        const Duration(seconds: 3));
+
                                     await controller
                                         .getJournalWithQuestionsAndAnswers();
-            
-                                    // Refresh UI to display next question if applicable
+
                                     setState(() {});
+                                  } catch (e) {
+                                    print('Error sending message: $e');
                                   } finally {
                                     if (mounted) {
                                       setState(() {
+                                        print(
+                                            'Setting thinking indicator to false for text input');
                                         _isSendingMessage = false;
+                                        _isThinking = false;
                                       });
                                     }
                                   }
@@ -566,7 +712,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           } else {
                             return const SizedBox.shrink();
                           }
-                        })
+                        }),
                     ],
                   ),
                 ),
@@ -574,6 +720,65 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             );
           },
         ),
+      ),
+    );
+  }
+}
+
+class JournalCompletedWidget extends StatelessWidget {
+  final VoidCallback onContinuePressed;
+
+  const JournalCompletedWidget({
+    Key? key,
+    required this.onContinuePressed,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.bgContainer,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(
+            Icons.check_circle_outline,
+            color: AppColors.appGreen,
+            size: 48,
+          ),
+          const SizedBox(height: 16),
+          Text(
+            'Journal Entry Completed',
+            style: AppTextStyles.bodyLGMedium.copyWith(
+              color: AppColors.textColor100,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Text(
+            'You have completed all questions in this journal. Your responses have been saved successfully.',
+            textAlign: TextAlign.center,
+            style: AppTextStyles.textBodyB2.copyWith(
+              color: AppColors.textColor200,
+            ),
+          ),
+          const SizedBox(height: 24),
+          AppOutlinedButton(
+            text: 'Continue to Library',
+            onPressed: onContinuePressed,
+            width: double.infinity,
+          ),
+        ],
       ),
     );
   }

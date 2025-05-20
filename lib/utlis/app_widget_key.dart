@@ -6,6 +6,8 @@ class AppWidgetKey {
   static PersistentTabController bottomBarController =
       PersistentTabController();
   static final GlobalKey<ScaffoldState> mainScaffold = GlobalKey();
+    static final GlobalKey<ScaffoldState> journalScaffold = GlobalKey();
+
   static final GlobalKey<ScaffoldState> home = GlobalKey();
 
   static final GlobalKey<ScaffoldState> events = GlobalKey();

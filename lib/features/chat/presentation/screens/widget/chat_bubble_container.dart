@@ -1,7 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:empowered/features/chat/presentation/screens/widget/media_view_screens.dart';
+import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +32,8 @@ class ChatBubbleContainer extends StatefulWidget {
     this.selectedOption,
     this.onYesNoOptionSelected,
     this.isAnswered = false,
+    this.isThinking = false,
+    this.answerId,
   });
 
   final bool isMine;
@@ -45,12 +51,15 @@ class ChatBubbleContainer extends StatefulWidget {
   final String? selectedOption;
   final Function(String)? onYesNoOptionSelected;
   final bool isAnswered;
+  final bool isThinking;
+  final String? answerId;
 
   @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
 }
 
-class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
+class _ChatBubbleContainerState extends State<ChatBubbleContainer>
+    with TickerProviderStateMixin {
   bool isLiked = false; // Internal state for like
   VideoPlayerController? _videoController;
   ChewieController? _chewieController;
@@ -58,6 +67,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
   String? _selectedOption;
+  late List<AnimationController> _dotAnimationControllers;
+  late List<Animation<double>> _dotAnimations;
   @override
   void initState() {
     super.initState();
@@ -66,6 +77,31 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     isLiked = widget.isLiked;
     _initializeVideo();
     _initializeAudio();
+    _dotAnimationControllers = List.generate(
+      5,
+      (index) => AnimationController(
+        duration: const Duration(milliseconds: 600),
+        vsync: this,
+      ),
+    );
+
+    _dotAnimations = _dotAnimationControllers.map((controller) {
+      return Tween<double>(begin: 0.5, end: 1.0).animate(
+        CurvedAnimation(
+          parent: controller,
+          curve: Curves.easeInOut,
+        ),
+      );
+    }).toList();
+
+    // Start animations with a slight delay for a wave effect
+    for (int i = 0; i < _dotAnimationControllers.length; i++) {
+      Future.delayed(Duration(milliseconds: i * 200), () {
+        if (mounted) {
+          _dotAnimationControllers[i].repeat(reverse: true);
+        }
+      });
+    }
   }
 
   Future<void> _initializeAudio() async {
@@ -168,52 +204,59 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
       );
     }
   }
-  // Widget _buildYesNoQuestion() {
-  //   return Container(
-  //     padding: const EdgeInsets.all(10),
-  //     decoration: BoxDecoration(
-  //       border: Border.all(color: AppColors.bgBorder),
-  //       color: AppColors.bgMedium,
-  //       borderRadius: BorderRadius.circular(16),
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.stretch,
-  //       children: [
-  //         HtmlWidget(
-  //           widget.message,
-  //           textStyle: AppTextStyles.textBodyB2,
-  //         ),
-  //         const SizedBox(height: 16),
-  //         // Only show options if the question hasn't been answered yet
-  //         if (!widget.isAnswered) // Add this property to ChatBubbleContainer
-  //           Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
-  //                 _handleYesNoSelection('Yes');
-  //               }),
-  //               const SizedBox(height: 12),
-  //               _buildYesNoOption('No', _selectedOption == 'No', () {
-  //                 _handleYesNoSelection('No');
-  //               }),
-  //             ],
-  //           ),
-  //         // If it's been answered, show the selected option as text
-  //         if (widget.isAnswered && _selectedOption != null)
-  //           Padding(
-  //             padding: const EdgeInsets.only(top: 8),
-  //             child: Text(
-  //               'Selected: $_selectedOption',
-  //               style: AppTextStyles.textBodyB2.copyWith(
-  //                 fontWeight: FontWeight.w500,
-  //                 color: AppColors.primary500,
-  //               ),
-  //             ),
-  //           ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
+  Widget _buildThinkingIndicator() {
+    return Container(
+      margin: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: AppColors.bgBorder,
+        ),
+        color: AppColors.bgMedium,
+        borderRadius: const BorderRadius.only(
+          bottomRight: Radius.circular(14),
+          topLeft: Radius.zero,
+          bottomLeft: Radius.circular(14),
+          topRight: Radius.circular(14),
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Text(
+          //   'AI is thinking',
+          //   style: AppTextStyles.textBodyB2.copyWith(
+          //     color: AppColors.textColor300,
+          //     fontStyle: FontStyle.italic,
+          //   ),
+          // ),
+          // const SizedBox(width: 8),
+          Row(
+            children: List.generate(5, (index) {
+              return AnimatedBuilder(
+                animation: _dotAnimationControllers[index],
+                builder: (context, child) {
+                  return Transform.scale(
+                    scale: _dotAnimations[index].value,
+                    child: Container(
+                      margin: const EdgeInsets.symmetric(horizontal: 2),
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: AppColors.textColor300,
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                  );
+                },
+              );
+            }),
+          ),
+        ],
+      ),
+    );
+  }
 
   Widget _buildYesNoOption(String text, bool isSelected, Function() onTap) {
     return InkWell(
@@ -258,7 +301,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     _videoController?.dispose();
     _chewieController?.dispose();
     _audioPlayer.dispose();
-
+    for (var controller in _dotAnimationControllers) {
+      controller.dispose();
+    }
     super.dispose();
   }
 
@@ -345,9 +390,21 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                       const HorizontalSpacing(16),
                       InkWell(
                         onTap: () {
-                          Get.find<ChatController>().chatController.text =
-                              widget.message;
+                          final controller =
+                              Get.find<ReflectionJournalChatController>();
+
+                          // Set the message in the chat controller's text field
+                          controller.chatController.text = widget.message;
+
+                          // Set the controller's editMode to true and store the answerId
+                          if (widget.answerId != null) {
+                            controller.setEditMode(true, widget.answerId!);
+                          }
+
                           Navigator.pop(context);
+                          // Get.find<ChatController>().chatController.text =
+                          //     widget.message;
+                          // Navigator.pop(context);
                         },
                         child: Assets.images.chatEdit.svg(width: 20),
                       ),
@@ -364,223 +421,267 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
 
   @override
   Widget build(BuildContext context) {
-    // final displayMessage = _extractTextFromHtml(widget.message);
-    final formattedTimestamp = _formatTimestamp(widget.timeStamp);
-
-    return Align(
-      alignment: widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment:
-            widget.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          const VerticalSpacing(16),
-          GestureDetector(
-            onLongPressStart: (details) {
-              _showPopupMenu(context, details.globalPosition);
-            },
-            child: Row(
-              mainAxisAlignment: widget.isMine
-                  ? MainAxisAlignment.end
-                  : MainAxisAlignment.start,
+    if (widget.isThinking) {
+      print(
+          '::::::::::::::::::::::::::::::::::::::::::::::::Building thinking indicator');
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const VerticalSpacing(16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                if (!widget.isMine)
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ClipOval(
-                      child: widget.isAnotherUser
-                          ? Assets.images.chatUserPic
-                              .image(height: 25, width: 25)
-                          : widget.isJournal
-                              ? Assets.images.appIcon
-                                  .image(height: 25, width: 25)
-                              : Assets.images.chatUserPicTwo
-                                  .image(height: 25, width: 25),
-                    ),
+                // Profile picture for AI
+                Padding(
+                  padding: const EdgeInsets.only(right: 8),
+                  child: ClipOval(
+                    child: widget.isJournal
+                        ? Assets.images.appIcon.image(height: 25, width: 25)
+                        : Assets.images.chatUserPicTwo
+                            .image(height: 25, width: 25),
                   ),
+                ),
                 Flexible(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        clipBehavior: Clip.none,
-                        children: [
-                          if (widget.message.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.all(4),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: !widget.isMine
-                                      ? AppColors.bgBorder
-                                      : Colors.transparent,
-                                ),
-                                color: widget.isMine
-                                    ? AppColors.primary500
-                                    : AppColors.bgMedium,
-                                borderRadius: BorderRadius.only(
-                                  bottomRight: const Radius.circular(14),
-                                  topLeft: !widget.isMine
-                                      ? Radius.zero
-                                      : const Radius.circular(14),
-                                  bottomLeft: const Radius.circular(14),
-                                  topRight: widget.isMine
-                                      ? Radius.zero
-                                      : const Radius.circular(14),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (widget.isYesNoQuestion)
-                                    _buildYesNoQuestion()
-                                  else
-                                    HtmlWidget(
-                                      //  shrinkWrap: true,
-                                      widget.message,
-                                      textStyle: AppTextStyles.textBodyB2,
-                                    ),
-                                ],
-                              ),
-                            ),
-                          Column(
-                            children: [
-                              if (widget.images != null &&
-                                  widget.images!.isNotEmpty)
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullscreenImageView(
-                                          imagePath: widget.images!.first,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: widget.images!.map((url) {
-                                      return Container(
-                                        width: 150,
-                                        height: 150,
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          color: Colors.black,
-                                        ),
-                                        child: Image.network(
-                                          url,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null) {
-                                              return child;
-                                            }
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const ColoredBox(
-                                            color: Colors.black,
-                                            child: Icon(
-                                              Icons.broken_image,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              if (widget.videos != null &&
-                                  widget.videos!.isNotEmpty)
-                                _buildVideoPreview(),
-                              if (widget.voices != null &&
-                                  widget.voices!.isNotEmpty)
-                                CustomAudioPlayer(
-                                  url: widget.voices!
-                                      .first, // your audio file URL or path
-                                  isMine: widget.isMine,
-                                ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                          if (widget.isLoading)
-                            Positioned(
-                              bottom: -10,
-                              right: widget.isMine ? -10 : null,
-                              left: widget.isMine ? null : -10,
-                              child: SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    widget.isMine
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.grey[600]!,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          if (isLiked)
-                            Positioned(
-                              right: -10,
-                              bottom: -10,
-                              child:
-                                  Assets.images.chatBubbleLike.image(width: 32),
-                            ),
-                        ],
-                      ),
+                      _buildThinkingIndicator(),
                       Text(
-                        formattedTimestamp,
+                        _formatTimestamp(widget.timeStamp),
                         style: AppTextStyles.textCaptionC2,
                       ),
                     ],
                   ),
                 ),
-                if (widget.isMine)
-                  Padding(
-                    padding: const EdgeInsets.only(left: 8),
-                    child: ClipOval(
-                      child: AppCachedImage(
-                              width: 25,
-                              height: 25,
-                              fit: BoxFit.cover,
-                              errorWid: const Icon(Icons.person),
-                              imgUrl: Get.find<ProfileController>()
-                                      .userProfile
-                                      .value
-                                      .image ??
-                                  '',
-                            ),
-                    ),
-                  ),
               ],
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    } else {
+      final formattedTimestamp = _formatTimestamp(widget.timeStamp);
+
+      return Align(
+        alignment: widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
+        child: Column(
+          crossAxisAlignment:
+              widget.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            const VerticalSpacing(16),
+            GestureDetector(
+              onLongPressStart: (details) {
+                _showPopupMenu(context, details.globalPosition);
+              },
+              child: Row(
+                mainAxisAlignment: widget.isMine
+                    ? MainAxisAlignment.end
+                    : MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (!widget.isMine)
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8),
+                      child: ClipOval(
+                        child: widget.isAnotherUser
+                            ? Assets.images.chatUserPic
+                                .image(height: 25, width: 25)
+                            : widget.isJournal
+                                ? Assets.images.appIcon
+                                    .image(height: 25, width: 25)
+                                : Assets.images.chatUserPicTwo
+                                    .image(height: 25, width: 25),
+                      ),
+                    ),
+                  Flexible(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Stack(
+                          alignment: Alignment.bottomRight,
+                          clipBehavior: Clip.none,
+                          children: [
+                            if (widget.message.isNotEmpty)
+                              Container(
+                                margin: const EdgeInsets.all(4),
+                                padding: const EdgeInsets.all(10),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: !widget.isMine
+                                        ? AppColors.bgBorder
+                                        : Colors.transparent,
+                                  ),
+                                  color: widget.isMine
+                                      ? AppColors.primary500
+                                      : AppColors.bgMedium,
+                                  borderRadius: BorderRadius.only(
+                                    bottomRight: const Radius.circular(14),
+                                    topLeft: !widget.isMine
+                                        ? Radius.zero
+                                        : const Radius.circular(14),
+                                    bottomLeft: const Radius.circular(14),
+                                    topRight: widget.isMine
+                                        ? Radius.zero
+                                        : const Radius.circular(14),
+                                  ),
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    if (widget.isYesNoQuestion)
+                                      _buildYesNoQuestion()
+                                    else
+                                      HtmlWidget(
+                                        //  shrinkWrap: true,
+                                        widget.message,
+                                        textStyle: AppTextStyles.textBodyB2,
+                                      ),
+                                  ],
+                                ),
+                              ),
+                            Column(
+                              children: [
+                                if (widget.images != null &&
+                                    widget.images!.isNotEmpty)
+                                  InkWell(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              FullscreenImageView(
+                                            imagePath: widget.images!.first,
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                    child: Wrap(
+                                      spacing: 8,
+                                      runSpacing: 8,
+                                      children: widget.images!.map((url) {
+                                        return Container(
+                                          width: 150,
+                                          height: 150,
+                                          clipBehavior: Clip.antiAlias,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            color: Colors.black,
+                                          ),
+                                          child: Image.network(
+                                            url,
+                                            fit: BoxFit.cover,
+                                            loadingBuilder: (
+                                              context,
+                                              child,
+                                              loadingProgress,
+                                            ) {
+                                              if (loadingProgress == null) {
+                                                return child;
+                                              }
+                                              return Center(
+                                                child:
+                                                    CircularProgressIndicator(
+                                                  value: loadingProgress
+                                                              .expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                              .cumulativeBytesLoaded /
+                                                          loadingProgress
+                                                              .expectedTotalBytes!
+                                                      : null,
+                                                ),
+                                              );
+                                            },
+                                            errorBuilder:
+                                                (context, error, stackTrace) =>
+                                                    const ColoredBox(
+                                              color: Colors.black,
+                                              child: Icon(
+                                                Icons.broken_image,
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                        );
+                                      }).toList(),
+                                    ),
+                                  ),
+                                if (widget.videos != null &&
+                                    widget.videos!.isNotEmpty)
+                                  _buildVideoPreview(),
+                                if (widget.voices != null &&
+                                    widget.voices!.isNotEmpty)
+                                  CustomAudioPlayer(
+                                    url: widget.voices!
+                                        .first, // your audio file URL or path
+                                    isMine: widget.isMine,
+                                  ),
+                                const SizedBox(height: 8),
+                              ],
+                            ),
+                            if (widget
+                                .isLoading) // Use widget.isLoading directly
+                              Positioned(
+                                bottom: -10,
+                                right: widget.isMine ? -10 : null,
+                                left: widget.isMine ? null : -10,
+                                child: SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      widget.isMine
+                                          ? Theme.of(context).primaryColor
+                                          : Colors.grey[600]!,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            if (isLiked)
+                              Positioned(
+                                right: -10,
+                                bottom: -10,
+                                child: Assets.images.chatBubbleLike
+                                    .image(width: 32),
+                              ),
+                          ],
+                        ),
+                        Text(
+                          formattedTimestamp,
+                          style: AppTextStyles.textCaptionC2,
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (widget.isMine)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8),
+                      child: ClipOval(
+                        child: AppCachedImage(
+                          width: 25,
+                          height: 25,
+                          fit: BoxFit.cover,
+                          errorWid: const Icon(Icons.person),
+                          imgUrl: Get.find<ProfileController>()
+                                  .userProfile
+                                  .value
+                                  .image ??
+                              '',
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    // final displayMessage = _extractTextFromHtml(widget.message);
   }
 
   Widget _buildVideoPreview() {
@@ -647,250 +748,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class FullscreenImageView extends StatelessWidget {
-  const FullscreenImageView({
-    required this.imagePath,
-    super.key,
-    this.color = Colors.grey,
-  });
-  final String imagePath;
-  final Color? color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: color,
-      body: Stack(
-        children: [
-          PhotoViewGallery.builder(
-            itemCount: 1,
-            builder: (context, index) {
-              return PhotoViewGalleryPageOptions(
-                imageProvider: NetworkImage(imagePath),
-                minScale: PhotoViewComputedScale.contained,
-                maxScale: PhotoViewComputedScale.covered * 3, // Zoom up to 3x
-                heroAttributes: PhotoViewHeroAttributes(tag: imagePath),
-              );
-            },
-            scrollPhysics: const BouncingScrollPhysics(),
-            backgroundDecoration: const BoxDecoration(color: Colors.grey),
-          ),
-          Positioned(
-            top: MediaQuery.of(context).padding.top + 16,
-            right: 16,
-            child: GestureDetector(
-              onTap: () => Navigator.pop(context),
-              child: const CircleAvatar(
-                backgroundColor: Colors.white,
-                child: Icon(Icons.close, color: Colors.black),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class FullscreenVideoView extends StatefulWidget {
-  const FullscreenVideoView({required this.videoPath, super.key});
-  final String videoPath;
-
-  @override
-  State<FullscreenVideoView> createState() => _FullscreenVideoViewState();
-}
-
-class _FullscreenVideoViewState extends State<FullscreenVideoView> {
-  late VideoPlayerController _videoPlayerController;
-  ChewieController? _chewieController;
-  bool _isInitialized = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _initializeVideo();
-  }
-
-  Future<void> _initializeVideo() async {
-    try {
-      _videoPlayerController =
-          VideoPlayerController.networkUrl(Uri.parse(widget.videoPath));
-      await _videoPlayerController.initialize();
-
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: true,
-        aspectRatio: _videoPlayerController.value.aspectRatio,
-      );
-
-      if (mounted) {
-        setState(() {
-          _isInitialized = true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error initializing fullscreen video: $e');
-    }
-  }
-
-  @override
-  void dispose() {
-    _videoPlayerController.dispose();
-    _chewieController?.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      body: SafeArea(
-        child: Center(
-          child: _isInitialized && _chewieController != null
-              ? Chewie(controller: _chewieController!)
-              : const LoadingWidget(),
-        ),
-      ),
-    );
-  }
-}
-
-class CustomAudioPlayer extends StatefulWidget {
-  const CustomAudioPlayer({
-    required this.url,
-    super.key,
-    this.isMine = false,
-  });
-  final String url;
-  final bool isMine;
-
-  @override
-  State<CustomAudioPlayer> createState() => _CustomAudioPlayerState();
-}
-
-class _CustomAudioPlayerState extends State<CustomAudioPlayer> {
-  late AudioPlayer _audioPlayer;
-
-  @override
-  void initState() {
-    super.initState();
-    _audioPlayer = AudioPlayer()..setUrl(widget.url);
-  }
-
-  @override
-  void dispose() {
-    _audioPlayer.dispose();
-    super.dispose();
-  }
-
-  Widget _buildControls() {
-    return StreamBuilder<PlayerState>(
-      stream: _audioPlayer.playerStateStream,
-      builder: (context, snapshot) {
-        final playerState = snapshot.data;
-        final processingState = playerState?.processingState;
-        final playing = playerState?.playing;
-
-        if (processingState == ProcessingState.loading ||
-            processingState == ProcessingState.buffering) {
-          return const Padding(
-            padding: EdgeInsets.all(8),
-            child: SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                color: Colors.white,
-              ),
-            ),
-          );
-        } else if (playing != true) {
-          return IconButton(
-            icon: const Icon(
-              Icons.play_arrow,
-              color: AppColors.white,
-            ),
-            iconSize: 32,
-            onPressed: _audioPlayer.play,
-          );
-        } else if (processingState != ProcessingState.completed) {
-          return IconButton(
-            icon: const Icon(
-              Icons.pause,
-              color: AppColors.white,
-            ),
-            iconSize: 32,
-            onPressed: _audioPlayer.pause,
-          );
-        } else {
-          return IconButton(
-            icon: const Icon(
-              Icons.replay,
-              color: AppColors.white,
-            ),
-            iconSize: 32,
-            onPressed: () => _audioPlayer.seek(Duration.zero),
-          );
-        }
-      },
-    );
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: [
-        Container(
-          width: 200,
-          // padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
-          decoration: BoxDecoration(
-            color: widget.isMine ? AppColors.primary500 : Colors.grey[200],
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildControls(),
-              const SizedBox(width: 4),
-              Expanded(
-                child: StreamBuilder<Duration>(
-                  stream: _audioPlayer.positionStream,
-                  builder: (context, snapshot) {
-                    final position = snapshot.data ?? Duration.zero;
-                    return StreamBuilder<Duration?>(
-                      stream: _audioPlayer.durationStream,
-                      builder: (context, snapshot) {
-                        final total = snapshot.data ?? Duration.zero;
-                        return ProgressBar(
-                          progress: position,
-                          total: total,
-                          onSeek: _audioPlayer.seek,
-                          timeLabelTextStyle: const TextStyle(fontSize: 12),
-                          baseBarColor: Colors.grey[400],
-                          progressBarColor: Colors.white,
-                          thumbColor: Colors.white,
-                        );
-                      },
-                    );
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              const Icon(
-                Icons.volume_up,
-                color: AppColors.baseWhite,
-              ),
-              const SizedBox(width: 8),
-            ],
-          ),
-        ),
-      ],
     );
   }
 }

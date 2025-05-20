@@ -12,6 +12,8 @@ class MessageItem {
     this.selectedOption,
     this.questionId,
     this.answered = false,
+    this.isThinking = false,
+    this.answerId,
   });
   final MessageType type;
   final String message;
@@ -25,6 +27,8 @@ class MessageItem {
   final String? selectedOption;
   final String? questionId;
   final bool answered;
+  final bool isThinking;
+  final String? answerId;
 }
 
-enum MessageType { question, answer, option }
+enum MessageType { question, answer, option, thinking }

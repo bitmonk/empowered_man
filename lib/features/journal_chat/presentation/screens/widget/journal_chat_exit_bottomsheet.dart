@@ -1,13 +1,14 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 
 class JournalChatExitBottomsheet extends StatelessWidget {
   const JournalChatExitBottomsheet({
-    required this.controller,
+    required this.message,
+ //   required this.controller,
     super.key,
     this.onPressed,
   });
-  final JournalChatController controller;
+  final String message;
+ // final JournalChatController controller;
   final Function()? onPressed;
   @override
   Widget build(BuildContext context) {
@@ -49,7 +50,7 @@ class JournalChatExitBottomsheet extends StatelessWidget {
             const VerticalSpacing(20),
             Text(
               textAlign: TextAlign.center,
-              'You can continue this journal from dashboard or journal library',
+              message,
               style: AppTextStyles.titleMd.copyWith(
                 fontWeight: FontWeight.w400,
                 fontSize: 16,
@@ -64,7 +65,7 @@ class JournalChatExitBottomsheet extends StatelessWidget {
               onPressed: () {
                 onPressed?.call();
                 Navigator.pop(context);
-                AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
+                AppWidgetKey.journalScaffold.currentState?.openDrawer();
               },
             ),
             const VerticalSpacing(16),

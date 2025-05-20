@@ -1,33 +1,26 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
-import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
-import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:empowered/features/home/data/model/see_user_reflection_response_model.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
+import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
-class JournalSummaryDialog extends StatefulWidget {
-  const JournalSummaryDialog({required this.userJournal, super.key});
-  final List<SeeUserJournal>? userJournal;
+class ReflectionSummaryDialog extends StatefulWidget {
+  const ReflectionSummaryDialog({required this.userReflection, super.key});
+  final List<SeeUserReflection>? userReflection;
 
   @override
-  State<JournalSummaryDialog> createState() => _JournalSummaryDialogState();
+  State<ReflectionSummaryDialog> createState() =>
+      _ReflectionSummaryDialogState();
 }
 
-class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
-  @override
-  void initState() {
-    super.initState();
-    print(
-      'Journal Summary Dialog initialized with user journal: >>>>>>>>>>>>${widget.userJournal}',
-    );
-  }
-
+class _ReflectionSummaryDialogState extends State<ReflectionSummaryDialog> {
   final PageController _pageController = PageController();
-  int _currentJournalIndex = 0;
-
-  void _nextJournal() {
-    if (_currentJournalIndex < (widget.userJournal?.length ?? 0) - 1) {
+  int _currentReflectionIndex = 0;
+  void _nextReflection() {
+    if (_currentReflectionIndex < (widget.userReflection?.length ?? 0) - 1) {
       setState(() {
-        _currentJournalIndex++;
+        _currentReflectionIndex++;
       });
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
@@ -36,10 +29,10 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
     }
   }
 
-  void _previousJournal() {
-    if (_currentJournalIndex > 0) {
+  void _previousReflection() {
+    if (_currentReflectionIndex > 0) {
       setState(() {
-        _currentJournalIndex--;
+        _currentReflectionIndex--;
       });
       _pageController.previousPage(
         duration: const Duration(milliseconds: 300),
@@ -58,23 +51,23 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
     }
   }
 
-  Future<void> _shareJournal() async {
+  Future<void> _shareReflection() async {
     try {
-      if (widget.userJournal == null || widget.userJournal!.isEmpty) {
-        // Show error if no journal data available
+      if (widget.userReflection == null || widget.userReflection!.isEmpty) {
+        // Show error if no Reflection data available
         AppUtils.showErrorSnackbar(
-          message: 'No journal data available for sharing',
+          message: 'No Reflection data available for sharing',
         );
         return;
       }
 
-      // Create a list of journal IDs to export
-      final journalIds =
-          widget.userJournal!.map((journal) => journal.id.toString()).toList();
+      // Create a list of Reflection IDs to export
+      final reflectionIds =
+          widget.userReflection!.map((reflection) => reflection.id.toString()).toList();
 
-      if (journalIds.isEmpty) {
+      if (reflectionIds.isEmpty) {
         AppUtils.showErrorSnackbar(
-          message: 'No valid journals found for export',
+          message: 'No valid reflections found for export',
         );
         return;
       }
@@ -83,18 +76,18 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
       var formattedData = '';
       var fromToDate = '';
 
-      // Format journal data for PDF
-      if (widget.userJournal!.isNotEmpty) {
-        // Format data based on journal questions and answers
-        formattedData = _formatJournalDataForPdf();
+      // Format reflection data for PDF
+      if (widget.userReflection!.isNotEmpty) {
+        // Format data based on Reflection questions and answers
+        formattedData = _formatReflectionDataForPdf();
 
         // Generate date range for PDF header
-        if (widget.userJournal!.length == 1 &&
-            widget.userJournal!.first.createdAt != null) {
-          fromToDate = widget.userJournal!.first.createdAt!;
+        if (widget.userReflection!.length == 1 &&
+            widget.userReflection!.first.createdAt != null) {
+          fromToDate = widget.userReflection!.first.createdAt!.toString();
         } else {
           // Find oldest and newest entries
-          final dates = widget.userJournal!
+          final dates = widget.userReflection!
               .where((j) => j.createdAt != null)
               .map((j) => j.createdAt!)
               .toList();
@@ -103,7 +96,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
             dates.sort();
             fromToDate = '${dates.first} - ${dates.last}';
           } else {
-            fromToDate = 'Journal Export';
+            fromToDate = 'Reflection Export';
           }
         }
       }
@@ -116,23 +109,23 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
         shouldShare: true, // Enable sharing
       );
     } catch (e) {
-      print('Error sharing journals to PDF: $e');
-      AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
+      print('Error sharing Reflections to PDF: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to share Reflections: $e');
     }
   }
 
-  String _formatJournalDataForPdf() {
+  String _formatReflectionDataForPdf() {
     final buffer = StringBuffer();
 
-    for (final journal in widget.userJournal!) {
-      // Add journal emotion/title
+    for (final reflection in widget.userReflection!) {
+      // Add Reflection emotion/title
       buffer
-        ..writeln(journal.journal?.emotionName ?? 'Untitled Journal')
+        ..writeln(reflection.reflection?.emotionName ?? 'Untitled Reflection')
         ..writeln('-------------------------------------------');
 
-      final journalAnswers = journal.journalAnswers;
-      if (journalAnswers != null && journalAnswers.isNotEmpty) {
-        for (final answer in journalAnswers) {
+      final reflectionAnswers = reflection.reflectionAnswers;
+      if (reflectionAnswers != null && reflectionAnswers.isNotEmpty) {
+        for (final answer in reflectionAnswers) {
           // Add main question and answer
           if (answer.mainQuestion != null) {
             buffer
@@ -152,7 +145,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
           }
         }
       } else {
-        buffer.writeln('No answers available for this journal.');
+        buffer.writeln('No answers available for this Reflection.');
       }
 
       buffer.writeln('\n\n');
@@ -163,15 +156,14 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.userJournal == null || widget.userJournal!.isEmpty) {
+    if (widget.userReflection == null || widget.userReflection!.isEmpty) {
       return const Center(
         child: Text(
-          'No journal data available',
+          'No Reflection data available',
           style: TextStyle(color: Colors.white),
         ),
       );
     }
-
     return SafeArea(
       child: Dialog(
         backgroundColor: Colors.transparent,
@@ -186,15 +178,15 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Top Bar with Journal Title
+              // Top Bar with Reflection Title
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Flexible(
                     child: Text(
-                      widget.userJournal?[_currentJournalIndex].journal
+                      widget.userReflection?[_currentReflectionIndex].reflection
                               ?.emotionName ??
-                          'Journal Summary',
+                          'Reflection Summary',
                       style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
@@ -216,13 +208,12 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                 alignment: Alignment.centerRight,
                 child: Text(
                   formatDateTime(
-                    widget.userJournal?[_currentJournalIndex].createdAt,
+                    widget.userReflection?[_currentReflectionIndex].createdAt.toString(),
                   ),
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 14,
                   ),
-                  
                 ),
               ),
               // Navigation Controls
@@ -230,18 +221,18 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   TextButton(
-                    onPressed: _previousJournal,
+                    onPressed: _previousReflection,
                     child: const Text(
                       'Previous',
                       style: TextStyle(color: Colors.white),
                     ),
                   ),
                   Text(
-                    'Journal ${_currentJournalIndex + 1} of ${widget.userJournal?.length}',
+                    'Reflection ${_currentReflectionIndex + 1} of ${widget.userReflection?.length}',
                     style: const TextStyle(color: Colors.white70),
                   ),
                   TextButton(
-                    onPressed: _nextJournal,
+                    onPressed: _nextReflection,
                     child: const Text(
                       'Next',
                       style: TextStyle(color: Colors.white),
@@ -251,20 +242,23 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
               ),
               const SizedBox(height: 12),
 
-              // Scrollable Content for Journal Entries
+              // Scrollable Content for Reflection Entries
               Expanded(
                 child: PageView.builder(
                   controller: _pageController,
-                  itemCount: widget.userJournal?.length ?? 0,
+                  itemCount: widget.userReflection?.length ?? 0,
                   physics: const NeverScrollableScrollPhysics(),
                   onPageChanged: (index) {
-                    setState(() => _currentJournalIndex = index);
+                    setState(() => _currentReflectionIndex = index);
                   },
-                  itemBuilder: (context, journalIndex) {
-                    final currentJournal = widget.userJournal![journalIndex];
-                    final journalAnswers = currentJournal.journalAnswers;
+                  itemBuilder: (context, reflectionIndex) {
+                    final currentReflection =
+                        widget.userReflection![reflectionIndex];
+                    final reflectionAnswers =
+                        currentReflection.reflectionAnswers;
 
-                    if (journalAnswers == null || journalAnswers.isEmpty) {
+                    if (reflectionAnswers == null ||
+                        reflectionAnswers.isEmpty) {
                       return Container(
                         decoration: BoxDecoration(
                           color: const Color(0xFF1B263B),
@@ -279,7 +273,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                       );
                     }
 
-                    // Display all questions and answers for the current journal
+                    // Display all questions and answers for the current Reflection
                     return Container(
                       decoration: BoxDecoration(
                         color: const Color(0xFF1B263B),
@@ -292,13 +286,14 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               // Show all main questions and their answers
-                              for (final journalAnswer in journalAnswers) ...[
-                                if (journalAnswer.mainQuestion != null) ...[
+                              for (final reflectionAnswer
+                                  in reflectionAnswers) ...[
+                                if (reflectionAnswer.mainQuestion != null) ...[
                                   JournalSection(
-                                    title:
-                                        journalAnswer.mainQuestion!.question ??
-                                            'Question',
-                                    content: journalAnswer.text ??
+                                    title: reflectionAnswer
+                                            .mainQuestion!.question ??
+                                        'Question',
+                                    content: reflectionAnswer.text ??
                                         'No answer provided',
                                     isQuestion: true,
                                   ),
@@ -306,12 +301,13 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                                 ],
 
                                 // Show follow-up questions if they exist
-                                if (journalAnswer.followUpQuestion != null) ...[
+                                if (reflectionAnswer.followUpQuestion !=
+                                    null) ...[
                                   JournalSection(
-                                    title: journalAnswer
+                                    title: reflectionAnswer
                                             .followUpQuestion!.question ??
                                         'Follow-up Question',
-                                    content: journalAnswer.text ??
+                                    content: reflectionAnswer.text ??
                                         'No answer provided',
                                     isQuestion: true,
                                   ),
@@ -362,7 +358,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
                     ),
                   ),
                   onPressed: () {
-                    _shareJournal();
+                    _shareReflection();
                   },
                   child: const Text('Share'),
                 ),
@@ -371,76 +367,6 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class JournalSection extends StatelessWidget {
-  const JournalSection({
-    required this.title,
-    required this.content,
-    this.isQuestion = false,
-    super.key,
-  });
-
-  final String title;
-  final String content;
-  final bool isQuestion;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        // Question title with icon
-        Row(
-          children: [
-            if (isQuestion)
-              // const Padding(
-              //   padding: EdgeInsets.only(right: 6),
-              //   child: Icon(Icons.help_outline, color: Colors.white, size: 16),
-              // ),
-              Expanded(
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 4),
-        HtmlWidget(
-          content,
-          textStyle: const TextStyle(
-            color: Colors.white70,
-            fontSize: 14,
-          ),
-        ),
-        // Answer container
-        // Container(
-        //   width: double.infinity,
-        //   padding: const EdgeInsets.all(12),
-        //   decoration: BoxDecoration(
-        //     color: const Color(0xFF2A3950),
-        //     borderRadius: BorderRadius.circular(8),
-        //     border: Border.all(
-        //       color: Colors.blueAccent.withOpacity(0.3),
-        //       width: 1,
-        //     ),
-        //   ),
-        //   child: Text(
-        //     content,
-        //     style: const TextStyle(
-        //       color: Colors.white,
-        //       fontSize: 14,
-        //     ),
-        //   ),
-        // ),
-      ],
     );
   }
 }

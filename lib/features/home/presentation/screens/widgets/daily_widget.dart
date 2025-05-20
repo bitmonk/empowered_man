@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/home/presentation/screens/am_pm_journal_screen.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/habits_container.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_journal_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/important_tasks_widget.dart';
@@ -12,16 +13,30 @@ class DailyWidget extends StatelessWidget {
     return SingleChildScrollView(
       child: Column(
         children: [
-          HomeJournalWidget(
-            image: Assets.images.stickynote.path,
-            title: 'AM Journal',
-            decription: 'You have not completed your AM journal today.',
+          GestureDetector(
+            onTap: () {
+              Get.to(AmPmJournalScreen(
+                reflectionType: "am",
+              ));
+            },
+            child: HomeJournalWidget(
+              image: Assets.images.stickynote.path,
+              title: 'AM Journal',
+              decription: 'You have not completed your AM journal today.',
+            ),
           ),
           const VerticalSpacing(20),
-          HomeJournalWidget(
-            image: Assets.images.journalPng.path,
-            title: 'PM Journal',
-            decription: 'You have not completed your Pm reflection today.',
+          GestureDetector(
+            onTap: () {
+              Get.to(AmPmJournalScreen(
+                reflectionType: "pm",
+              ));
+            },
+            child: HomeJournalWidget(
+              image: Assets.images.journalPng.path,
+              title: 'PM Journal',
+              decription: 'You have not completed your Pm reflection today.',
+            ),
           ),
           const VerticalSpacing(20),
           ThemedContainer(
