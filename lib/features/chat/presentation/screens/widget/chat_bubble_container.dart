@@ -401,10 +401,12 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                     ),
                   ),
                 Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  child: Stack(
                     children: [
                       Column(
+                        crossAxisAlignment: widget.isMine
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
                         children: [
                           if (widget.images != null &&
                               widget.images!.isNotEmpty)
@@ -482,46 +484,53 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                           if (widget.files != null && widget.files!.isNotEmpty)
                             const Text('file'),
                           const SizedBox(height: 8),
+                          if (widget.message.isNotEmpty)
+                            Container(
+                              margin: const EdgeInsets.all(4),
+                              padding: const EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: !widget.isMine
+                                      ? AppColors.bgBorder
+                                      : Colors.transparent,
+                                ),
+                                color: widget.isMine
+                                    ? AppColors.primary500
+                                    : AppColors.bgMedium,
+                                borderRadius: BorderRadius.only(
+                                  bottomRight: const Radius.circular(14),
+                                  topLeft: !widget.isMine
+                                      ? Radius.zero
+                                      : const Radius.circular(14),
+                                  bottomLeft: const Radius.circular(14),
+                                  topRight: widget.isMine
+                                      ? Radius.zero
+                                      : const Radius.circular(14),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  if (widget.isYesNoQuestion)
+                                    _buildYesNoQuestion()
+                                  else
+                                    HtmlWidget(
+                                      //  shrinkWrap: true,
+                                      widget.message,
+                                      textStyle: AppTextStyles.textBodyB2,
+                                    ),
+                                ],
+                              ),
+                            ),
+                          Padding(
+                            padding: const EdgeInsets.all(8),
+                            child: Text(
+                              formattedTimestamp,
+                              style: AppTextStyles.textCaptionC2,
+                            ),
+                          ),
                         ],
                       ),
-                      if (widget.message.isNotEmpty)
-                        Container(
-                          margin: const EdgeInsets.all(4),
-                          padding: const EdgeInsets.all(10),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: !widget.isMine
-                                  ? AppColors.bgBorder
-                                  : Colors.transparent,
-                            ),
-                            color: widget.isMine
-                                ? AppColors.primary500
-                                : AppColors.bgMedium,
-                            borderRadius: BorderRadius.only(
-                              bottomRight: const Radius.circular(14),
-                              topLeft: !widget.isMine
-                                  ? Radius.zero
-                                  : const Radius.circular(14),
-                              bottomLeft: const Radius.circular(14),
-                              topRight: widget.isMine
-                                  ? Radius.zero
-                                  : const Radius.circular(14),
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            children: [
-                              if (widget.isYesNoQuestion)
-                                _buildYesNoQuestion()
-                              else
-                                HtmlWidget(
-                                  //  shrinkWrap: true,
-                                  widget.message,
-                                  textStyle: AppTextStyles.textBodyB2,
-                                ),
-                            ],
-                          ),
-                        ),
                       if (widget.isLoading)
                         Positioned(
                           bottom: -10,
@@ -540,10 +549,13 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                             ),
                           ),
                         ),
-                      Text(
-                        formattedTimestamp,
-                        style: AppTextStyles.textCaptionC2,
-                      ),
+                      if (isLiked)
+                        Positioned(
+                          bottom: 20,
+                          right: widget.isMine ? 4 : null,
+                          left: widget.isMine ? null : 4,
+                          child: Assets.images.chatBubbleLike.image(width: 32),
+                        ),
                     ],
                   ),
                 ),
@@ -602,14 +614,14 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
             MaterialPageRoute(
                 builder: (context) => AppVideoPlayer(
                       videoUrl: widget.videos!.first,
-                    )),
+                    ),),
           );
         }
       },
       child: Container(
         margin: const EdgeInsets.only(bottom: 12),
         height: 200,
-        width: double.infinity,
+        width: context.width * 0.5,
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(12),
           color: Colors.black,

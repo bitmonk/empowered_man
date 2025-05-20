@@ -15,8 +15,8 @@ class ChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController chatScreenScrollController;
 
-  RxString currentUserId = 'unotech'.obs;
-
+  RxString currentUserId = 'lakshydeep_14'.obs;
+// unotech
   final String chatListenerId = 'chat_screen';
 
   RxList<ChatConversationWrapper> allConversations =
@@ -48,6 +48,7 @@ class ChatController extends GetxController {
 
   Rx<TheStates> initializingSdks = TheStates.initial.obs;
   Future<void> initSDK() async {
+    await ChatClient.getInstance.logout();
     initializingSdks.value = TheStates.loading;
     final options = ChatOptions(appKey: AgoraChatConfig.appKey);
     await ChatClient.getInstance.init(options);
@@ -55,7 +56,7 @@ class ChatController extends GetxController {
 
     try {
       await ChatClient.getInstance
-          .loginWithToken(currentUserId.value, AgoraChatConfig.unoTechToken);
+          .loginWithToken(currentUserId.value, AgoraChatConfig.lakshydeepToken);
       initializingSdks.value = TheStates.success;
       await fetchConversations();
     } on ChatError {
@@ -129,7 +130,23 @@ class ChatController extends GetxController {
 
           lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
         }
+        var unreadFromOthers = 0;
         final unreadCount = await convo.unreadCount();
+        if (unreadCount > 0) {
+          try {
+            final unreadMessages =
+                await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+              conversationId: convo.id,
+              pageSize: 2,
+            );
+
+            unreadFromOthers = unreadMessages.data
+                .where((msg) => msg.from != currentUserId)
+                .length;
+          } catch (e) {
+            print('Failed to fetch unread messages for convo ${convo.id}: $e');
+          }
+        }
         wrappedConversations.add(
           ChatConversationWrapper(
             conversation: convo,
@@ -138,7 +155,7 @@ class ChatController extends GetxController {
             isOnline: true,
             latestMessage: latestMessage,
             lastChattedTime: lastTime,
-            unreadCount: unreadCount,
+            unreadCount: unreadFromOthers,
           ),
         );
       }
@@ -171,13 +188,12 @@ class ChatController extends GetxController {
       if (index != -1) {
         final updated = allConversations[index];
         allConversations[index] = ChatConversationWrapper(
-          conversation: updated.conversation,
-          userName: updated.userName,
-          avatarUrl: updated.avatarUrl,
-          isOnline: updated.isOnline,
-          latestMessage: updated.latestMessage,
-          lastChattedTime: updated.lastChattedTime,
-        );
+            conversation: updated.conversation,
+            userName: updated.userName,
+            avatarUrl: updated.avatarUrl,
+            isOnline: updated.isOnline,
+            latestMessage: updated.latestMessage,
+            lastChattedTime: updated.lastChattedTime,);
         allConversations.refresh(); // Trigger UI update if you're using GetX
       }
     } catch (e) {
@@ -471,7 +487,7 @@ class ChatController extends GetxController {
 
   Future<void> selectConversation(ChatConversation convo) async {
     selectedConversation.value = convo;
-    markMessagesAsRead();
+    await markMessagesAsRead();
     await loadMessages();
   }
 
