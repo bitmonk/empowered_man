@@ -140,7 +140,7 @@ class _NewMessageModalState extends State<NewMessageModal> {
                     },
                   ),
                 ),
-                ChatInputField(isNewMessage: true),
+                const ChatInputField(isNewMessage: true),
               ],
             ),
           );

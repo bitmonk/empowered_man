@@ -22,6 +22,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.isAnotherUser = false,
     this.images,
     this.videos,
+    this.files,
     this.voices,
     this.isLoading = false,
     this.isYesNoQuestion = false,
@@ -39,6 +40,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final List<String>? images;
   final List<String>? videos;
   final List<String>? voices;
+  final List<String>? files;
   final bool isLoading;
   final VoidCallback onLike;
   final bool isYesNoQuestion;
@@ -402,155 +404,148 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        clipBehavior: Clip.none,
+                      Column(
                         children: [
-                          if (widget.message.isNotEmpty)
-                            Container(
-                              margin: const EdgeInsets.all(4),
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                  color: !widget.isMine
-                                      ? AppColors.bgBorder
-                                      : Colors.transparent,
-                                ),
-                                color: widget.isMine
-                                    ? AppColors.primary500
-                                    : AppColors.bgMedium,
-                                borderRadius: BorderRadius.only(
-                                  bottomRight: const Radius.circular(14),
-                                  topLeft: !widget.isMine
-                                      ? Radius.zero
-                                      : const Radius.circular(14),
-                                  bottomLeft: const Radius.circular(14),
-                                  topRight: widget.isMine
-                                      ? Radius.zero
-                                      : const Radius.circular(14),
-                                ),
-                              ),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.end,
-                                children: [
-                                  if (widget.isYesNoQuestion)
-                                    _buildYesNoQuestion()
-                                  else
-                                    HtmlWidget(
-                                      //  shrinkWrap: true,
-                                      widget.message,
-                                      textStyle: AppTextStyles.textBodyB2,
+                          if (widget.images != null &&
+                              widget.images!.isNotEmpty)
+                            InkWell(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => FullscreenImageView(
+                                      imagePath: widget.images!.first,
                                     ),
-                                ],
-                              ),
-                            ),
-                          Column(
-                            children: [
-                              if (widget.images != null &&
-                                  widget.images!.isNotEmpty)
-                                InkWell(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            FullscreenImageView(
-                                          imagePath: widget.images!.first,
+                                  ),
+                                );
+                              },
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: widget.images!.map((url) {
+                                  return Container(
+                                    width: 150,
+                                    height: 150,
+                                    clipBehavior: Clip.antiAlias,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8),
+                                      color: Colors.black,
+                                    ),
+                                    child: Image.network(
+                                      url,
+                                      fit: BoxFit.cover,
+                                      loadingBuilder: (
+                                        context,
+                                        child,
+                                        loadingProgress,
+                                      ) {
+                                        if (loadingProgress == null) {
+                                          return child;
+                                        }
+                                        return Center(
+                                          child: CircularProgressIndicator(
+                                            value: loadingProgress
+                                                        .expectedTotalBytes !=
+                                                    null
+                                                ? loadingProgress
+                                                        .cumulativeBytesLoaded /
+                                                    loadingProgress
+                                                        .expectedTotalBytes!
+                                                : null,
+                                          ),
+                                        );
+                                      },
+                                      errorBuilder:
+                                          (context, error, stackTrace) =>
+                                              const ColoredBox(
+                                        color: Colors.black,
+                                        child: Icon(
+                                          Icons.broken_image,
+                                          color: Colors.white,
                                         ),
                                       ),
-                                    );
-                                  },
-                                  child: Wrap(
-                                    spacing: 8,
-                                    runSpacing: 8,
-                                    children: widget.images!.map((url) {
-                                      return Container(
-                                        width: 150,
-                                        height: 150,
-                                        clipBehavior: Clip.antiAlias,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          color: Colors.black,
-                                        ),
-                                        child: Image.network(
-                                          url,
-                                          fit: BoxFit.cover,
-                                          loadingBuilder: (
-                                            context,
-                                            child,
-                                            loadingProgress,
-                                          ) {
-                                            if (loadingProgress == null) {
-                                              return child;
-                                            }
-                                            return Center(
-                                              child: CircularProgressIndicator(
-                                                value: loadingProgress
-                                                            .expectedTotalBytes !=
-                                                        null
-                                                    ? loadingProgress
-                                                            .cumulativeBytesLoaded /
-                                                        loadingProgress
-                                                            .expectedTotalBytes!
-                                                    : null,
-                                              ),
-                                            );
-                                          },
-                                          errorBuilder:
-                                              (context, error, stackTrace) =>
-                                                  const ColoredBox(
-                                            color: Colors.black,
-                                            child: Icon(
-                                              Icons.broken_image,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                        ),
-                                      );
-                                    }).toList(),
-                                  ),
-                                ),
-                              if (widget.videos != null &&
-                                  widget.videos!.isNotEmpty)
-                                _buildVideoPreview(),
-                              if (widget.voices != null &&
-                                  widget.voices!.isNotEmpty)
-                                CustomAudioPlayer(
-                                  url: widget.voices!
-                                      .first, // your audio file URL or path
-                                  isMine: widget.isMine,
-                                ),
-                              const SizedBox(height: 8),
-                            ],
-                          ),
-                          if (widget.isLoading)
-                            Positioned(
-                              bottom: -10,
-                              right: widget.isMine ? -10 : null,
-                              left: widget.isMine ? null : -10,
-                              child: SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    widget.isMine
-                                        ? Theme.of(context).primaryColor
-                                        : Colors.grey[600]!,
-                                  ),
-                                ),
+                                    ),
+                                  );
+                                }).toList(),
                               ),
                             ),
-                          if (isLiked)
-                            Positioned(
-                              right: -10,
-                              bottom: -10,
-                              child:
-                                  Assets.images.chatBubbleLike.image(width: 32),
+                          if (widget.videos != null &&
+                              widget.videos!.isNotEmpty)
+                            _buildVideoPreview(),
+                          if (widget.voices != null &&
+                              widget.voices!.isNotEmpty)
+                            CustomAudioPlayer(
+                              url: widget
+                                  .voices!.first, // your audio file URL or path
+                              isMine: widget.isMine,
                             ),
+                          if (widget.files != null && widget.files!.isNotEmpty)
+                            const Text('file'),
+                          const SizedBox(height: 8),
                         ],
                       ),
+                      if (widget.message.isNotEmpty)
+                        Container(
+                          margin: const EdgeInsets.all(4),
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: !widget.isMine
+                                  ? AppColors.bgBorder
+                                  : Colors.transparent,
+                            ),
+                            color: widget.isMine
+                                ? AppColors.primary500
+                                : AppColors.bgMedium,
+                            borderRadius: BorderRadius.only(
+                              bottomRight: const Radius.circular(14),
+                              topLeft: !widget.isMine
+                                  ? Radius.zero
+                                  : const Radius.circular(14),
+                              bottomLeft: const Radius.circular(14),
+                              topRight: widget.isMine
+                                  ? Radius.zero
+                                  : const Radius.circular(14),
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              if (widget.isYesNoQuestion)
+                                _buildYesNoQuestion()
+                              else
+                                HtmlWidget(
+                                  //  shrinkWrap: true,
+                                  widget.message,
+                                  textStyle: AppTextStyles.textBodyB2,
+                                ),
+                            ],
+                          ),
+                        ),
+                      if (widget.isLoading)
+                        Positioned(
+                          bottom: -10,
+                          right: widget.isMine ? -10 : null,
+                          left: widget.isMine ? null : -10,
+                          child: SizedBox(
+                            width: 16,
+                            height: 16,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                widget.isMine
+                                    ? Theme.of(context).primaryColor
+                                    : Colors.grey[600]!,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (isLiked)
+                        Positioned(
+                          right: -10,
+                          bottom: -10,
+                          child: Assets.images.chatBubbleLike.image(width: 32),
+                        ),
                       Text(
                         formattedTimestamp,
                         style: AppTextStyles.textCaptionC2,
@@ -563,16 +558,16 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                     padding: const EdgeInsets.only(left: 8),
                     child: ClipOval(
                       child: AppCachedImage(
-                              width: 25,
-                              height: 25,
-                              fit: BoxFit.cover,
-                              errorWid: const Icon(Icons.person),
-                              imgUrl: Get.find<ProfileController>()
-                                      .userProfile
-                                      .value
-                                      .image ??
-                                  '',
-                            ),
+                        width: 25,
+                        height: 25,
+                        fit: BoxFit.cover,
+                        errorWid: const Icon(Icons.person),
+                        imgUrl: Get.find<ProfileController>()
+                                .userProfile
+                                .value
+                                .image ??
+                            '',
+                      ),
                     ),
                   ),
               ],

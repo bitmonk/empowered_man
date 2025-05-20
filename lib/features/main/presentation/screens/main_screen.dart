@@ -39,6 +39,7 @@ class _MainScreenState extends State<MainScreen>
   @override
   void initState() {
     super.initState();
+
     FirebaseNotificationService().requestPermission();
     FirebaseNotificationService().init();
     HomeInitializer.initialize();

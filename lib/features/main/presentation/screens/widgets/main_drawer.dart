@@ -1,3 +1,4 @@
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
@@ -224,6 +225,7 @@ class MainDrawer extends GetView<MainController> {
                         final result = await controller.logout(deviceId);
 
                         if (result) {
+                          await ChatClient.getInstance.logout();
                           await Get.find<AppSharedPref>().removeAll();
                           Get.offAllNamed(AppRoutes.landingScreen);
                         }

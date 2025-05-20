@@ -66,7 +66,7 @@ class ChatThreadsTile extends StatelessWidget {
             //     );
             //   },
             // ),
-            ChatInputField(),
+            const ChatInputField(),
           ],
         );
       },

@@ -1,7 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_list.dart';
-import 'package:empowered/features/chat/presentation/screens/widget/chat_threads_tile.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/new_message_model.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -106,19 +105,67 @@ class ChatScreen extends GetView<ChatController> {
                   ),
                 ),
                 const VerticalSpacing(16),
+                // AppOutlinedButton(
+                //     onPressed: () {
+                //       controller.createGroupAndChat('Uno Techoz', []);
+                //     },
+                //     text: "test"),
                 Flexible(
                   child: Obx(
-                    () => IndexedStack(
-                      index: controller.selectedFilterindex.value,
-                      children: [
-                        ChatList(
-                          isSquad: false,
+                    () => controller.fetchConversationState.value.showWidget(
+                      loading: () => const LoadingWidget(),
+                      error: () => CustomErrorWidget(
+                        error: controller.fetchCoversationError.value,
+                        onPressed: () {
+                          controller.fetchConversations(isInitialLoad: true);
+                        },
+                      ),
+                      orElse: () => RefreshIndicator(
+                        onRefresh: () async {
+                          controller.fetchConversations(isInitialLoad: true);
+                        },
+                        // onNotification: (scrollNotification) {
+                        //   if (scrollNotification.metrics.pixels >=
+                        //           scrollNotification.metrics.maxScrollExtent -
+                        //               100 &&
+                        //       controller.canLoadMore &&
+                        //       controller.fetchConversationState.value !=
+                        //           TheStates.loadingMore) {
+                        //     // Near bottom and can load more
+                        //     controller.fetchConversations();
+                        //   }
+                        //   return false;
+                        // },
+                        child: ListView.separated(
+                          itemCount: controller.allConversations.length +
+                              (controller.canLoadMore
+                                  ? 1
+                                  : 0), // Extra for loading
+                          separatorBuilder: (_, __) => const Divider(height: 1),
+                          itemBuilder: (context, index) {
+                            if (index < controller.allConversations.length) {
+                              final convo = controller.allConversations[index];
+                              return ChatList(isSquad: false, convo: convo);
+                            }
+                            if (controller.fetchConversationState.value ==
+                                TheStates.loadingMore) {
+                              return const Padding(
+                                padding: EdgeInsets.all(16),
+                                child: Center(
+                                  child: CircularProgressIndicator(),
+                                ),
+                              );
+                            } else {
+                              return const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 16),
+                                child: Center(
+                                  child: Text('No more conversations'),
+                                ),
+                              );
+                            }
+                          },
                         ),
-                        const ChatThreadsTile(),
-                        ChatList(
-                          isSquad: true,
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                 ),

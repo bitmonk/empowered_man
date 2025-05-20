@@ -1,204 +1,468 @@
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/chat/data/model/agora_chat_config.dart';
+import 'package:empowered/features/chat/data/model/chat_conversation_wrapper.dart';
 import 'package:empowered/features/chat/data/source/chat_remote_source.dart';
 
 class ChatController extends GetxController {
   ChatController({required this.remoteSource});
+
   final ChatRemoteSource remoteSource;
+
   RxList<String> filterList = ['All', 'Threads', 'Squads'].obs;
   RxInt selectedFilterindex = 0.obs;
-  late TextEditingController chatController;
-  late ScrollController scrollController;
 
-  // RxList<ChatConversationModel> chatConversationList = [
-  //   ChatConversationModel(
-  //     isMine: false,
-  //     timeStamp: '10:30 AM',
-  //     profileImageUrl: '',
-  //     name: '',
-  //     message: 'Good Morning, My Friend ',
-  //     dateTime: '2024-02-10 10:30:00',
-  //   ),
-  //   ChatConversationModel(
-  //     isMine: false,
-  //     timeStamp: '11:00 AM',
-  //     profileImageUrl: '',
-  //     name: '',
-  //     message: 'How are you ??',
-  //     dateTime: '2024-02-10 11:00:00',
-  //   ),
-  //   ChatConversationModel(
-  //     isMine: true,
-  //     timeStamp: '11:00 AM',
-  //     profileImageUrl: '',
-  //     name: '',
-  //     message: 'Good Morning, My Friend ',
-  //     dateTime: '2024-02-10 11:00:00',
-  //   ),
-  // ].obs;
-  RxList<ChatUserListModel> chatUserList = [
-    ChatUserListModel(
-      name: 'Liam Cooper',
-      message: 'Hey, are we still on for tonight?',
-      dateTime: '20 min ago',
-      unreadText: 2,
-      isOnline: false,
-      imageUrl: 'chatFriendPicThird',
-    ),
-    ChatUserListModel(
-      name: 'Jane Smith',
-      message: 'Just sent you the files. Let me know if you got them!',
-      dateTime: '1 min ago',
-      unreadText: 1,
-      isOnline: true,
-      imageUrl: 'chatFriendPicSecond',
-    ),
-    ChatUserListModel(
-      name: 'Mike Johnson',
-      message: 'Let’s catch up this weekend!',
-      dateTime: '30 min ago',
-      unreadText: 0,
-      isOnline: true,
-      imageUrl: 'chatFriendPic',
-    ),
-    ChatUserListModel(
-      name: 'Emily Davis',
-      message: 'I’ll be there in 15 minutes.',
-      dateTime: '1 hour ago',
-      unreadText: 3,
-      isOnline: true,
-      imageUrl: 'chatFriendPicSecond',
-    ),
-    ChatUserListModel(
-      name: 'Chris Brown',
-      message: 'Haha, that was hilarious!',
-      dateTime: 'Yesterday',
-      unreadText: 0,
-      isOnline: true,
-      imageUrl: 'chatFriendPicSecond',
-    ),
-    ChatUserListModel(
-      name: 'Anna Taylor',
-      message: 'Meeting rescheduled to 3 PM. Does that work?',
-      imageUrl: 'chatFriendPicSecond',
-      dateTime: 'Yesterday',
-      unreadText: 5,
-      isOnline: true,
-    ),
-    ChatUserListModel(
-      name: 'Robert Wilson',
-      message: 'Can you review this document?',
-      imageUrl: 'chatImageProfileOne',
-      dateTime: '2 days ago',
-      unreadText: 1,
-      isOnline: true,
-    ),
-    ChatUserListModel(
-      name: 'Linda Thompson',
-      message: 'Good morning! Hope you have a great day!',
-      dateTime: '3 days ago',
-      unreadText: 0,
-      imageUrl: 'chatFriendPicSecond',
-      isOnline: true,
-    ),
-    ChatUserListModel(
-      name: 'David Anderson',
-      message: 'Check your email, I’ve sent the details.',
-      imageUrl: 'chatFriendPicSecond',
-      dateTime: 'Last week',
-      unreadText: 2,
-      isOnline: true,
-    ),
-    ChatUserListModel(
-      name: 'Sophia Martin',
-      message: 'I’ll call you back in a bit.',
-      dateTime: 'Last week',
-      imageUrl: 'chatFriendPicSecond',
-      unreadText: 0,
-      isOnline: true,
-    ),
-  ].obs;
+  late TextEditingController chatController;
+  late ScrollController chatScreenScrollController;
+
+  RxString currentUserId = 'unotech'.obs;
+
+  final String chatListenerId = 'chat_screen';
+
+  RxList<ChatConversationWrapper> allConversations =
+      <ChatConversationWrapper>[].obs;
+  String? _nextConversationCursor;
+
+  final RxList<ChatMessage> messages = <ChatMessage>[].obs;
+  final Rx<ChatConversation?> selectedConversation =
+      Rx<ChatConversation?>(null);
+  final int messageQuantity = 15;
+
   @override
   void onInit() {
     super.onInit();
     chatController = TextEditingController();
-    scrollController = ScrollController();
+    chatScreenScrollController = ScrollController();
+
+    initSDK();
+    _addListeners();
+    fetchConversations(isInitialLoad: true);
+    chatScreenScrollController.addListener(() {
+      // When near the top (within 100 pixels)
+      if (chatScreenScrollController.position.pixels <=
+          chatScreenScrollController.position.minScrollExtent + 100) {
+        loadPreviousMessages();
+      }
+    });
   }
 
-  @override
-  void onClose() {
-    chatController.dispose();
-    scrollController.dispose();
+  Rx<TheStates> initializingSdks = TheStates.initial.obs;
+  Future<void> initSDK() async {
+    initializingSdks.value = TheStates.loading;
+    final options = ChatOptions(appKey: AgoraChatConfig.appKey);
+    await ChatClient.getInstance.init(options);
+    await ChatClient.getInstance.startCallback();
+
+    try {
+      await ChatClient.getInstance
+          .loginWithToken(currentUserId.value, AgoraChatConfig.unoTechToken);
+      initializingSdks.value = TheStates.success;
+      await fetchConversations();
+    } on ChatError {
+      initializingSdks.value = TheStates.error;
+    }
   }
 
-  // void sendMessage() {
-  //   if (chatController.text.trim().isNotEmpty) {
-  //     chatConversationList.add(
-  //       ChatConversationModel(
-  //         message: chatController.text.trim(),
-  //         isMine: true,
-  //         timeStamp: getCurrentTime(),
-  //         profileImageUrl: '',
-  //         name: '',
-  //         dateTime: '',
-  //       ),
-  //     );
-  //     chatController.clear();
-  //     WidgetsBinding.instance.addPostFrameCallback((_) {
-  //       scrollToBottom();
-  //     });
-  //   }
-  // }
+  Rx<TheStates> fetchConversationState = TheStates.initial.obs;
+  RxnString fetchCoversationError = RxnString();
+
+  Future<void> fetchConversations({bool isInitialLoad = false}) async {
+    try {
+      if (isInitialLoad) {
+        fetchConversationState.value = TheStates.loading;
+        _nextConversationCursor = null; // Reset cursor on fresh load
+        allConversations.clear();
+      } else {
+        fetchConversationState.value = TheStates.loadingMore;
+        if (_nextConversationCursor == null) {
+          return;
+        }
+      }
+
+      final options = ConversationFetchOptions(
+        pageSize: 30,
+        cursor: !isInitialLoad ? _nextConversationCursor : null,
+      );
+
+      final result = await ChatClient.getInstance.chatManager
+          .fetchConversationsByOptions(options: options);
+
+      final userIds = result.data
+          .where((convo) => convo.type == ChatConversationType.GroupChat)
+          .map((convo) => convo.id)
+          .toList();
+
+      final userInfoMap = await ChatClient.getInstance.userInfoManager
+          .fetchUserInfoById(userIds);
+
+      final wrappedConversations = <ChatConversationWrapper>[];
+
+      for (final convo in result.data) {
+        final userInfo = userInfoMap[convo.id];
+
+        // Await latest message
+        ChatMessage? lastMsg;
+        try {
+          lastMsg = await convo.latestMessage();
+        } catch (_) {
+          lastMsg = null;
+        }
+
+        String? latestMessage;
+        DateTime? lastTime;
+
+        if (lastMsg != null) {
+          final body = lastMsg.body;
+
+          // Text preview
+          if (body is ChatTextMessageBody) {
+            latestMessage = body.content;
+          } else if (body is ChatImageMessageBody) {
+            latestMessage = '[Image]';
+          } else if (body is ChatFileMessageBody) {
+            latestMessage = '[File]';
+          } else if (body is ChatVoiceMessageBody) {
+            latestMessage = '[Voice]';
+          } else {
+            latestMessage = '[${body.runtimeType}]';
+          }
+
+          lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
+        }
+        final unreadCount = await convo.unreadCount();
+        wrappedConversations.add(ChatConversationWrapper(
+            conversation: convo,
+            userName: userInfo?.nickName ?? convo.id,
+            avatarUrl: userInfo?.avatarUrl,
+            isOnline: true,
+            latestMessage: latestMessage,
+            lastChattedTime: lastTime,
+            unreadCount: unreadCount,),);
+      }
+
+      if (!isInitialLoad) {
+        allConversations.addAll(wrappedConversations);
+      } else {
+        allConversations.value = wrappedConversations;
+      }
+
+      _nextConversationCursor = result.cursor;
+      fetchConversationState.value = TheStates.success;
+    } on ChatError catch (e) {
+      fetchCoversationError.value =
+          'Failed to fetch conversations: ${e.code} - ${e.description}';
+      fetchConversationState.value = TheStates.error;
+    }
+  }
+
+  Future<void> markMessagesAsRead() async {
+    try {
+      await ChatClient.getInstance.chatManager
+          .sendConversationReadAck(selectedConversation.value!.id);
+
+      // Optionally: Update your local conversation unread count to 0
+      final index = allConversations.indexWhere(
+        (element) =>
+            element.conversation.id ==
+            selectedConversation.value!.id,
+      );
+
+      if (index != -1) {
+        final updated = allConversations[index];
+        allConversations[index] = ChatConversationWrapper(
+          conversation: updated.conversation,
+          userName: updated.userName,
+          avatarUrl: updated.avatarUrl,
+          isOnline: updated.isOnline,
+          latestMessage: updated.latestMessage,
+          lastChattedTime: updated.lastChattedTime,
+        );
+        allConversations.refresh(); // Trigger UI update if you're using GetX
+      }
+    } catch (e) {
+      print('Failed to mark messages as read: $e');
+    }
+  }
+
+  ChatPresence? findPresence(String id, list) {
+    for (final p in list) {
+      if (p.publisher == id) return p;
+    }
+    return null;
+  }
+
+  // Check if more pages are available
+  bool get canLoadMore =>
+      _nextConversationCursor != null &&
+      fetchConversationState.value != TheStates.loadingMore;
+
+  Rx<TheStates> loadingMessageState = TheStates.initial.obs;
+  RxnString loadingMessageError = RxnString();
+  Future<void> loadMessages() async {
+    try {
+      loadingMessageState.value = TheStates.loading;
+
+      final result =
+          await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+        conversationId: selectedConversation.value!.id,
+        pageSize: messageQuantity,
+      );
+
+      messages.value = result.data;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        scrollToBottom();
+      });
+      loadingMessageState.value = TheStates.success;
+    } on ChatError catch (e) {
+      loadingMessageState.value = TheStates.error;
+      loadingMessageError.value = '${e.code} - ${e.description}';
+      print('Error fetching messages: ${e.code} - ${e.description}');
+    }
+  }
+
+  Rx<TheStates> loadingPrevoiusMessageState = TheStates.initial.obs;
+  Future<void> loadPreviousMessages() async {
+    if (loadingPrevoiusMessageState.value == TheStates.loading) return;
+    if (messages.isEmpty) return;
+
+    loadingPrevoiusMessageState.value = TheStates.loading;
+    try {
+      final oldestMessage = messages.first;
+
+      final result =
+          await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+        conversationId: selectedConversation.value!.id,
+        pageSize: messageQuantity,
+        startMsgId: oldestMessage.msgId,
+      );
+
+      if (result.data.isNotEmpty) {
+        final currentOffset = chatScreenScrollController.offset;
+
+        // Prepend older messages to the list
+        messages.insertAll(0, result.data);
+
+        await Future.delayed(const Duration(milliseconds: 100)); // Wait for UI update
+
+        // Calculate estimated height of newly inserted messages
+        final newContentHeight = _calculateNewContentHeight(result.data.length);
+
+        // Maintain scroll offset to avoid jump
+        chatScreenScrollController.jumpTo(currentOffset + newContentHeight);
+      }
+      loadingPrevoiusMessageState.value = TheStates.success;
+    } catch (e) {
+      print('Error loading previous messages: $e');
+      loadingPrevoiusMessageState.value = TheStates.error;
+    }
+  }
+
+  // Approximate height of one message item, adjust according to your widget
+  double _calculateNewContentHeight(int messageCount) {
+    const messageItemHeight = 60.0;
+    return messageCount * messageItemHeight;
+  }
+
+  Rx<TheStates> sendingMessageState = TheStates.initial.obs;
+  Future<void> sendMessage({
+    String? text,
+    String? filePath,
+    String? audioPath,
+    String? fileDisplayName,
+    bool isGroup = false,
+  }) async {
+    if ((text == null || text.trim().isEmpty) &&
+        filePath == null &&
+        audioPath == null) {
+      return;
+    }
+    final chatType = isGroup ? ChatType.GroupChat : ChatType.Chat;
+    final targetId = selectedConversation.value!.id;
+    ChatMessage? message;
+
+    if (filePath != null) {
+      final extension = filePath.split('.').last.toLowerCase();
+      final isImage =
+          ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].contains(extension);
+      final isVideo = ['mp4', 'mov', 'avi', 'mkv', 'webm'].contains(extension);
+      final isDocument = !isImage && !isVideo;
+
+      if (isImage) {
+        // 🖼️ Image
+        final imgBody = ChatImageMessageBody(
+          localPath: filePath,
+          displayName: fileDisplayName ?? filePath.split('/').last,
+        );
+        message = ChatMessage.createSendMessage(
+          chatType: chatType,
+          to: targetId,
+          body: imgBody,
+        );
+      } else if (isVideo) {
+        // 📹 Video
+        final vidBody = ChatVideoMessageBody(
+          localPath: filePath,
+          displayName: fileDisplayName ?? filePath.split('/').last,
+        );
+        message = ChatMessage.createSendMessage(
+          chatType: chatType,
+          to: targetId,
+          body: vidBody,
+        );
+      } else if (isDocument) {
+        // 📎 File
+        final fileBody = ChatFileMessageBody(
+          localPath: filePath,
+          displayName: fileDisplayName ?? filePath.split('/').last,
+        );
+        message = ChatMessage.createSendMessage(
+          chatType: chatType,
+          to: targetId,
+          body: fileBody,
+        );
+      }
+
+      if (message != null && text != null && text.trim().isNotEmpty) {
+        message.attributes = {'caption': text.trim()};
+      }
+    } else if (audioPath != null) {
+      // // 🎤 Audio
+      // final duration = await _getAudioDuration(audioPath);
+      // final voiceBody = ChatVoiceMessageBody(
+      //   localPath: audioPath,
+      //   duration: duration,
+      // );
+      // message = ChatMessage.createSendMessage(
+      //   chatType: chatType,
+      //   to: targetId,
+      //   body: voiceBody,
+      // );
+    } else if (text != null) {
+      // 📝 Text
+      message = ChatMessage.createTxtSendMessage(
+        targetId: targetId,
+        content: text.trim(),
+        chatType: chatType,
+      );
+    }
+
+    if (message != null) {
+      try {
+        print(message.toJson());
+        await ChatClient.getInstance.chatManager.sendMessage(message);
+        messages.add(message);
+        chatController.clear();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToBottom();
+        });
+      } catch (e) {
+        print('Send message failed: $e');
+      }
+    }
+  }
+
+  Future<void> deleteMessage(ChatMessage message) async {
+    // try {
+    //   // Deletes from local database (and conversation view)
+    //   await ChatClient.getInstance.chatManage.(message.msgId);
+
+    //   // Optionally, remove from your local list
+    //   messages.removeWhere((msg) => msg.msgId == message.msgId);
+
+    //   // Trigger UI update if needed
+    //   update(); // or call setState(() {}) if you're not using GetX
+    // } catch (e) {
+    //   print('Error deleting message: $e');
+    // }
+  }
+
+  void _addListeners() {
+    ChatClient.getInstance.chatManager.addMessageEvent(
+      chatListenerId,
+      ChatMessageEvent(
+        onSuccess: (msgId, msg) {
+          print('Message sent');
+          final index = messages.indexWhere((m) => m.msgId == msgId);
+          if (index != -1) {
+            messages[index] = msg;
+            messages.refresh(); // if messages is an RxList
+          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollToBottom();
+          });
+        },
+        onProgress: (msgId, progress) => print(r'Sending progress: $progress'),
+        onError: (msgId, msg, error) =>
+            print(r'Message failed: ${error.description}'),
+      ),
+    );
+
+    ChatClient.getInstance.chatManager.addEventHandler(
+      chatListenerId,
+      ChatEventHandler(
+        onMessagesReceived: (msgs) {
+          messages.addAll(msgs);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            scrollToBottom();
+          });
+        },
+      ),
+    );
+  }
+
+  Future<void> selectConversation(ChatConversation convo) async {
+    selectedConversation.value = convo;
+    markMessagesAsRead();
+    await loadMessages();
+  }
+
+  Future<void> searchUserAndChat(String targetUserId) async {
+    final convo = await ChatClient.getInstance.chatManager.getConversation(
+      targetUserId,
+    );
+    selectConversation(convo!);
+  }
+
+  Future<void> createGroupAndChat(
+      String groupName, List<String> members,) async {
+    print('a');
+    final options = ChatGroupOptions(
+      
+    );
+    final group = await ChatClient.getInstance.groupManager.createGroup(
+      groupName: groupName,
+      desc: r'Group chat: $groupName',
+      inviteMembers: ['upasanaa_1234', 'lakshydeep_14'],
+      options: options,
+    );
+    final convo = await ChatClient.getInstance.chatManager.getConversation(
+      group.groupId,
+      type: ChatConversationType.GroupChat,
+    );
+    selectConversation(convo!);
+    print('a');
+  }
 
   void scrollToBottom() {
-    if (scrollController.hasClients) {
-      scrollController.animateTo(
-        scrollController.position.maxScrollExtent,
+    if (chatScreenScrollController.hasClients) {
+      chatScreenScrollController.animateTo(
+        chatScreenScrollController.position.maxScrollExtent,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeOut,
       );
     }
   }
 
+  @override
+  void onClose() {
+    chatController.dispose();
+    chatScreenScrollController.dispose();
+    ChatClient.getInstance.chatManager.removeMessageEvent(chatListenerId);
+    ChatClient.getInstance.chatManager.removeEventHandler(chatListenerId);
+  }
+
   String getCurrentTime() {
     final now = DateTime.now();
     return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
   }
-}
-
-// class ChatConversationModel {
-//   ChatConversationModel({
-//     required this.isMine,
-//     required this.timeStamp,
-//     required this.profileImageUrl,
-//     required this.name,
-//     required this.message,
-//     required this.dateTime,
-//     this.isLiked = false,
-//     this.hide = false,
-//   });
-//   final String name;
-//   final String message;
-//   final String dateTime;
-//   final String timeStamp;
-//   final String profileImageUrl;
-//   final bool isMine;
-//   final bool hide;
-//   final bool isLiked;
-// }
-
-class ChatUserListModel {
-  ChatUserListModel({
-    required this.imageUrl,
-    required this.isOnline,
-    required this.name,
-    required this.message,
-    required this.dateTime,
-    required this.unreadText,
-  });
-  final String name;
-  final String message;
-  final String dateTime;
-  final int unreadText;
-  final bool isOnline;
-  final String imageUrl;
 }
