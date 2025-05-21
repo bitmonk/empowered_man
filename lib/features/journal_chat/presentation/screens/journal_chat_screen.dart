@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
+import 'package:empowered/features/home/presentation/screens/widgets/enhanced_rich_text_input.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
@@ -29,7 +30,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   bool _hasShownCompletionMessage = false;
   bool _isSendingMessage = false;
   bool _isKeyboardVisible = false;
-  Map<String, String> _yesNoAnswers = {};
+  final Map<String, String> _yesNoAnswers = {};
   bool showCompletionMessage = false;
   bool _isThinking = false;
   @override
@@ -93,7 +94,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     }
 
     var items = <MessageItem>[];
-    bool stopAddingQuestions = false;
+    var stopAddingQuestions = false;
 
     // Process main questions and their follow-ups one at a time
     for (var i = 0; i < journal.mainQuestions!.length; i++) {
@@ -115,7 +116,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           message: mainQuestion.question!,
           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
           isMine: false,
-          isThinking: false,
         ),
       );
 
@@ -136,12 +136,13 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           images: mainQuestion.answer?.media?.images,
           videos: mainQuestion.answer?.media?.videos,
           voices: mainQuestion.answer?.media?.voices,
+          answerId: mainQuestion.answer?.id.toString(),
         ),
       );
 
       // Process follow-up questions for this main question
       if (!stopAddingQuestions && mainQuestion.followUpQuestions != null) {
-        for (var followUp in mainQuestion.followUpQuestions!) {
+        for (final followUp in mainQuestion.followUpQuestions!) {
           // Add follow-up question
           items.add(
             MessageItem(
@@ -150,7 +151,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               timestamp: DateTime.now().toString(),
               isMine: false,
               isYesNoQuestion: followUp.questionType == 'yes_no',
-              isThinking: false,
             ),
           );
 
@@ -171,6 +171,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               images: followUp.answer?.media?.images,
               videos: followUp.answer?.media?.videos,
               voices: followUp.answer?.media?.voices,
+              answerId: followUp.answer?.id?.toString(),
             ),
           );
         }
@@ -183,7 +184,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
     // Add thinking indicator if currently processing
     if (_isThinking) {
-      print("Adding thinking indicator to message list");
+      print('Adding thinking indicator to message list');
       items.add(
         MessageItem(
           type: MessageType.thinking,
@@ -196,15 +197,15 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
     }
 
     // Check if all questions are answered for completion message
-    bool allQuestionsAnswered = true;
-    for (var mainQuestion in journal.mainQuestions!) {
+    var allQuestionsAnswered = true;
+    for (final mainQuestion in journal.mainQuestions!) {
       if (mainQuestion.answered != true) {
         allQuestionsAnswered = false;
         break;
       }
 
       if (mainQuestion.followUpQuestions != null) {
-        for (var followUp in mainQuestion.followUpQuestions!) {
+        for (final followUp in mainQuestion.followUpQuestions!) {
           if (followUp.answered != true) {
             allQuestionsAnswered = false;
             break;
@@ -242,7 +243,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
       if (mainQuestion.answered != true) {
         return {
           'mainQuestionId': mainQuestion.id?.toString(),
-          'followUpQuestionId': null
+          'followUpQuestionId': null,
         };
       }
 
@@ -251,7 +252,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
           if (followUpQuestion.answered != true) {
             return {
               'mainQuestionId': null,
-              'followUpQuestionId': followUpQuestion.id?.toString()
+              'followUpQuestionId': followUpQuestion.id?.toString(),
             };
           }
         }
@@ -355,7 +356,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
       Future.delayed(const Duration(seconds: 5), () {
         if (mounted) {
-          Get.to(JournalLibrary());
+          Get.to(const JournalLibrary());
         }
       });
     }
@@ -537,6 +538,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                           selectedOption: item.selectedOption,
                                           answered: item.answered,
                                           isThinking: item.isThinking,
+                                          answerId: item.answerId,
                                         );
 
                                         Widget messageWidget =
@@ -560,7 +562,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             if (messageItem.isYesNoQuestion &&
                                                 followupQuestionId != null) {
                                               _handleYesNoSelection(
-                                                  option, followupQuestionId);
+                                                option,
+                                                followupQuestionId,
+                                              );
                                             }
                                           },
                                           isAnswered:
@@ -570,6 +574,20 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                                   index < items.length - 1 &&
                                                   items[index + 1].type ==
                                                       MessageType.answer,
+                                          answerId: messageItem.isMine
+                                              ? messageItem.answerId
+                                              : null,
+                                          onEditTap: () {
+                                            controller.chatController.text =
+                                                messageItem.message;
+                                            if (messageItem.answerId != null) {
+                                              controller.setEditMode(
+                                                true,
+                                                messageItem.answerId!,
+                                              );
+                                            }
+                                            Navigator.pop(context);
+                                          },
                                         );
 
                                         if (item.type == MessageType.question &&
@@ -651,7 +669,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           if (!controller.showBeginJournallButton.value) {
                             if (journalCompleted == false &&
                                 isYesNoQuestion == false) {
-                              return JournalChatInputField(
+                              return JournalChatInputTextField(
                                 focusNode: focusNode,
                                 journalId: journal?.id?.toString() ?? '',
                                 mainQuestionId: mainQuestionId,
@@ -660,7 +678,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   // Set thinking state immediately
                                   setState(() {
                                     print(
-                                        'Setting thinking indicator to true for text input');
+                                      'Setting thinking indicator to true for text input',
+                                    );
                                     _isSendingMessage = true;
                                     _isThinking = true;
                                   });
@@ -676,29 +695,38 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                   });
 
                                   try {
-                                    await controller.sendMessage(
-                                      journal?.id?.toString() ?? '',
-                                      null,
-                                      controller.chatController.text.trim(),
-                                      mainQuestionId,
-                                      followupQuestionId,
-                                    );
+                                    // await controller.sendMessage(
+                                    //   journal?.id?.toString() ?? '',
+                                    //   null,
+                                    //   controller.chatController.text.trim(),
+                                    //   mainQuestionId,
+                                    //   followupQuestionId,
+                                    // );
 
                                     // Add delay to show thinking animation
                                     await Future.delayed(
-                                        const Duration(seconds: 3));
+                                      const Duration(seconds: 3),
+                                    );
 
                                     await controller
                                         .getJournalWithQuestionsAndAnswers();
 
-                                    setState(() {});
+                                    WidgetsBinding.instance
+                                        .addPostFrameCallback((_) {
+                                      if (mounted) {
+                                        controller.autoScrollEnabled.value =
+                                            true;
+                                        controller.scrollToBottom();
+                                      }
+                                    });
                                   } catch (e) {
                                     print('Error sending message: $e');
                                   } finally {
                                     if (mounted) {
                                       setState(() {
                                         print(
-                                            'Setting thinking indicator to false for text input');
+                                          'Setting thinking indicator to false for text input',
+                                        );
                                         _isSendingMessage = false;
                                         _isThinking = false;
                                       });
@@ -726,12 +754,11 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 }
 
 class JournalCompletedWidget extends StatelessWidget {
-  final VoidCallback onContinuePressed;
-
   const JournalCompletedWidget({
-    Key? key,
     required this.onContinuePressed,
-  }) : super(key: key);
+    super.key,
+  });
+  final VoidCallback onContinuePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -776,7 +803,6 @@ class JournalCompletedWidget extends StatelessWidget {
           AppOutlinedButton(
             text: 'Continue to Library',
             onPressed: onContinuePressed,
-            width: double.infinity,
           ),
         ],
       ),

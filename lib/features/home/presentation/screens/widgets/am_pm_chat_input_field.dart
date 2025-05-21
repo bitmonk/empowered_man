@@ -2,8 +2,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
 import 'package:flutter_quill/quill_delta.dart' as quill;
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class AmPmChatInputField extends StatefulWidget {
   const AmPmChatInputField({
@@ -30,7 +28,7 @@ class AmPmChatInputField extends StatefulWidget {
 class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   final controller = Get.find<ReflectionJournalChatController>();
   bool isEditing = false;
-  late quill.QuillController _controller;
+  final quill.QuillController _controller = quill.QuillController.basic();
   bool showEditor = true;
   late FocusNode _focusNode;
   bool _contentChanged = false;
@@ -40,7 +38,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     super.initState();
     _focusNode = widget.focusNode;
     // Initialize with proper configuration
-    _controller = quill.QuillController.basic();
     _updateEditState();
     _initializeWithEditingText();
     controller.addListener(_handleControllerChanges);
@@ -88,12 +85,12 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       _updateEditState();
 
       // Only initialize with text if we're entering edit mode
-      if (controller.isEditMode && !isEditing) {
+      if (controller.isEditMode.value && !isEditing) {
         _initializeWithEditingText();
       }
 
       // Request focus after content change, but not during regular typing
-      if (controller.isEditMode && !_contentChanged) {
+      if (controller.isEditMode.value && !_contentChanged) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
             _focusNode.requestFocus();
@@ -105,38 +102,38 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
 
   void _updateEditState() {
     setState(() {
-      isEditing = controller.isEditMode;
+      isEditing = controller.isEditMode.value;
     });
   }
 
-void _initializeWithEditingText() {
-  if (controller.isEditMode && controller.chatController.text.isNotEmpty) {
-    final htmlText = controller.chatController.text;
-    final plainText = htmlText.replaceAll(RegExp(r'<[^>]*>'), '');
+  void _initializeWithEditingText() {
+    if (controller.isEditMode.value &&
+        controller.chatController.text.isNotEmpty) {
+      final htmlText = controller.chatController.text;
+      final plainText = htmlText.replaceAll(RegExp('<[^>]*>'), '');
 
-    final newDelta = quill.Delta()..insert(plainText);
-    if (!plainText.endsWith('\n')) {
-      newDelta.insert('\n');
-    }
+      final newDelta = quill.Delta()..insert(plainText);
+      if (!plainText.endsWith('\n')) {
+        newDelta.insert('\n');
+      }
 
-    final currentDelta = _controller.document.toDelta();
-    if (currentDelta != newDelta) {
-      setState(() {
-        _controller.document = quill.Document.fromDelta(newDelta);
-        _contentChanged = false;
-      });
+      final currentDelta = _controller.document.toDelta();
+      if (currentDelta != newDelta) {
+        setState(() {
+          _controller.document = quill.Document.fromDelta(newDelta);
+          _contentChanged = false;
+        });
 
-      print('Initialized document: ${_controller.document.toDelta()}');
+        print('Initialized document: ${_controller.document.toDelta()}');
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _focusNode.requestFocus();
-        }
-      });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            _focusNode.requestFocus();
+          }
+        });
+      }
     }
   }
-}
-
 
   String getFormattedHtml() {
     final document = _controller.document;
@@ -186,11 +183,10 @@ void _initializeWithEditingText() {
 
     final htmlContent = getFormattedHtml();
     if (htmlContent.trim().isNotEmpty) {
-      if (controller.isEditMode && controller.editingAnswerId != null) {
+      if (controller.isEditMode.value) {
         // We're in edit mode, update the existing message
         controller
             .updateMessage(
-          controller.editingAnswerId!,
           htmlContent,
         )
             .then((_) {
@@ -267,7 +263,7 @@ void _initializeWithEditingText() {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
-                "Editing message...",
+                'Editing message...',
                 style: AppTextStyles.textCaptionC2.copyWith(
                   color: AppColors.primary500,
                   fontStyle: FontStyle.italic,
@@ -277,46 +273,23 @@ void _initializeWithEditingText() {
           if (showEditor)
             DefaultTextStyle(
               style: const TextStyle(
-                fontSize: 16, // Increased font size for better visibility
+                fontSize: 16,
                 color: AppColors.textColor100,
               ),
               child: Padding(
                 padding: const EdgeInsets.all(8),
                 child: quill.QuillEditor.basic(
-                  
                   focusNode: _focusNode,
                   controller: _controller,
                   configurations: quill.QuillEditorConfigurations(
                     minHeight: 50,
-                    maxHeight: 120, // Set max height to control expansion
+                    maxHeight: 120,
                     placeholder:
                         isEditing ? 'Edit your message...' : 'Message...',
-                   // readOnly: false, // Explicitly set to false
-                    showCursor: true, // Make sure cursor is visible
-                    padding: const EdgeInsets.all(4), // Add padding
-                    autoFocus: true, // Try enabling autoFocus
-                    expands: false, // Don't expand to fill space
-                    // Improve visibility of cursor and text
-                    // customStyles: quill.DefaultStyles(
-                    //   placeHolder: quill.DefaultTextBlockStyle(
-                    //     const TextStyle(
-                    //       color: AppColors.textColor300,
-                    //       fontSize: 16,
-                    //     ),
-                    //     const Tuple2(16, 0),
-                    //     const Tuple2(0, 0),
-                    //     null,
-                    //   ),
-                    //   paragraph: quill.DefaultTextBlockStyle(
-                    //     const TextStyle(
-                    //       color: AppColors.textColor100,
-                    //       fontSize: 16,
-                    //     ),
-                    //     const Tuple2(0, 0),
-                    //     const Tuple2(0, 0),
-                    //     null,
-                    //   ),
-                    // ),
+                    // readOnly: false, // Explicitly set to false
+                    showCursor: true,
+                    padding: const EdgeInsets.all(4),
+                    autoFocus: true,
                   ),
                 ),
               ),
@@ -339,7 +312,6 @@ void _initializeWithEditingText() {
                       controller: _controller,
                       configurations:
                           const quill.QuillSimpleToolbarConfigurations(
-                        toolbarSectionSpacing: 4, // Slightly more spacing
                         showJustifyAlignment: false,
                         showListBullets: false,
                         showCenterAlignment: false,
@@ -361,9 +333,7 @@ void _initializeWithEditingText() {
                         showClipboardCopy: false,
                         showClipboardPaste: false,
                         multiRowsDisplay: false,
-                        buttonOptions: quill.QuillSimpleToolbarButtonOptions(
-                          base: quill.QuillToolbarBaseButtonOptions(),
-                        ),
+
                         color: AppColors.transparent,
                       ),
                     ),
@@ -446,7 +416,7 @@ void _initializeWithEditingText() {
 // Note: Make sure you have the Tuple2 class available, either import it or
 // add this class if needed:
 class Tuple2<T1, T2> {
+  const Tuple2(this.item1, this.item2);
   final T1 item1;
   final T2 item2;
-  const Tuple2(this.item1, this.item2);
 }

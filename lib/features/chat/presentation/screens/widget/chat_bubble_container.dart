@@ -1,18 +1,9 @@
-import 'dart:math' as math;
-
-import 'package:audio_video_progress_bar/audio_video_progress_bar.dart';
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/chat/presentation/screens/widget/media_view_screens.dart';
-import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
+// import 'package:empowered/features/chat/presentation/screens/widget/media_view_screens.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:video_player/video_player.dart';
 
 class ChatBubbleContainer extends StatefulWidget {
   const ChatBubbleContainer({
@@ -34,6 +25,7 @@ class ChatBubbleContainer extends StatefulWidget {
     this.isAnswered = false,
     this.isThinking = false,
     this.answerId,
+    this.onEditTap,
   });
 
   final bool isMine;
@@ -53,6 +45,7 @@ class ChatBubbleContainer extends StatefulWidget {
   final bool isAnswered;
   final bool isThinking;
   final String? answerId;
+  final VoidCallback? onEditTap;
 
   @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
@@ -61,10 +54,10 @@ class ChatBubbleContainer extends StatefulWidget {
 class _ChatBubbleContainerState extends State<ChatBubbleContainer>
     with TickerProviderStateMixin {
   bool isLiked = false; // Internal state for like
-  VideoPlayerController? _videoController;
+  // VideoPlayerController? _videoController;
   ChewieController? _chewieController;
   bool _isVideoInitialized = false;
-  late AudioPlayer _audioPlayer;
+  // late AudioPlayer _audioPlayer;
   bool _isPlaying = false;
   String? _selectedOption;
   late List<AnimationController> _dotAnimationControllers;
@@ -73,10 +66,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
   void initState() {
     super.initState();
     _selectedOption = widget.selectedOption;
-    _audioPlayer = AudioPlayer();
+    // _audioPlayer = AudioPlayer();
     isLiked = widget.isLiked;
-    _initializeVideo();
-    _initializeAudio();
+
     _dotAnimationControllers = List.generate(
       5,
       (index) => AnimationController(
@@ -86,7 +78,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
     );
 
     _dotAnimations = _dotAnimationControllers.map((controller) {
-      return Tween<double>(begin: 0.5, end: 1.0).animate(
+      return Tween<double>(begin: 0.5, end: 1).animate(
         CurvedAnimation(
           parent: controller,
           curve: Curves.easeInOut,
@@ -95,62 +87,12 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
     }).toList();
 
     // Start animations with a slight delay for a wave effect
-    for (int i = 0; i < _dotAnimationControllers.length; i++) {
+    for (var i = 0; i < _dotAnimationControllers.length; i++) {
       Future.delayed(Duration(milliseconds: i * 200), () {
         if (mounted) {
           _dotAnimationControllers[i].repeat(reverse: true);
         }
       });
-    }
-  }
-
-  Future<void> _initializeAudio() async {
-    // _audioPlayer = AudioPlayer();
-    _audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
-        setState(() {
-          _isPlaying = false;
-        });
-      } else if (state.playing) {
-        setState(() {
-          _isPlaying = true;
-        });
-      }
-    });
-  }
-
-  Future<void> _playVoiceMessage(String url) async {
-    try {
-      await _audioPlayer.setUrl(url);
-      await _audioPlayer.play();
-    } catch (e) {
-      debugPrint('Error playing audio: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Failed to play audio message')),
-      );
-    }
-  }
-
-  Future<void> _initializeVideo() async {
-    if (widget.videos == null || widget.videos!.isEmpty) return;
-
-    try {
-      _videoController =
-          VideoPlayerController.networkUrl(Uri.parse(widget.videos!.first));
-      await _videoController?.initialize();
-
-      if (mounted) {
-        setState(() {
-          _isVideoInitialized = true;
-        });
-      }
-    } catch (e) {
-      debugPrint('Error initializing video: $e');
-      if (mounted) {
-        setState(() {
-          _isVideoInitialized = false;
-        });
-      }
     }
   }
 
@@ -216,7 +158,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
         color: AppColors.bgMedium,
         borderRadius: const BorderRadius.only(
           bottomRight: Radius.circular(14),
-          topLeft: Radius.zero,
           bottomLeft: Radius.circular(14),
           topRight: Radius.circular(14),
         ),
@@ -243,7 +184,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
                       margin: const EdgeInsets.symmetric(horizontal: 2),
                       width: 8,
                       height: 8,
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         color: AppColors.textColor300,
                         shape: BoxShape.circle,
                       ),
@@ -298,10 +239,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
 
   @override
   void dispose() {
-    _videoController?.dispose();
-    _chewieController?.dispose();
-    _audioPlayer.dispose();
-    for (var controller in _dotAnimationControllers) {
+    for (final controller in _dotAnimationControllers) {
       controller.dispose();
     }
     super.dispose();
@@ -390,21 +328,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
                       const HorizontalSpacing(16),
                       InkWell(
                         onTap: () {
-                          final controller =
-                              Get.find<ReflectionJournalChatController>();
-
-                          // Set the message in the chat controller's text field
-                          controller.chatController.text = widget.message;
-
-                          // Set the controller's editMode to true and store the answerId
-                          if (widget.answerId != null) {
-                            controller.setEditMode(true, widget.answerId!);
+                          if (widget.onEditTap != null) {
+                            widget.onEditTap!();
                           }
-
-                          Navigator.pop(context);
-                          // Get.find<ChatController>().chatController.text =
-                          //     widget.message;
-                          // Navigator.pop(context);
                         },
                         child: Assets.images.chatEdit.svg(width: 20),
                       ),
@@ -423,7 +349,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
   Widget build(BuildContext context) {
     if (widget.isThinking) {
       print(
-          '::::::::::::::::::::::::::::::::::::::::::::::::Building thinking indicator');
+        '::::::::::::::::::::::::::::::::::::::::::::::::Building thinking indicator',
+      );
       return Align(
         alignment: Alignment.centerLeft,
         child: Column(
@@ -431,7 +358,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
           children: [
             const VerticalSpacing(16),
             Row(
-              mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 // Profile picture for AI
@@ -473,7 +399,9 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
             const VerticalSpacing(16),
             GestureDetector(
               onLongPressStart: (details) {
-                _showPopupMenu(context, details.globalPosition);
+                widget.isMine
+                    ? _showPopupMenu(context, details.globalPosition)
+                    : null;
               },
               child: Row(
                 mainAxisAlignment: widget.isMine
@@ -541,87 +469,77 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
                                   ],
                                 ),
                               ),
-                            Column(
-                              children: [
-                                if (widget.images != null &&
-                                    widget.images!.isNotEmpty)
-                                  InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              FullscreenImageView(
-                                            imagePath: widget.images!.first,
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                    child: Wrap(
-                                      spacing: 8,
-                                      runSpacing: 8,
-                                      children: widget.images!.map((url) {
-                                        return Container(
-                                          width: 150,
-                                          height: 150,
-                                          clipBehavior: Clip.antiAlias,
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(8),
-                                            color: Colors.black,
-                                          ),
-                                          child: Image.network(
-                                            url,
-                                            fit: BoxFit.cover,
-                                            loadingBuilder: (
-                                              context,
-                                              child,
-                                              loadingProgress,
-                                            ) {
-                                              if (loadingProgress == null) {
-                                                return child;
-                                              }
-                                              return Center(
-                                                child:
-                                                    CircularProgressIndicator(
-                                                  value: loadingProgress
-                                                              .expectedTotalBytes !=
-                                                          null
-                                                      ? loadingProgress
-                                                              .cumulativeBytesLoaded /
-                                                          loadingProgress
-                                                              .expectedTotalBytes!
-                                                      : null,
-                                                ),
-                                              );
-                                            },
-                                            errorBuilder:
-                                                (context, error, stackTrace) =>
-                                                    const ColoredBox(
-                                              color: Colors.black,
-                                              child: Icon(
-                                                Icons.broken_image,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                if (widget.videos != null &&
-                                    widget.videos!.isNotEmpty)
-                                  _buildVideoPreview(),
-                                if (widget.voices != null &&
-                                    widget.voices!.isNotEmpty)
-                                  CustomAudioPlayer(
-                                    url: widget.voices!
-                                        .first, // your audio file URL or path
-                                    isMine: widget.isMine,
-                                  ),
-                                const SizedBox(height: 8),
-                              ],
-                            ),
+                            // Column(
+                            //   children: [
+                            //     if (widget.images != null &&
+                            //         widget.images!.isNotEmpty)
+                            //       InkWell(
+                            //         onTap: () {
+                            //           Navigator.push(
+                            //             context,
+                            //             MaterialPageRoute(
+                            //               builder: (context) =>
+                            //                   FullscreenImageView(
+                            //                 imagePath: widget.images!.first,
+                            //               ),
+                            //             ),
+                            //           );
+                            //         },
+                            //         child: Wrap(
+                            //           spacing: 8,
+                            //           runSpacing: 8,
+                            //           children: widget.images!.map((url) {
+                            //             return Container(
+                            //               width: 150,
+                            //               height: 150,
+                            //               clipBehavior: Clip.antiAlias,
+                            //               decoration: BoxDecoration(
+                            //                 borderRadius:
+                            //                     BorderRadius.circular(8),
+                            //                 color: Colors.black,
+                            //               ),
+                            //               child: Image.network(
+                            //                 url,
+                            //                 fit: BoxFit.cover,
+                            //                 loadingBuilder: (
+                            //                   context,
+                            //                   child,
+                            //                   loadingProgress,
+                            //                 ) {
+                            //                   if (loadingProgress == null) {
+                            //                     return child;
+                            //                   }
+                            //                   return Center(
+                            //                     child:
+                            //                         CircularProgressIndicator(
+                            //                       value: loadingProgress
+                            //                                   .expectedTotalBytes !=
+                            //                               null
+                            //                           ? loadingProgress
+                            //                                   .cumulativeBytesLoaded /
+                            //                               loadingProgress
+                            //                                   .expectedTotalBytes!
+                            //                           : null,
+                            //                     ),
+                            //                   );
+                            //                 },
+                            //                 errorBuilder:
+                            //                     (context, error, stackTrace) =>
+                            //                         const ColoredBox(
+                            //                   color: Colors.black,
+                            //                   child: Icon(
+                            //                     Icons.broken_image,
+                            //                     color: Colors.white,
+                            //                   ),
+                            //                 ),
+                            //               ),
+                            //             );
+                            //           }).toList(),
+                            //         ),
+                            //       ),
+                            //     const SizedBox(height: 8),
+                            //   ],
+                            // ),
                             if (widget
                                 .isLoading) // Use widget.isLoading directly
                               Positioned(
@@ -682,72 +600,5 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
       );
     }
     // final displayMessage = _extractTextFromHtml(widget.message);
-  }
-
-  Widget _buildVideoPreview() {
-    if (widget.videos == null || widget.videos!.isEmpty) {
-      return const SizedBox();
-    }
-
-    if (!_isVideoInitialized || _videoController == null) {
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: [
-          Container(
-            width: 150,
-            height: 150,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              color: Colors.black12,
-            ),
-            child: const LoadingWidget(),
-          ),
-        ],
-      );
-    }
-    return InkWell(
-      onTap: () {
-        if (widget.videos!.isNotEmpty) {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => FullscreenVideoView(
-                videoPath: widget.videos!.first,
-              ),
-            ),
-          );
-        }
-      },
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        height: 200,
-        width: double.infinity,
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          color: Colors.black,
-        ),
-        child: Stack(
-          alignment: Alignment.center,
-          children: [
-            AspectRatio(
-              aspectRatio: _videoController!.value.aspectRatio,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  VideoPlayer(_videoController!),
-                  if (!_videoController!.value.isPlaying)
-                    const Icon(
-                      Icons.play_circle_fill,
-                      color: Colors.white,
-                      size: 48,
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
   }
 }

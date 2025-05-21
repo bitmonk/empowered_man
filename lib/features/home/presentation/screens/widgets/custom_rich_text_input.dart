@@ -1,6 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 
 class CustomRichTextInput extends StatefulWidget {
@@ -27,7 +25,7 @@ class CustomRichTextInput extends StatefulWidget {
 
 class _CustomRichTextInputState extends State<CustomRichTextInput> {
   final controller = Get.find<ReflectionJournalChatController>();
-  final TextEditingController _textController = TextEditingController();
+  // TextEditingController _textController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
   bool isEditing = false;
@@ -42,16 +40,15 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
   bool _isStrikethrough = false;
   bool _isCode = false;
 
-  // Track selection for formatting
-  TextSelection _currentSelection = const TextSelection.collapsed(offset: 0);
-
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode;
     _focusNode.addListener(_handleFocusChange);
     controller.addListener(_handleControllerChanges);
-    
+    if (controller.isEditMode.value) {
+      _initializeWithEditingText();
+    }
     // Request focus after build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && showEditor) {
@@ -72,17 +69,21 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
   @override
   void dispose() {
     controller.removeListener(_handleControllerChanges);
-    _textController.dispose();
+    // _textController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _handleControllerChanges() {
     if (mounted) {
+      setState(() {
+        var wasEditingBefore = isEditing;
+      });
+      // bool wasEditingBefore = isEditing;
       _updateEditState();
 
       // Only initialize with text if we're entering edit mode and the text field is empty
-      if (controller.isEditMode && !isEditing) {
+      if (controller.isEditMode.value && !isEditing) {
         _initializeWithEditingText();
       }
     }
@@ -90,33 +91,30 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
 
   void _updateEditState() {
     setState(() {
-      isEditing = controller.isEditMode;
+      isEditing = controller.isEditMode.value;
     });
   }
 
   void _initializeWithEditingText() {
-    if (controller.isEditMode && controller.chatController.text.isNotEmpty) {
+    if (controller.isEditMode.value &&
+        controller.chatController.text.isNotEmpty) {
       final htmlText = controller.chatController.text;
-      final plainText = htmlText.replaceAll(RegExp(r'<[^>]*>'), '');
+      final plainText = htmlText.replaceAll(RegExp('<[^>]*>'), '');
 
-      // Only update if the TextField is empty to avoid overriding user text
-      if (_textController.text.isEmpty) {
-        setState(() {
-          _textController.text = plainText;
-          _contentChanged = false;
-        });
-
-        debugPrint('Initialized text: ${_textController.text}');
-      }
+      setState(() {
+        //  _textController.text = plainText;
+        _contentChanged = false;
+        showEditor = true;
+      });
     }
   }
 
   String getFormattedHtml() {
-    final text = _textController.text;
+    final text = controller.chatController.text;
     if (text.isEmpty) return '';
 
     // We'll implement a simple parser that tracks formats applied
-    String html = text;
+    var html = text;
 
     // Apply formatting in the correct order
     if (_isBold) {
@@ -148,18 +146,17 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
 
     final htmlContent = getFormattedHtml();
     if (htmlContent.trim().isNotEmpty) {
-      if (controller.isEditMode && controller.editingAnswerId != null) {
+      if (controller.isEditMode.value) {
         // We're in edit mode, update the existing message
         controller
             .updateMessage(
-          controller.editingAnswerId!,
           htmlContent,
         )
             .then((_) {
           // Reset edit mode after successful update
           controller.resetEditMode();
           // Reset editor
-          _textController.clear();
+          controller.chatController.clear();
           setState(() {
             _contentChanged = false;
             _resetFormatting();
@@ -178,7 +175,7 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
           widget.followupQuestionId,
         )
             .then((_) {
-          _textController.clear();
+          controller.chatController.clear();
           setState(() {
             _contentChanged = false;
             _resetFormatting();
@@ -202,7 +199,7 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
     setState(() {
       _isBold = !_isBold;
     });
-    _focusNode.requestFocus(); // Restore focus to the text field
+    _focusNode.requestFocus();
   }
 
   void _toggleItalic() {
@@ -251,7 +248,7 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isEditing
+        color: controller.isEditMode.value
             ? AppColors.bgBorder.withOpacity(0.9)
             : AppColors.bgBorder,
         borderRadius: const BorderRadius.all(Radius.circular(24)),
@@ -266,7 +263,7 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
-                "Editing message...",
+                'Editing message...',
                 style: AppTextStyles.textCaptionC2.copyWith(
                   color: AppColors.primary500,
                   fontStyle: FontStyle.italic,
@@ -281,11 +278,10 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
               ),
               padding: const EdgeInsets.all(8),
               child: TextField(
-                controller: _textController,
+                controller: controller.chatController,
                 focusNode: _focusNode,
                 minLines: 1,
                 maxLines: null,
-                expands: false,
                 textAlignVertical: TextAlignVertical.top,
                 style: TextStyle(
                   fontSize: 16,
@@ -311,9 +307,9 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
                   debugPrint('Text changed: $value');
                 },
                 onTap: () {
-                  setState(() {
-                    _currentSelection = _textController.selection;
-                  });
+                  // setState(() {
+                  //   _currentSelection = _textController.selection;
+                  // });
                 },
               ),
             ),
@@ -364,7 +360,8 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
                       onTap: () {
                         // Cancel editing
                         controller.resetEditMode();
-                        _textController.clear();
+                        controller.chatController.clear();
+                        // _textController.clear();
                         setState(() {
                           _contentChanged = false;
                           _resetFormatting();
@@ -413,7 +410,10 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
   }
 
   Widget _buildToolbarButton(
-      IconData icon, bool isSelected, VoidCallback onPressed) {
+    IconData icon,
+    bool isSelected,
+    VoidCallback onPressed,
+  ) {
     return IconButton(
       icon: Icon(
         icon,
@@ -457,3 +457,273 @@ class _CustomRichTextInputState extends State<CustomRichTextInput> {
     );
   }
 }
+
+// class CustomQuillInputField extends StatefulWidget {
+//   const CustomQuillInputField({
+//     required this.focusNode,
+//     required this.reflectionId,
+//     this.mainQuestionId,
+//     this.followupQuestionId,
+//     this.onMessageSent,
+//     this.isDisabled = false,
+//     super.key,
+//   });
+
+//   final FocusNode focusNode;
+//   final String reflectionId;
+//   final String? mainQuestionId;
+//   final String? followupQuestionId;
+//   final VoidCallback? onMessageSent;
+//   final bool isDisabled;
+
+//   @override
+//   State<CustomQuillInputField> createState() => _CustomQuillInputFieldState();
+// }
+
+// class _CustomQuillInputFieldState extends State<CustomQuillInputField> {
+//   final controller = Get.find<ReflectionJournalChatController>();
+//   late quill.QuillController _quillController;
+//   bool isEditing = false;
+//   bool showEditor = true;
+//   bool _contentChanged = false;
+
+//   @override
+//   void initState() {
+//     super.initState();
+//     _quillController = quill.QuillController.basic();
+
+//     // Listen for edit mode changes in your controller
+//     controller.addListener(_handleControllerChanges);
+
+//     // Listen for content changes
+//     _quillController.document.changes.listen((event) {
+//       if (!_contentChanged) {
+//         setState(() {
+//           _contentChanged = true;
+//         });
+//       }
+//     });
+
+//     // If in edit mode at start, load editing text
+//     if (controller.isEditMode.value) {
+//       _initializeWithEditingText();
+//     }
+
+//     WidgetsBinding.instance.addPostFrameCallback((_) {
+//       if (mounted && showEditor) {
+//         widget.focusNode.requestFocus();
+//       }
+//     });
+//   }
+
+//   @override
+//   void dispose() {
+//     controller.removeListener(_handleControllerChanges);
+//     _quillController.dispose();
+//     super.dispose();
+//   }
+
+//   void _handleControllerChanges() {
+//     if (!mounted) return;
+//     setState(() {
+//       isEditing = controller.isEditMode.value;
+//     });
+//     if (controller.isEditMode.value && !isEditing) {
+//       _initializeWithEditingText();
+//     }
+//   }
+
+//   void _initializeWithEditingText() {
+//     final htmlText = controller.chatController.text;
+//     if (htmlText.isNotEmpty) {
+//       // Optionally, you can implement a custom HTML-to-Delta converter
+//       // For now, treat as plain text
+//       final plainText = htmlText.replaceAll(RegExp('<[^>]*>'), '');
+//       final delta = quill.Delta()..insert(plainText + '\n');
+//       setState(() {
+//         _quillController = quill.QuillController(
+//           document: quill.Document.fromDelta(delta),
+//           selection: const TextSelection.collapsed(offset: 0),
+//         );
+//         _contentChanged = false;
+//         showEditor = true;
+//       });
+//     }
+//   }
+
+//   String getFormattedHtml() {
+//     // If you need real HTML export, use a proper converter like quill_html
+//     // For simplicity, this only returns plain text
+//     // You can use document.toDelta().toJson() or implement custom mapping
+//     return _quillController.document.toPlainText().trim();
+//   }
+
+//   void sendMessageWithFormatting() {
+//     if (widget.isDisabled) return;
+//     final htmlContent = getFormattedHtml();
+//     if (htmlContent.isEmpty) return;
+
+//     if (controller.isEditMode.value) {
+//       controller.updateMessage(htmlContent).then((_) {
+//         controller.resetEditMode();
+//         _quillController.clear();
+//         setState(() {
+//           _contentChanged = false;
+//         });
+//         widget.onMessageSent?.call();
+//       });
+//     } else {
+//       controller
+//           .sendMessage(
+//         widget.reflectionId,
+//         null,
+//         htmlContent,
+//         widget.mainQuestionId,
+//         widget.followupQuestionId,
+//       )
+//           .then((_) {
+//         _quillController.clear();
+//         setState(() {
+//           _contentChanged = false;
+//         });
+//         widget.onMessageSent?.call();
+//       });
+//     }
+//   }
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(12),
+//       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+//       decoration: BoxDecoration(
+//         color: controller.isEditMode.value
+//             ? AppColors.bgBorder.withOpacity(0.9)
+//             : AppColors.bgBorder,
+//         borderRadius: const BorderRadius.all(Radius.circular(24)),
+//         border: isEditing
+//             ? Border.all(color: AppColors.primary500, width: 1.5)
+//             : null,
+//       ),
+//       child: Column(
+//         children: [
+//           if (isEditing)
+//             Container(
+//               width: double.infinity,
+//               padding: const EdgeInsets.symmetric(vertical: 4),
+//               child: Text(
+//                 'Editing message...',
+//                 style: AppTextStyles.textCaptionC2.copyWith(
+//                   color: AppColors.primary500,
+//                   fontStyle: FontStyle.italic,
+//                 ),
+//               ),
+//             ),
+//           if (showEditor)
+//             Container(
+//               constraints: const BoxConstraints(
+//                 minHeight: 50,
+//                 maxHeight: 120,
+//               ),
+//               padding: const EdgeInsets.all(8),
+//               child: quill.QuillEditor.basic(
+//                 controller: _quillController,
+//                 focusNode: widget.focusNode,
+//                 configurations: quill.QuillEditorConfigurations(
+//                   minHeight: 50,
+//                   maxHeight: 120,
+//                   placeholder:
+//                       isEditing ? 'Edit your message...' : 'Message...',
+//                   // readOnly: false,
+//                   expands: false,
+//                   autoFocus: true,
+//                   padding: const EdgeInsets.all(4),
+//                   showCursor: true,
+//                 ),
+//               ),
+//             ),
+//           Row(
+//             children: [
+//               if (showEditor)
+//                 Expanded(
+//                   child: Theme(
+//                     data: Theme.of(context).copyWith(
+//                       iconTheme: const IconThemeData(
+//                         color: Colors.white,
+//                         size: 22,
+//                       ),
+//                       buttonTheme: const ButtonThemeData(
+//                         buttonColor: Colors.white,
+//                       ),
+//                     ),
+//                     child: quill.QuillSimpleToolbar(
+//                       controller: _quillController,
+//                       configurations:
+//                           const quill.QuillSimpleToolbarConfigurations(
+//                         toolbarSectionSpacing: 4,
+//                         showJustifyAlignment: false,
+//                         showListBullets: false,
+//                         showCenterAlignment: false,
+//                         showClearFormat: false,
+//                         showFontFamily: false,
+//                         showFontSize: false,
+//                         showBackgroundColorButton: false,
+//                         showColorButton: false,
+//                         showHeaderStyle: false,
+//                         showLink: false,
+//                         showUndo: false,
+//                         showRedo: false,
+//                         showListCheck: false,
+//                         showIndent: false,
+//                         showSubscript: false,
+//                         showSuperscript: false,
+//                         showSearchButton: false,
+//                         showClipboardCut: false,
+//                         showClipboardCopy: false,
+//                         showClipboardPaste: false,
+//                         multiRowsDisplay: false,
+//                         color: AppColors.transparent,
+//                       ),
+//                     ),
+//                   ),
+//                 ),
+//               const SizedBox(width: 8),
+//               Row(
+//                 children: [
+//                   if (isEditing)
+//                     InkWell(
+//                       onTap: () {
+//                         controller.resetEditMode();
+//                         _quillController.clear();
+//                         setState(() {
+//                           _contentChanged = false;
+//                         });
+//                       },
+//                       child: Container(
+//                         padding: const EdgeInsets.all(8),
+//                         decoration: const BoxDecoration(
+//                           color: AppColors.bgBorder,
+//                           shape: BoxShape.circle,
+//                         ),
+//                         child: const Icon(
+//                           Icons.close,
+//                           color: AppColors.textColor300,
+//                           size: 20,
+//                         ),
+//                       ),
+//                     ),
+//                   const SizedBox(width: 8),
+//                   InkWell(
+//                     onTap: widget.isDisabled ? null : sendMessageWithFormatting,
+//                     child: Assets.images.sendMessageIcon
+//                         .svg(width: 40, height: 40),
+//                   ),
+//                 ],
+//               ),
+//             ],
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+// }

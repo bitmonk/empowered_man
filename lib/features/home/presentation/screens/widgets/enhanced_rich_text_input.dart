@@ -1,64 +1,10 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 
-class TextFormat {
-  final bool bold;
-  final bool italic;
-  final bool underline;
-  final bool strikethrough;
-  final bool code;
-
-  const TextFormat({
-    this.bold = false,
-    this.italic = false,
-    this.underline = false,
-    this.strikethrough = false,
-    this.code = false,
-  });
-
-  TextFormat copyWith({
-    bool? bold,
-    bool? italic,
-    bool? underline,
-    bool? strikethrough,
-    bool? code,
-  }) {
-    return TextFormat(
-      bold: bold ?? this.bold,
-      italic: italic ?? this.italic,
-      underline: underline ?? this.underline,
-      strikethrough: strikethrough ?? this.strikethrough,
-      code: code ?? this.code,
-    );
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is TextFormat &&
-        other.bold == bold &&
-        other.italic == italic &&
-        other.underline == underline &&
-        other.strikethrough == strikethrough &&
-        other.code == code;
-  }
-
-  @override
-  int get hashCode {
-    return bold.hashCode ^
-        italic.hashCode ^
-        underline.hashCode ^
-        strikethrough.hashCode ^
-        code.hashCode;
-  }
-}
-
-class EnhancedRichTextInput extends StatefulWidget {
-  const EnhancedRichTextInput({
+class JournalChatInputTextField extends StatefulWidget {
+  const JournalChatInputTextField({
     required this.focusNode,
-    required this.reflectionId,
+    required this.journalId,
     this.mainQuestionId,
     this.followupQuestionId,
     this.onMessageSent,
@@ -67,203 +13,153 @@ class EnhancedRichTextInput extends StatefulWidget {
   });
 
   final FocusNode focusNode;
-  final String reflectionId;
+  final String journalId;
   final String? mainQuestionId;
   final String? followupQuestionId;
   final VoidCallback? onMessageSent;
   final bool isDisabled;
 
   @override
-  State<EnhancedRichTextInput> createState() => _EnhancedRichTextInputState();
+  State<JournalChatInputTextField> createState() =>
+      _JournalChatInputTextFieldState();
 }
 
-class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
-  final controller = Get.find<ReflectionJournalChatController>();
-  final TextEditingController _textController = TextEditingController();
+class _JournalChatInputTextFieldState extends State<JournalChatInputTextField> {
+  final controller = Get.find<JournalChatController>();
   final ScrollController _scrollController = ScrollController();
 
-  // State variables
   bool isEditing = false;
-  bool _contentChanged = false;
+  // bool _contentChanged = false;
   bool showEditor = true;
   late FocusNode _focusNode;
 
-  // Current active format for new text being typed
-  TextFormat _currentFormat = const TextFormat();
-
-  // Store a list of text segments with their formatting
-  final List<FormattedTextSegment> _textSegments = [];
+  // Format tracking
+  bool _isBold = false;
+  bool _isItalic = false;
+  bool _isUnderline = false;
+  bool _isStrikethrough = false;
+  bool _isCode = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode;
-    _updateEditState();
-    _initializeWithEditingText();
+    _focusNode.addListener(_handleFocusChange);
     controller.addListener(_handleControllerChanges);
-
-    // Track content changes
-    _textController.addListener(() {
-      if (mounted) {
-        setState(() {
-          _contentChanged = true;
-          _updateTextSegments();
-        });
-      }
-    });
-
-    // Debug focus issues
-    _focusNode.addListener(() {
-      print('FocusNode has focus: ${_focusNode.hasFocus}');
-      if (!_focusNode.hasFocus) {
-        // Re-request focus if lost unexpectedly
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted && showEditor) {
-            _focusNode.requestFocus();
-          }
-        });
-      }
-    });
-
+    if (controller.isEditMode.value) {
+      _initializeWithEditingText();
+    }
     // Request focus after build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted && showEditor) {
-        print('Requesting focus in initState');
         _focusNode.requestFocus();
       }
     });
   }
 
+  void _handleFocusChange() {
+    // Only log focus changes but don't force refocus
+    if (!_focusNode.hasFocus) {
+      debugPrint('Focus lost');
+    } else {
+      debugPrint('Focus gained');
+    }
+  }
+
   @override
   void dispose() {
     controller.removeListener(_handleControllerChanges);
-    _textController.dispose();
+    // _textController.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _handleControllerChanges() {
     if (mounted) {
+      setState(() {
+        var wasEditingBefore = isEditing;
+      });
+      // bool wasEditingBefore = isEditing;
       _updateEditState();
 
-      // Only initialize with text if we're entering edit mode
-      if (controller.isEditMode && !isEditing) {
+      // Only initialize with text if we're entering edit mode and the text field is empty
+      if (controller.isEditMode.value && !isEditing) {
         _initializeWithEditingText();
-      }
-
-      // Request focus after content change, but not during regular typing
-      if (controller.isEditMode && !_contentChanged) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _focusNode.requestFocus();
-          }
-        });
       }
     }
   }
 
   void _updateEditState() {
     setState(() {
-      isEditing = controller.isEditMode;
+      isEditing = controller.isEditMode.value;
     });
   }
 
   void _initializeWithEditingText() {
-    if (controller.isEditMode && controller.chatController.text.isNotEmpty) {
+    if (controller.isEditMode.value &&
+        controller.chatController.text.isNotEmpty) {
       final htmlText = controller.chatController.text;
-      final plainText = htmlText.replaceAll(RegExp(r'<[^>]*>'), '');
+      final plainText = htmlText.replaceAll(RegExp('<[^>]*>'), '');
 
-      if (_textController.text != plainText) {
-        setState(() {
-          _textSegments.clear();
-          _textController.text = plainText;
-          _textSegments.add(FormattedTextSegment(
-              text: plainText, format: const TextFormat()));
-          _contentChanged = false;
-        });
-
-        print('Initialized text: ${_textController.text}');
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _focusNode.requestFocus();
-          }
-        });
-      }
-    }
-  }
-
-  void _updateTextSegments() {
-    // In a real implementation, you would track formatting changes per segment
-    // For simplicity, we'll use a single segment with the current format
-    if (_textSegments.isEmpty) {
-      _textSegments.add(FormattedTextSegment(
-          text: _textController.text, format: _currentFormat));
-    } else {
-      _textSegments[0] = FormattedTextSegment(
-          text: _textController.text, format: _currentFormat);
+      setState(() {
+        //  _textController.text = plainText;
+        // _contentChanged = false;
+        showEditor = true;
+      });
     }
   }
 
   String getFormattedHtml() {
-    if (_textSegments.isEmpty) return '';
+    final text = controller.chatController.text;
+    if (text.isEmpty) return '';
 
-    // Convert text segments to HTML
-    final buffer = StringBuffer();
+    // We'll implement a simple parser that tracks formats applied
+    var html = text;
 
-    for (final segment in _textSegments) {
-      String text = segment.text;
-      final format = segment.format;
-
-      // Apply formatting in the right order (from inside out)
-      if (format.code) {
-        text = '<code>$text</code>';
-      }
-
-      if (format.strikethrough) {
-        text = '<s>$text</s>';
-      }
-
-      if (format.underline) {
-        text = '<u>$text</u>';
-      }
-
-      if (format.italic) {
-        text = '<em>$text</em>';
-      }
-
-      if (format.bold) {
-        text = '<strong>$text</strong>';
-      }
-
-      buffer.write(text);
+    // Apply formatting in the correct order
+    if (_isBold) {
+      html = '<strong>$html</strong>';
     }
 
-    return buffer.toString();
+    if (_isItalic) {
+      html = '<em>$html</em>';
+    }
+
+    if (_isUnderline) {
+      html = '<u>$html</u>';
+    }
+
+    if (_isStrikethrough) {
+      html = '<s>$html</s>';
+    }
+
+    if (_isCode) {
+      html = '<code>$html</code>';
+    }
+
+    return html;
   }
 
   void sendMessageWithFormatting() {
-    print('isDisabled: ${widget.isDisabled}');
+    debugPrint('Sending message. isDisabled: ${widget.isDisabled}');
     if (widget.isDisabled) return;
 
     final htmlContent = getFormattedHtml();
     if (htmlContent.trim().isNotEmpty) {
-      if (controller.isEditMode && controller.editingAnswerId != null) {
+      if (controller.isEditMode.value) {
         // We're in edit mode, update the existing message
         controller
             .updateMessage(
-          controller.editingAnswerId!,
           htmlContent,
         )
             .then((_) {
           // Reset edit mode after successful update
           controller.resetEditMode();
           // Reset editor
-          _textController.clear();
+          controller.chatController.clear();
           setState(() {
-            _contentChanged = false;
+            // _contentChanged = false;
             _resetFormatting();
-            _textSegments.clear();
           });
           // Call onMessageSent callback if provided
           widget.onMessageSent?.call();
@@ -272,74 +168,70 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
         // Normal sending mode, create a new message
         controller
             .sendMessage(
-          widget.reflectionId,
+          widget.journalId,
           null,
           htmlContent,
           widget.mainQuestionId,
           widget.followupQuestionId,
         )
             .then((_) {
+          controller.chatController.clear();
           setState(() {
-            _contentChanged = false;
+            // _contentChanged = false;
+            _resetFormatting();
           });
           // Call onMessageSent callback if provided
           widget.onMessageSent?.call();
         });
       }
-      // Clear the editor
-      setState(() {
-        _textController.clear();
-        _resetFormatting();
-        _textSegments.clear();
-      });
     }
   }
 
   void _resetFormatting() {
-    setState(() {
-      _currentFormat = const TextFormat();
-    });
+    _isBold = false;
+    _isItalic = false;
+    _isUnderline = false;
+    _isStrikethrough = false;
+    _isCode = false;
   }
 
   void _toggleBold() {
     setState(() {
-      _currentFormat = _currentFormat.copyWith(bold: !_currentFormat.bold);
-      _updateTextSegments();
+      _isBold = !_isBold;
     });
+    _focusNode.requestFocus();
   }
 
   void _toggleItalic() {
     setState(() {
-      _currentFormat = _currentFormat.copyWith(italic: !_currentFormat.italic);
-      _updateTextSegments();
+      _isItalic = !_isItalic;
     });
+    _focusNode.requestFocus();
   }
 
   void _toggleUnderline() {
     setState(() {
-      _currentFormat =
-          _currentFormat.copyWith(underline: !_currentFormat.underline);
-      _updateTextSegments();
+      _isUnderline = !_isUnderline;
     });
+    _focusNode.requestFocus();
   }
 
   void _toggleStrikethrough() {
     setState(() {
-      _currentFormat =
-          _currentFormat.copyWith(strikethrough: !_currentFormat.strikethrough);
-      _updateTextSegments();
+      _isStrikethrough = !_isStrikethrough;
     });
+    _focusNode.requestFocus();
   }
 
   void _toggleCode() {
     setState(() {
-      _currentFormat = _currentFormat.copyWith(code: !_currentFormat.code);
-      _updateTextSegments();
+      _isCode = !_isCode;
     });
+    _focusNode.requestFocus();
   }
 
   @override
-  void didUpdateWidget(EnhancedRichTextInput oldWidget) {
+  void didUpdateWidget(JournalChatInputTextField oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     // Update focus node if it changed
@@ -348,11 +240,6 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
     }
 
     _updateEditState();
-
-    // Only reinitialize if editing status changed
-    if (isEditing != oldWidget.key) {
-      _initializeWithEditingText();
-    }
   }
 
   @override
@@ -361,7 +248,7 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
       decoration: BoxDecoration(
-        color: isEditing
+        color: controller.isEditMode.value
             ? AppColors.bgBorder.withOpacity(0.9)
             : AppColors.bgBorder,
         borderRadius: const BorderRadius.all(Radius.circular(24)),
@@ -376,7 +263,7 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
               width: double.infinity,
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Text(
-                "Editing message...",
+                'Editing message...',
                 style: AppTextStyles.textCaptionC2.copyWith(
                   color: AppColors.primary500,
                   fontStyle: FontStyle.italic,
@@ -390,7 +277,41 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
                 maxHeight: 120,
               ),
               padding: const EdgeInsets.all(8),
-              child: _buildRichTextField(),
+              child: TextField(
+                controller: controller.chatController,
+                focusNode: _focusNode,
+                minLines: 1,
+                maxLines: null,
+                textAlignVertical: TextAlignVertical.top,
+                style: TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textColor100,
+                  fontWeight: _isBold ? FontWeight.bold : FontWeight.normal,
+                  fontStyle: _isItalic ? FontStyle.italic : FontStyle.normal,
+                  decoration: _getTextDecoration(),
+                ),
+                decoration: InputDecoration(
+                  hintText: isEditing ? 'Edit your message...' : 'Message...',
+                  hintStyle: const TextStyle(
+                    color: AppColors.textColor300,
+                    fontSize: 16,
+                  ),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.all(4),
+                  isDense: true,
+                ),
+                onChanged: (value) {
+                  setState(() {
+                    //  _contentChanged = true;
+                  });
+                  debugPrint('Text changed: $value');
+                },
+                onTap: () {
+                  // setState(() {
+                  //   _currentSelection = _textController.selection;
+                  // });
+                },
+              ),
             ),
           Row(
             children: [
@@ -402,27 +323,27 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
                       children: [
                         _buildToolbarButton(
                           Icons.format_bold,
-                          _currentFormat.bold,
+                          _isBold,
                           _toggleBold,
                         ),
                         _buildToolbarButton(
                           Icons.format_italic,
-                          _currentFormat.italic,
+                          _isItalic,
                           _toggleItalic,
                         ),
                         _buildToolbarButton(
                           Icons.format_underlined,
-                          _currentFormat.underline,
+                          _isUnderline,
                           _toggleUnderline,
                         ),
                         _buildToolbarButton(
                           Icons.format_strikethrough,
-                          _currentFormat.strikethrough,
+                          _isStrikethrough,
                           _toggleStrikethrough,
                         ),
                         _buildToolbarButton(
                           Icons.code,
-                          _currentFormat.code,
+                          _isCode,
                           _toggleCode,
                         ),
                       ],
@@ -439,11 +360,11 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
                       onTap: () {
                         // Cancel editing
                         controller.resetEditMode();
-                        _textController.clear();
+                        controller.chatController.clear();
+                        // _textController.clear();
                         setState(() {
-                          _contentChanged = false;
+                          // _contentChanged = false;
                           _resetFormatting();
-                          _textSegments.clear();
                         });
                       },
                       child: Container(
@@ -474,49 +395,25 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
     );
   }
 
-  Widget _buildRichTextField() {
-    return TextField(
-      controller: _textController,
-      focusNode: _focusNode,
-      scrollController: _scrollController,
-      maxLines: null,
-      style: TextStyle(
-        fontSize: 16,
-        color: AppColors.textColor100,
-        fontWeight: _currentFormat.bold ? FontWeight.bold : FontWeight.normal,
-        fontStyle: _currentFormat.italic ? FontStyle.italic : FontStyle.normal,
-        decoration: _getTextDecoration(),
-        fontFamily: _currentFormat.code ? 'monospace' : null,
-        backgroundColor: _currentFormat.code ? Colors.black12 : null,
-      ),
-      decoration: InputDecoration(
-        hintText: isEditing ? 'Edit your message...' : 'Message...',
-        hintStyle: const TextStyle(
-          color: AppColors.textColor300,
-          fontSize: 16,
-        ),
-        border: InputBorder.none,
-        contentPadding: const EdgeInsets.all(4),
-      ),
-    );
-  }
-
   TextDecoration _getTextDecoration() {
-    if (_currentFormat.underline && _currentFormat.strikethrough) {
+    if (_isUnderline && _isStrikethrough) {
       return TextDecoration.combine([
         TextDecoration.underline,
         TextDecoration.lineThrough,
       ]);
-    } else if (_currentFormat.underline) {
+    } else if (_isUnderline) {
       return TextDecoration.underline;
-    } else if (_currentFormat.strikethrough) {
+    } else if (_isStrikethrough) {
       return TextDecoration.lineThrough;
     }
     return TextDecoration.none;
   }
 
   Widget _buildToolbarButton(
-      IconData icon, bool isSelected, VoidCallback onPressed) {
+    IconData icon,
+    bool isSelected,
+    VoidCallback onPressed,
+  ) {
     return IconButton(
       icon: Icon(
         icon,
@@ -559,17 +456,4 @@ class _EnhancedRichTextInputState extends State<EnhancedRichTextInput> {
       ),
     );
   }
-}
-
-class FormattedTextSegment {
-  final String text;
-  final TextFormat format;
-
-  FormattedTextSegment({
-    required this.text,
-    required this.format,
-  });
-
-  @override
-  String toString() => 'FormattedTextSegment(text: $text, format: $format)';
 }

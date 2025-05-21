@@ -74,7 +74,7 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
                           isExpanded: true,
                           value: [
                             'AM',
-                            'PM'
+                            'PM',
                           ].contains(_controller.selectedReflectionType.value)
                               ? _controller.selectedReflectionType.value
                               : null,
@@ -120,8 +120,9 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
                           }).toList(),
                           onChanged: (value) async {
                             if (value ==
-                                _controller.selectedReflectionType.value)
+                                _controller.selectedReflectionType.value) {
                               return;
+                            }
 
                             if (value != null) {
                               setState(() {
@@ -332,7 +333,7 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
     final reflectionType = reflection.reflection?.reflectionType ?? 'N/A';
     var formattedTime = formatDateTime(reflection.completedAt?.toString() ??
         reflection.createdAt.toString() ??
-        'N/A');
+        'N/A',);
 
     return TableRow(
       children: [
@@ -404,7 +405,7 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
   }
 
   Future<void> _fetchReflectionsWithReflectionType(
-      String reflectionType) async {
+      String reflectionType,) async {
     try {
       // Reset page to 1 for new search
       await _controller.getReflectionLibrary(

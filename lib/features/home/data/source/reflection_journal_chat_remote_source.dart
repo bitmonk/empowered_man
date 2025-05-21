@@ -20,7 +20,7 @@ class ReflectionJournalChatRemoteSource {
   }) async {
     try {
       final response = await _client.get(
-        '${AppEndpoints.getReflectionByType}',
+        AppEndpoints.getReflectionByType,
         queryParameters: {
           'reflection_type': reflectionType,
         },
@@ -94,22 +94,6 @@ class ReflectionJournalChatRemoteSource {
         //'answer_id': answerId,
       });
 
-      // if (mediaPath != null) {
-      //   var fileName = mediaPath.split('/').last;
-      //   var mimeType = mime(fileName) ?? 'application/octet-stream';
-      //   var typeParts = mimeType.split('/');
-
-      //   formDataMap.files.add(
-      //     MapEntry(
-      //       'media[]',
-      //       await MultipartFile.fromFile(
-      //         mediaPath,
-      //         filename: fileName,
-      //         contentType: MediaType(typeParts[0], typeParts[1]),
-      //       ),
-      //     ),
-      //   );
-      // }
       final response = await _client.post(
         '${AppEndpoints.postReflectionAnswer}/$answerId',
         body: formDataMap,

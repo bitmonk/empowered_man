@@ -19,8 +19,9 @@ class ReflectionJournalChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController scrollController;
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
-  bool _isEditMode = false;
-  String? _editingAnswerId;
+
+  RxBool isEditMode = false.obs;
+  RxnString editingAnswerId = RxnString();
 
   @override
   void onInit() {
@@ -62,6 +63,7 @@ class ReflectionJournalChatController extends GetxController {
   }
 
   Future<bool?> getReflectionWithQuestionAnswers(String reflectionType) async {
+    reflectionQuestionAnswerResponseState.value = TheStates.loading;
     final result = await remoteSource.getReflectionWithQuestionAnswers(
       reflectionType: reflectionType,
     );
@@ -114,7 +116,7 @@ class ReflectionJournalChatController extends GetxController {
         text ?? chatController.text.trim(),
         followupQuestionId,
       );
-      String period = DateTime.now().hour < 12 ? "am" : "pm";
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
       await getReflectionWithQuestionAnswers(period);
       result.fold(
         (l) {
@@ -148,23 +150,22 @@ class ReflectionJournalChatController extends GetxController {
   }
 
   void setEditMode(bool isEdit, String answerId) {
-    _isEditMode = isEdit;
-    _editingAnswerId = answerId;
+    isEditMode.value = isEdit;
+    editingAnswerId.value = answerId;
   }
 
-  bool get isEditMode => _isEditMode;
-  String? get editingAnswerId => _editingAnswerId;
+  
 
   void resetEditMode() {
-    _isEditMode = false;
-    _editingAnswerId = null;
+    isEditMode.value = false;
+    editingAnswerId.value = null;
     chatController.clear();
   }
 
   Future<void> updateMessage(
-    String answerId,
     String? text,
   ) async {
+    if (editingAnswerId.value == null) return;
     updateMessageState.value = TheStates.loading;
     _cancelToken = CancelToken();
     autoScrollEnabled.value = true;
@@ -172,14 +173,14 @@ class ReflectionJournalChatController extends GetxController {
     try {
       final result = await remoteSource.updateMessage(
         _cancelToken,
-        _editingAnswerId ?? '',
+        editingAnswerId.value!,
         text ?? chatController.text.trim(),
       );
-      String period = DateTime.now().hour < 12 ? "am" : "pm";
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
       await getReflectionWithQuestionAnswers(period);
       result.fold(
         (l) {
-          sendMessageState.value = TheStates.error;
+          updateMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) async {
@@ -203,7 +204,7 @@ class ReflectionJournalChatController extends GetxController {
         },
       );
     } catch (e) {
-      reflectionQuestionAnswerResponseState.value = TheStates.error;
+      updateMessageState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: e.toString());
     }
   }

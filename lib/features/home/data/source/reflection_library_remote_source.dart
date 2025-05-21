@@ -21,8 +21,9 @@ class ReflectionLibraryRemoteSource {
       final queryParameters = <String, dynamic>{};
 
       if (page != null) queryParameters['page'] = page;
-      if (reflectionType != null)
+      if (reflectionType != null) {
         queryParameters['reflection_type'] = reflectionType;
+      }
       if (mainQuestion != null) queryParameters['main_question'] = mainQuestion;
       //   if (sortBy != null) queryParameters['sort_by'] = sortBy;
       //  if (sortOrder != null) queryParameters['sort_order'] = sortOrder;

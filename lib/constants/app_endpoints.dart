@@ -56,6 +56,9 @@ class AppEndpoints {
   static const String getUserReflectionBulkDetail ='/user-reflections/details';
   static const String deleteBulkReflection = '/user-reflections';
 
+  //Power Score
+  static const String getPowerScoreStats = '/user/power-score-stats';
+
 }
 
 class ExternalEndpoints {}

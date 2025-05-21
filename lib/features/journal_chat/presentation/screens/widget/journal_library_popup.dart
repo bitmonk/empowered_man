@@ -278,12 +278,12 @@ class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
         if (userJournals.length == 1) {
           Get.to(() => JournalSummaryDialog(
                 userJournal: [userJournals.first],
-              ));
+              ),);
         } else {
           // If multiple journals, pass the list
           Get.to(() => JournalSummaryDialog(
                 userJournal: userJournals,
-              ));
+              ),);
         }
       } else {
         AppUtils.showErrorSnackbar(

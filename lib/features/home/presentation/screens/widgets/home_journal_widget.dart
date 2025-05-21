@@ -13,9 +13,11 @@ class HomeJournalWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+
     return ThemedContainer(
       width: double.infinity,
-      border: title == 'PM Journal'
+      border: !title.toLowerCase().contains(period)
           ? null
           : Border.all(
               color: AppColors.color008CFF,

@@ -1,8 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
-import 'package:empowered/features/power_score_stats/widgets/average_score_pie_chart.dart';
-import 'package:empowered/features/power_score_stats/widgets/average_weekly_score.dart';
-import 'package:empowered/features/power_score_stats/widgets/line_power_stats.dart';
+import 'package:empowered/features/power_score_stats/presentation/controllers/power_score_controller.dart';
+import 'package:empowered/features/power_score_stats/presentation/widgets/average_score_pie_chart.dart';
+import 'package:empowered/features/power_score_stats/presentation/widgets/average_weekly_score.dart';
+import 'package:empowered/features/power_score_stats/presentation/widgets/line_power_stats.dart';
+
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:intl/intl.dart';
 
@@ -15,10 +17,17 @@ class PowerScoreStatsScreen extends StatefulWidget {
 
 class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
   DateTime _startDate = DateTime.now();
+  final powerController = Get.find<PowerScoreController>();
   void _changeWeek(int days) {
     setState(() {
       _startDate = _startDate.add(Duration(days: days));
     });
+  }
+
+  void initState() {
+    super.initState();
+    powerController.getPowerScoreStats(
+        fromDate: '2025-03-10', toDate: '2025-05-21');
   }
 
   /// **Get the first day (Sunday) of the current week**
@@ -46,8 +55,15 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const HomeHeaderWidgets(
+            HomeHeaderWidgets(
               hideControls: true,
+              level: powerController.powerScoreResponse.value.currentLevel,
+              upcomingLevel:
+                  powerController.powerScoreResponse.value.upcomingLevel,
+              userProgressbarPoints: powerController
+                  .powerScoreResponse.value.userProgressbarPoints,
+              totalPointsProgressBar: powerController
+                  .powerScoreResponse.value.totalPointsProgressbar,
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -98,40 +114,109 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
             style: TextStyle(color: Colors.white, fontSize: 18),
           ),
           const VerticalSpacing(8),
-          const AverageScorePieChart(),
+          AverageScorePieChart(
+            averageTotalPercentage: powerController
+                    .powerScoreResponse.value.averageTotalPercentage ??
+                '',
+            averageTotalGrowthPercentage: powerController
+                    .powerScoreResponse.value.averageTotalGrowthPercentage ??
+                '',
+            averageGrowthHabitsPercentage: powerController
+                    .powerScoreResponse.value.averageGrowthHabitsPercentage ??
+                '',
+            averageGrowthJournalsPercentage: powerController
+                    .powerScoreResponse.value.averageGrowthJournalsPercentage ??
+                '',
+            averageGrowthTasksPercentage: powerController
+                    .powerScoreResponse.value.averageGrowthTasksPercentage ??
+                '',
+            averageGrowthGoalPercentage: powerController
+                    .powerScoreResponse.value.averageGrowthGoalPercentage ??
+                '',
+            averageHabitsPercentage: powerController
+                    .powerScoreResponse.value.averageHabitsPercentage ??
+                '',
+            averageGoalPercentage: powerController
+                    .powerScoreResponse.value.averageGoalPercentage ??
+                '',
+            averageTasksPercentage: powerController
+                    .powerScoreResponse.value.averageTasksPercentage ??
+                '',
+            averageJournalsPercentage: powerController
+                    .powerScoreResponse.value.averageJournalsPercentage ??
+                '',
+          ),
           const VerticalSpacing(8),
-          _buildCategoryScores(),
+          _buildCategoryScores(
+            powerController.powerScoreResponse.value.averageTotalPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageTotalGrowthPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageGrowthHabitsPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageGrowthJournalsPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageGrowthTasksPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageGrowthGoalPercentage ??
+                '',
+            powerController.powerScoreResponse.value.averageHabitsPercentage ??
+                '',
+            powerController.powerScoreResponse.value.averageGoalPercentage ??
+                '',
+            powerController.powerScoreResponse.value.averageTasksPercentage ??
+                '',
+            powerController
+                    .powerScoreResponse.value.averageJournalsPercentage ??
+                '',
+          ),
           // const BottomSpacing(),
         ],
       ),
     );
   }
 
-  Widget _buildCategoryScores() {
+  Widget _buildCategoryScores(
+    String averageTotalPercentage,
+    String averageTotalGrowthPercentage,
+    String averageGrowthHabitsPercentage,
+    String averageGrowthJournalsPercentage,
+    String averageGrowthTasksPercentage,
+    String averageGrowthGoalPercentage,
+    String averageHabitsPercentage,
+    String averageGoalPercentage,
+    String averageTasksPercentage,
+    String averageJournalsPercentage,
+  ) {
     final categories = <Map<String, dynamic>>[
       {
         'name': 'Journal',
-        'score': '45',
+        'score': averageJournalsPercentage,
         'color': AppColors.color5CE0A0,
-        'increment': '+35,5%',
+        'increment': averageGrowthJournalsPercentage,
       },
       {
         'name': 'Habit',
-        'score': '32',
+        'score': averageHabitsPercentage,
         'color': AppColors.primary300,
-        'increment': '+12,5%',
+        'increment': averageGrowthHabitsPercentage,
       },
       {
-        'name': 'Door',
-        'score': '28',
+        'name': 'Task',
+        'score': averageTasksPercentage,
         'color': AppColors.colorF5CA41,
-        'increment': '+10,5%',
+        'increment': averageGrowthTasksPercentage,
       },
       {
         'name': 'Goals',
-        'score': '87',
+        'score': averageGoalPercentage,
         'color': AppColors.primary500,
-        'increment': '+40,5%',
+        'increment': averageGrowthGoalPercentage,
       },
     ];
 
@@ -143,8 +228,8 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2, // Two columns
         crossAxisSpacing: 16,
-        mainAxisSpacing: 16,
-        childAspectRatio: 3.5, // Adjust this value for better layout
+        mainAxisSpacing: 12,
+        childAspectRatio: 2.5, // Adjust this value for better layout
       ),
       itemCount: categories.length,
       itemBuilder: (context, index) {
@@ -211,15 +296,33 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       physics: const NeverScrollableScrollPhysics(),
       crossAxisCount: 2,
       crossAxisSpacing: 8,
-      mainAxisSpacing: 20,
-      childAspectRatio: 1.6,
+      mainAxisSpacing: 16,
+      childAspectRatio: 1.2,
       children: [
-        _scoreCard('Power Score', '54/100', Assets.images.powerLine.path),
-        _scoreCard('Journal', '28/54', Assets.images.powerJournal.path),
-        _scoreCard('Habits', '28/54', Assets.images.powerLine.path),
-        _scoreCard('Tasks', '10/20', Assets.images.powerTasks.path),
-        _scoreCard('Habits', '28/54', Assets.images.powerLine.path),
-        _scoreCard('Tasks', '10/20', Assets.images.powerTasks.path),
+        _scoreCard(
+            'Power Score',
+            '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
+            Assets.images.powerLine.path),
+        _scoreCard(
+            'Journal',
+            '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
+            Assets.images.powerJournal.path),
+        _scoreCard(
+            'Habits',
+            '${powerController.powerScoreResponse.value.userHabits}/${powerController.powerScoreResponse.value.totalHabits}',
+            Assets.images.powerLine.path),
+        _scoreCard(
+            'Tasks',
+            '${powerController.powerScoreResponse.value.userTasks}/${powerController.powerScoreResponse.value.totalTasks}',
+            Assets.images.powerTasks.path),
+        _scoreCard(
+            'Goals',
+            '${powerController.powerScoreResponse.value.userGoalsHabits}/${powerController.powerScoreResponse.value.totalGoals}',
+            Assets.images.powerLine.path),
+        _scoreCard(
+            'Assessment',
+            '${powerController.powerScoreResponse.value.userAssessments}/${powerController.powerScoreResponse.value.totalAssessments}',
+            Assets.images.powerTasks.path),
       ],
     );
   }
@@ -232,23 +335,23 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       crossAxisCount: 2,
       crossAxisSpacing: 8,
       mainAxisSpacing: 20,
-      childAspectRatio: 1.4,
+      childAspectRatio: 1.2,
       children: [
         _summaryCard(
           'Previous week',
-          '27.5',
+          powerController.powerScoreResponse.value.previousWeekAverage ?? '',
         ),
         _summaryCard(
           '4 weeks averagee',
-          '54.5',
+          powerController.powerScoreResponse.value.fourWeekAverage ?? '',
         ),
         _summaryCard(
           'Year average',
-          '28.5',
+          powerController.powerScoreResponse.value.yearAverage ?? '',
         ),
         _summaryCard(
           'Overall average',
-          '10.5',
+          powerController.powerScoreResponse.value.overallAverage ?? '',
         ),
       ],
     );
@@ -257,10 +360,14 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
   Widget _scoreCard(String title, String score, String icon) {
     return ThemedContainer(
       border: Border.all(color: AppColors.bgBorder),
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 11),
       child: Row(
         children: [
-          SvgPicture.asset(icon),
+          SvgPicture.asset(
+            icon,
+            width: 24,
+            height: 34,
+          ),
           const HorizontalSpacing(12),
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -268,12 +375,14 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
             children: [
               Text(
                 title,
-                style: AppTextStyles.textBodyB2,
+                style: AppTextStyles.textBodyB3.copyWith(fontSize: 14),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Text(
                 score,
-                style: AppTextStyles.textHeadingH3,
+                style: AppTextStyles.textBodyB1,
               ),
             ],
           ),
@@ -303,16 +412,20 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
                 child: Text(
                   score,
                   style: const TextStyle(
-                    fontSize: 24,
+                    fontSize: 22,
                     fontWeight: FontWeight.w500,
                     color: AppColors.textColor50,
                   ),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               Text(
                 title,
                 style: AppTextStyles.textBodyB3
-                    .copyWith(color: AppColors.textColor300),
+                    .copyWith(color: AppColors.textColor300, fontSize: 13),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),

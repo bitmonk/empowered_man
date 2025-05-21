@@ -4,7 +4,6 @@ import 'package:empowered/features/home/data/model/reflection_question_answer_mo
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_library_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/reflection_library_screen.dart';
-import 'package:empowered/features/home/presentation/screens/widgets/am_pm_chat_input_field.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/custom_rich_text_input.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
@@ -23,7 +22,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
   bool _isSendingMessage = false;
   bool _isShowingThinking = false; // Add this to track thinking state
   bool _isKeyboardVisible = false;
-  Map<String, String> _yesNoAnswers = {};
+  final Map<String, String> _yesNoAnswers = {};
   MessageItem? _pendingAnswer;
 
   @override
@@ -58,6 +57,141 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
     });
   }
 
+  // List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
+  //   if (reflection == null || reflection.mainQuestions == null) {
+  //     return [];
+  //   }
+
+  //   var items = <MessageItem>[];
+  //   var stopAddingQuestions = false;
+
+  //   // First, process all answered questions and their answers
+  //   for (var i = 0; i < reflection.mainQuestions!.length; i++) {
+  //     final mainQuestion = reflection.mainQuestions![i];
+  //     var questionTimestamp = '';
+
+  //     if (i > 0) {
+  //       final previousQuestion = reflection.mainQuestions![i - 1];
+  //       if (previousQuestion.answer?.createdAt != null) {
+  //         questionTimestamp =
+  //             previousQuestion.answer?.createdAt.toString() ?? '';
+  //       }
+  //     }
+
+  //     // Always add the main question if it's already answered
+  //     // (don't filter based on _isShowingThinking for answered questions)
+  //     if (mainQuestion.answered == true) {
+  //       items.add(
+  //         MessageItem(
+  //           type: MessageType.question,
+  //           message: mainQuestion.question!,
+  //           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+  //           isMine: false,
+  //         ),
+  //       );
+  //     } else if (!_isShowingThinking) {
+  //       // Only add unanswered questions when not in thinking state
+  //       items.add(
+  //         MessageItem(
+  //           type: MessageType.question,
+  //           message: mainQuestion.question!,
+  //           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+  //           isMine: false,
+  //         ),
+  //       );
+  //     }
+
+  //     // If this question isn't answered, stop after adding it (unless we're in thinking state)
+  //     if (mainQuestion.answered != true) {
+  //       stopAddingQuestions = true;
+  //       break;
+  //     }
+
+  //     // Add the answer for this question
+  //     items.add(
+  //       MessageItem(
+  //         type: MessageType.answer,
+  //         message: mainQuestion.answer?.text ?? '',
+  //         timestamp: mainQuestion.answer?.createdAt.toString() ??
+  //             DateTime.now().toString(),
+  //         isMine: true,
+  //         answerId: mainQuestion.answer?.id.toString(),
+  //       ),
+  //     );
+
+  //     // Process follow-up questions if any
+  //     if (!stopAddingQuestions && mainQuestion.followUpQuestions != null) {
+  //       for (var followUp in mainQuestion.followUpQuestions!) {
+  //         // Always add follow-up questions if they're already answered
+  //         if (followUp.answered == true) {
+  //           items.add(
+  //             MessageItem(
+  //               type: MessageType.question,
+  //               message: followUp.question ?? '',
+  //               timestamp: DateTime.now().toString(),
+  //               isMine: false,
+  //               isYesNoQuestion: followUp.questionType == 'yes_no',
+  //             ),
+  //           );
+  //         } else if (!_isShowingThinking) {
+  //           // Only add unanswered follow-up questions when not in thinking state
+  //           items.add(
+  //             MessageItem(
+  //               type: MessageType.question,
+  //               message: followUp.question ?? '',
+  //               timestamp: DateTime.now().toString(),
+  //               isMine: false,
+  //               isYesNoQuestion: followUp.questionType == 'yes_no',
+  //             ),
+  //           );
+  //         }
+
+  //         // If this follow-up is not answered, stop here
+  //         if (followUp.answered != true) {
+  //           stopAddingQuestions = true;
+  //           break;
+  //         }
+
+  //         // Add follow-up answer
+  //         items.add(
+  //           MessageItem(
+  //             type: MessageType.answer,
+  //             message: followUp.answer?.text ?? '',
+  //             timestamp: followUp.answer?.createdAt.toString() ??
+  //                 DateTime.now().toString(),
+  //             isMine: true,
+  //             answerId: followUp.answer?.id?.toString(),
+  //           ),
+  //         );
+  //       }
+  //     }
+
+  //     if (stopAddingQuestions) {
+  //       break;
+  //     }
+  //   }
+
+  //   // Add pending answer if available
+  //   if (_isSendingMessage && _pendingAnswer != null) {
+  //     items.add(_pendingAnswer!);
+  //   }
+
+  //   // Always add thinking indicator if we're in thinking state
+  //   // This ensures it appears for both yes/no and regular questions
+  //   if (_isShowingThinking) {
+  //     items.add(
+  //       MessageItem(
+  //         type: MessageType.question,
+  //         message: '', // Empty message for thinking indicator
+  //         timestamp: DateTime.now().toString(),
+  //         isMine: false,
+  //         isThinking: true,
+  //       ),
+  //     );
+  //   }
+
+  //   return items;
+  // }
   List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
     if (reflection == null || reflection.mainQuestions == null) {
       return [];
@@ -80,7 +214,6 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
       }
 
       // Always add the main question if it's already answered
-      // (don't filter based on _isShowingThinking for answered questions)
       if (mainQuestion.answered == true) {
         items.add(
           MessageItem(
@@ -122,7 +255,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
 
       // Process follow-up questions if any
       if (!stopAddingQuestions && mainQuestion.followUpQuestions != null) {
-        for (var followUp in mainQuestion.followUpQuestions!) {
+        for (final followUp in mainQuestion.followUpQuestions!) {
           // Always add follow-up questions if they're already answered
           if (followUp.answered == true) {
             items.add(
@@ -177,8 +310,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
       items.add(_pendingAnswer!);
     }
 
-    // Always add thinking indicator if we're in thinking state
-    // This ensures it appears for both yes/no and regular questions
+    // Always add thinking indicator at the end if we're in thinking state
     if (_isShowingThinking) {
       items.add(
         MessageItem(
@@ -324,7 +456,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
             useRootNavigator: true,
             useSafeArea: true,
             context: context,
-            builder: (context) => JournalChatExitBottomsheet(
+            builder: (context) => ReflectionExitBottomsheet(
               message:
                   'You can continue this journal from dashboard or journal library',
               onPressed: () {
@@ -353,7 +485,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                 useRootNavigator: true,
                 useSafeArea: true,
                 context: context,
-                builder: (context) => JournalChatExitBottomsheet(
+                builder: (context) => ReflectionExitBottomsheet(
                   message:
                       'You can continue this journal from dashboard or journal library',
                   onPressed: () {
@@ -368,10 +500,10 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
           title: widget.reflectionType == 'am' ? 'AM Journal' : 'PM Journal',
           actions: [
             Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.symmetric(horizontal: 16),
               child: InkWell(
                 onTap: () {
-                  Get.to(ReflectionLibraryScreen());
+                  Get.to(const ReflectionLibraryScreen());
                   // AppWidgetKey.mainScaffold.currentState!.openDrawer();
                 },
                 child: Assets.images.menu.svg(width: 32),
@@ -413,106 +545,113 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                         questionIds['followUpQuestionId'];
                     return Column(
                       children: [
-                        if (controller.reflectionQuestionAnswerResponse.value ==
-                            null)
-                          const CustomErrorWidget(
-                            error: 'Not found',
-                          )
-                        else
-                          Expanded(
-                            child: SingleChildScrollView(
-                              controller: controller.scrollController,
-                              child: Column(
-                                children: [
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    keyboardDismissBehavior:
-                                        ScrollViewKeyboardDismissBehavior
-                                            .onDrag,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                    ),
-                                    itemCount: items.length,
-                                    itemBuilder: (context, index) {
-                                      final item = items[index];
-                                      final messageItem = MessageItem(
-                                        type: item.type,
-                                        message: item.message,
-                                        timestamp: item.timestamp,
-                                        isMine: item.isMine,
-                                        isThinking: item.isThinking,
-                                        isYesNoQuestion: item.isYesNoQuestion,
-                                        isLoading: item.isLoading,
-                                        selectedOption: item.selectedOption,
-                                        answered: item.answered,
-                                        answerId: item.answerId,
-                                      );
+                        Expanded(
+                          child: SingleChildScrollView(
+                            controller: controller.scrollController,
+                            child: Column(
+                              children: [
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics:
+                                      const NeverScrollableScrollPhysics(),
+                                  keyboardDismissBehavior:
+                                      ScrollViewKeyboardDismissBehavior
+                                          .onDrag,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  itemCount: items.length,
+                                  itemBuilder: (context, index) {
+                                    final item = items[index];
+                                    final messageItem = MessageItem(
+                                      type: item.type,
+                                      message: item.message,
+                                      timestamp: item.timestamp,
+                                      isMine: item.isMine,
+                                      isThinking: item.isThinking,
+                                      isYesNoQuestion: item.isYesNoQuestion,
+                                      isLoading: item.isLoading,
+                                      selectedOption: item.selectedOption,
+                                      answered: item.answered,
+                                      answerId: item.answerId,
+                                    );
 
-                                      // Create the base message widget
-                                      Widget messageWidget =
-                                          ChatBubbleContainer(
-                                        isJournal: true,
-                                        message: messageItem.message,
-                                        isMine: messageItem.isMine,
-                                        timeStamp: messageItem.timestamp ?? '',
-                                        onLike: () {},
-                                        images: messageItem.images,
-                                        videos: messageItem.videos,
-                                        voices: messageItem.voices,
-                                        isLoading: messageItem.isLoading,
-                                        isYesNoQuestion:
-                                            messageItem.isYesNoQuestion,
-                                        selectedOption:
-                                            messageItem.selectedOption,
-                                        isThinking: messageItem.isThinking,
-                                        isAnswered: messageItem
-                                                .isYesNoQuestion &&
-                                            item.type == MessageType.question &&
-                                            index < items.length - 1 &&
-                                            items[index + 1].type ==
-                                                MessageType.answer,
-                                        onYesNoOptionSelected: (option) {
-                                          if (messageItem.isYesNoQuestion &&
-                                              followupQuestionId != null) {
-                                            _handleYesNoSelection(
-                                                option, followupQuestionId);
-                                          }
-                                        },
-                                        answerId: messageItem.isMine
-                                            ? messageItem.answerId
-                                            : null,
-                                      );
-
-                                      // Add spacing between questions and their answers
-                                      if (item.type == MessageType.question &&
-                                          index < items.length - 1) {
-                                        final nextItem = items[index + 1];
-                                        if (nextItem.type ==
-                                            MessageType.answer) {
-                                          messageWidget = Column(
-                                            children: [
-                                              messageWidget,
-                                              const SizedBox(height: 8),
-                                            ],
+                                    // Create the base message widget
+                                    Widget messageWidget =
+                                        ChatBubbleContainer(
+                                      isJournal: true,
+                                      message: messageItem.message,
+                                      isMine: messageItem.isMine,
+                                      timeStamp: messageItem.timestamp ?? '',
+                                      onLike: () {},
+                                      images: messageItem.images,
+                                      videos: messageItem.videos,
+                                      voices: messageItem.voices,
+                                      isLoading: messageItem.isLoading,
+                                      isYesNoQuestion:
+                                          messageItem.isYesNoQuestion,
+                                      selectedOption:
+                                          messageItem.selectedOption,
+                                      isThinking: messageItem.isThinking,
+                                      isAnswered: messageItem
+                                              .isYesNoQuestion &&
+                                          item.type == MessageType.question &&
+                                          index < items.length - 1 &&
+                                          items[index + 1].type ==
+                                              MessageType.answer,
+                                      onYesNoOptionSelected: (option) {
+                                        if (messageItem.isYesNoQuestion &&
+                                            followupQuestionId != null) {
+                                          _handleYesNoSelection(
+                                            option,
+                                            followupQuestionId,
                                           );
                                         }
-                                      }
+                                      },
+                                      answerId: messageItem.isMine
+                                          ? messageItem.answerId
+                                          : null,
+                                      onEditTap: () {
+                                        controller.chatController.text =
+                                            messageItem.message;
+                                        if (messageItem.answerId != null) {
+                                          controller.setEditMode(
+                                            true,
+                                            messageItem.answerId!,
+                                          );
+                                        }
+                                        Navigator.pop(context);
+                                      },
+                                    );
 
-                                      return messageWidget;
-                                    },
-                                  ),
-                                  const SizedBox(height: 60),
-                                  const SizedBox(
-                                    height: 1,
-                                    width: double.infinity,
-                                    key: ValueKey('scroll-bottom-anchor'),
-                                  ),
-                                ],
-                              ),
+                                    // Add spacing between questions and their answers
+                                    if (item.type == MessageType.question &&
+                                        index < items.length - 1) {
+                                      final nextItem = items[index + 1];
+                                      if (nextItem.type ==
+                                          MessageType.answer) {
+                                        messageWidget = Column(
+                                          children: [
+                                            messageWidget,
+                                            const SizedBox(height: 8),
+                                          ],
+                                        );
+                                      }
+                                    }
+
+                                    return messageWidget;
+                                  },
+                                ),
+                                const SizedBox(height: 60),
+                                const SizedBox(
+                                  height: 1,
+                                  width: double.infinity,
+                                  key: ValueKey('scroll-bottom-anchor'),
+                                ),
+                              ],
                             ),
                           ),
+                        ),
                         Obx(() {
                           final reflection = controller
                               .reflectionQuestionAnswerResponse
@@ -566,30 +705,18 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                                     widget.reflectionType ?? '',
                                   );
                                   await Future.delayed(
-                                      const Duration(milliseconds: 500));
+                                      const Duration(milliseconds: 500),);
 
                                   // Scroll to show the new question
                                   WidgetsBinding.instance
                                       .addPostFrameCallback((_) {
                                     if (mounted) {
-                                      setState(() {
-                                        // _isSendingMessage = false;
-                                        // _isShowingThinking = false;
-                                        // _pendingAnswer = null;
-                                        controller.autoScrollEnabled.value =
-                                            true;
-                                      });
+                                      controller.autoScrollEnabled.value = true;
                                       controller.scrollToBottom();
                                     }
                                   });
                                 } catch (e) {
                                   print('Error sending message: $e');
-                                  // Reset states on error
-                                  setState(() {
-                                    _isSendingMessage = false;
-                                    _isShowingThinking = false;
-                                    _pendingAnswer = null;
-                                  });
                                 } finally {
                                   if (mounted) {
                                     setState(() {

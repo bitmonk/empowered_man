@@ -21,9 +21,12 @@ class JournalChatController extends GetxController {
   Rx<EmotionName?> selectedEmotion = Rx<EmotionName?>(null);
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
   RxBool autoScrollEnabled = true.obs;
-
   RxBool showBeginJournallButton = false.obs;
+  Rx<TheStates> updateMessageState = TheStates.initial.obs;
+
   // RxList<String> _selectedMediaPaths =  RxList<String>([]);
+  RxBool isEditMode = false.obs;
+  RxnString editingAnswerId = RxnString();
 
   @override
   void onInit() {
@@ -62,6 +65,17 @@ class JournalChatController extends GetxController {
         autoScrollEnabled.value = false;
       }
     }
+  }
+
+  void setEditMode(bool isEdit, String answerId) {
+    isEditMode.value = isEdit;
+    editingAnswerId.value = answerId;
+  }
+
+  void resetEditMode() {
+    isEditMode.value = false;
+    editingAnswerId.value = null;
+    chatController.clear();
   }
 
   Future<bool?> getJournalWithQuestionsAndAnswers() async {
@@ -158,5 +172,49 @@ class JournalChatController extends GetxController {
   String getCurrentTime() {
     final now = DateTime.now();
     return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
+  }
+
+  Future<void> updateMessage(
+    String? text,
+  ) async {
+    updateMessageState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    autoScrollEnabled.value = true;
+
+    try {
+      final result = await remoteSource.updateJournal(
+        _cancelToken,
+        editingAnswerId.value!,
+        text ?? chatController.text.trim(),
+      );
+
+      result.fold(
+        (l) {
+          updateMessageState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          chatConversationList
+            ..clear()
+            ..add(
+              MessageItem(
+                message: chatController.text.trim(),
+                isMine: true,
+                timestamp: getCurrentTime(),
+                type: MessageType.answer,
+              ),
+            );
+          chatController.clear();
+          await getJournalWithQuestionsAndAnswers();
+          await Future.delayed(const Duration(milliseconds: 100));
+          scrollToBottom();
+
+          updateMessageState.value = TheStates.success;
+        },
+      );
+    } catch (e) {
+      updateMessageState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: e.toString());
+    }
   }
 }

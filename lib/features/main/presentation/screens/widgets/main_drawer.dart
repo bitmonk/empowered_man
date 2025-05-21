@@ -9,7 +9,8 @@ import 'package:empowered/features/journal_chat/presentation/controllers/journal
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
-import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
+import 'package:empowered/features/power_score_stats/presentation/controllers/power_score_bindings.dart';
+import 'package:empowered/features/power_score_stats/presentation/power_score_stats_screen.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
@@ -174,12 +175,14 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () {
                         Navigator.pop(context);
-
-                        NavigationHelper.navigateWithFadeTransition(
-                          AppWidgetKey.home.currentContext!,
-                          const PowerScoreStatsScreen(),
-                          index: 0,
-                        );
+                        PowerScoreInitializer.destroy();
+                        PowerScoreInitializer.initialize();
+                        Get.to(() => PowerScoreStatsScreen());
+                        // NavigationHelper.navigateWithFadeTransition(
+                        //   AppWidgetKey.home.currentContext!,
+                        //   const PowerScoreStatsScreen(),
+                        //   index: 0,
+                        // );
                       },
                       title: 'Power Score Stats',
                       image: Assets.images.statistic.path,

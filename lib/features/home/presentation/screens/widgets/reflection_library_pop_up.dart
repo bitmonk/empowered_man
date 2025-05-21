@@ -138,8 +138,8 @@ class _ReflectionLibraryPopUpState extends State<ReflectionLibraryPopUp> {
           // Add main question and answer
           if (answer.mainQuestion != null) {
             // Safely access question through MainQuestion object
-            final question = answer.mainQuestion?.question ?? "Question";
-            final answerText = answer.text ?? "No answer provided";
+            final question = answer.mainQuestion?.question ?? 'Question';
+            final answerText = answer.text ?? 'No answer provided';
 
             buffer
               ..writeln('Q: $question')
@@ -150,8 +150,8 @@ class _ReflectionLibraryPopUpState extends State<ReflectionLibraryPopUp> {
           // Add follow-up question and answer if available
           if (answer.followUpQuestion != null) {
             final followUpQuestion =
-                answer.followUpQuestion?.question ?? "Follow-up Question";
-            final followUpAnswer = answer.text ?? "No answer provided";
+                answer.followUpQuestion?.question ?? 'Follow-up Question';
+            final followUpAnswer = answer.text ?? 'No answer provided';
 
             buffer
               ..writeln('Q: $followUpQuestion')
@@ -206,12 +206,12 @@ class _ReflectionLibraryPopUpState extends State<ReflectionLibraryPopUp> {
         if (userReflections.length == 1) {
           Get.to(() => ReflectionSummaryDialog(
                 userReflection: [userReflections.first],
-              ));
+              ),);
         } else {
           // If multiple Reflections, pass the list
           Get.to(() => ReflectionSummaryDialog(
                 userReflection: userReflections,
-              ));
+              ),);
         }
       } else {
         AppUtils.showErrorSnackbar(

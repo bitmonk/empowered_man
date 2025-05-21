@@ -2,7 +2,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/home/data/model/see_user_reflection_response_model.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
-import 'package:flutter/widgets.dart';
 import 'package:intl/intl.dart';
 
 class ReflectionSummaryDialog extends StatefulWidget {

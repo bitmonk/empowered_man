@@ -55,7 +55,7 @@ class _ReflectionSearchScreenState extends State<ReflectionSearchScreen> {
     return AppScaffold(
       resizeToAvoidBottomInset: false,
       appBar: CustomAppBar(
-        title: 'Search Reflection From Library',
+        title: 'Search Reflection',
         onTap: () {
           _controller.selectedReflectionType.value = null;
           _controller.getReflectionLibrary(isInitialLoad: true);
@@ -63,160 +63,157 @@ class _ReflectionSearchScreenState extends State<ReflectionSearchScreen> {
         },
       ),
       body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 12,
+        children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 12,
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      style: const TextStyle(
+                        color: AppColors.white,
+                        fontSize: 14,
                       ),
-                      child: TextField(
-                        controller: searchController,
-                        style: const TextStyle(
+                      onSubmitted: onSearch,
+                      decoration: InputDecoration(
+                        hintText: 'Enter reflection name',
+                        hintStyle: const TextStyle(
                           color: AppColors.white,
                           fontSize: 14,
                         ),
-                        onSubmitted: onSearch,
-                        decoration: InputDecoration(
-                          hintText: 'Enter reflection name',
-                          hintStyle: const TextStyle(
-                            color: AppColors.white,
-                            fontSize: 14,
-                          ),
-                          prefixIcon: const Icon(Icons.search),
-                          suffixIcon: searchController.text.isNotEmpty
-                              ? IconButton(
-                                  icon: const Icon(Icons.clear),
-                                  onPressed: () {
-                                    setState(() {
-                                      searchController.clear();
-                                      _controller.reflectionSearchList.clear();
-                                      _controller
-                                          .getReflectionLibrarySearchState
-                                          .value = TheStates.initial;
-                                    });
-                                  },
-                                )
-                              : null,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: Colors.white),
-                          ),
-                          contentPadding:
-                              const EdgeInsets.symmetric(horizontal: 16),
+                        prefixIcon: const Icon(Icons.search),
+                        suffixIcon: searchController.text.isNotEmpty
+                            ? IconButton(
+                                icon: const Icon(Icons.clear),
+                                onPressed: () {
+                                  setState(() {
+                                    searchController.clear();
+                                    _controller.reflectionSearchList.clear();
+                                    _controller.getReflectionLibrarySearchState
+                                        .value = TheStates.initial;
+                                  });
+                                },
+                              )
+                            : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(color: Colors.white),
                         ),
+                        contentPadding:
+                            const EdgeInsets.symmetric(horizontal: 16),
                       ),
                     ),
                   ),
-                  // if (_controller.reflectionSearchList.isNotEmpty)
-                  // ReflectionLibraryPopUp(
-                  //   searchReflection: true,
-                  //   selectedItems: _controller.selectSeaarchBulk,
-                  //   reflectionList: _controller.reflectionSearchList,
-                  //   // selectedreflections: getSelectedreflections(),
-                  //   onSelected: (deletedIds, shouldClearSelection) {
-                  //     if (shouldClearSelection) {
-                  //       _controller.selectSeaarchBulk.clear();
-                  //     }
-                  //   },
-                  // ),
-                ],
-              ),
+                ),
+                // if (_controller.reflectionSearchList.isNotEmpty)
+                // ReflectionLibraryPopUp(
+                //   searchReflection: true,
+                //   selectedItems: _controller.selectSeaarchBulk,
+                //   reflectionList: _controller.reflectionSearchList,
+                //   // selectedreflections: getSelectedreflections(),
+                //   onSelected: (deletedIds, shouldClearSelection) {
+                //     if (shouldClearSelection) {
+                //       _controller.selectSeaarchBulk.clear();
+                //     }
+                //   },
+                // ),
+              ],
             ),
-            Obx(
-              () =>
-                  _controller.getReflectionLibrarySearchState.value.showWidget(
-                initial: () => CustomErrorWidget(
-                  error: searchController.text.isNotEmpty &&
-                          _controller.reflectionSearchList.isEmpty
-                      ? 'No data found'
-                      : 'Enter keyword to search',
-                ),
-                loading: () => const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 50),
-                  child: LoadingWidget(),
-                ),
-                error: () => CustomErrorWidget(
-                  error: _controller.libraryError.value,
-                  // verticlePadding: const EdgeInsets.symmetric(vertical: 200),
-                  onPressed: () async {
-                    _controller.getReflectionLibrary(
-                      searchReflection: true,
-                      isInitialLoad: true,
-                      mainQuestion: searchController.text,
-                    ); // Load data if not already loaded
-                  },
-                ),
-                success: () {
-                  final reflection = _controller.reflectionSearchList;
-                  return (reflection.isEmpty)
-                      ? CustomErrorWidget(
-                          error: 'No reflections found',
-                          verticlePadding:
-                              const EdgeInsets.symmetric(vertical: 200),
-                          onPressed: () async {
-                            _controller.getReflectionLibrary(
-                              searchReflection: true,
-                              isInitialLoad: true,
-                              mainQuestion: searchController.text,
-                            );
-                          },
-                        )
-                      : Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.only(bottom: 8),
-                            child: ThemedContainer(
-                              padding: EdgeInsets.zero,
-                              margin: const EdgeInsets.all(12),
-                              child: LayoutBuilder(
-                                builder: (context, constraints) {
-                                  return SingleChildScrollView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    controller: _controller.getScrollController(
-                                      paginationName,
-                                    ),
-                                    child: ConstrainedBox(
-                                      constraints: BoxConstraints(
-                                        minHeight: constraints.maxHeight,
-                                      ),
-                                      child: IntrinsicHeight(
-                                        child: Table(
-                                          columnWidths: const {
-                                            0: FixedColumnWidth(35),
-                                            1: FlexColumnWidth(70),
-                                            2: FlexColumnWidth(90),
-                                            3: FlexColumnWidth(80),
-                                          },
-                                          children: [
-                                            _buildTableHeaderRow(),
-                                            if (_controller.reflectionSearchList
-                                                .isNotEmpty)
-                                              ...List.generate(
-                                                _controller.reflectionSearchList
-                                                    .length,
-                                                (index) =>
-                                                    _buildTableRow(index),
-                                              ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                              ),
-                            ),
-                          ),
-                        );
+          ),
+          Obx(
+            () => _controller.getReflectionLibrarySearchState.value.showWidget(
+              initial: () => CustomErrorWidget(
+                error: searchController.text.isNotEmpty &&
+                        _controller.reflectionSearchList.isEmpty
+                    ? 'No data found'
+                    : 'Enter keyword to search',
+              ),
+              loading: () => const Padding(
+                padding: EdgeInsets.symmetric(vertical: 50),
+                child: LoadingWidget(),
+              ),
+              error: () => CustomErrorWidget(
+                error: _controller.libraryError.value,
+                // verticlePadding: const EdgeInsets.symmetric(vertical: 200),
+                onPressed: () async {
+                  _controller.getReflectionLibrary(
+                    searchReflection: true,
+                    isInitialLoad: true,
+                    mainQuestion: searchController.text,
+                  ); // Load data if not already loaded
                 },
               ),
+              success: () {
+                final reflection = _controller.reflectionSearchList;
+                return (reflection.isEmpty)
+                    ? CustomErrorWidget(
+                        error: 'No reflections found',
+                        verticlePadding:
+                            const EdgeInsets.symmetric(vertical: 200),
+                        onPressed: () async {
+                          _controller.getReflectionLibrary(
+                            searchReflection: true,
+                            isInitialLoad: true,
+                            mainQuestion: searchController.text,
+                          );
+                        },
+                      )
+                    : Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: ThemedContainer(
+                            padding: EdgeInsets.zero,
+                            margin: const EdgeInsets.all(12),
+                            child: LayoutBuilder(
+                              builder: (context, constraints) {
+                                return SingleChildScrollView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  controller: _controller.getScrollController(
+                                    paginationName,
+                                  ),
+                                  child: ConstrainedBox(
+                                    constraints: BoxConstraints(
+                                      minHeight: constraints.maxHeight,
+                                    ),
+                                    child: IntrinsicHeight(
+                                      child: Table(
+                                        columnWidths: const {
+                                          0: FixedColumnWidth(35),
+                                          1: FlexColumnWidth(70),
+                                          2: FlexColumnWidth(90),
+                                          3: FlexColumnWidth(80),
+                                        },
+                                        children: [
+                                          _buildTableHeaderRow(),
+                                          if (_controller
+                                              .reflectionSearchList.isNotEmpty)
+                                            ...List.generate(
+                                              _controller
+                                                  .reflectionSearchList.length,
+                                              (index) => _buildTableRow(index),
+                                            ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      );
+              },
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -286,7 +283,7 @@ class _ReflectionSearchScreenState extends State<ReflectionSearchScreen> {
     var formattedTime = formatDateTime(
         reflection.completedAt?.toUtc().toString() ??
             reflection.createdAt.toString() ??
-            'N/A');
+            'N/A',);
 
     return TableRow(
       children: [
