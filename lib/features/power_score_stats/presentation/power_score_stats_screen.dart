@@ -6,7 +6,6 @@ import 'package:empowered/features/power_score_stats/presentation/widgets/averag
 import 'package:empowered/features/power_score_stats/presentation/widgets/line_power_stats.dart';
 
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:intl/intl.dart';
 
 class PowerScoreStatsScreen extends StatefulWidget {
   const PowerScoreStatsScreen({super.key});
@@ -16,29 +15,13 @@ class PowerScoreStatsScreen extends StatefulWidget {
 }
 
 class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
-  DateTime _startDate = DateTime.now();
   final powerController = Get.find<PowerScoreController>();
-  void _changeWeek(int days) {
-    setState(() {
-      _startDate = _startDate.add(Duration(days: days));
-    });
-  }
 
-  void initState() {
-    super.initState();
-    powerController.getPowerScoreStats(
-        fromDate: '2025-03-10', toDate: '2025-05-21');
-  }
-
-  /// **Get the first day (Sunday) of the current week**
-  DateTime _getWeekStart(DateTime date) {
-    return date.subtract(Duration(days: date.weekday % 7));
-  }
-
-  String _getDateRange() {
-    var endDate = _startDate.add(const Duration(days: 6));
-    return "${DateFormat("dd.MM").format(_startDate)} - ${DateFormat("dd.MM").format(endDate)}";
-  }
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   powerController.getPowerScoreStats();
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -50,53 +33,60 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           Navigator.pop(context);
         },
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            HomeHeaderWidgets(
-              hideControls: true,
-              level: powerController.powerScoreResponse.value.currentLevel,
-              upcomingLevel:
-                  powerController.powerScoreResponse.value.upcomingLevel,
-              userProgressbarPoints: powerController
-                  .powerScoreResponse.value.userProgressbarPoints,
-              totalPointsProgressBar: powerController
-                  .powerScoreResponse.value.totalPointsProgressbar,
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                GestureDetector(
-                  onTap: () => _changeWeek(-7),
-                  child: Assets.images.cirlceArrowBack.svg(),
-                ),
-                const HorizontalSpacing(20),
-                Text(
-                  _getDateRange(),
-                  style: AppTextStyles.textBodyB3
-                      .copyWith(color: AppColors.textColor200),
-                ),
-                const HorizontalSpacing(20),
-                GestureDetector(
-                  onTap: () => _changeWeek(7),
-                  child: Assets.images.circleArrowForward.svg(),
-                ),
-              ],
-            ),
-            const VerticalSpacing(22),
-            _buildAverageScore(),
-            const VerticalSpacing(20),
-            _buildScoreBreakdown(),
-            const VerticalSpacing(20),
-            _buildSummaryBreakdown(),
-            const VerticalSpacing(20),
-            const AverageWeeklyScore(),
-            const VerticalSpacing(20),
-            const LinePowerStats(),
-            const BottomSpacing(),
-          ],
+      body: Obx(
+        () => SingleChildScrollView(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              HomeHeaderWidgets(
+                hideControls: true,
+                level: powerController.powerScoreResponse.value.currentLevel,
+                upcomingLevel:
+                    powerController.powerScoreResponse.value.upcomingLevel,
+                userProgressbarPoints: powerController
+                    .powerScoreResponse.value.userProgressbarPoints,
+                totalPointsProgressBar: powerController
+                    .powerScoreResponse.value.totalPointsProgressbar,
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () => powerController.changeWeek(-1),
+                    child: Assets.images.cirlceArrowBack.svg(),
+                  ),
+                  const HorizontalSpacing(20),
+                  Text(
+                    powerController.getDateRange(),
+                    style: AppTextStyles.textBodyB3
+                        .copyWith(color: AppColors.textColor200),
+                  ),
+                  const HorizontalSpacing(20),
+                  GestureDetector(
+                    onTap: () => powerController.changeWeek(1),
+                    child: Assets.images.circleArrowForward.svg(),
+                  ),
+                ],
+              ),
+              const VerticalSpacing(22),
+              _buildAverageScore(),
+              const VerticalSpacing(20),
+              _buildScoreBreakdown(),
+              const VerticalSpacing(20),
+              _buildSummaryBreakdown(),
+              const VerticalSpacing(20),
+              AverageWeeklyScore(
+                  weeklyStatus:
+                      powerController.powerScoreResponse.value.weeklystatus),
+              const VerticalSpacing(20),
+              LinePowerStats(
+                monthlystatus:
+                    powerController.powerScoreResponse.value.monthlystatus,
+              ),
+              const BottomSpacing(),
+            ],
+          ),
         ),
       ),
     );
