@@ -70,6 +70,7 @@ class JournalChatController extends GetxController {
   void setEditMode(bool isEdit, String answerId) {
     isEditMode.value = isEdit;
     editingAnswerId.value = answerId;
+    
   }
 
   void resetEditMode() {

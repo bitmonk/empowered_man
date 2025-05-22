@@ -4,6 +4,7 @@ import 'package:empowered/features/home/data/model/reflection_question_answer_mo
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_library_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/reflection_library_screen.dart';
+import 'package:empowered/features/home/presentation/screens/widgets/am_pm_chat_input_field.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/custom_rich_text_input.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
@@ -667,7 +668,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                             followupQuestionId,
                           );
                           if (isYesNoQuestion == false) {
-                            return CustomRichTextInput(
+                            return AmPmChatInputField(
                               focusNode: focusNode,
                               reflectionId: reflection?.id?.toString() ?? '',
                               mainQuestionId: mainQuestionId,

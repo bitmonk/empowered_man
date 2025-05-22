@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
-import 'package:empowered/features/home/presentation/screens/widgets/enhanced_rich_text_input.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
@@ -669,7 +668,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                           if (!controller.showBeginJournallButton.value) {
                             if (journalCompleted == false &&
                                 isYesNoQuestion == false) {
-                              return JournalChatInputTextField(
+                              return JournalChatInputField(
                                 focusNode: focusNode,
                                 journalId: journal?.id?.toString() ?? '',
                                 mainQuestionId: mainQuestionId,

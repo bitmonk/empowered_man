@@ -25,7 +25,7 @@ class _DailyWidgetState extends State<DailyWidget> {
           GestureDetector(
             onTap: () {
               controller.resetEditMode();
-              if (period == 'am ') {
+              if (period == 'am') {
                 Get.to(const AmPmJournalScreen(
                   reflectionType: 'am',
                 ),);

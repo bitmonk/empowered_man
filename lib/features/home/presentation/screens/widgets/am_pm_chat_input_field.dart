@@ -32,12 +32,12 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   bool showEditor = true;
   late FocusNode _focusNode;
   bool _contentChanged = false;
+  bool _isInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _focusNode = widget.focusNode;
-    // Initialize with proper configuration
     _updateEditState();
     _initializeWithEditingText();
     controller.addListener(_handleControllerChanges);
@@ -51,22 +51,12 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       }
     });
 
-    // Debug focus issues
     _focusNode.addListener(() {
       print('FocusNode has focus: ${_focusNode.hasFocus}');
-      if (!_focusNode.hasFocus) {
-        // Re-request focus if lost unexpectedly
-        Future.delayed(const Duration(milliseconds: 100), () {
-          if (mounted && showEditor) {
-            _focusNode.requestFocus();
-          }
-        });
-      }
     });
 
-    // Request focus after build is complete
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && showEditor) {
+      if (mounted && showEditor && isEditing) {
         print('Requesting focus in initState');
         _focusNode.requestFocus();
       }
@@ -76,26 +66,28 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   @override
   void dispose() {
     controller.removeListener(_handleControllerChanges);
-    _controller.dispose(); // Important: dispose the QuillController
+    _controller.dispose();
     super.dispose();
   }
 
   void _handleControllerChanges() {
     if (mounted) {
+      final wasEditing = isEditing;
       _updateEditState();
 
-      // Only initialize with text if we're entering edit mode
-      if (controller.isEditMode.value && !isEditing) {
-        _initializeWithEditingText();
-      }
-
-      // Request focus after content change, but not during regular typing
-      if (controller.isEditMode.value && !_contentChanged) {
+      // FIXED: Initialize text when entering edit mode, with proper delay
+      if (controller.isEditMode.value && !wasEditing) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
+            _initializeWithEditingText();
+            _isInitialized = true;
             _focusNode.requestFocus();
           }
         });
+      }
+
+      if (!controller.isEditMode.value && wasEditing) {
+        _isInitialized = false;
       }
     }
   }
@@ -103,6 +95,10 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   void _updateEditState() {
     setState(() {
       isEditing = controller.isEditMode.value;
+      // FIXED: Ensure editor is shown when in edit mode
+      if (isEditing) {
+        showEditor = true;
+      }
     });
   }
 
@@ -110,48 +106,141 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     if (controller.isEditMode.value &&
         controller.chatController.text.isNotEmpty) {
       final htmlText = controller.chatController.text;
-      final plainText = htmlText.replaceAll(RegExp('<[^>]*>'), '');
 
-      final newDelta = quill.Delta()..insert(plainText);
-      if (!plainText.endsWith('\n')) {
-        newDelta.insert('\n');
+      print('Initializing with HTML: $htmlText'); // Debug print
+
+      // FIXED: Convert HTML to QuillDelta to preserve formatting
+      final newDelta = _convertHtmlToQuillDelta(htmlText);
+
+      // FIXED: Always update the document, don't check for differences
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            _controller.document = quill.Document.fromDelta(newDelta);
+            _contentChanged = false;
+          });
+
+          // FIXED: Force a rebuild and cursor positioning
+          _controller.moveCursorToEnd();
+
+          print(
+              'Document updated with formatting: ${_controller.document.toPlainText()}',);
+        }
+      });
+    }
+  }
+
+  quill.Delta _convertHtmlToQuillDelta(String html) {
+    final delta = quill.Delta();
+
+    final tagPattern = RegExp(r'<(/?)(\w+)[^>]*>');
+    final boldStack = <String>[];
+    final italicStack = <String>[];
+    final underlineStack = <String>[];
+    final strikeStack = <String>[];
+    final codeStack = <String>[];
+
+    var lastIndex = 0;
+
+    for (final match in tagPattern.allMatches(html)) {
+      // Add text before the tag
+      if (match.start > lastIndex) {
+        final text = html.substring(lastIndex, match.start);
+        if (text.isNotEmpty) {
+          final attributes = <String, dynamic>{};
+
+          if (boldStack.isNotEmpty) attributes['bold'] = true;
+          if (italicStack.isNotEmpty) attributes['italic'] = true;
+          if (underlineStack.isNotEmpty) attributes['underline'] = true;
+          if (strikeStack.isNotEmpty) attributes['strike'] = true;
+          if (codeStack.isNotEmpty) attributes['code'] = true;
+
+          delta.insert(text, attributes.isEmpty ? null : attributes);
+        }
       }
 
-      final currentDelta = _controller.document.toDelta();
-      if (currentDelta != newDelta) {
-        setState(() {
-          _controller.document = quill.Document.fromDelta(newDelta);
-          _contentChanged = false;
-        });
+      final isClosingTag = match.group(1) == '/';
+      final tagName = match.group(2)?.toLowerCase();
 
-        print('Initialized document: ${_controller.document.toDelta()}');
-
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _focusNode.requestFocus();
+      // Handle different HTML tags
+      switch (tagName) {
+        case 'strong':
+        case 'b':
+          if (isClosingTag) {
+            if (boldStack.isNotEmpty) boldStack.removeLast();
+          } else {
+            boldStack.add('bold');
           }
-        });
+        case 'em':
+        case 'i':
+          if (isClosingTag) {
+            if (italicStack.isNotEmpty) italicStack.removeLast();
+          } else {
+            italicStack.add('italic');
+          }
+        case 'u':
+          if (isClosingTag) {
+            if (underlineStack.isNotEmpty) underlineStack.removeLast();
+          } else {
+            underlineStack.add('underline');
+          }
+        case 's':
+          if (isClosingTag) {
+            if (strikeStack.isNotEmpty) strikeStack.removeLast();
+          } else {
+            strikeStack.add('strike');
+          }
+        case 'code':
+          if (isClosingTag) {
+            if (codeStack.isNotEmpty) codeStack.removeLast();
+          } else {
+            codeStack.add('code');
+          }
+      }
+
+      lastIndex = match.end;
+    }
+
+    // Add remaining text after the last tag
+    if (lastIndex < html.length) {
+      final text = html.substring(lastIndex);
+      if (text.isNotEmpty) {
+        final attributes = <String, dynamic>{};
+
+        if (boldStack.isNotEmpty) attributes['bold'] = true;
+        if (italicStack.isNotEmpty) attributes['italic'] = true;
+        if (underlineStack.isNotEmpty) attributes['underline'] = true;
+        if (strikeStack.isNotEmpty) attributes['strike'] = true;
+        if (codeStack.isNotEmpty) attributes['code'] = true;
+
+        delta.insert(text, attributes.isEmpty ? null : attributes);
       }
     }
+
+    // Ensure document ends with newline
+    final lastOp = delta.operations.isNotEmpty ? delta.operations.last : null;
+    if (lastOp?.data is String && !(lastOp!.data! as String).endsWith('\n')) {
+      delta.insert('\n');
+    } else if (delta.operations.isEmpty) {
+      delta.insert('\n');
+    }
+
+    return delta;
   }
 
   String getFormattedHtml() {
     final document = _controller.document;
-    // Create an HTML representation of the Quill document
     var html = '';
-    // Process each operation in the Delta
     for (final op in document.toDelta().operations) {
       if (op.data is String) {
         var text = op.data! as String;
-        if (text == '\n') continue; // Skip standalone newlines
+        if (text == '\n') continue;
 
         var attributes = op.attributes;
         if (attributes == null || attributes.isEmpty) {
           html += text;
         } else {
-          // Start with the raw text
           var formattedText = text;
-          // Apply formatting based on attributes
           if (attributes.containsKey('bold') && attributes['bold'] == true) {
             formattedText = '<strong>$formattedText</strong>';
           }
@@ -184,24 +273,16 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     final htmlContent = getFormattedHtml();
     if (htmlContent.trim().isNotEmpty) {
       if (controller.isEditMode.value) {
-        // We're in edit mode, update the existing message
-        controller
-            .updateMessage(
-          htmlContent,
-        )
-            .then((_) {
-          // Reset edit mode after successful update
+        controller.updateMessage(htmlContent).then((_) {
           controller.resetEditMode();
-          // Reset quill editor
           _controller.clear();
           setState(() {
             _contentChanged = false;
+            _isInitialized = false;
           });
-          // Call onMessageSent callback if provided
           widget.onMessageSent?.call();
         });
       } else {
-        // Normal sending mode, create a new message
         controller
             .sendMessage(
           widget.reflectionId,
@@ -214,11 +295,9 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
           setState(() {
             _contentChanged = false;
           });
-          // Call onMessageSent callback if provided
           widget.onMessageSent?.call();
         });
       }
-      // Clear the editor
       setState(() {
         _controller.clear();
       });
@@ -229,16 +308,21 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   void didUpdateWidget(AmPmChatInputField oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    // Update focus node if it changed
     if (widget.focusNode != oldWidget.focusNode) {
       _focusNode = widget.focusNode;
     }
 
+    final wasEditing = isEditing;
     _updateEditState();
 
-    // Only reinitialize if editing status changed
-    if (isEditing != oldWidget.key) {
-      _initializeWithEditingText();
+    // FIXED: Handle edit mode changes in didUpdateWidget
+    if (controller.isEditMode.value && !wasEditing) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _initializeWithEditingText();
+          _isInitialized = true;
+        }
+      });
     }
   }
 
@@ -286,10 +370,11 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                     maxHeight: 120,
                     placeholder:
                         isEditing ? 'Edit your message...' : 'Message...',
-                    // readOnly: false, // Explicitly set to false
                     showCursor: true,
                     padding: const EdgeInsets.all(4),
-                    autoFocus: true,
+                    autoFocus: false,
+                    // FIXED: Ensure editor is enabled and can receive input
+                    //  readOnly: widget.isDisabled, // Only disable if widget is disabled
                   ),
                 ),
               ),
@@ -302,7 +387,7 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                     data: Theme.of(context).copyWith(
                       iconTheme: const IconThemeData(
                         color: Colors.white,
-                        size: 22, // Slightly larger icons
+                        size: 22,
                       ),
                       buttonTheme: const ButtonThemeData(
                         buttonColor: Colors.white,
@@ -333,7 +418,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                         showClipboardCopy: false,
                         showClipboardPaste: false,
                         multiRowsDisplay: false,
-
                         color: AppColors.transparent,
                       ),
                     ),
@@ -347,11 +431,11 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                   if (isEditing)
                     InkWell(
                       onTap: () {
-                        // Cancel editing
                         controller.resetEditMode();
                         _controller.clear();
                         setState(() {
                           _contentChanged = false;
+                          _isInitialized = false;
                         });
                       },
                       child: Container(
@@ -395,12 +479,11 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
             onTap: () {
               setState(() {
                 showEditor = true;
-                // Request focus when showing editor
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  if (mounted) {
-                    _focusNode.requestFocus();
-                  }
-                });
+              });
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                if (mounted) {
+                  _focusNode.requestFocus();
+                }
               });
             },
             child: Assets.images.chatText.image(width: 20),
@@ -411,12 +494,4 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       ),
     );
   }
-}
-
-// Note: Make sure you have the Tuple2 class available, either import it or
-// add this class if needed:
-class Tuple2<T1, T2> {
-  const Tuple2(this.item1, this.item2);
-  final T1 item1;
-  final T2 item2;
 }
