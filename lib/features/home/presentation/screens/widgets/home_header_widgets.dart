@@ -110,11 +110,11 @@ class HomeHeaderWidgets extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              level ?? '',
+              level ?? 'Level 3',
               style: AppTextStyles.textBodyB1,
             ),
             Text(
-              upcomingLevel ?? '',
+              upcomingLevel ?? 'Needs 100 points to level 4',
               style: AppTextStyles.textBodyB3,
             ),
           ],
@@ -131,11 +131,11 @@ class HomeHeaderWidgets extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              userProgressbarPoints ?? '',
+              userProgressbarPoints ?? '200',
               style: AppTextStyles.textBodyB3,
             ),
             Text(
-              totalPointsProgressBar ?? '',
+              totalPointsProgressBar ?? '5000',
               style: AppTextStyles.textBodyB3,
             ),
           ],

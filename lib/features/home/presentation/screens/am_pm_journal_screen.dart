@@ -58,141 +58,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
     });
   }
 
-  // List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
-  //   if (reflection == null || reflection.mainQuestions == null) {
-  //     return [];
-  //   }
 
-  //   var items = <MessageItem>[];
-  //   var stopAddingQuestions = false;
-
-  //   // First, process all answered questions and their answers
-  //   for (var i = 0; i < reflection.mainQuestions!.length; i++) {
-  //     final mainQuestion = reflection.mainQuestions![i];
-  //     var questionTimestamp = '';
-
-  //     if (i > 0) {
-  //       final previousQuestion = reflection.mainQuestions![i - 1];
-  //       if (previousQuestion.answer?.createdAt != null) {
-  //         questionTimestamp =
-  //             previousQuestion.answer?.createdAt.toString() ?? '';
-  //       }
-  //     }
-
-  //     // Always add the main question if it's already answered
-  //     // (don't filter based on _isShowingThinking for answered questions)
-  //     if (mainQuestion.answered == true) {
-  //       items.add(
-  //         MessageItem(
-  //           type: MessageType.question,
-  //           message: mainQuestion.question!,
-  //           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
-  //           isMine: false,
-  //         ),
-  //       );
-  //     } else if (!_isShowingThinking) {
-  //       // Only add unanswered questions when not in thinking state
-  //       items.add(
-  //         MessageItem(
-  //           type: MessageType.question,
-  //           message: mainQuestion.question!,
-  //           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
-  //           isMine: false,
-  //         ),
-  //       );
-  //     }
-
-  //     // If this question isn't answered, stop after adding it (unless we're in thinking state)
-  //     if (mainQuestion.answered != true) {
-  //       stopAddingQuestions = true;
-  //       break;
-  //     }
-
-  //     // Add the answer for this question
-  //     items.add(
-  //       MessageItem(
-  //         type: MessageType.answer,
-  //         message: mainQuestion.answer?.text ?? '',
-  //         timestamp: mainQuestion.answer?.createdAt.toString() ??
-  //             DateTime.now().toString(),
-  //         isMine: true,
-  //         answerId: mainQuestion.answer?.id.toString(),
-  //       ),
-  //     );
-
-  //     // Process follow-up questions if any
-  //     if (!stopAddingQuestions && mainQuestion.followUpQuestions != null) {
-  //       for (var followUp in mainQuestion.followUpQuestions!) {
-  //         // Always add follow-up questions if they're already answered
-  //         if (followUp.answered == true) {
-  //           items.add(
-  //             MessageItem(
-  //               type: MessageType.question,
-  //               message: followUp.question ?? '',
-  //               timestamp: DateTime.now().toString(),
-  //               isMine: false,
-  //               isYesNoQuestion: followUp.questionType == 'yes_no',
-  //             ),
-  //           );
-  //         } else if (!_isShowingThinking) {
-  //           // Only add unanswered follow-up questions when not in thinking state
-  //           items.add(
-  //             MessageItem(
-  //               type: MessageType.question,
-  //               message: followUp.question ?? '',
-  //               timestamp: DateTime.now().toString(),
-  //               isMine: false,
-  //               isYesNoQuestion: followUp.questionType == 'yes_no',
-  //             ),
-  //           );
-  //         }
-
-  //         // If this follow-up is not answered, stop here
-  //         if (followUp.answered != true) {
-  //           stopAddingQuestions = true;
-  //           break;
-  //         }
-
-  //         // Add follow-up answer
-  //         items.add(
-  //           MessageItem(
-  //             type: MessageType.answer,
-  //             message: followUp.answer?.text ?? '',
-  //             timestamp: followUp.answer?.createdAt.toString() ??
-  //                 DateTime.now().toString(),
-  //             isMine: true,
-  //             answerId: followUp.answer?.id?.toString(),
-  //           ),
-  //         );
-  //       }
-  //     }
-
-  //     if (stopAddingQuestions) {
-  //       break;
-  //     }
-  //   }
-
-  //   // Add pending answer if available
-  //   if (_isSendingMessage && _pendingAnswer != null) {
-  //     items.add(_pendingAnswer!);
-  //   }
-
-  //   // Always add thinking indicator if we're in thinking state
-  //   // This ensures it appears for both yes/no and regular questions
-  //   if (_isShowingThinking) {
-  //     items.add(
-  //       MessageItem(
-  //         type: MessageType.question,
-  //         message: '', // Empty message for thinking indicator
-  //         timestamp: DateTime.now().toString(),
-  //         isMine: false,
-  //         isThinking: true,
-  //       ),
-  //     );
-  //   }
-
-  //   return items;
-  // }
   List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
     if (reflection == null || reflection.mainQuestions == null) {
       return [];
@@ -396,7 +262,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
         mainQuestionId,
         followupQuestionId,
       );
-
+await Future.delayed(const Duration(seconds: 3));
       await controller
           .getReflectionWithQuestionAnswers(widget.reflectionType ?? '');
 
