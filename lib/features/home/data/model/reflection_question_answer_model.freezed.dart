@@ -1010,7 +1010,7 @@ mixin _$Answer {
   @JsonKey(name: 'main_question_id')
   int? get mainQuestionId => throw _privateConstructorUsedError;
   @JsonKey(name: 'follow_up_question_id')
-  dynamic get followUpQuestionId => throw _privateConstructorUsedError;
+  int? get followUpQuestionId => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_journal_id')
   dynamic get userJournalId => throw _privateConstructorUsedError;
 
@@ -1035,7 +1035,7 @@ abstract class $AnswerCopyWith<$Res> {
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'main_question_id') int? mainQuestionId,
-      @JsonKey(name: 'follow_up_question_id') dynamic followUpQuestionId,
+      @JsonKey(name: 'follow_up_question_id') int? followUpQuestionId,
       @JsonKey(name: 'user_journal_id') dynamic userJournalId});
 }
 
@@ -1091,7 +1091,7 @@ class _$AnswerCopyWithImpl<$Res, $Val extends Answer>
       followUpQuestionId: freezed == followUpQuestionId
           ? _value.followUpQuestionId
           : followUpQuestionId // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as int?,
       userJournalId: freezed == userJournalId
           ? _value.userJournalId
           : userJournalId // ignore: cast_nullable_to_non_nullable
@@ -1114,7 +1114,7 @@ abstract class _$$AnswerImplCopyWith<$Res> implements $AnswerCopyWith<$Res> {
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt,
       @JsonKey(name: 'main_question_id') int? mainQuestionId,
-      @JsonKey(name: 'follow_up_question_id') dynamic followUpQuestionId,
+      @JsonKey(name: 'follow_up_question_id') int? followUpQuestionId,
       @JsonKey(name: 'user_journal_id') dynamic userJournalId});
 }
 
@@ -1168,7 +1168,7 @@ class __$$AnswerImplCopyWithImpl<$Res>
       followUpQuestionId: freezed == followUpQuestionId
           ? _value.followUpQuestionId
           : followUpQuestionId // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as int?,
       userJournalId: freezed == userJournalId
           ? _value.userJournalId
           : userJournalId // ignore: cast_nullable_to_non_nullable
@@ -1213,7 +1213,7 @@ class _$AnswerImpl implements _Answer {
   final int? mainQuestionId;
   @override
   @JsonKey(name: 'follow_up_question_id')
-  final dynamic followUpQuestionId;
+  final int? followUpQuestionId;
   @override
   @JsonKey(name: 'user_journal_id')
   final dynamic userJournalId;
@@ -1237,8 +1237,8 @@ class _$AnswerImpl implements _Answer {
                 other.updatedAt == updatedAt) &&
             (identical(other.mainQuestionId, mainQuestionId) ||
                 other.mainQuestionId == mainQuestionId) &&
-            const DeepCollectionEquality()
-                .equals(other.followUpQuestionId, followUpQuestionId) &&
+            (identical(other.followUpQuestionId, followUpQuestionId) ||
+                other.followUpQuestionId == followUpQuestionId) &&
             const DeepCollectionEquality()
                 .equals(other.userJournalId, userJournalId));
   }
@@ -1253,7 +1253,7 @@ class _$AnswerImpl implements _Answer {
       createdAt,
       updatedAt,
       mainQuestionId,
-      const DeepCollectionEquality().hash(followUpQuestionId),
+      followUpQuestionId,
       const DeepCollectionEquality().hash(userJournalId));
 
   /// Create a copy of Answer
@@ -1274,15 +1274,15 @@ class _$AnswerImpl implements _Answer {
 
 abstract class _Answer implements Answer {
   const factory _Answer(
-      {@JsonKey(name: 'id') final int? id,
-      @JsonKey(name: 'text') final String? text,
-      @JsonKey(name: 'media') final dynamic media,
-      @JsonKey(name: 'created_at') final DateTime? createdAt,
-      @JsonKey(name: 'updated_at') final DateTime? updatedAt,
-      @JsonKey(name: 'main_question_id') final int? mainQuestionId,
-      @JsonKey(name: 'follow_up_question_id') final dynamic followUpQuestionId,
-      @JsonKey(name: 'user_journal_id')
-      final dynamic userJournalId}) = _$AnswerImpl;
+          {@JsonKey(name: 'id') final int? id,
+          @JsonKey(name: 'text') final String? text,
+          @JsonKey(name: 'media') final dynamic media,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+          @JsonKey(name: 'main_question_id') final int? mainQuestionId,
+          @JsonKey(name: 'follow_up_question_id') final int? followUpQuestionId,
+          @JsonKey(name: 'user_journal_id') final dynamic userJournalId}) =
+      _$AnswerImpl;
 
   factory _Answer.fromJson(Map<String, dynamic> json) = _$AnswerImpl.fromJson;
 
@@ -1306,7 +1306,7 @@ abstract class _Answer implements Answer {
   int? get mainQuestionId;
   @override
   @JsonKey(name: 'follow_up_question_id')
-  dynamic get followUpQuestionId;
+  int? get followUpQuestionId;
   @override
   @JsonKey(name: 'user_journal_id')
   dynamic get userJournalId;
@@ -1334,7 +1334,7 @@ mixin _$FollowUpQuestion {
   @JsonKey(name: 'question_type')
   String? get questionType => throw _privateConstructorUsedError;
   @JsonKey(name: 'options')
-  String? get options => throw _privateConstructorUsedError;
+  dynamic get options => throw _privateConstructorUsedError;
   @JsonKey(name: 'answered')
   bool? get answered => throw _privateConstructorUsedError;
   @JsonKey(name: 'answer')
@@ -1361,7 +1361,7 @@ abstract class $FollowUpQuestionCopyWith<$Res> {
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'question_type') String? questionType,
-      @JsonKey(name: 'options') String? options,
+      @JsonKey(name: 'options') dynamic options,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') Answer? answer});
 
@@ -1411,7 +1411,7 @@ class _$FollowUpQuestionCopyWithImpl<$Res, $Val extends FollowUpQuestion>
       options: freezed == options
           ? _value.options
           : options // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       answered: freezed == answered
           ? _value.answered
           : answered // ignore: cast_nullable_to_non_nullable
@@ -1451,7 +1451,7 @@ abstract class _$$FollowUpQuestionImplCopyWith<$Res>
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'question_type') String? questionType,
-      @JsonKey(name: 'options') String? options,
+      @JsonKey(name: 'options') dynamic options,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') Answer? answer});
 
@@ -1500,7 +1500,7 @@ class __$$FollowUpQuestionImplCopyWithImpl<$Res>
       options: freezed == options
           ? _value.options
           : options // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       answered: freezed == answered
           ? _value.answered
           : answered // ignore: cast_nullable_to_non_nullable
@@ -1542,7 +1542,7 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
   final String? questionType;
   @override
   @JsonKey(name: 'options')
-  final String? options;
+  final dynamic options;
   @override
   @JsonKey(name: 'answered')
   final bool? answered;
@@ -1567,7 +1567,7 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
                 other.keywords == keywords) &&
             (identical(other.questionType, questionType) ||
                 other.questionType == questionType) &&
-            (identical(other.options, options) || other.options == options) &&
+            const DeepCollectionEquality().equals(other.options, options) &&
             (identical(other.answered, answered) ||
                 other.answered == answered) &&
             (identical(other.answer, answer) || other.answer == answer));
@@ -1575,8 +1575,15 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, question, keywords,
-      questionType, options, answered, answer);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      question,
+      keywords,
+      questionType,
+      const DeepCollectionEquality().hash(options),
+      answered,
+      answer);
 
   /// Create a copy of FollowUpQuestion
   /// with the given fields replaced by the non-null parameter values.
@@ -1601,7 +1608,7 @@ abstract class _FollowUpQuestion implements FollowUpQuestion {
       @JsonKey(name: 'question') final String? question,
       @JsonKey(name: 'keywords') final String? keywords,
       @JsonKey(name: 'question_type') final String? questionType,
-      @JsonKey(name: 'options') final String? options,
+      @JsonKey(name: 'options') final dynamic options,
       @JsonKey(name: 'answered') final bool? answered,
       @JsonKey(name: 'answer') final Answer? answer}) = _$FollowUpQuestionImpl;
 
@@ -1622,7 +1629,7 @@ abstract class _FollowUpQuestion implements FollowUpQuestion {
   String? get questionType;
   @override
   @JsonKey(name: 'options')
-  String? get options;
+  dynamic get options;
   @override
   @JsonKey(name: 'answered')
   bool? get answered;

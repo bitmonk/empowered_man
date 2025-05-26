@@ -90,7 +90,7 @@ _$AnswerImpl _$$AnswerImplFromJson(Map<String, dynamic> json) => _$AnswerImpl(
           ? null
           : DateTime.parse(json['updated_at'] as String),
       mainQuestionId: (json['main_question_id'] as num?)?.toInt(),
-      followUpQuestionId: json['follow_up_question_id'],
+      followUpQuestionId: (json['follow_up_question_id'] as num?)?.toInt(),
       userJournalId: json['user_journal_id'],
     );
 
@@ -113,7 +113,7 @@ _$FollowUpQuestionImpl _$$FollowUpQuestionImplFromJson(
       question: json['question'] as String?,
       keywords: json['keywords'] as String?,
       questionType: json['question_type'] as String?,
-      options: json['options'] as String?,
+      options: json['options'],
       answered: json['answered'] as bool?,
       answer: json['answer'] == null
           ? null

@@ -75,7 +75,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       final wasEditing = isEditing;
       _updateEditState();
 
-      // FIXED: Initialize text when entering edit mode, with proper delay
       if (controller.isEditMode.value && !wasEditing) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) {
@@ -95,7 +94,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   void _updateEditState() {
     setState(() {
       isEditing = controller.isEditMode.value;
-      // FIXED: Ensure editor is shown when in edit mode
       if (isEditing) {
         showEditor = true;
       }
@@ -109,10 +107,8 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
 
       print('Initializing with HTML: $htmlText'); // Debug print
 
-      // FIXED: Convert HTML to QuillDelta to preserve formatting
       final newDelta = _convertHtmlToQuillDelta(htmlText);
 
-      // FIXED: Always update the document, don't check for differences
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
           setState(() {
@@ -120,7 +116,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
             _contentChanged = false;
           });
 
-          // FIXED: Force a rebuild and cursor positioning
           _controller.moveCursorToEnd();
 
           print(
@@ -315,7 +310,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     final wasEditing = isEditing;
     _updateEditState();
 
-    // FIXED: Handle edit mode changes in didUpdateWidget
     if (controller.isEditMode.value && !wasEditing) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         if (mounted) {
@@ -373,8 +367,7 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                     showCursor: true,
                     padding: const EdgeInsets.all(4),
                     autoFocus: false,
-                    // FIXED: Ensure editor is enabled and can receive input
-                    //  readOnly: widget.isDisabled, // Only disable if widget is disabled
+                    
                   ),
                 ),
               ),

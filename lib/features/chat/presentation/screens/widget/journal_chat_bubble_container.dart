@@ -1,12 +1,10 @@
-import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
-// import 'package:empowered/features/chat/presentation/screens/widget/media_view_screens.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
 
-class ChatBubbleContainer extends StatefulWidget {
-  const ChatBubbleContainer({
+class JournalChatBubbleContainer extends StatefulWidget {
+  const JournalChatBubbleContainer({
     required this.isMine,
     required this.message,
     required this.timeStamp,
@@ -48,17 +46,13 @@ class ChatBubbleContainer extends StatefulWidget {
   final VoidCallback? onEditTap;
 
   @override
-  State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
+  State<JournalChatBubbleContainer> createState() =>
+      _JournalChatBubbleContainerState();
 }
 
-class _ChatBubbleContainerState extends State<ChatBubbleContainer>
+class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     with TickerProviderStateMixin {
   bool isLiked = false; // Internal state for like
-  // VideoPlayerController? _videoController;
-  ChewieController? _chewieController;
-  bool _isVideoInitialized = false;
-  // late AudioPlayer _audioPlayer;
-  bool _isPlaying = false;
   String? _selectedOption;
   late List<AnimationController> _dotAnimationControllers;
   late List<Animation<double>> _dotAnimations;
@@ -285,8 +279,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
   }
 
   void _showPopupMenu(BuildContext context, Offset position) {
-    final left = position.dx - 60; // Adjust for alignment
-    final top = position.dy - 130; // Position above the bubble
+    final left = position.dx - 60; 
+    final top = position.dy - 130; 
 
     showDialog(
       context: context,
@@ -469,77 +463,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
                                   ],
                                 ),
                               ),
-                            // Column(
-                            //   children: [
-                            //     if (widget.images != null &&
-                            //         widget.images!.isNotEmpty)
-                            //       InkWell(
-                            //         onTap: () {
-                            //           Navigator.push(
-                            //             context,
-                            //             MaterialPageRoute(
-                            //               builder: (context) =>
-                            //                   FullscreenImageView(
-                            //                 imagePath: widget.images!.first,
-                            //               ),
-                            //             ),
-                            //           );
-                            //         },
-                            //         child: Wrap(
-                            //           spacing: 8,
-                            //           runSpacing: 8,
-                            //           children: widget.images!.map((url) {
-                            //             return Container(
-                            //               width: 150,
-                            //               height: 150,
-                            //               clipBehavior: Clip.antiAlias,
-                            //               decoration: BoxDecoration(
-                            //                 borderRadius:
-                            //                     BorderRadius.circular(8),
-                            //                 color: Colors.black,
-                            //               ),
-                            //               child: Image.network(
-                            //                 url,
-                            //                 fit: BoxFit.cover,
-                            //                 loadingBuilder: (
-                            //                   context,
-                            //                   child,
-                            //                   loadingProgress,
-                            //                 ) {
-                            //                   if (loadingProgress == null) {
-                            //                     return child;
-                            //                   }
-                            //                   return Center(
-                            //                     child:
-                            //                         CircularProgressIndicator(
-                            //                       value: loadingProgress
-                            //                                   .expectedTotalBytes !=
-                            //                               null
-                            //                           ? loadingProgress
-                            //                                   .cumulativeBytesLoaded /
-                            //                               loadingProgress
-                            //                                   .expectedTotalBytes!
-                            //                           : null,
-                            //                     ),
-                            //                   );
-                            //                 },
-                            //                 errorBuilder:
-                            //                     (context, error, stackTrace) =>
-                            //                         const ColoredBox(
-                            //                   color: Colors.black,
-                            //                   child: Icon(
-                            //                     Icons.broken_image,
-                            //                     color: Colors.white,
-                            //                   ),
-                            //                 ),
-                            //               ),
-                            //             );
-                            //           }).toList(),
-                            //         ),
-                            //       ),
-                            //     const SizedBox(height: 8),
-                            //   ],
-                            // ),
                             if (widget
                                 .isLoading) // Use widget.isLoading directly
                               Positioned(
@@ -599,6 +522,5 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer>
         ),
       );
     }
-    // final displayMessage = _extractTextFromHtml(widget.message);
   }
 }

@@ -63,7 +63,7 @@ class ReflectionJournalChatController extends GetxController {
   }
 
   Future<bool?> getReflectionWithQuestionAnswers(String reflectionType) async {
-    reflectionQuestionAnswerResponseState.value = TheStates.loading;
+  //  reflectionQuestionAnswerResponseState.value = TheStates.loading;
     final result = await remoteSource.getReflectionWithQuestionAnswers(
       reflectionType: reflectionType,
     );

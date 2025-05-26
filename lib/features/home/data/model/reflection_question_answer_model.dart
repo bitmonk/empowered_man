@@ -63,7 +63,7 @@ class Answer with _$Answer {
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
     @JsonKey(name: 'main_question_id') int? mainQuestionId,
-    @JsonKey(name: 'follow_up_question_id') dynamic followUpQuestionId,
+    @JsonKey(name: 'follow_up_question_id') int? followUpQuestionId,
     @JsonKey(name: 'user_journal_id') dynamic userJournalId,
   }) = _Answer;
 
@@ -77,7 +77,7 @@ class FollowUpQuestion with _$FollowUpQuestion {
     @JsonKey(name: 'question') String? question,
     @JsonKey(name: 'keywords') String? keywords,
     @JsonKey(name: 'question_type') String? questionType,
-    @JsonKey(name: 'options') String? options,
+    @JsonKey(name: 'options') dynamic options,
     @JsonKey(name: 'answered') bool? answered,
     @JsonKey(name: 'answer') Answer? answer,
   }) = _FollowUpQuestion;

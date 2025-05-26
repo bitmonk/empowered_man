@@ -1,11 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
+import 'package:empowered/features/chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 import 'package:empowered/features/home/data/model/reflection_question_answer_model.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_library_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/reflection_library_screen.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/am_pm_chat_input_field.dart';
-import 'package:empowered/features/home/presentation/screens/widgets/custom_rich_text_input.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
@@ -57,7 +56,6 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
       }
     });
   }
-
 
   List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
     if (reflection == null || reflection.mainQuestions == null) {
@@ -227,19 +225,19 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
       _yesNoAnswers[questionId] = option;
       _isSendingMessage = true;
       _isShowingThinking = true;
-      _pendingAnswer = MessageItem(
-        type: MessageType.answer,
-        message: option,
-        timestamp: DateTime.now().toString(),
-        isMine: true,
-        isLoading: true,
-      );
+      // _pendingAnswer = MessageItem(
+      //   type: MessageType.answer,
+      //   message: option,
+      //   timestamp: DateTime.now().toString(),
+      //   isMine: true,
+      //   isLoading: true,
+      // );
     });
 
     // Force an immediate rebuild to show thinking indicator
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
-        setState(() {}); // Force rebuild explicitly
+        // setState(() {}); // Force rebuild explicitly
         controller.scrollToBottom();
       }
     });
@@ -262,7 +260,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
         mainQuestionId,
         followupQuestionId,
       );
-await Future.delayed(const Duration(seconds: 3));
+      await Future.delayed(const Duration(seconds: 3));
       await controller
           .getReflectionWithQuestionAnswers(widget.reflectionType ?? '');
 
@@ -273,6 +271,11 @@ await Future.delayed(const Duration(seconds: 3));
         if (mounted) {
           controller.autoScrollEnabled.value = true;
           controller.scrollToBottom();
+          setState(() {
+            _isSendingMessage = false;
+            _isShowingThinking = false;
+            _pendingAnswer = null;
+          });
         }
       });
     } catch (e) {
@@ -419,11 +422,9 @@ await Future.delayed(const Duration(seconds: 3));
                               children: [
                                 ListView.builder(
                                   shrinkWrap: true,
-                                  physics:
-                                      const NeverScrollableScrollPhysics(),
+                                  physics: const NeverScrollableScrollPhysics(),
                                   keyboardDismissBehavior:
-                                      ScrollViewKeyboardDismissBehavior
-                                          .onDrag,
+                                      ScrollViewKeyboardDismissBehavior.onDrag,
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
@@ -445,7 +446,7 @@ await Future.delayed(const Duration(seconds: 3));
 
                                     // Create the base message widget
                                     Widget messageWidget =
-                                        ChatBubbleContainer(
+                                        JournalChatBubbleContainer(
                                       isJournal: true,
                                       message: messageItem.message,
                                       isMine: messageItem.isMine,
@@ -460,8 +461,7 @@ await Future.delayed(const Duration(seconds: 3));
                                       selectedOption:
                                           messageItem.selectedOption,
                                       isThinking: messageItem.isThinking,
-                                      isAnswered: messageItem
-                                              .isYesNoQuestion &&
+                                      isAnswered: messageItem.isYesNoQuestion &&
                                           item.type == MessageType.question &&
                                           index < items.length - 1 &&
                                           items[index + 1].type ==
@@ -495,8 +495,7 @@ await Future.delayed(const Duration(seconds: 3));
                                     if (item.type == MessageType.question &&
                                         index < items.length - 1) {
                                       final nextItem = items[index + 1];
-                                      if (nextItem.type ==
-                                          MessageType.answer) {
+                                      if (nextItem.type == MessageType.answer) {
                                         messageWidget = Column(
                                           children: [
                                             messageWidget,
@@ -572,7 +571,8 @@ await Future.delayed(const Duration(seconds: 3));
                                     widget.reflectionType ?? '',
                                   );
                                   await Future.delayed(
-                                      const Duration(milliseconds: 500),);
+                                    const Duration(milliseconds: 500),
+                                  );
 
                                   // Scroll to show the new question
                                   WidgetsBinding.instance

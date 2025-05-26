@@ -8,8 +8,8 @@ import 'package:empowered/features/contact_us/presentation/controllers/contact_u
 import 'package:empowered/features/contact_us/presentation/screens/contact_us_screen.dart';
 import 'package:empowered/features/forgot_password/presentation/controllers/forgot_password_bindings.dart';
 import 'package:empowered/features/forgot_password/presentation/screens/forgot_password_screen.dart';
-import 'package:empowered/features/goals/goals_overview.dart';
-import 'package:empowered/features/goals/reflection_screen.dart';
+import 'package:empowered/features/goals/presentation/screens/goals_overview.dart';
+import 'package:empowered/features/goals/presentation/screens/reflection_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_library.dart';
 import 'package:empowered/features/landing/landing_screen.dart';
 import 'package:empowered/features/login/presentation/controllers/login_bindings.dart';

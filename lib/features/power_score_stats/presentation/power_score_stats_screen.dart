@@ -307,7 +307,7 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
             Assets.images.powerTasks.path),
         _scoreCard(
             'Goals',
-            '${powerController.powerScoreResponse.value.userGoalsHabits}/${powerController.powerScoreResponse.value.totalGoals}',
+            '${powerController.powerScoreResponse.value.userTotalGoals}/${powerController.powerScoreResponse.value.totalGoals}',
             Assets.images.powerLine.path),
         _scoreCard(
             'Assessment',

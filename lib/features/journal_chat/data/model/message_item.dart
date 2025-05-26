@@ -14,6 +14,7 @@ class MessageItem {
     this.answered = false,
     this.isThinking = false,
     this.answerId,
+    this.hide = false,
   });
   final MessageType type;
   final String message;
@@ -29,6 +30,7 @@ class MessageItem {
   final bool answered;
   final bool isThinking;
   final String? answerId;
+  final bool hide;
 }
 
 enum MessageType { question, answer, option, thinking }
