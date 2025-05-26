@@ -1,5 +1,3 @@
-
-
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'chat_conversation_model.freezed.dart';
@@ -34,7 +32,6 @@ class Journal with _$Journal {
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'emotion_name') String? emotionName,
     @JsonKey(name: 'main_questions') List<MainQuestion>? mainQuestions,
-    @JsonKey(name: 'follow_up_questions') List<FollowUpQuestion>? followUpQuestions,
   }) = _Journal;
 
   factory Journal.fromJson(Map<String, dynamic> json) =>
@@ -49,6 +46,8 @@ class MainQuestion with _$MainQuestion {
     @JsonKey(name: 'keywords') String? keywords,
     @JsonKey(name: 'answered') bool? answered,
     @JsonKey(name: 'answer') Answer? answer,
+    @JsonKey(name: 'follow_up_questions')
+    List<FollowUpQuestion>? followUpQuestions,
   }) = _MainQuestion;
 
   factory MainQuestion.fromJson(Map<String, dynamic> json) =>
@@ -76,7 +75,7 @@ class Answer with _$Answer {
   const factory Answer({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'text') String? text,
-    @JsonKey(name: 'media') Media?  media,
+    @JsonKey(name: 'media') Media? media,
     @JsonKey(name: 'created_at') String? createdAt,
     @JsonKey(name: 'updated_at') String? updatedAt,
     @JsonKey(name: 'main_question_id') int? mainQuestionId,
@@ -84,15 +83,15 @@ class Answer with _$Answer {
     @JsonKey(name: 'user_journal_id') int? userJournalId,
   }) = _Answer;
 
-  factory Answer.fromJson(Map<String, dynamic> json) =>
-      _$AnswerFromJson(json);
+  factory Answer.fromJson(Map<String, dynamic> json) => _$AnswerFromJson(json);
 }
+
 @freezed
 class Media with _$Media {
   const factory Media({
-    @JsonKey(name: 'images')  List<String>? images,
-     List<String>? videos,
-     List<String>? voices,
+    @JsonKey(name: 'images') List<String>? images,
+    List<String>? videos,
+    List<String>? voices,
   }) = _Media;
 
   factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);

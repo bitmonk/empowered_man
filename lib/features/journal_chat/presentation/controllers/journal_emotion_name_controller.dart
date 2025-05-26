@@ -29,6 +29,8 @@ class JournalEmotionNameController extends GetxController {
   Rx<SeeUserJournalResponseModel> userJournalResponse =
       const SeeUserJournalResponseModel().obs;
   Rx<TheStates> journalEmotionNameState = TheStates.initial.obs;
+  Rx<TheStates> deleteJournalState = TheStates.initial.obs;
+  Rx<TheStates> seeBulkJournalState = TheStates.initial.obs;
 
   final Rx<String?> selectedEmotionId = Rx<String?>(null);
 
@@ -220,22 +222,22 @@ class JournalEmotionNameController extends GetxController {
   Future<bool?> getBulkSeeJournal(
     List<String>? journalId,
   ) async {
-    journalEmotionNameState.value = TheStates.loading;
+    seeBulkJournalState.value = TheStates.loading;
 
     final result = await remoteSource.getBulkSeeJournal(
       journalId: journalId,
     );
     var res = result.fold(
       (l) {
-        journalEmotionNameState.value = TheStates.error;
+        seeBulkJournalState.value = TheStates.error;
         AppUtils.showErrorSnackbar(message: l.message);
 
         return false;
       },
       (r) {
-        journalEmotionNameState.value = TheStates.success;
-
         userJournalResponse.value = r;
+        print('????????????????????????????$userJournalResponse');
+        seeBulkJournalState.value = TheStates.success;
 
         // Access emotions like this:
 
@@ -248,20 +250,20 @@ class JournalEmotionNameController extends GetxController {
   Future<bool?> deleteJournal(
     String? journalId,
   ) async {
-    journalEmotionNameState.value = TheStates.loading;
+    deleteJournalState.value = TheStates.loading;
 
     final result = await remoteSource.deleteJournal(
       journalId: journalId,
     );
     var res = result.fold(
       (l) {
-        journalEmotionNameState.value = TheStates.error;
+        deleteJournalState.value = TheStates.error;
         AppUtils.showErrorSnackbar(message: l.message);
 
         return false;
       },
       (r) {
-        journalEmotionNameState.value = TheStates.success;
+        deleteJournalState.value = TheStates.success;
 
         AppUtils.showSnackbar(message: r);
         return true;
@@ -273,20 +275,20 @@ class JournalEmotionNameController extends GetxController {
   Future<bool?> deleteBulkJournal(
     List<String>? journalId,
   ) async {
-    journalEmotionNameState.value = TheStates.loading;
+    deleteJournalState.value = TheStates.loading;
 
     final result = await remoteSource.deleteBulkJournal(
       journalId: journalId,
     );
     var res = result.fold(
       (l) {
-        journalEmotionNameState.value = TheStates.error;
+        deleteJournalState.value = TheStates.error;
         AppUtils.showErrorSnackbar(message: l.message);
 
         return false;
       },
       (r) {
-        journalEmotionNameState.value = TheStates.success;
+        deleteJournalState.value = TheStates.success;
 
         AppUtils.showSnackbar(message: r);
         return true;

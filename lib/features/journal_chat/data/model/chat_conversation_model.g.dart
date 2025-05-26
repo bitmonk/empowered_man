@@ -45,9 +45,6 @@ _$JournalImpl _$$JournalImplFromJson(Map<String, dynamic> json) =>
       mainQuestions: (json['main_questions'] as List<dynamic>?)
           ?.map((e) => MainQuestion.fromJson(e as Map<String, dynamic>))
           .toList(),
-      followUpQuestions: (json['follow_up_questions'] as List<dynamic>?)
-          ?.map((e) => FollowUpQuestion.fromJson(e as Map<String, dynamic>))
-          .toList(),
     );
 
 Map<String, dynamic> _$$JournalImplToJson(_$JournalImpl instance) =>
@@ -55,7 +52,6 @@ Map<String, dynamic> _$$JournalImplToJson(_$JournalImpl instance) =>
       'id': instance.id,
       'emotion_name': instance.emotionName,
       'main_questions': instance.mainQuestions,
-      'follow_up_questions': instance.followUpQuestions,
     };
 
 _$MainQuestionImpl _$$MainQuestionImplFromJson(Map<String, dynamic> json) =>
@@ -67,6 +63,9 @@ _$MainQuestionImpl _$$MainQuestionImplFromJson(Map<String, dynamic> json) =>
       answer: json['answer'] == null
           ? null
           : Answer.fromJson(json['answer'] as Map<String, dynamic>),
+      followUpQuestions: (json['follow_up_questions'] as List<dynamic>?)
+          ?.map((e) => FollowUpQuestion.fromJson(e as Map<String, dynamic>))
+          .toList(),
     );
 
 Map<String, dynamic> _$$MainQuestionImplToJson(_$MainQuestionImpl instance) =>
@@ -76,6 +75,7 @@ Map<String, dynamic> _$$MainQuestionImplToJson(_$MainQuestionImpl instance) =>
       'keywords': instance.keywords,
       'answered': instance.answered,
       'answer': instance.answer,
+      'follow_up_questions': instance.followUpQuestions,
     };
 
 _$FollowUpQuestionImpl _$$FollowUpQuestionImplFromJson(

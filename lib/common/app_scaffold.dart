@@ -37,6 +37,7 @@ class AppScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      
       endDrawer: endDrawer,
       backgroundColor: backgroundColor,
       key: key,

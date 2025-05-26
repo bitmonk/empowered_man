@@ -453,9 +453,6 @@ mixin _$Journal {
   String? get emotionName => throw _privateConstructorUsedError;
   @JsonKey(name: 'main_questions')
   List<MainQuestion>? get mainQuestions => throw _privateConstructorUsedError;
-  @JsonKey(name: 'follow_up_questions')
-  List<FollowUpQuestion>? get followUpQuestions =>
-      throw _privateConstructorUsedError;
 
   /// Serializes this Journal to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -474,9 +471,7 @@ abstract class $JournalCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'emotion_name') String? emotionName,
-      @JsonKey(name: 'main_questions') List<MainQuestion>? mainQuestions,
-      @JsonKey(name: 'follow_up_questions')
-      List<FollowUpQuestion>? followUpQuestions});
+      @JsonKey(name: 'main_questions') List<MainQuestion>? mainQuestions});
 }
 
 /// @nodoc
@@ -497,7 +492,6 @@ class _$JournalCopyWithImpl<$Res, $Val extends Journal>
     Object? id = freezed,
     Object? emotionName = freezed,
     Object? mainQuestions = freezed,
-    Object? followUpQuestions = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -512,10 +506,6 @@ class _$JournalCopyWithImpl<$Res, $Val extends Journal>
           ? _value.mainQuestions
           : mainQuestions // ignore: cast_nullable_to_non_nullable
               as List<MainQuestion>?,
-      followUpQuestions: freezed == followUpQuestions
-          ? _value.followUpQuestions
-          : followUpQuestions // ignore: cast_nullable_to_non_nullable
-              as List<FollowUpQuestion>?,
     ) as $Val);
   }
 }
@@ -530,9 +520,7 @@ abstract class _$$JournalImplCopyWith<$Res> implements $JournalCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'emotion_name') String? emotionName,
-      @JsonKey(name: 'main_questions') List<MainQuestion>? mainQuestions,
-      @JsonKey(name: 'follow_up_questions')
-      List<FollowUpQuestion>? followUpQuestions});
+      @JsonKey(name: 'main_questions') List<MainQuestion>? mainQuestions});
 }
 
 /// @nodoc
@@ -551,7 +539,6 @@ class __$$JournalImplCopyWithImpl<$Res>
     Object? id = freezed,
     Object? emotionName = freezed,
     Object? mainQuestions = freezed,
-    Object? followUpQuestions = freezed,
   }) {
     return _then(_$JournalImpl(
       id: freezed == id
@@ -566,10 +553,6 @@ class __$$JournalImplCopyWithImpl<$Res>
           ? _value._mainQuestions
           : mainQuestions // ignore: cast_nullable_to_non_nullable
               as List<MainQuestion>?,
-      followUpQuestions: freezed == followUpQuestions
-          ? _value._followUpQuestions
-          : followUpQuestions // ignore: cast_nullable_to_non_nullable
-              as List<FollowUpQuestion>?,
     ));
   }
 }
@@ -580,11 +563,8 @@ class _$JournalImpl implements _Journal {
   const _$JournalImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'emotion_name') this.emotionName,
-      @JsonKey(name: 'main_questions') final List<MainQuestion>? mainQuestions,
-      @JsonKey(name: 'follow_up_questions')
-      final List<FollowUpQuestion>? followUpQuestions})
-      : _mainQuestions = mainQuestions,
-        _followUpQuestions = followUpQuestions;
+      @JsonKey(name: 'main_questions') final List<MainQuestion>? mainQuestions})
+      : _mainQuestions = mainQuestions;
 
   factory _$JournalImpl.fromJson(Map<String, dynamic> json) =>
       _$$JournalImplFromJson(json);
@@ -606,21 +586,9 @@ class _$JournalImpl implements _Journal {
     return EqualUnmodifiableListView(value);
   }
 
-  final List<FollowUpQuestion>? _followUpQuestions;
-  @override
-  @JsonKey(name: 'follow_up_questions')
-  List<FollowUpQuestion>? get followUpQuestions {
-    final value = _followUpQuestions;
-    if (value == null) return null;
-    if (_followUpQuestions is EqualUnmodifiableListView)
-      return _followUpQuestions;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
   @override
   String toString() {
-    return 'Journal(id: $id, emotionName: $emotionName, mainQuestions: $mainQuestions, followUpQuestions: $followUpQuestions)';
+    return 'Journal(id: $id, emotionName: $emotionName, mainQuestions: $mainQuestions)';
   }
 
   @override
@@ -632,19 +600,13 @@ class _$JournalImpl implements _Journal {
             (identical(other.emotionName, emotionName) ||
                 other.emotionName == emotionName) &&
             const DeepCollectionEquality()
-                .equals(other._mainQuestions, _mainQuestions) &&
-            const DeepCollectionEquality()
-                .equals(other._followUpQuestions, _followUpQuestions));
+                .equals(other._mainQuestions, _mainQuestions));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      id,
-      emotionName,
-      const DeepCollectionEquality().hash(_mainQuestions),
-      const DeepCollectionEquality().hash(_followUpQuestions));
+  int get hashCode => Object.hash(runtimeType, id, emotionName,
+      const DeepCollectionEquality().hash(_mainQuestions));
 
   /// Create a copy of Journal
   /// with the given fields replaced by the non-null parameter values.
@@ -666,9 +628,8 @@ abstract class _Journal implements Journal {
   const factory _Journal(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'emotion_name') final String? emotionName,
-      @JsonKey(name: 'main_questions') final List<MainQuestion>? mainQuestions,
-      @JsonKey(name: 'follow_up_questions')
-      final List<FollowUpQuestion>? followUpQuestions}) = _$JournalImpl;
+      @JsonKey(name: 'main_questions')
+      final List<MainQuestion>? mainQuestions}) = _$JournalImpl;
 
   factory _Journal.fromJson(Map<String, dynamic> json) = _$JournalImpl.fromJson;
 
@@ -681,9 +642,6 @@ abstract class _Journal implements Journal {
   @override
   @JsonKey(name: 'main_questions')
   List<MainQuestion>? get mainQuestions;
-  @override
-  @JsonKey(name: 'follow_up_questions')
-  List<FollowUpQuestion>? get followUpQuestions;
 
   /// Create a copy of Journal
   /// with the given fields replaced by the non-null parameter values.
@@ -709,6 +667,9 @@ mixin _$MainQuestion {
   bool? get answered => throw _privateConstructorUsedError;
   @JsonKey(name: 'answer')
   Answer? get answer => throw _privateConstructorUsedError;
+  @JsonKey(name: 'follow_up_questions')
+  List<FollowUpQuestion>? get followUpQuestions =>
+      throw _privateConstructorUsedError;
 
   /// Serializes this MainQuestion to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -731,7 +692,9 @@ abstract class $MainQuestionCopyWith<$Res> {
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'answered') bool? answered,
-      @JsonKey(name: 'answer') Answer? answer});
+      @JsonKey(name: 'answer') Answer? answer,
+      @JsonKey(name: 'follow_up_questions')
+      List<FollowUpQuestion>? followUpQuestions});
 
   $AnswerCopyWith<$Res>? get answer;
 }
@@ -756,6 +719,7 @@ class _$MainQuestionCopyWithImpl<$Res, $Val extends MainQuestion>
     Object? keywords = freezed,
     Object? answered = freezed,
     Object? answer = freezed,
+    Object? followUpQuestions = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -778,6 +742,10 @@ class _$MainQuestionCopyWithImpl<$Res, $Val extends MainQuestion>
           ? _value.answer
           : answer // ignore: cast_nullable_to_non_nullable
               as Answer?,
+      followUpQuestions: freezed == followUpQuestions
+          ? _value.followUpQuestions
+          : followUpQuestions // ignore: cast_nullable_to_non_nullable
+              as List<FollowUpQuestion>?,
     ) as $Val);
   }
 
@@ -809,7 +777,9 @@ abstract class _$$MainQuestionImplCopyWith<$Res>
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'answered') bool? answered,
-      @JsonKey(name: 'answer') Answer? answer});
+      @JsonKey(name: 'answer') Answer? answer,
+      @JsonKey(name: 'follow_up_questions')
+      List<FollowUpQuestion>? followUpQuestions});
 
   @override
   $AnswerCopyWith<$Res>? get answer;
@@ -833,6 +803,7 @@ class __$$MainQuestionImplCopyWithImpl<$Res>
     Object? keywords = freezed,
     Object? answered = freezed,
     Object? answer = freezed,
+    Object? followUpQuestions = freezed,
   }) {
     return _then(_$MainQuestionImpl(
       id: freezed == id
@@ -855,6 +826,10 @@ class __$$MainQuestionImplCopyWithImpl<$Res>
           ? _value.answer
           : answer // ignore: cast_nullable_to_non_nullable
               as Answer?,
+      followUpQuestions: freezed == followUpQuestions
+          ? _value._followUpQuestions
+          : followUpQuestions // ignore: cast_nullable_to_non_nullable
+              as List<FollowUpQuestion>?,
     ));
   }
 }
@@ -867,7 +842,10 @@ class _$MainQuestionImpl implements _MainQuestion {
       @JsonKey(name: 'question') this.question,
       @JsonKey(name: 'keywords') this.keywords,
       @JsonKey(name: 'answered') this.answered,
-      @JsonKey(name: 'answer') this.answer});
+      @JsonKey(name: 'answer') this.answer,
+      @JsonKey(name: 'follow_up_questions')
+      final List<FollowUpQuestion>? followUpQuestions})
+      : _followUpQuestions = followUpQuestions;
 
   factory _$MainQuestionImpl.fromJson(Map<String, dynamic> json) =>
       _$$MainQuestionImplFromJson(json);
@@ -887,10 +865,21 @@ class _$MainQuestionImpl implements _MainQuestion {
   @override
   @JsonKey(name: 'answer')
   final Answer? answer;
+  final List<FollowUpQuestion>? _followUpQuestions;
+  @override
+  @JsonKey(name: 'follow_up_questions')
+  List<FollowUpQuestion>? get followUpQuestions {
+    final value = _followUpQuestions;
+    if (value == null) return null;
+    if (_followUpQuestions is EqualUnmodifiableListView)
+      return _followUpQuestions;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
 
   @override
   String toString() {
-    return 'MainQuestion(id: $id, question: $question, keywords: $keywords, answered: $answered, answer: $answer)';
+    return 'MainQuestion(id: $id, question: $question, keywords: $keywords, answered: $answered, answer: $answer, followUpQuestions: $followUpQuestions)';
   }
 
   @override
@@ -905,13 +894,15 @@ class _$MainQuestionImpl implements _MainQuestion {
                 other.keywords == keywords) &&
             (identical(other.answered, answered) ||
                 other.answered == answered) &&
-            (identical(other.answer, answer) || other.answer == answer));
+            (identical(other.answer, answer) || other.answer == answer) &&
+            const DeepCollectionEquality()
+                .equals(other._followUpQuestions, _followUpQuestions));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, question, keywords, answered, answer);
+  int get hashCode => Object.hash(runtimeType, id, question, keywords, answered,
+      answer, const DeepCollectionEquality().hash(_followUpQuestions));
 
   /// Create a copy of MainQuestion
   /// with the given fields replaced by the non-null parameter values.
@@ -935,7 +926,9 @@ abstract class _MainQuestion implements MainQuestion {
       @JsonKey(name: 'question') final String? question,
       @JsonKey(name: 'keywords') final String? keywords,
       @JsonKey(name: 'answered') final bool? answered,
-      @JsonKey(name: 'answer') final Answer? answer}) = _$MainQuestionImpl;
+      @JsonKey(name: 'answer') final Answer? answer,
+      @JsonKey(name: 'follow_up_questions')
+      final List<FollowUpQuestion>? followUpQuestions}) = _$MainQuestionImpl;
 
   factory _MainQuestion.fromJson(Map<String, dynamic> json) =
       _$MainQuestionImpl.fromJson;
@@ -955,6 +948,9 @@ abstract class _MainQuestion implements MainQuestion {
   @override
   @JsonKey(name: 'answer')
   Answer? get answer;
+  @override
+  @JsonKey(name: 'follow_up_questions')
+  List<FollowUpQuestion>? get followUpQuestions;
 
   /// Create a copy of MainQuestion
   /// with the given fields replaced by the non-null parameter values.

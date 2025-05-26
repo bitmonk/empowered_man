@@ -9,15 +9,17 @@ import 'package:photo_view/photo_view_gallery.dart';
 import 'package:video_player/video_player.dart';
 
 class ChatBubbleContainer extends StatefulWidget {
-  const ChatBubbleContainer(
-      {required this.isMine,
-      required this.message,
-      required this.messageId,
-      required this.timeStamp,
-      required this.messageWidget, this.onEdit,
-      this.onLike,
-      this.isLiked = false,
-      super.key,});
+  const ChatBubbleContainer({
+    required this.isMine,
+    required this.message,
+    required this.messageId,
+    required this.timeStamp,
+    required this.messageWidget,
+    this.onEdit,
+    this.onLike,
+    this.isLiked = false,
+    super.key,
+  });
 
   final bool isMine;
   final String messageId;

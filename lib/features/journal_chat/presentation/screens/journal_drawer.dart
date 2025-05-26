@@ -25,6 +25,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
+      
       backgroundColor: AppColors.bgMedium,
       child: Obx(
         () => Container(
@@ -55,6 +56,7 @@ class _JournalDrawerState extends State<JournalDrawer> {
                       child: AppCachedImage(
                         width: 48,
                         height: 48,
+                        fit: BoxFit.cover,
                         errorWid: const Icon(Icons.person),
                         imgUrl: Get.find<ProfileController>()
                                 .userProfile
@@ -111,10 +113,10 @@ class _JournalDrawerState extends State<JournalDrawer> {
                 ),
               ),),
               Padding(
-                padding: const EdgeInsets.only(right: 40),
+                padding: const EdgeInsets.only(right: 110),
                 child: AppOutlinedButton(
                   textStyle: AppTextStyles.textBodyB3,
-                  height: 40,
+                  height: 50,
                   text: 'Go to journal library',
                   onPressed: () {
                     final emotions = controller

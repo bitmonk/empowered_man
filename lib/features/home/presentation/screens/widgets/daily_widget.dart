@@ -1,27 +1,61 @@
+
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
+import 'package:empowered/features/home/presentation/screens/am_pm_journal_screen.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/habits_container.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/home_journal_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/important_tasks_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/my_memory_bottom_sheet.dart';
 
-class DailyWidget extends StatelessWidget {
+class DailyWidget extends StatefulWidget {
   const DailyWidget({super.key});
 
+  @override
+  State<DailyWidget> createState() => _DailyWidgetState();
+}
+
+class _DailyWidgetState extends State<DailyWidget> {
+  final controller = Get.find<ReflectionJournalChatController>();
+  String period = DateTime.now().hour < 12 ? 'am' : 'pm';
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
       child: Column(
         children: [
-          HomeJournalWidget(
-            image: Assets.images.stickynote.path,
-            title: 'AM Journal',
-            decription: 'You have not completed your AM journal today.',
+          GestureDetector(
+            onTap: () {
+              controller.resetEditMode();
+              if (period == 'am') {
+                Get.to(const AmPmJournalScreen(
+                  reflectionType: 'am',
+                ),);
+              } else {
+                AppUtils.showErrorSnackbar(message: 'You can only access AM questions in the morning.');
+              }
+            },
+            child: HomeJournalWidget(
+              image: Assets.images.stickynote.path,
+              title: 'AM Journal',
+              decription: 'You have not completed your AM journal today.',
+            ),
           ),
           const VerticalSpacing(20),
-          HomeJournalWidget(
-            image: Assets.images.journalPng.path,
-            title: 'PM Journal',
-            decription: 'You have not completed your Pm reflection today.',
+          GestureDetector(
+            onTap: () {
+              controller.resetEditMode();
+              if (period == 'pm') {
+                Get.to(const AmPmJournalScreen(
+                  reflectionType: 'pm',
+                ),);
+              } else {
+                AppUtils.showErrorSnackbar(message: 'You can only access PM questions in the afternoon.');
+              }
+            },
+            child: HomeJournalWidget(
+              image: Assets.images.journalPng.path,
+              title: 'PM Journal',
+              decription: 'You have not completed your Pm reflection today.',
+            ),
           ),
           const VerticalSpacing(20),
           ThemedContainer(

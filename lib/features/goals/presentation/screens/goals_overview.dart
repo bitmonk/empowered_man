@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_overview_controller.dart';
 
 class GoalsOverview extends StatefulWidget {
   const GoalsOverview({super.key});
@@ -8,25 +9,16 @@ class GoalsOverview extends StatefulWidget {
 }
 
 class _GoalsOverviewState extends State<GoalsOverview> {
-  String selectedYear = '2024';
-  int selectedQuarter = 0;
+  final controller = Get.find<GoalsOverviewController>();
 
   final List<String> quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
-  final List<String> categories = ['Body', 'Mind', 'Balance', 'Wealth'];
 
-  // Map different categories to each section when year/quarter is changed
-  final Map<String, String> defaultMissionCategories = {
-    'October': 'Body',
-    'November': 'Mind',
-    'December': 'Balance',
-  };
-
-  final List<String> factCategories = [
-    'Body Facts',
-    'Mind Facts',
-    'Balance Facts',
-    'Wealth Facts',
-  ];
+  // final List<String> factCategories = [
+  //   'Body Facts',
+  //   'Mind Facts',
+  //   'Balance Facts',
+  //   'Wealth Facts',
+  // ];
   final List<String> targetCategories = [
     'Body Targets',
     'Mind Targets',
@@ -42,7 +34,8 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   @override
   void initState() {
     super.initState();
-    _resetSelections(); // Initialize selections
+    _resetSelections();
+    controller.goalOverview.value;
   }
 
   @override
@@ -52,22 +45,24 @@ class _GoalsOverviewState extends State<GoalsOverview> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              _buildYearDropdown(),
-              const VerticalSpacing(24),
-              _buildQuarterTabs(),
-              const VerticalSpacing(24),
-              _buildSectionTitle('Monthly Missions'),
-              const VerticalSpacing(24),
-              _buildMonthlyMissions(),
-              const VerticalSpacing(24),
-              _buildSectionTitle('Quarterly Facts & Yearly Targets'),
-              const VerticalSpacing(24),
-              _buildFactsAndTargets(),
-              const VerticalSpacing(30),
-            ],
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildYearDropdown(),
+                const VerticalSpacing(24),
+                _buildQuarterTabs(),
+                const VerticalSpacing(24),
+                _buildSectionTitle('Monthly Missions'),
+                const VerticalSpacing(24),
+                _buildMonthlyMissions(),
+                const VerticalSpacing(24),
+                _buildSectionTitle('Quarterly Facts & Yearly Targets'),
+                const VerticalSpacing(24),
+                _buildFactsAndTargets(),
+                const VerticalSpacing(30),
+              ],
+            ),
           ),
         ),
       ),
@@ -88,20 +83,25 @@ class _GoalsOverviewState extends State<GoalsOverview> {
             labelText: 'Year',
             labelStyle: TextStyle(color: AppColors.textColor300),
           ),
-          value: selectedYear,
+          value: controller.selectedYear.value.toString(),
           dropdownColor: const Color(0xFF161B22),
           icon: const Icon(
             Icons.keyboard_arrow_down_outlined,
             color: Colors.white,
           ),
           style: const TextStyle(color: Colors.white, fontSize: 16),
-          items: ['2024', '2025', '2026'].map((year) {
-            return DropdownMenuItem(value: year, child: Text(year));
-          }).toList(),
+          items: List.generate(4, (index) {
+            final year = DateTime.now().year - index;
+            return DropdownMenuItem(
+              value: year.toString(),
+              child: Text(year.toString()),
+            );
+          }),
           onChanged: (value) {
+            final selected = int.parse(value!);
+            controller.changeYear(selected);
             setState(() {
-              selectedYear = value!;
-              _resetSelections(); // Change default selections
+              _resetSelections();
             });
           },
         ),
@@ -115,23 +115,22 @@ class _GoalsOverviewState extends State<GoalsOverview> {
       children: [
         InkWell(
           onTap: () {
-            setState(() {
-              if (selectedQuarter > 0) {
-                selectedQuarter--;
-                _resetSelections();
-              }
-            });
+            if (controller.currentQuarter.value > 1) {
+              controller.changeQuarter(-1);
+              setState(_resetSelections);
+            }
           },
           child: Assets.images.cirlceArrowBack.svg(width: 40),
         ),
         Row(
-          children: List.generate(quarters.length, (index) {
+          children: List.generate(4, (index) {
+            final quarterNumber = index + 1;
+            final isSelected = controller.currentQuarter.value == quarterNumber;
+
             return GestureDetector(
               onTap: () {
-                setState(() {
-                  selectedQuarter = index;
-                  _resetSelections();
-                });
+                controller.setQuarter(quarterNumber);
+                setState(_resetSelections);
               },
               child: Container(
                 padding:
@@ -140,7 +139,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
                 decoration: BoxDecoration(
                   border: Border(
                     bottom: BorderSide(
-                      color: selectedQuarter == index
+                      color: isSelected
                           ? AppColors.primary500
                           : Colors.transparent,
                       width: 2,
@@ -148,9 +147,11 @@ class _GoalsOverviewState extends State<GoalsOverview> {
                   ),
                 ),
                 child: Text(
-                  quarters[index],
-                  style: const TextStyle(
-                    color: AppColors.textColor200,
+                  'Q$quarterNumber',
+                  style: TextStyle(
+                    color: isSelected
+                        ? AppColors.primary500
+                        : AppColors.textColor200,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -160,12 +161,10 @@ class _GoalsOverviewState extends State<GoalsOverview> {
         ),
         InkWell(
           onTap: () {
-            setState(() {
-              if (selectedQuarter < 3) {
-                selectedQuarter++;
-                _resetSelections();
-              }
-            });
+            if (controller.currentQuarter.value < 4) {
+              controller.changeQuarter(1);
+              setState(_resetSelections);
+            }
           },
           child: Assets.images.circleArrowForward.svg(width: 40),
         ),
@@ -174,12 +173,17 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   }
 
   Widget _buildMonthlyMissions() {
+    final quarter = controller.currentQuarter.value;
+    final quarterlyGoals = controller.getMonthlyGoalsMap(quarter);
+    final categories = controller.getCategoriesForMonths();
+
     return ThemedContainer(
       color: AppColors.bgBorder,
       padding: const EdgeInsets.all(20),
+      width: double.infinity,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: ['October', 'November', 'December'].map((month) {
+        children: controller.months.map((month) {
           return Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -194,13 +198,13 @@ class _GoalsOverviewState extends State<GoalsOverview> {
                   ),
                 ),
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              Wrap(
+                spacing: 9,
+                runSpacing: 9,
                 children: categories.map((category) {
                   return _buildCategoryButton(
                     category,
-                    selectedMissionCategory[month] == category,
-                    () {},
+                    quarterlyGoals[category] ?? false,
                   );
                 }).toList(),
               ),
@@ -213,19 +217,24 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   }
 
   Widget _buildFactsAndTargets() {
+    final factCategories = controller.getCategoriesForQuarter();
+    final factGoals =
+        controller.getQuarterlyGoalsMap(controller.currentQuarter.value);
+    final yearlyGoals =
+        controller.goalOverview.value?.data?.goalOverview?.yearlyGoals;
     return Column(
       children: [
         _buildCategoryBox(
           'Fact Assessments',
           factCategories,
-          selectedFactCategory,
+          factGoals,
           (String value) {},
         ),
         const SizedBox(height: 24),
         _buildCategoryBox(
           'Yearly Targets',
           targetCategories,
-          selectedTargetCategory,
+          yearlyGoals,
           (String value) {},
         ),
       ],
@@ -235,7 +244,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   Widget _buildCategoryBox(
     String title,
     List<String> items,
-    String selectedItem,
+    Map<String, bool>? selectedGoals,
     Function(String) onSelect,
   ) {
     return ThemedContainer(
@@ -253,8 +262,8 @@ class _GoalsOverviewState extends State<GoalsOverview> {
             children: items.map((item) {
               return _buildCategoryButton(
                 item,
-                selectedItem == item,
-                () => onSelect(item),
+                selectedGoals != null ? selectedGoals[item] ?? false : false,
+                //() => onSelect(item),
               );
             }).toList(),
           ),
@@ -266,10 +275,10 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   Widget _buildCategoryButton(
     String text,
     bool isSelected,
-    VoidCallback onTap,
+    // VoidCallback onTap,
   ) {
     return GestureDetector(
-      onTap: onTap,
+      // onTap: onTap,
       child: Container(
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -287,16 +296,31 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   }
 
   void _resetSelections() {
+    final categories = controller.getCategoriesForMonths();
+    final factCategories = controller.getCategoriesForQuarter();
+    // Add null safety checks
+    if (controller.months.isEmpty || categories.isEmpty) return;
+
+    if (categories.length == 0) {
+      selectedMissionCategory.clear();
+      return;
+    }
+
+    // Ensure safe modulo operations
     selectedMissionCategory = {
-      'October': categories[selectedQuarter % categories.length],
-      'November': categories[(selectedQuarter + 1) % categories.length],
-      'December': categories[(selectedQuarter + 2) % categories.length],
+      controller.months[0]:
+          categories[(controller.currentQuarter.value - 1) % categories.length],
+      controller.months[1]:
+          categories[controller.currentQuarter.value % categories.length],
+      controller.months[2]:
+          categories[(controller.currentQuarter.value + 1) % categories.length],
     };
 
+    // Add bounds checking for factCategories and targetCategories
     selectedFactCategory =
-        factCategories[(selectedQuarter + 1) % factCategories.length];
-    selectedTargetCategory =
-        targetCategories[(selectedQuarter + 2) % targetCategories.length];
+        factCategories[controller.currentQuarter.value % factCategories.length];
+    selectedTargetCategory = targetCategories[
+        (controller.currentQuarter.value + 1) % targetCategories.length];
   }
 }
 

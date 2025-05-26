@@ -75,4 +75,29 @@ class JournalChatRemoteSource {
       }
     }
   }
+  Future<Either<AppError, ChatConversationModel>> updateJournal(
+    CancelToken? cancelToken,
+    String answerId,
+    String? text,
+  ) async {
+    try {
+      final formDataMap = FormData.fromMap({
+        'text': text ?? '',
+        //'answer_id': answerId,
+      });
+
+      final response = await _client.post(
+        '${AppEndpoints.postJournalAnswer}/$answerId',
+        body: formDataMap,
+        cancelToken: cancelToken,
+      );
+      return right(ChatConversationModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
 }

@@ -36,8 +36,8 @@ class AppEndpoints {
   static String changeLevel(String taskId) => '/tasks/$taskId/change-level';
 
   //assessment api
-  static const String getAssessmentsUrl ='/user/assessments';
-  static const String createUserAssessement='/user/assessment/';
+  static const String getAssessmentsUrl = '/user/assessments';
+  static const String createUserAssessement = '/user/assessment/';
   static const String scoreQuestionUrl = '/user/question/score';
   static const String assessmentHistoryUrl = '/user/assessments/history';
   static const String deleteAssessmentUrl = '/user/assessments-delete';
@@ -49,6 +49,23 @@ class AppEndpoints {
   static const String getJournalLibrary = '/journals-library';
   static const String getSeeJournal = '/user-journals';
 
+  //Reflection Api
+  static const String getReflectionByType = '/reflections/type';
+  static const String postReflectionAnswer = '/reflection-answers';
+  static const String reflectionLibrary = '/reflections-library';
+  static const String getUserReflectionBulkDetail = '/user-reflections/details';
+  static const String deleteBulkReflection = '/user-reflections';
+
+  //Power Score
+  static const String getPowerScoreStats = '/user/power-score-stats';
+
+  //Goals and Target
+  static const String getGoalsUrl = '/user/goals';
+  static const String getGoalsOverviewUrl = '/user/goal/overview';
+  static const String getGoalsChat = '/user/targets/add';
+  static const String postGoalsAnswer = '/user/target/answer';
+  static const String postAchieveTarget = '/user/goal-answers';
+  static const String postMarkOnTrackUrl = '/user/goal';
 }
 
 class ExternalEndpoints {}

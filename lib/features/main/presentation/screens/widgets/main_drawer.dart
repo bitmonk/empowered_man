@@ -5,12 +5,15 @@ import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/assesments/presentation/controllers/assessment_history_bindings.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_bindings.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_overview_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/drawer_tile.dart';
-import 'package:empowered/features/power_score_stats/power_score_stats_screen.dart';
+import 'package:empowered/features/power_score_stats/presentation/controllers/power_score_bindings.dart';
+import 'package:empowered/features/power_score_stats/presentation/power_score_stats_screen.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
@@ -117,6 +120,7 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () async {
                         Navigator.pop(context);
+
                         JournalChatInitializer.destroy();
                         JournalChatInitializer.initialize();
                         JournalEmotionNameInitializer.destroy();
@@ -131,7 +135,7 @@ class MainDrawer extends GetView<MainController> {
                         Get.find<JournalEmotionNameController>()
                             .getJournalEmotionName();
 
-                        AppWidgetKey.mainScaffold.currentState?.openEndDrawer();
+                        AppWidgetKey.journalScaffold.currentState?.openDrawer();
                         // } finally {
                         //   // This ensures the dialog is hidden even if an error occurs
                         //   AppUtils.hideLoadingDialog(context);
@@ -164,6 +168,11 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
+                        GoalsOverviewInitializer.destroy();
+                        GoalsOverviewInitializer.initialize();
+                        GoalsInitializer.destroy();
+                        GoalsInitializer.initialize();
+
                         Navigator.pop(context);
                         controller.changetab(3);
                       },
@@ -175,12 +184,14 @@ class MainDrawer extends GetView<MainController> {
                     DrawerTile(
                       onTap: () {
                         Navigator.pop(context);
-
-                        NavigationHelper.navigateWithFadeTransition(
-                          AppWidgetKey.home.currentContext!,
-                          const PowerScoreStatsScreen(),
-                          index: 0,
-                        );
+                        PowerScoreInitializer.destroy();
+                        PowerScoreInitializer.initialize();
+                        Get.to(() => PowerScoreStatsScreen());
+                        // NavigationHelper.navigateWithFadeTransition(
+                        //   AppWidgetKey.home.currentContext!,
+                        //   const PowerScoreStatsScreen(),
+                        //   index: 0,
+                        // );
                       },
                       title: 'Power Score Stats',
                       image: Assets.images.statistic.path,

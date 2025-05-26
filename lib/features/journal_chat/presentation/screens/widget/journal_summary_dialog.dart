@@ -2,6 +2,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/export_pdf/custom_pdf.dart';
 import 'package:empowered/features/journal_chat/data/model/user_journals_model.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:intl/intl.dart';
 
 class JournalSummaryDialog extends StatefulWidget {
   const JournalSummaryDialog({required this.userJournal, super.key});
@@ -44,6 +45,16 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+    }
+  }
+
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null) return 'N/A';
+    try {
+      final dateTime = DateTime.parse(dateTimeStr);
+      return DateFormat.yMd().format(dateTime.toLocal());
+    } catch (e) {
+      return 'N/A';
     }
   }
 
@@ -200,7 +211,20 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
               ),
 
               const SizedBox(height: 12),
-
+              //display date here
+              Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  formatDateTime(
+                    widget.userJournal?[_currentJournalIndex].createdAt,
+                  ),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                  
+                ),
+              ),
               // Navigation Controls
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,

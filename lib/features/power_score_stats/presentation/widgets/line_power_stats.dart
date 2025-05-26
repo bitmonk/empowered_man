@@ -1,9 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/power_score_stats/data/model/power_stat_model.dart';
 import 'package:fl_chart/fl_chart.dart';
 
 class LinePowerStats extends StatelessWidget {
-  const LinePowerStats({super.key});
-
+  const LinePowerStats({super.key, required this.monthlystatus});
+  final Monthlystatus? monthlystatus;
   @override
   Widget build(BuildContext context) {
     return ThemedContainer(
@@ -113,26 +114,70 @@ class LinePowerStats extends StatelessWidget {
     );
   }
 
+  // List<LineChartBarData> _getLines() {
+  //   final monthlyData = <List<double>>[
+  //     [3.0, 2.5, 2.0, 2.8, 2.2, 2.7, 3.5, 3.0, 2.8, 2.5, 2.2, 2.9], // Journal
+  //     [2.0, 2.2, 2.8, 3.0, 3.2, 3.8, 4.0, 3.5, 3.2, 3.0, 2.8, 3.1], // Habit
+  //     [0.9, 1.8, 0.6, 2.5, 3.0, 2.2, 1.7, 1.5, 1.2, 2.0, 1.8, 2.3], // Task
+  //     [3.5, 3.0, 3.2, 3.8, 3.5, 4.2, 4.0, 3.7, 3.5, 3.8, 3.6, 4.1], // Goals
+  //   ];
+
+  //   final colors = <Color>[
+  //     AppColors.color5CE0A0, // Journal (Green)
+  //     AppColors.primary300, // Habit (Light Blue)
+  //     AppColors.colorF5CA41, // Task (Yellow)
+  //     AppColors.primary500, // Goals (Dark Blue)
+  //   ];
+
+  //   return List.generate(monthlyData.length, (index) {
+  //     return LineChartBarData(
+  //       spots: List.generate(monthlyData[index].length, (i) {
+  //         return FlSpot(i.toDouble(), monthlyData[index][i]);
+  //       }),
+  //       isCurved: true,
+  //       color: colors[index],
+  //       barWidth: 3,
+  //       isStrokeCapRound: true,
+  //       belowBarData: BarAreaData(
+  //         show: true,
+  //         gradient: LinearGradient(
+  //           colors: [
+  //             colors[index].withOpacity(0.3),
+  //             Colors.transparent,
+  //           ],
+  //           begin: Alignment.topCenter,
+  //           end: Alignment.bottomCenter,
+  //         ),
+  //       ),
+  //       dotData: const FlDotData(show: false),
+  //     );
+  //   });
+  // }
   List<LineChartBarData> _getLines() {
-    final monthlyData = <List<double>>[
-      [3.0, 2.5, 2.0, 2.8, 2.2, 2.7, 3.5, 3.0, 2.8, 2.5, 2.2, 2.9], // Journal
-      [2.0, 2.2, 2.8, 3.0, 3.2, 3.8, 4.0, 3.5, 3.2, 3.0, 2.8, 3.1], // Habit
-      [0.9, 1.8, 0.6, 2.5, 3.0, 2.2, 1.7, 1.5, 1.2, 2.0, 1.8, 2.3], // Task
-      [3.5, 3.0, 3.2, 3.8, 3.5, 4.2, 4.0, 3.7, 3.5, 3.8, 3.6, 4.1], // Goals
+    if (monthlystatus == null) return [];
+
+    final categories = [
+      monthlystatus!.journal,
+      monthlystatus!.habits,
+      monthlystatus!.tasks,
+      monthlystatus!.goals,
     ];
 
     final colors = <Color>[
       AppColors.color5CE0A0, // Journal (Green)
-      AppColors.primary300, // Habit (Light Blue)
+      AppColors.primary300, // Habit (Blue)
       AppColors.colorF5CA41, // Task (Yellow)
       AppColors.primary500, // Goals (Dark Blue)
     ];
 
-    return List.generate(monthlyData.length, (index) {
+    return List.generate(categories.length, (index) {
+      final data = categories[index];
+      final values = _extractMonthlyValues(data);
+
       return LineChartBarData(
-        spots: List.generate(monthlyData[index].length, (i) {
-          return FlSpot(i.toDouble(), monthlyData[index][i]);
-        }),
+        spots: values.asMap().entries.map((entry) {
+          return FlSpot(entry.key.toDouble(), entry.value);
+        }).toList(),
         isCurved: true,
         color: colors[index],
         barWidth: 3,
@@ -151,5 +196,31 @@ class LinePowerStats extends StatelessWidget {
         dotData: const FlDotData(show: false),
       );
     });
+  }
+
+  List<double> _extractMonthlyValues(MonthlystatusGoals? goal) {
+    if (goal == null) return List.filled(12, 0.0);
+
+    final rawValues = [
+      goal.jan,
+      goal.feb,
+      goal.mar,
+      goal.apr,
+      goal.may,
+      goal.jun,
+      goal.jul,
+      goal.aug,
+      goal.sep,
+      goal.oct,
+      goal.nov,
+      goal.dec,
+    ];
+
+    return rawValues.map((e) {
+      if (e == null) return 0.0;
+      if (e is num) return e.toDouble();
+      if (e is String) return double.tryParse(e) ?? 0.0;
+      return 0.0;
+    }).toList();
   }
 }

@@ -1,10 +1,7 @@
-import 'dart:async';
-
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:just_audio/just_audio.dart';
-import 'package:record/record.dart';
+import 'package:flutter_quill/quill_delta.dart' as quill;
 
 class JournalChatInputField extends StatefulWidget {
   const JournalChatInputField({
@@ -13,6 +10,7 @@ class JournalChatInputField extends StatefulWidget {
     this.mainQuestionId,
     this.followupQuestionId,
     this.onMessageSent,
+    this.isDisabled = false,
     super.key,
   });
   final FocusNode focusNode;
@@ -20,149 +18,253 @@ class JournalChatInputField extends StatefulWidget {
   final String? mainQuestionId;
   final String? followupQuestionId;
   final VoidCallback? onMessageSent;
+  final bool isDisabled;
 
   @override
   State<JournalChatInputField> createState() => _JournalChatInputFieldState();
 }
 
 class _JournalChatInputFieldState extends State<JournalChatInputField> {
-  final controller = Get.find<JournalChatController>();
-  final quill.QuillController _controller = quill.QuillController.basic();
+  final chatController = Get.find<JournalChatController>();
+  late quill.QuillController _controller;
   bool showEditor = true;
-  List<String> _selectedMediaPaths = [];
-  bool isVoiceRecording = false;
-  bool isRecordingPlaying = false;
-  String? recordingPath;
-  String playbackTime = '0:00';
+  bool _contentChanged = false;
+  late FocusNode _focusNode;
+  final ScrollController _scrollController = ScrollController();
+  bool _isInitialized = false;
 
-  final AudioRecorder audioRecord = AudioRecorder();
-  final AudioPlayer audioPlayer = AudioPlayer();
-  late final StreamSubscription<Duration> _positionSubscription;
-  // Duration _recordingDuration = Duration.zero;
-  // Timer? _recordingTimer;
-  String recordingHint = 'Recording... 0:00';
-  @override
-  void dispose() {
-    _controller.dispose();
-    audioPlayer.dispose();
-    _positionSubscription.cancel();
-    super.dispose();
-  }
-
-  // VideoPlayerController? _videoController;
   @override
   void initState() {
     super.initState();
-    _positionSubscription = audioPlayer.positionStream.listen((position) {
-      debugPrint('Playback position: $position');
-      final minutes = position.inMinutes;
-      final seconds = position.inSeconds % 60;
-      setState(() {
-        playbackTime =
-            '${minutes.toString().padLeft(1, '0')}:${seconds.toString().padLeft(2, '0')}';
-      });
-    });
-    audioPlayer.playerStateStream.listen((state) {
-      if (state.processingState == ProcessingState.completed) {
+    _focusNode = widget.focusNode;
+    _controller = quill.QuillController.basic();
+
+    // Initialize listeners
+    chatController.addListener(_handleControllerChanges);
+
+    // Track content changes
+    _controller.addListener(() {
+      if (mounted) {
         setState(() {
-          isRecordingPlaying = false;
-          _resetPlayBacktime();
+          _contentChanged = true;
         });
-        audioPlayer.stop(); // Ensure playback stops
       }
     });
+
+    _focusNode.addListener(() {
+      print('FocusNode has focus: ${_focusNode.hasFocus}');
+    });
+
+    // Initialize on first build
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeIfNeeded();
+    });
   }
 
-  // void _startRecordingTimer() {
-  //   _recordingDuration = Duration.zero;
-  //   _recordingTimer?.cancel();
-  //   _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-  //     setState(() {
-  //       _recordingDuration += const Duration(seconds: 1);
-  //       final minutes = _recordingDuration.inMinutes.toString().padLeft(1, '0');
-  //       final seconds =
-  //           (_recordingDuration.inSeconds % 60).toString().padLeft(2, '0');
-  //       recordingHint = 'Recording... $minutes:$seconds';
-  //     });
-  //   });
-  // }
-  // Future<void> _startRecording() async {
-  //   if (!await audioRecord.hasPermission()) {
-  //     // Handle permission denied case
-  //     return;
-  //   }
-
-  //   final appDocumentsDir = await getApplicationDocumentsDirectory();
-  //   final filePath = p.join(
-  //     appDocumentsDir.path,
-  //     'voice_message_${DateTime.now().millisecondsSinceEpoch}.wav',
-  //   );
-
-  //   const recordConfig = RecordConfig(
-  //     encoder: AudioEncoder.wav,
-  //   );
-
-  //   await audioRecord.start(recordConfig, path: filePath);
-  //   setState(() {
-  //     isVoiceRecording = true;
-  //     _recordingDuration = Duration.zero;
-  //     _recordingTimer?.cancel();
-  //     _recordingTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-  //       setState(() {
-  //         _recordingDuration += const Duration(seconds: 1);
-  //         recordingHint = 'Recording... ${_formatDuration(_recordingDuration)}';
-  //       });
-  //     });
-  //   });
-  // }
-
-  // Future<void> _stopRecording() async {
-  //   if (isVoiceRecording) {
-  //     final filePath = await audioRecord.stop();
-  //     setState(() {
-  //       isVoiceRecording = false;
-  //       recordingPath = filePath;
-  //       _recordingTimer?.cancel();
-  //     });
-  //   }
-  // }
-  // void _stopRecording() {
-  //   _recordingTimer?.cancel();
-  //   _recordingDuration = Duration.zero;
-  //   setState(() {
-  //     recordingHint = 'Recording... 0:00';
-  //   });
-  // }
-
-  void _resetPlayBacktime() {
-    playbackTime = '0:00';
+  @override
+  void dispose() {
+    chatController.removeListener(_handleControllerChanges);
+    _controller.dispose();
+    super.dispose();
   }
-  // String getFormattedHtml() {
-  //   final document = _controller.document;
-  //   final delta = document.toDelta().toJson();
 
-  //   // return parse(delta).documentElement?.outerHtml ?? '';
-  //   return parse(delta).documentElement?.innerHtml ?? '';
-  // }
+  void _handleControllerChanges() {
+    if (!mounted) return;
+
+    final wasEditing = _isInitialized && chatController.isEditMode.value;
+    final isNowEditing = chatController.isEditMode.value;
+
+    print(
+        'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing');
+
+    if (isNowEditing && !_isInitialized) {
+      print('Entering edit mode - initializing...');
+      _initializeEditMode();
+    } else if (!isNowEditing && _isInitialized) {
+      print('Exiting edit mode - cleaning up...');
+      _cleanupEditMode();
+    }
+
+    // Always update the UI
+    setState(() {});
+  }
+
+  void _initializeIfNeeded() {
+    if (chatController.isEditMode.value && !_isInitialized) {
+      _initializeEditMode();
+    }
+  }
+
+  void _initializeEditMode() {
+    if (_isInitialized) return;
+
+    final textToEdit = chatController.chatController.text;
+    print('Initializing edit mode with text: "$textToEdit"');
+
+    if (textToEdit.isNotEmpty) {
+      // Convert HTML/text to QuillDelta
+      final delta = _convertHtmlToQuillDelta(textToEdit);
+
+      // Create new document with the delta
+      final newDocument = quill.Document.fromDelta(delta);
+
+      // Update controller
+      _controller.document = newDocument;
+
+      // Move cursor to end after a short delay
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted && _isInitialized) {
+          _controller.moveCursorToEnd();
+          _focusNode.requestFocus();
+          print(
+              'Cursor moved to end, text: "${_controller.document.toPlainText()}"');
+        }
+      });
+    }
+
+    _isInitialized = true;
+    showEditor = true;
+    setState(() {});
+  }
+
+  void _cleanupEditMode() {
+    _isInitialized = false;
+    _controller.clear();
+    _contentChanged = false;
+    setState(() {});
+  }
+
+  quill.Delta _convertHtmlToQuillDelta(String html) {
+    print('Converting HTML to Delta: "$html"');
+
+    final delta = quill.Delta();
+
+    // Handle empty or null input
+    if (html.trim().isEmpty) {
+      delta.insert('\n');
+      return delta;
+    }
+
+    if (!html.contains('<') || !html.contains('>')) {
+      // Plain text case
+      delta.insert(html);
+      if (!html.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      print('Plain text delta created');
+      return delta;
+    }
+
+    // Handle HTML with tags
+    final tagPattern = RegExp(r'<(/?)(\w+)[^>]*>');
+    final boldStack = <String>[];
+    final italicStack = <String>[];
+    final underlineStack = <String>[];
+    final strikeStack = <String>[];
+    final codeStack = <String>[];
+
+    var lastIndex = 0;
+
+    for (final match in tagPattern.allMatches(html)) {
+      // Add text before the tag
+      if (match.start > lastIndex) {
+        final text = html.substring(lastIndex, match.start);
+        if (text.isNotEmpty) {
+          final attributes = <String, dynamic>{};
+
+          if (boldStack.isNotEmpty) attributes['bold'] = true;
+          if (italicStack.isNotEmpty) attributes['italic'] = true;
+          if (underlineStack.isNotEmpty) attributes['underline'] = true;
+          if (strikeStack.isNotEmpty) attributes['strike'] = true;
+          if (codeStack.isNotEmpty) attributes['code'] = true;
+
+          delta.insert(text, attributes.isEmpty ? null : attributes);
+        }
+      }
+
+      final isClosingTag = match.group(1) == '/';
+      final tagName = match.group(2)?.toLowerCase();
+
+      // Handle different HTML tags
+      switch (tagName) {
+        case 'strong':
+        case 'b':
+          if (isClosingTag) {
+            if (boldStack.isNotEmpty) boldStack.removeLast();
+          } else {
+            boldStack.add('bold');
+          }
+        case 'em':
+        case 'i':
+          if (isClosingTag) {
+            if (italicStack.isNotEmpty) italicStack.removeLast();
+          } else {
+            italicStack.add('italic');
+          }
+        case 'u':
+          if (isClosingTag) {
+            if (underlineStack.isNotEmpty) underlineStack.removeLast();
+          } else {
+            underlineStack.add('underline');
+          }
+        case 's':
+          if (isClosingTag) {
+            if (strikeStack.isNotEmpty) strikeStack.removeLast();
+          } else {
+            strikeStack.add('strike');
+          }
+        case 'code':
+          if (isClosingTag) {
+            if (codeStack.isNotEmpty) codeStack.removeLast();
+          } else {
+            codeStack.add('code');
+          }
+      }
+
+      lastIndex = match.end;
+    }
+
+    // Add remaining text after the last tag
+    if (lastIndex < html.length) {
+      final text = html.substring(lastIndex);
+      if (text.isNotEmpty) {
+        final attributes = <String, dynamic>{};
+
+        if (boldStack.isNotEmpty) attributes['bold'] = true;
+        if (italicStack.isNotEmpty) attributes['italic'] = true;
+        if (underlineStack.isNotEmpty) attributes['underline'] = true;
+        if (strikeStack.isNotEmpty) attributes['strike'] = true;
+        if (codeStack.isNotEmpty) attributes['code'] = true;
+
+        delta.insert(text, attributes.isEmpty ? null : attributes);
+      }
+    }
+
+    // Ensure document ends with newline
+    final lastOp = delta.operations.isNotEmpty ? delta.operations.last : null;
+    if (lastOp?.data is String && !(lastOp!.data! as String).endsWith('\n')) {
+      delta.insert('\n');
+    } else if (delta.operations.isEmpty) {
+      delta.insert('\n');
+    }
+
+    print('HTML delta created with ${delta.operations.length} operations');
+    return delta;
+  }
+
   String getFormattedHtml() {
     final document = _controller.document;
-
-    // Create an HTML representation of the Quill document
     var html = '';
-
-    // Process each operation in the Delta
     for (final op in document.toDelta().operations) {
       if (op.data is String) {
         var text = op.data! as String;
-        var attributes = op.attributes;
+        if (text == '\n') continue;
 
+        var attributes = op.attributes;
         if (attributes == null || attributes.isEmpty) {
           html += text;
         } else {
-          // Start with the raw text
           var formattedText = text;
-
-          // Apply formatting based on attributes
           if (attributes.containsKey('bold') && attributes['bold'] == true) {
             formattedText = '<strong>$formattedText</strong>';
           }
@@ -181,463 +283,200 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
           if (attributes.containsKey('code') && attributes['code'] == true) {
             formattedText = '<code>$formattedText</code>';
           }
-
           html += formattedText;
         }
       }
     }
-
     return html;
   }
 
   void sendMessageWithFormatting() {
-    final htmlContent = getFormattedHtml();
-    print('htmlContent: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>$htmlContent');
-    if (htmlContent.trim().isNotEmpty || _selectedMediaPaths.isNotEmpty) {
-      // Send HTML content wrapped in a div to preserve structure
-      controller.sendMessage(
-        widget.journalId,
-        null,
-        htmlContent,
-        widget.mainQuestionId,
-        widget.followupQuestionId,
-      );
+    print('Sending message - isDisabled: ${widget.isDisabled}');
+    if (widget.isDisabled) return;
 
-      // Send any attached media
-      for (final filePath in _selectedMediaPaths) {
-        controller.sendMessage(
-          widget.journalId,
-          filePath,
-          null,
-          widget.mainQuestionId,
-          widget.followupQuestionId,
-        );
-        if (widget.onMessageSent != null) {
-          widget.onMessageSent!();
-        }
-      }
+    final htmlContent = getFormattedHtml();
+    if (htmlContent.trim().isEmpty) return;
+
+    if (chatController.isEditMode.value) {
+      // Handle edit mode
+      chatController.updateMessage(htmlContent).then((_) {
+        chatController.resetEditMode();
+        _cleanupEditMode();
+        widget.onMessageSent?.call();
+      });
+    } else {
+      chatController.chatController.text = htmlContent;
+
+      _controller.clear();
       setState(() {
-        _selectedMediaPaths = []; // Reset selection
-        if (showEditor) {
-          _controller.clear();
-        } else {
-          controller.chatController.clear();
-          recordingPath = null; // Reset recording state
-        }
+        _contentChanged = false;
+      });
+
+      // Let the controller handle the message sending using existing method
+      chatController.handleTextMessageSent().then((_) {
+        widget.onMessageSent?.call();
       });
     }
   }
 
-  // Future<void> _loadVideo(String filePath) async {
-  //   if (_videoController != null) {
-  //     await _videoController!.dispose();
-  //   }
+  @override
+  void didUpdateWidget(JournalChatInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
-  //   final controller = VideoPlayerController.file(File(filePath));
-  //   await controller.initialize();
+    if (widget.focusNode != oldWidget.focusNode) {
+      _focusNode = widget.focusNode;
+    }
 
-  //   setState(() {
-  //     _videoController = controller;
-  //     _videoController!.pause(); // Ensure it is paused
-  //   });
-  // }
+    // Check if we need to initialize edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeIfNeeded();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: const BoxDecoration(
-        color: AppColors.bgBorder,
-        borderRadius: BorderRadius.all(Radius.circular(24)),
-      ),
-      child: Column(
-        children: [
-          if (showEditor)
-            DefaultTextStyle(
-              style: const TextStyle(
-                fontSize: 12,
-                color: AppColors.textColor100,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: quill.QuillEditor.basic(
-                  focusNode: widget.focusNode,
-                  controller: _controller,
-                  configurations: quill.QuillEditorConfigurations(
-                    minHeight: showEditor ? 50 : 50,
-                    placeholder:  'Message...',
+    return Obx(() {
+      final isEditMode = chatController.isEditMode.value;
+      print(
+          'Building - isEditMode: $isEditMode, showEditor: $showEditor, _isInitialized: $_isInitialized');
+
+      return Container(
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: isEditMode
+              ? AppColors.bgBorder.withOpacity(0.9)
+              : AppColors.bgBorder,
+          borderRadius: const BorderRadius.all(Radius.circular(24)),
+          border: isEditMode
+              ? Border.all(color: AppColors.primary500, width: 1.5)
+              : null,
+        ),
+        child: Column(
+          children: [
+            if (isEditMode)
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 4),
+                child: Text(
+                  'Editing message...',
+                  style: AppTextStyles.textCaptionC2.copyWith(
+                    color: AppColors.primary500,
+                    fontStyle: FontStyle.italic,
                   ),
                 ),
               ),
-            )
-          else if (isVoiceRecording)
-            TextField(
-              readOnly: true,
-              // focusNode: widget.focusNode,
-              onTap: () async {
-                await Future.delayed(const Duration(milliseconds: 500));
-                controller.scrollToBottom();
-              },
-              controller: controller.chatController,
-              decoration: InputDecoration(
-                hintText: recordingHint,
-                hintStyle: AppTextStyles.textBodyB2
-                    .copyWith(color: AppColors.textColor200),
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(color: Colors.white),
-            )
-          // else if (recordingPath != null)
-          //   Padding(
-          //     padding: const EdgeInsets.only(bottom: 10),
-          //     child: _buildAudioUI(),
-          //   )
-          else
-            TextField(
-              focusNode: widget.focusNode,
-              onTap: () async {
-                await Future.delayed(const Duration(milliseconds: 500));
-                controller.scrollToBottom();
-              },
-              controller: controller.chatController,
-              decoration: InputDecoration(
-                hintText: 'Message...',
-                hintStyle: AppTextStyles.textBodyB2
-                    .copyWith(color: AppColors.textColor200),
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(color: Colors.white),
-            ),
-          Row(
-            children: [
-              // if (showEditor)
-              //   InkWell(
-              //     onTap: () {
-              //       setState(() {
-              //         showEditor = false;
-              //       });
-              //     },
-              //     child: const Icon(
-              //       Icons.close,
-              //       color: AppColors.primary500,
-              //     ).paddingOnly(right: 4),
-              //   ),
-              if (showEditor)
-                Expanded(
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      iconTheme: const IconThemeData(
-                        color: Colors.white,
-                      ), // Set tool icons to white
-                      buttonTheme: const ButtonThemeData(
-                        buttonColor: Colors.white,
-                      ), // For buttons, if applicable
+            if (showEditor)
+              DefaultTextStyle(
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textColor100,
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(8),
+                  child: quill.QuillEditor.basic(
+                    focusNode: _focusNode,
+                    controller: _controller,
+                    configurations: quill.QuillEditorConfigurations(
+                      minHeight: 50,
+                      placeholder:
+                          isEditMode ? 'Edit your message...' : 'Message...',
                     ),
-                    child: quill.QuillSimpleToolbar(
-                      controller: _controller,
-                      configurations:
-                          const quill.QuillSimpleToolbarConfigurations(
-                        toolbarSectionSpacing: 2,
-                        showJustifyAlignment: false,
-                        showListBullets: false,
-                        showCenterAlignment: false,
-                        showClearFormat: false,
-                        showFontFamily: false,
-                        showFontSize: false,
-                        showBackgroundColorButton: false,
-                        showColorButton: false,
-                        showHeaderStyle: false,
-                        showLink: false,
-                        showUndo: false,
-                        showRedo: false,
-                        showListCheck: false,
-                        showIndent: false,
-                        showSubscript: false,
-                        showSuperscript: false,
-                        showSearchButton: false,
-                        showClipboardCut: false,
-                        showClipboardCopy: false,
-                        showClipboardPaste: false,
-                        multiRowsDisplay: false,
-                        color: AppColors.transparent,
+                  ),
+                ),
+              )
+            else
+              TextField(
+                focusNode: _focusNode,
+                onTap: () async {
+                  await Future.delayed(const Duration(milliseconds: 500));
+                  chatController.scrollToBottom();
+                },
+                controller: chatController.chatController,
+                decoration: InputDecoration(
+                  hintText: 'Message...',
+                  hintStyle: AppTextStyles.textBodyB2
+                      .copyWith(color: AppColors.textColor200),
+                  border: InputBorder.none,
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+            Row(
+              children: [
+                if (showEditor)
+                  Expanded(
+                    child: Theme(
+                      data: Theme.of(context).copyWith(
+                        iconTheme: const IconThemeData(
+                          color: Colors.white,
+                        ),
+                        buttonTheme: const ButtonThemeData(
+                          buttonColor: Colors.white,
+                        ),
+                      ),
+                      child: quill.QuillSimpleToolbar(
+                        controller: _controller,
+                        configurations:
+                            const quill.QuillSimpleToolbarConfigurations(
+                          toolbarSectionSpacing: 2,
+                          showJustifyAlignment: false,
+                          showListBullets: false,
+                          showCenterAlignment: false,
+                          showClearFormat: false,
+                          showFontFamily: false,
+                          showFontSize: false,
+                          showBackgroundColorButton: false,
+                          showColorButton: false,
+                          showHeaderStyle: false,
+                          showLink: false,
+                          showUndo: false,
+                          showRedo: false,
+                          showListCheck: false,
+                          showIndent: false,
+                          showSubscript: false,
+                          showSuperscript: false,
+                          showSearchButton: false,
+                          showClipboardCut: false,
+                          showClipboardCopy: false,
+                          showClipboardPaste: false,
+                          multiRowsDisplay: false,
+                          color: AppColors.transparent,
+                        ),
                       ),
                     ),
                   ),
-                )
-              else
-                buildControls(),
-              const HorizontalSpacing(8),
-              InkWell(
-                onTap: () async {
-                  if (showEditor) {
-                    sendMessageWithFormatting();
-                  } else {
-                    if (_selectedMediaPaths.isNotEmpty ||
-                        controller.chatController.text.trim().isNotEmpty ||
-                        recordingPath != null) {
-                      if (controller.chatController.text.trim().isNotEmpty) {
-                        controller.sendMessage(
-                          widget.journalId,
-                          null,
-                          controller.chatController.text,
-                          widget.mainQuestionId,
-                          widget.followupQuestionId,
-                        );
-                      }
-                      
-                      for (final filePath in _selectedMediaPaths) {
-                        controller.sendMessage(
-                          widget.journalId,
-                          filePath,
-                          null,
-                          widget.mainQuestionId,
-                          widget.followupQuestionId,
-                        );
-                      }
-
-                      // Send audio recording if exists
-                      if (recordingPath != null) {
-                        await controller.sendMessage(
-                          widget.journalId,
-                          recordingPath,
-                          null,
-                          widget.mainQuestionId,
-                          widget.followupQuestionId,
-                        );
-                      }
-
-                      setState(() {
-                        _selectedMediaPaths = []; // Reset selection
-                        if (showEditor) {
-                          _controller.clear();
-                        } else {
-                          controller.chatController.clear();
-                          recordingPath = null; // Reset recording state
-                        }
-                      });
-                    }
-                  }
-                },
-                child: Assets.images.sendMessageIcon.svg(width: 40, height: 40),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
+                const HorizontalSpacing(8),
+                if (isEditMode)
+                  InkWell(
+                    onTap: () {
+                      chatController.resetEditMode();
+                      _cleanupEditMode();
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: AppColors.bgBorder,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.close,
+                        color: AppColors.textColor300,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                const HorizontalSpacing(8),
+                InkWell(
+                  onTap: widget.isDisabled ? null : sendMessageWithFormatting,
+                  child:
+                      Assets.images.sendMessageIcon.svg(width: 40, height: 40),
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+    });
   }
-
-  Expanded buildControls() {
-    return Expanded(
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child:
-                Assets.images.addIconWithBackground.svg(width: 40, height: 40),
-          ),
-          // InkWell(
-          //   onTap: () =>
-          //       isVoiceRecording ? _stopRecording() : _startRecording(),
-          //   // onTap: () async {
-          //   //   if (isVoiceRecording) {
-          //   //     var filePath = await audioRecord.stop();
-          //   //     if (filePath != null) {
-          //   //       _stopRecordingTimer();
-          //   //       setState(() {
-          //   //         isVoiceRecording = false;
-          //   //         recordingPath = filePath;
-          //   //       });
-          //   //     }
-          //   //   } else {
-          //   //     if (await audioRecord.hasPermission()) {
-          //   //       final appDocumentsDir =
-          //   //           await getApplicationDocumentsDirectory();
-          //   //       final filePath = p.join(
-          //   //         appDocumentsDir.path,
-          //   //         'message.wav',
-          //   //       );
-          //   //       await audioRecord.start(const RecordConfig(), path: filePath);
-          //   //       setState(() {
-          //   //         isVoiceRecording = true;
-          //   //         debugPrint('isVoiceRecording: $isVoiceRecording');
-          //   //         recordingPath = null;
-          //   //         _startRecordingTimer();
-          //   //       });
-          //   //     }
-          //   //   }
-          //   // },
-          //   child: isVoiceRecording
-          //       ? Container(
-          //           height: 25,
-          //           width: 25,
-          //           decoration: const BoxDecoration(
-          //             shape: BoxShape.circle,
-          //             color: Colors.red, // Background color of the circle
-          //           ),
-          //           padding: const EdgeInsets.all(
-          //             4,
-          //           ), // Optional: controls the size of the circle
-          //           child: Assets.images.chatMicrophone.image(width: 20),
-          //         )
-          //       : Assets.images.chatMicrophone.image(width: 20),
-          // ),
-          // const HorizontalSpacing(20),
-          InkWell(
-            onTap: () {
-              setState(() {
-                showEditor = true;
-              });
-            },
-            child: Assets.images.chatText.image(width: 20),
-          ),
-          const HorizontalSpacing(20),
-          // InkWell(
-          //   onTap: () async {
-          //     try {
-          //       final result = await FilePicker.platform.pickFiles(
-          //         allowMultiple: true,
-          //         // type: FileType.custom,
-          //         // type: FileType.any,
-          //       );
-
-          //       if (result != null && result.files.isNotEmpty) {
-          //         for (final file in result.files) {
-          //           if (file.path != null) {
-          //             final filePath = file.path!;
-          //             if (filePath.endsWith('.mp4') ||
-          //                 filePath.endsWith('.mov')) {
-          //               await _loadVideo(filePath);
-          //             } else {
-          //               await controller.sendMessage(
-          //                 widget.journalId,
-          //                 filePath,
-          //                 null,
-          //                 widget.mainQuestionId,
-          //                 widget.followupQuestionId,
-          //               );
-          //             }
-          //           } else {
-          //             debugPrint('File path is null for a selected file');
-          //           }
-          //         }
-          //       } else {
-          //         debugPrint('No files selected or result is null');
-          //       }
-          //     } catch (e) {
-          //       debugPrint('File picking error: $e');
-          //       ScaffoldMessenger.of(context).showSnackBar(
-          //         SnackBar(content: Text('Error selecting files: $e')),
-          //       );
-          //     }
-          //   },
-          //   child: Assets.images.chatAttachment.image(width: 20),
-          // ),
-          const Spacer(),
-        ],
-      ),
-    );
-  }
-
-  // Widget _buildAudioUI() {
-  //   return Container(
-  //     padding: const EdgeInsets.all(8),
-  //     decoration: BoxDecoration(
-  //       color: AppColors.color324E65,
-  //       borderRadius: BorderRadius.circular(20),
-  //     ),
-  //     width: 180,
-  //     // width: Get.width,
-  //     child: Row(
-  //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-  //       children: [
-  //         if (recordingPath != null)
-  //           GestureDetector(
-  //             onTap: () {
-  //               setState(() {
-  //                 recordingPath = null;
-  //                 isRecordingPlaying = false;
-  //                 _resetPlayBacktime();
-  //               });
-  //               audioPlayer.stop();
-  //             },
-  //             child: Container(
-  //               height: 35,
-  //               width: 35,
-  //               decoration: const BoxDecoration(
-  //                 shape: BoxShape.circle,
-  //                 color: Colors.red,
-  //               ),
-  //               child: const Icon(Icons.close_rounded),
-  //             ),
-  //           ),
-  //         Padding(
-  //           padding: const EdgeInsets.only(right: 5),
-  //           child: Text(
-  //             isRecordingPlaying
-  //                 ? playbackTime
-  //                 : _formatDuration(_recordingDuration),
-  //             style: AppTextStyles.textBodyB2,
-  //           ),
-  //         ),
-  //         Row(
-  //           mainAxisAlignment: MainAxisAlignment.spaceAround,
-  //           children: [
-  //             InkWell(
-  //               onTap: () async {
-  //                 if (audioPlayer.playing) {
-  //                   audioPlayer.stop();
-  //                   await audioPlayer.seek(Duration.zero);
-  //                   _resetPlayBacktime();
-  //                   setState(() {
-  //                     isRecordingPlaying = false;
-  //                   });
-  //                 } else {
-  //                   await audioPlayer.setFilePath(recordingPath!);
-  //                   await audioPlayer.seek(Duration.zero);
-  //                   audioPlayer.play();
-
-  //                   setState(() {
-  //                     isRecordingPlaying = true;
-  //                   });
-  //                 }
-  //               },
-  //               child: Container(
-  //                 height: 35,
-  //                 width: 35,
-  //                 decoration: const BoxDecoration(
-  //                   shape: BoxShape.circle,
-  //                   color: Colors.green,
-  //                 ),
-  //                 child: isRecordingPlaying
-  //                     ? const Icon(Icons.stop)
-  //                     : const Icon(Icons.play_arrow),
-  //               ),
-  //             ),
-  //             // const HorizontalSpacing(8),
-  //             // InkWell(
-  //             //   onTap: () async {
-  //             //     await controller.sendMessage(
-  //             //       widget.journalId,
-  //             //       recordingPath,
-  //             //       null,
-  //             //       widget.mainQuestionId,
-  //             //       widget.followupQuestionId,
-  //             //     );
-  //             //   },
-  //             //   child: Assets.images.sendMessageIcon.svg(width: 40, height: 40),
-  //             // ),
-  //           ],
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
-
-  // String _formatDuration(Duration duration) {
-  //   final minutes = duration.inMinutes;
-  //   final seconds = duration.inSeconds % 60;
-  //   return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
-  // }
 }
+
