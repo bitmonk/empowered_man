@@ -16,6 +16,7 @@ class CustomErrorWidget extends StatelessWidget {
       padding: verticlePadding ?? const EdgeInsets.symmetric(vertical: 30),
       child: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
               error ?? 'Something went wrong!\nPlease try again later.',

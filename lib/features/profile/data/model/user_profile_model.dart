@@ -13,6 +13,7 @@ class UserProfileModel with _$UserProfileModel {
     @JsonKey(name: 'phone_number') String? phoneNumber,
     @JsonKey(name: 'occupation') String? occupation,
     @JsonKey(name: 'image') String? image,
+    @JsonKey(name: 'is_coach') bool? isCoach,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _UserProfileModel;

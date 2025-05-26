@@ -34,6 +34,8 @@ mixin _$UserProfileModel {
   String? get occupation => throw _privateConstructorUsedError;
   @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_coach')
+  bool? get isCoach => throw _privateConstructorUsedError;
   @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: 'updated_at')
@@ -63,6 +65,7 @@ abstract class $UserProfileModelCopyWith<$Res> {
       @JsonKey(name: 'phone_number') String? phoneNumber,
       @JsonKey(name: 'occupation') String? occupation,
       @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
@@ -89,6 +92,7 @@ class _$UserProfileModelCopyWithImpl<$Res, $Val extends UserProfileModel>
     Object? phoneNumber = freezed,
     Object? occupation = freezed,
     Object? image = freezed,
+    Object? isCoach = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -121,6 +125,10 @@ class _$UserProfileModelCopyWithImpl<$Res, $Val extends UserProfileModel>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
+      isCoach: freezed == isCoach
+          ? _value.isCoach
+          : isCoach // ignore: cast_nullable_to_non_nullable
+              as bool?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -149,6 +157,7 @@ abstract class _$$UserProfileModelImplCopyWith<$Res>
       @JsonKey(name: 'phone_number') String? phoneNumber,
       @JsonKey(name: 'occupation') String? occupation,
       @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
       @JsonKey(name: 'created_at') DateTime? createdAt,
       @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
@@ -173,6 +182,7 @@ class __$$UserProfileModelImplCopyWithImpl<$Res>
     Object? phoneNumber = freezed,
     Object? occupation = freezed,
     Object? image = freezed,
+    Object? isCoach = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -205,6 +215,10 @@ class __$$UserProfileModelImplCopyWithImpl<$Res>
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
               as String?,
+      isCoach: freezed == isCoach
+          ? _value.isCoach
+          : isCoach // ignore: cast_nullable_to_non_nullable
+              as bool?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -228,6 +242,7 @@ class _$UserProfileModelImpl implements _UserProfileModel {
       @JsonKey(name: 'phone_number') this.phoneNumber,
       @JsonKey(name: 'occupation') this.occupation,
       @JsonKey(name: 'image') this.image,
+      @JsonKey(name: 'is_coach') this.isCoach,
       @JsonKey(name: 'created_at') this.createdAt,
       @JsonKey(name: 'updated_at') this.updatedAt});
 
@@ -256,6 +271,9 @@ class _$UserProfileModelImpl implements _UserProfileModel {
   @JsonKey(name: 'image')
   final String? image;
   @override
+  @JsonKey(name: 'is_coach')
+  final bool? isCoach;
+  @override
   @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
@@ -264,7 +282,7 @@ class _$UserProfileModelImpl implements _UserProfileModel {
 
   @override
   String toString() {
-    return 'UserProfileModel(id: $id, fullName: $fullName, slug: $slug, email: $email, phoneNumber: $phoneNumber, occupation: $occupation, image: $image, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'UserProfileModel(id: $id, fullName: $fullName, slug: $slug, email: $email, phoneNumber: $phoneNumber, occupation: $occupation, image: $image, isCoach: $isCoach, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -282,6 +300,7 @@ class _$UserProfileModelImpl implements _UserProfileModel {
             (identical(other.occupation, occupation) ||
                 other.occupation == occupation) &&
             (identical(other.image, image) || other.image == image) &&
+            (identical(other.isCoach, isCoach) || other.isCoach == isCoach) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -291,7 +310,7 @@ class _$UserProfileModelImpl implements _UserProfileModel {
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(runtimeType, id, fullName, slug, email,
-      phoneNumber, occupation, image, createdAt, updatedAt);
+      phoneNumber, occupation, image, isCoach, createdAt, updatedAt);
 
   /// Create a copy of UserProfileModel
   /// with the given fields replaced by the non-null parameter values.
@@ -319,6 +338,7 @@ abstract class _UserProfileModel implements UserProfileModel {
           @JsonKey(name: 'phone_number') final String? phoneNumber,
           @JsonKey(name: 'occupation') final String? occupation,
           @JsonKey(name: 'image') final String? image,
+          @JsonKey(name: 'is_coach') final bool? isCoach,
           @JsonKey(name: 'created_at') final DateTime? createdAt,
           @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
       _$UserProfileModelImpl;
@@ -347,6 +367,9 @@ abstract class _UserProfileModel implements UserProfileModel {
   @override
   @JsonKey(name: 'image')
   String? get image;
+  @override
+  @JsonKey(name: 'is_coach')
+  bool? get isCoach;
   @override
   @JsonKey(name: 'created_at')
   DateTime? get createdAt;

@@ -80,34 +80,41 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
 
       setState(() {});
     } catch (e) {
+      print(e);
       setState(() {
-        _errorMessage = 'Failed to load video.';
+        _errorMessage = 'Failed to load video.\n$e';
       });
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return _errorMessage != null
-        ? CustomErrorWidget(
-            error: _errorMessage,
-            onPressed: _initializePlayer,
-            verticlePadding: const EdgeInsets.symmetric(vertical: 100),
-          )
-        : ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: AspectRatio(
-              aspectRatio: _videoController.value.aspectRatio,
-              child: _chewieController != null &&
-                      _chewieController!
-                          .videoPlayerController.value.isInitialized
-                  ? Chewie(controller: _chewieController!)
-                  : const ColoredBox(
-                      color: Colors.black,
-                      child: LoadingWidget(),
-                    ),
+    return Scaffold(
+        body: Center(
+      child: _errorMessage != null
+          ? Padding(
+              padding: const EdgeInsets.all(8),
+              child: CustomErrorWidget(
+                error: _errorMessage,
+                onPressed: _initializePlayer,
+                verticlePadding: const EdgeInsets.symmetric(vertical: 100),
+              ),
+            )
+          : ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: AspectRatio(
+                aspectRatio: _videoController.value.aspectRatio,
+                child: _chewieController != null &&
+                        _chewieController!
+                            .videoPlayerController.value.isInitialized
+                    ? Chewie(controller: _chewieController!)
+                    : const ColoredBox(
+                        color: Colors.black,
+                        child: LoadingWidget(),
+                      ),
+              ),
             ),
-          );
+    ),);
   }
 
   @override

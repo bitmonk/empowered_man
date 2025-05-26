@@ -1,5 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
+import 'package:intl/intl.dart';
 
 class NewMessageModal extends StatefulWidget {
   const NewMessageModal({super.key});
@@ -140,7 +143,22 @@ class _NewMessageModalState extends State<NewMessageModal> {
                     },
                   ),
                 ),
+
                 const ChatInputField(isNewMessage: true),
+                AppOutlinedButton(
+                  text: 'Create Group',
+                  onPressed: () async {
+                    await Get.find<ChatController>().createGroupAndChat(
+                        groupName: DateFormat('yyyy MM dd hh:MM')
+                            .format(DateTime.now()),);
+                    Get.to(
+                      () => const ChatCoversationScreen(
+                        isGroupChat: true,
+                        isSoloChat: false,
+                      ),
+                    );
+                  },
+                ),
               ],
             ),
           );

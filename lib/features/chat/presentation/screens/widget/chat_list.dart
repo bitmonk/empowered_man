@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/data/model/chat_conversation_wrapper.dart';
+import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
 
@@ -12,11 +13,12 @@ class ChatList extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        controller.selectConversation(convo.conversation);
+        AudioPlayerInitializer.initialize();
+        controller.selectConversation(convo);
         Get.to(
-          () => const ChatCoversationScreen(
-            isGroupChat: false,
-            isSoloChat: true,
+          () => ChatCoversationScreen(
+            isGroupChat: isSquad,
+            isSoloChat: !isSquad,
           ),
         );
       },
@@ -25,7 +27,7 @@ class ChatList extends StatelessWidget {
         title: Row(
           children: [
             Text(
-              isSquad ? 'Squad 1' : convo.userName,
+              convo.userName == '' ? 'N/A' : convo.userName ?? '',
               style: AppTextStyles.textBodyB1.copyWith(),
             ),
             Padding(
@@ -39,18 +41,19 @@ class ChatList extends StatelessWidget {
                 width: 5,
               ),
             ),
-            const Spacer(),
-            Text(
-              convo.lastChattedTime!.timeAgo(),
-              style: AppTextStyles.textSmallS2,
-            ),
+            if (convo.lastChattedTime != null) const Spacer(),
+            if (convo.lastChattedTime != null)
+              Text(
+                convo.lastChattedTime!.timeAgo(),
+                style: AppTextStyles.textSmallS2,
+              ),
           ],
         ),
         subtitle: Row(
           children: [
             Expanded(
               child: Text(
-                convo.latestMessage ?? 'M/A',
+                convo.latestMessage ?? '',
                 style: AppTextStyles.textBodyB4,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
@@ -61,7 +64,9 @@ class ChatList extends StatelessWidget {
                 height: 20,
                 width: 20,
                 decoration: const BoxDecoration(
-                    color: AppColors.appGreen, shape: BoxShape.circle,),
+                  color: AppColors.appGreen,
+                  shape: BoxShape.circle,
+                ),
                 child: Center(
                   child: Padding(
                     padding: const EdgeInsets.all(2),

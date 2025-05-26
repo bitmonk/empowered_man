@@ -19,7 +19,8 @@ class LoginController extends GetxController {
     super.onInit();
 
     if (kDebugMode) {
-      emailController = TextEditingController(text: 'lvikramsah@gmail.com');
+      emailController =
+          TextEditingController(text: 'socialanjalithapa@gmail.com');
       passwordController = TextEditingController(text: 'Test@123');
     } else {
       emailController = TextEditingController();

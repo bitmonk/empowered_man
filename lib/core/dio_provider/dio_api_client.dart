@@ -132,6 +132,26 @@ class DioApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> download(
+    String url,
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.download(
+        url,
+        path,
+        onReceiveProgress: onReceiveProgress,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> patch(
     String url, {
     Map<String, dynamic>? queryParameters,

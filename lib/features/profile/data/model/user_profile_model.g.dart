@@ -16,6 +16,7 @@ _$UserProfileModelImpl _$$UserProfileModelImplFromJson(
       phoneNumber: json['phone_number'] as String?,
       occupation: json['occupation'] as String?,
       image: json['image'] as String?,
+      isCoach: json['is_coach'] as bool?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -34,6 +35,7 @@ Map<String, dynamic> _$$UserProfileModelImplToJson(
       'phone_number': instance.phoneNumber,
       'occupation': instance.occupation,
       'image': instance.image,
+      'is_coach': instance.isCoach,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
 
 class ChatThreadsTile extends StatelessWidget {
@@ -7,7 +6,7 @@ class ChatThreadsTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ChatController>();
+    // final controller = Get.find<ChatController>();
     return ListView.builder(
       itemCount: 6,
       itemBuilder: (context, index) {

@@ -4,27 +4,16 @@ import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 
 class ChatRemoteSource {
-  const ChatRemoteSource(this._client);
+  ChatRemoteSource(this._client);
   final DioApiClient _client;
-
-  Future<Either<AppError, ApiResponse<dynamic>>> fetchData({
-    required int pageKey,
-    String? searchQuery,
-  }) async {
+  final Dio _dio = Dio();
+  Future<Either<AppError, bool>> downloadVideo(
+      {required String url,
+      required String path,
+      Function(int, int)? onReceiveProgress,}) async {
     try {
-      // final param = <String, dynamic>{'page': pageKey};
-      // final url = searchQuery == null
-      //     ? AppEndpoints.countries
-      //     : AppEndpoints.countries + searchQuery;
-
-      // final response =
-      //     await _client.httpGet<dynamic>(url, queryParameters: param);
-      // return right(
-      //   ApiResponse(
-      //     data: null
-      //   ,)
-      // );
-      throw UnimplementedError();
+      await _dio.download(url, path, onReceiveProgress: onReceiveProgress);
+      return right(true);
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);
