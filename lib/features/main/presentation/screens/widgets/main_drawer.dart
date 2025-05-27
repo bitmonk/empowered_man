@@ -72,8 +72,6 @@ class MainDrawer extends GetView<MainController> {
                       color: AppColors.white,
                     ),
                   ),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
