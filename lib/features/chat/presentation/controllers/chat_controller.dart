@@ -5,6 +5,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/data/model/agora_chat_config.dart';
 import 'package:empowered/features/chat/data/model/chat_conversation_wrapper.dart';
 import 'package:empowered/features/chat/data/source/chat_remote_source.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -20,7 +21,10 @@ class ChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController chatScreenScrollController;
 
-  RxString currentUserId = 'lakshydeep_14'.obs;
+  RxString currentUserId =
+      Get.find<ProfileController>().userProfile.value.slug!.obs;
+  RxString currentUserToken =
+      Get.find<ProfileController>().userProfile.value.agoraUserToken!.obs;
 // unotech
   final String chatListenerId = 'chat_screen';
 
@@ -56,7 +60,9 @@ class ChatController extends GetxController {
       final isLoggedIn = await ChatClient.getInstance.isLoginBefore();
       if (!isLoggedIn) {
         await ChatClient.getInstance.loginWithToken(
-            currentUserId.value, AgoraChatConfig.lakshydeepToken,);
+          currentUserId.value,
+          currentUserToken.value,
+        );
       }
       _addListeners();
       fetchConversations(isInitialLoad: true);
@@ -826,11 +832,11 @@ class ChatController extends GetxController {
       ChatEventHandler(
         onMessagesReceived: (msgs) {
           final groupMessages = messages
-              .where((msg) =>
-                  msg.chatType == ChatType.GroupChat &&
-                  msg.to ==
-                      selectedConversation
-                          .value?.id,) // Make sure you're viewing the same group
+              .where(
+                (msg) =>
+                    msg.chatType == ChatType.GroupChat &&
+                    msg.to == selectedConversation.value?.id,
+              ) // Make sure you're viewing the same group
               .toList();
 
           if (groupMessages.isNotEmpty) {
@@ -844,7 +850,8 @@ class ChatController extends GetxController {
           }
           for (final msg in messages) {
             print(
-                'Received message from: ${msg.from}, to: ${msg.to}, type: ${msg.chatType}',);
+              'Received message from: ${msg.from}, to: ${msg.to}, type: ${msg.chatType}',
+            );
           }
         },
       ),

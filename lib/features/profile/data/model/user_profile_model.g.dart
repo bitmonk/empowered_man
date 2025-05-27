@@ -17,6 +17,8 @@ _$UserProfileModelImpl _$$UserProfileModelImplFromJson(
       occupation: json['occupation'] as String?,
       image: json['image'] as String?,
       isCoach: json['is_coach'] as bool?,
+      agoraChatToken: json['agora_chat_token'] as String?,
+      agoraUserToken: json['agora_user_token'] as String?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -36,6 +38,8 @@ Map<String, dynamic> _$$UserProfileModelImplToJson(
       'occupation': instance.occupation,
       'image': instance.image,
       'is_coach': instance.isCoach,
+      'agora_chat_token': instance.agoraChatToken,
+      'agora_user_token': instance.agoraUserToken,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };

@@ -14,6 +14,8 @@ class UserProfileModel with _$UserProfileModel {
     @JsonKey(name: 'occupation') String? occupation,
     @JsonKey(name: 'image') String? image,
     @JsonKey(name: 'is_coach') bool? isCoach,
+    @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
+    @JsonKey(name: 'agora_user_token') String? agoraUserToken,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _UserProfileModel;
