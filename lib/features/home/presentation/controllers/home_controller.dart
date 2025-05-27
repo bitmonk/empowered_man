@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/home/data/model/my_monthly_model.dart';
 import 'package:empowered/features/home/data/source/home_remote_source.dart';
 
 class HomeController extends GetxController {
@@ -19,5 +20,23 @@ class HomeController extends GetxController {
   // Method to update the selected tab
   void updateSelectedTab(int index) {
     selectedTabIndex.value = index;
+  }
+
+  Rx<TheStates> getMonthlyState = TheStates.initial.obs;
+  RxList<MyMonthlyTarget> myMonthlyData = RxList<MyMonthlyTarget>();
+  RxnString myMonthlyError = RxnString();
+  Future<void> getMyMonthy() async {
+    getMonthlyState.value = TheStates.loading;
+    final result = await remoteSource.getMyMonthy();
+    result.fold(
+      (l) {
+        myMonthlyError.value = l.message;
+        getMonthlyState.value = TheStates.error;
+      },
+      (r) {
+        myMonthlyData.assignAll(r.data?.myMonthlyTargets ?? []);
+        getMonthlyState.value = TheStates.success;
+      },
+    );
   }
 }

@@ -17,6 +17,16 @@ class ChatController extends GetxController {
 
   RxList<String> filterList = ['All', 'Threads', 'Squads'].obs;
   RxInt selectedFilterindex = 0.obs;
+  RxList<String> selectedUsers = <String>[].obs;
+  RxList<String> userNames = [
+    'Liam Cooper',
+    'Sophia Reed',
+    'Mason Diaz',
+    'Ava Brooks',
+    'Noah Clarke',
+    'Emma Hayes',
+    'Oliver Bennett',
+  ].obs;
 
   late TextEditingController chatController;
   late ScrollController chatScreenScrollController;
@@ -66,7 +76,7 @@ class ChatController extends GetxController {
     try {
       final isLoggedIn = await ChatClient.getInstance.isLoginBefore();
       if (!isLoggedIn) {
-        await ChatClient.getInstance.loginWithToken(
+        await ChatClient.getInstance.loginWithPassword(
           currentUserId.value!,
           currentUserToken.value!,
         );
@@ -881,14 +891,15 @@ class ChatController extends GetxController {
 
   Future<void> createGroupAndChat({
     required String groupName,
+    required String desc,
     List<String>? members,
   }) async {
     print('a');
     final options = ChatGroupOptions();
     final group = await ChatClient.getInstance.groupManager.createGroup(
       groupName: groupName,
-      desc: 'Group chat: $groupName',
-      inviteMembers: ['upasana_1234', 'lakshydeep_14'],
+      desc: desc,
+      inviteMembers: members,
       options: options,
     );
     final convo = await ChatClient.getInstance.chatManager.getConversation(

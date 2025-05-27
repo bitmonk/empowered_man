@@ -58,6 +58,9 @@ class HomeScreen extends GetView<HomeController> {
         final isSelected = controller.selectedTabIndex.value == index;
         return GestureDetector(
           onTap: () {
+            if (index == 2) {
+              controller.getMyMonthy();
+            }
             controller.updateSelectedTab(index);
           },
           child: Container(

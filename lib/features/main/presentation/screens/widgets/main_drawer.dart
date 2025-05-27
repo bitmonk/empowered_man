@@ -64,11 +64,13 @@ class MainDrawer extends GetView<MainController> {
                   ),
                 ),
                 const HorizontalSpacing(16),
-                Text(
-                  Get.find<ProfileController>().userProfile.value.fullName ??
-                      '',
-                  style: AppTextStyles.textBodyB3.copyWith(
-                    color: AppColors.white,
+                Expanded(
+                  child: Text(
+                    Get.find<ProfileController>().userProfile.value.fullName ??
+                        '',
+                    style: AppTextStyles.textBodyB3.copyWith(
+                      color: AppColors.white,
+                    ),
                   ),
                 ),
               ],
