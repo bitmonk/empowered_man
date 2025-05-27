@@ -36,15 +36,15 @@ class ChatController extends GetxController {
   final Rxn<ChatConversationType> selectedConversationType =
       Rxn<ChatConversationType>();
   final int messageQuantity = 10;
-
+  final profileController = Get.find<ProfileController>();
   @override
   void onInit() {
     super.onInit();
     chatController = TextEditingController();
     chatScreenScrollController = ScrollController();
-    currentUserId.value = Get.find<ProfileController>().userProfile.value.slug;
-    currentUserToken.value =
-        Get.find<ProfileController>().userProfile.value.agoraUserToken;
+    // Get.find<ProfileController>().userProfile.getUserProfile();
+    currentUserId.value = profileController.userProfile.value.slug;
+    currentUserToken.value = profileController.userProfile.value.agoraUserToken;
     initSDK();
   }
 
@@ -53,7 +53,7 @@ class ChatController extends GetxController {
   Future<void> initSDK() async {
     if (currentUserId.value == null || currentUserToken.value == null) {
       initializingSdks.value = TheStates.error;
-      loginError.value = 'Error while logging in';
+      loginError.value = '${currentUserId.value} Error while logging in';
       return;
     }
 

@@ -30,6 +30,7 @@ class ChatScreen extends GetView<ChatController> {
                           .userProfile
                           .value
                           .agoraUserToken;
+
                   controller.initSDK();
                 },
               ),

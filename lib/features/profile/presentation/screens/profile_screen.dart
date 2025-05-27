@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
@@ -130,11 +131,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             if (_isUploading)
                               Positioned.fill(
                                 child: Container(
-                                    decoration: BoxDecoration(
-                                      color: Colors.black.withOpacity(0.3),
-                                      borderRadius: BorderRadius.circular(16),
-                                    ),
-                                    child: const LoadingWidget(),),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.3),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: const LoadingWidget(),
+                                ),
                               ),
                             Positioned(
                               right: -10,
@@ -329,6 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       await _logoutController.logout(deviceId);
 
                                   if (result) {
+                                    await ChatClient.getInstance.logout();
                                     await Get.find<AppSharedPref>().removeAll();
                                     Get.offAllNamed(AppRoutes.landingScreen);
                                   }

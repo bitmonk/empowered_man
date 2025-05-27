@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/push_notification/firebase_notification_service.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
+import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_bindings.dart';
 import 'package:empowered/features/goals/presentation/screens/goals_screen.dart';
@@ -15,6 +16,7 @@ import 'package:empowered/features/journal_chat/presentation/screens/journal_dra
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:flutter/services.dart';
