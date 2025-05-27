@@ -70,6 +70,8 @@ class MainDrawer extends GetView<MainController> {
                   style: AppTextStyles.textBodyB3.copyWith(
                     color: AppColors.white,
                   ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),

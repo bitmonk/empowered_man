@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
@@ -24,6 +25,9 @@ class JournalChatBubbleContainer extends StatefulWidget {
     this.isThinking = false,
     this.answerId,
     this.onEditTap,
+    this.questionId,
+    this.isEditMode = false,
+    this.onYesNoEdit,
   });
 
   final bool isMine;
@@ -44,6 +48,9 @@ class JournalChatBubbleContainer extends StatefulWidget {
   final bool isThinking;
   final String? answerId;
   final VoidCallback? onEditTap;
+  final String? questionId;
+  final bool isEditMode;
+  final Function(String, String, String)? onYesNoEdit;
 
   @override
   State<JournalChatBubbleContainer> createState() =>
@@ -54,13 +61,15 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     with TickerProviderStateMixin {
   bool isLiked = false; // Internal state for like
   String? _selectedOption;
+  String? _editingSelectedOption; // For edit mode
   late List<AnimationController> _dotAnimationControllers;
   late List<Animation<double>> _dotAnimations;
+
   @override
   void initState() {
     super.initState();
     _selectedOption = widget.selectedOption;
-    // _audioPlayer = AudioPlayer();
+    _editingSelectedOption = widget.selectedOption;
     isLiked = widget.isLiked;
 
     _dotAnimationControllers = List.generate(
@@ -90,23 +99,72 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     }
   }
 
+  @override
+  void didUpdateWidget(JournalChatBubbleContainer oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    
+    // Update local state when widget properties change
+    if (oldWidget.selectedOption != widget.selectedOption) {
+      _selectedOption = widget.selectedOption;
+      _editingSelectedOption = widget.selectedOption;
+    }
+    
+    if (oldWidget.isLiked != widget.isLiked) {
+      isLiked = widget.isLiked;
+    }
+  }
+
   Widget _buildYesNoQuestion() {
-    if (widget.isAnswered) {
-      return HtmlWidget(
-        widget.message,
-        textStyle: AppTextStyles.textBodyB2,
-      );
-    } else {
+    final controller = Get.find<JournalChatController>();
+    
+    return Obx(() {
+      final isInEditMode = controller.isYesNoEditMode.value &&
+          controller.editingYesNoQuestionId.value == widget.questionId;
+
+      if (widget.isMine) {
+        return HtmlWidget(
+          widget.message,
+          textStyle: AppTextStyles.textBodyB2,
+        );
+      }
+
+      // Check if question is answered and not in edit mode
+      if (widget.isAnswered && !isInEditMode) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            HtmlWidget(
+              widget.message,
+              textStyle: AppTextStyles.textBodyB2,
+            ),
+          ],
+        );
+      }
+
       return Container(
         padding: const EdgeInsets.all(10),
         decoration: BoxDecoration(
-          border: Border.all(color: AppColors.bgBorder),
+          border: Border.all(
+            color: isInEditMode ? AppColors.primary500 : AppColors.bgBorder,
+            width: isInEditMode ? 2 : 1,
+          ),
           color: AppColors.bgMedium,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            if (isInEditMode)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Edit your response:',
+                  style: AppTextStyles.textBodyB2.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.primary500,
+                  ),
+                ),
+              ),
             HtmlWidget(
               widget.message,
               textStyle: AppTextStyles.textBodyB2,
@@ -115,16 +173,44 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _buildYesNoOption('Yes', _selectedOption == 'Yes', () {
-                  _handleYesNoSelection('Yes');
-                }),
+                _buildYesNoOption(
+                  'Yes',
+                  isInEditMode
+                      ? _editingSelectedOption == 'Yes'
+                      : _selectedOption == 'Yes',
+                  () {
+                    if (isInEditMode) {
+                      setState(() {
+                        _editingSelectedOption = 'Yes';
+                      });
+                    } else if (!widget.isAnswered) {
+                      _handleYesNoSelection('Yes');
+                    }
+                  },
+                  isInEditMode,
+                  false,
+                ),
                 const SizedBox(height: 12),
-                _buildYesNoOption('No', _selectedOption == 'No', () {
-                  _handleYesNoSelection('No');
-                }),
+                _buildYesNoOption(
+                  'No',
+                  isInEditMode
+                      ? _editingSelectedOption == 'No'
+                      : _selectedOption == 'No',
+                  () {
+                    if (isInEditMode) {
+                      setState(() {
+                        _editingSelectedOption = 'No';
+                      });
+                    } else if (!widget.isAnswered) {
+                      _handleYesNoSelection('No');
+                    }
+                  },
+                  isInEditMode,
+                  false, 
+                ),
               ],
             ),
-            if (_selectedOption != null)
+            if (!isInEditMode && !widget.isAnswered && _selectedOption != null)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
                 child: Text(
@@ -135,10 +221,79 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                   ),
                 ),
               ),
+            if (isInEditMode)
+              Padding(
+                padding: const EdgeInsets.only(top: 16),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () {
+                        setState(() {
+                          _editingSelectedOption = widget.selectedOption;
+                        });
+                        controller.resetEditMode();
+                      },
+                      child: Text(
+                        'Cancel',
+                        style: AppTextStyles.textBodyB2.copyWith(
+                          color: AppColors.textColor300,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Obx(() {
+                      final isLoading = controller.updateMessageState.value ==
+                          TheStates.loading;
+
+                      return ElevatedButton(
+                        onPressed: _editingSelectedOption != null && !isLoading
+                            ? () async {
+                                // Save the edit
+                                if (widget.onYesNoEdit != null &&
+                                    controller.editingYesNoAnswerId.value != null &&
+                                    widget.questionId != null) {
+                                  
+                                  // Call the edit function and wait for completion
+                                  await widget.onYesNoEdit!(
+                                    _editingSelectedOption!,
+                                    controller.editingYesNoAnswerId.value!,
+                                    widget.questionId!,
+                                  );
+                                }
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary500,
+                          foregroundColor: Colors.white,
+                        ),
+                        child: isLoading
+                            ? const SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
+                                  ),
+                                ),
+                              )
+                            : Text(
+                                'Save',
+                                style: AppTextStyles.textBodyB2.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
           ],
         ),
       );
-    }
+    });
   }
 
   Widget _buildThinkingIndicator() {
@@ -159,14 +314,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Text(
-          //   'AI is thinking',
-          //   style: AppTextStyles.textBodyB2.copyWith(
-          //     color: AppColors.textColor300,
-          //     fontStyle: FontStyle.italic,
-          //   ),
-          // ),
-          // const SizedBox(width: 8),
           Row(
             children: List.generate(5, (index) {
               return AnimatedBuilder(
@@ -193,28 +340,41 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     );
   }
 
-  Widget _buildYesNoOption(String text, bool isSelected, Function() onTap) {
+  Widget _buildYesNoOption(
+    String text,
+    bool isSelected,
+    Function() onTap,
+    bool isEditMode, [
+    bool isDisabled = false,
+  ]) {
     return InkWell(
-      onTap: onTap,
+      onTap: isDisabled ? null : onTap,
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
         child: Row(
           children: [
             Radio<String>(
               value: text,
-              groupValue: _selectedOption,
-              onChanged: (value) {
-                if (value != null) {
-                  onTap();
-                }
-              },
+              groupValue: isEditMode ? _editingSelectedOption : _selectedOption,
+              onChanged: isDisabled
+                  ? null
+                  : (value) {
+                      if (value != null) {
+                        onTap();
+                      }
+                    },
               activeColor: AppColors.primary500,
             ),
             const SizedBox(width: 12),
             Text(
               text,
               style: AppTextStyles.textBodyB2.copyWith(
-                fontWeight: isSelected ? FontWeight.w500 : FontWeight.normal,
+                fontWeight: isSelected ? FontWeight.w600 : FontWeight.normal,
+                color: isDisabled
+                    ? AppColors.textColor300
+                    : isEditMode && isSelected
+                        ? AppColors.primary500
+                        : AppColors.textColor100,
               ),
             ),
           ],
@@ -238,15 +398,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     }
     super.dispose();
   }
-
-  // String _extractTextFromHtml(String htmlContent) {
-  //   try {
-  //     final document = parse(htmlContent);
-  //     return document.body?.text ?? '';
-  //   } catch (e) {
-  //     return htmlContent;
-  //   }
-  // }
 
   String _formatTimestamp(String timestamp) {
     try {
@@ -279,8 +430,8 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
   }
 
   void _showPopupMenu(BuildContext context, Offset position) {
-    final left = position.dx - 60; 
-    final top = position.dy - 130; 
+    final left = position.dx - 80;
+    final top = position.dy - 60;
 
     showDialog(
       context: context,
@@ -299,36 +450,14 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                     color: AppColors.bgMedium,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isLiked = !isLiked; // Toggle like state
-                          });
-                          widget.onLike.call();
-                          Navigator.pop(context);
-                        },
-                        child: Assets.images.chatLike.svg(width: 20),
-                      ),
-                      const HorizontalSpacing(16),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Assets.images.chatUndo.svg(width: 20),
-                      ),
-                      const HorizontalSpacing(16),
-                      InkWell(
-                        onTap: () {
-                          if (widget.onEditTap != null) {
-                            widget.onEditTap!();
-                          }
-                        },
-                        child: Assets.images.chatEdit.svg(width: 20),
-                      ),
-                    ],
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.pop(context);
+                      if (widget.onEditTap != null) {
+                        widget.onEditTap!();
+                      }
+                    },
+                    child: Assets.images.chatEdit.svg(width: 20),
                   ),
                 ),
               ),
@@ -342,9 +471,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
   @override
   Widget build(BuildContext context) {
     if (widget.isThinking) {
-      print(
-        '::::::::::::::::::::::::::::::::::::::::::::::::Building thinking indicator',
-      );
       return Align(
         alignment: Alignment.centerLeft,
         child: Column(
@@ -452,19 +578,22 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.end,
                                   children: [
-                                    if (widget.isYesNoQuestion)
+                                    // Show yes/no question UI for questions (answered or unanswered) or when in edit mode
+                                    if (widget.isYesNoQuestion &&
+                                        !widget.isMine)
                                       _buildYesNoQuestion()
                                     else
                                       HtmlWidget(
-                                        //  shrinkWrap: true,
                                         widget.message,
-                                        textStyle: AppTextStyles.textBodyB2,
+                                        textStyle: widget.isMine
+                                            ? AppTextStyles.textBodyB2
+                                                .copyWith(color: Colors.white)
+                                            : AppTextStyles.textBodyB2,
                                       ),
                                   ],
                                 ),
                               ),
-                            if (widget
-                                .isLoading) // Use widget.isLoading directly
+                            if (widget.isLoading)
                               Positioned(
                                 bottom: -10,
                                 right: widget.isMine ? -10 : null,
