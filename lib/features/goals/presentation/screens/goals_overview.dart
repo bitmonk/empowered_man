@@ -42,26 +42,32 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   Widget build(BuildContext context) {
     return AppScaffold(
       appBar: const CustomAppBar(title: 'Goals Overview'),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16),
-          child: Obx(
-            () => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _buildYearDropdown(),
-                const VerticalSpacing(24),
-                _buildQuarterTabs(),
-                const VerticalSpacing(24),
-                _buildSectionTitle('Monthly Missions'),
-                const VerticalSpacing(24),
-                _buildMonthlyMissions(),
-                const VerticalSpacing(24),
-                _buildSectionTitle('Quarterly Facts & Yearly Targets'),
-                const VerticalSpacing(24),
-                _buildFactsAndTargets(),
-                const VerticalSpacing(30),
-              ],
+      body: Obx(
+        () => SafeArea(
+          child: RefreshIndicator(
+            onRefresh: () async {
+              controller.resetValue();
+            },
+            child: SingleChildScrollView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildYearDropdown(),
+                  const VerticalSpacing(24),
+                  _buildQuarterTabs(),
+                  const VerticalSpacing(24),
+                  _buildSectionTitle('Monthly Missions'),
+                  const VerticalSpacing(24),
+                  _buildMonthlyMissions(),
+                  const VerticalSpacing(24),
+                  _buildSectionTitle('Quarterly Facts & Yearly Targets'),
+                  const VerticalSpacing(24),
+                  _buildFactsAndTargets(),
+                  const VerticalSpacing(30),
+                ],
+              ),
             ),
           ),
         ),
@@ -301,7 +307,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
     // Add null safety checks
     if (controller.months.isEmpty || categories.isEmpty) return;
 
-    if (categories.length == 0) {
+    if (categories.isEmpty) {
       selectedMissionCategory.clear();
       return;
     }

@@ -1,15 +1,14 @@
-import 'package:empowered/features/journal_chat/data/model/message_item.dart';
-
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_chat_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_input_field.dart';
+import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 
 class GoalsChatScreen extends StatefulWidget {
   const GoalsChatScreen({
-    super.key,
     required this.goalDetailId,
     required this.goalId,
+    super.key,
   });
 
   final String goalDetailId;
@@ -29,7 +28,7 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
     super.initState();
     focusNode = FocusNode();
     controller = Get.find<GoalsChatController>();
-
+    controller.resetEditMode();
     // Initialize controller with IDs
     WidgetsBinding.instance.addPostFrameCallback((_) {
       controller.initializeWithIds(widget.goalId, widget.goalDetailId);

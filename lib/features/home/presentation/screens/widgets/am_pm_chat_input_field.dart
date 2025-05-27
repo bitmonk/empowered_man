@@ -366,7 +366,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                         isEditing ? 'Edit your message...' : 'Message...',
                     showCursor: true,
                     padding: const EdgeInsets.all(4),
-                    autoFocus: false,
                     
                   ),
                 ),

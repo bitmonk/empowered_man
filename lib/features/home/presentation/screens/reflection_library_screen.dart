@@ -57,7 +57,7 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        String period = DateTime.now().hour < 12 ? 'am' : 'pm';
+        var period = DateTime.now().hour < 12 ? 'am' : 'pm';
         Get.find<ReflectionJournalChatController>()
             .getReflectionWithQuestionAnswers(period ?? '');
         Get.back();
@@ -164,7 +164,7 @@ class _ReflectionLibraryScreenState extends State<ReflectionLibraryScreen> {
                                 });
 
                                 await _fetchReflectionsWithReflectionType(
-                                    value);
+                                    value,);
                               }
                             },
                           ),

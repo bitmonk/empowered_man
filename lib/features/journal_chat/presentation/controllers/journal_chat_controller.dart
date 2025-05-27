@@ -99,8 +99,7 @@ class JournalChatController extends GetxController {
         message: message,
         timestamp: DateTime.now().toString(),
         isMine: true,
-        isLoading: false,
-      ));
+      ),);
 
       update();
     }
@@ -419,7 +418,7 @@ class JournalChatController extends GetxController {
           sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
           throw Exception(
-              l.message); // Throw to trigger error handling in calling method
+              l.message,); // Throw to trigger error handling in calling method
         },
         (r) async {
           sendMessageState.value = TheStates.success;

@@ -1,11 +1,11 @@
 import 'package:empowered/common/app_selected_button.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_model.dart';
+import 'package:empowered/features/goals/data/model/reflection_model.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
 import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/reflection_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:empowered/features/goals/data/model/reflection_model.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
   const ProgressGoalWidget({
@@ -33,7 +33,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     goalsController = Get.find<GoalsController>();
   }
 
-  void selectTrack(bool onTrack) async {
+  Future<void> selectTrack(bool onTrack) async {
     final userGoal = _getCurrentUserGoal();
     if (userGoal?.id == null) return;
 
@@ -48,7 +48,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     setState(() {});
   }
 
-  void toggleGoalSelection(int goalAnswerIndex) async {
+  Future<void> toggleGoalSelection(int goalAnswerIndex) async {
     await goalsController.toggleGoalAnswerFromUserGoals(
       goalIndex: widget.selectedGoalIndex,
       timePeriod: widget.timePeriod,
@@ -190,15 +190,15 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   // Check if we have a valid userGoalId before navigating
                   if (userGoalId == null) {
                     AppUtils.showErrorSnackbar(
-                        message: 'No user goal found for reflection');
+                        message: 'No user goal found for reflection',);
                     return;
                   }
 
                   print(
-                      'Navigating to reflection with userGoalId: $userGoalId');
+                      'Navigating to reflection with userGoalId: $userGoalId',);
 
                   // Clear previous reflection data to ensure fresh load
-                  reflectionController.reflections.value = ReflectionModel();
+                  reflectionController.reflections.value = const ReflectionModel();
                   reflectionController.getReflectionState.value =
                       TheStates.initial;
 
@@ -294,7 +294,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                          Colors.white,),
                                     ),
                                   )
                                 else
@@ -340,7 +340,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                          Colors.white,),
                                     ),
                                   )
                                 else
@@ -366,7 +366,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
               if (goalsController.markOnTrackError.value != null)
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Text(
                     goalsController.markOnTrackError.value!,
                     style: const TextStyle(color: Colors.red),
@@ -374,7 +374,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ),
               if (goalsController.completeGoalError.value != null)
                 Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(16),
                   child: Text(
                     goalsController.completeGoalError.value!,
                     style: const TextStyle(color: Colors.red),
@@ -382,7 +382,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ),
             ],
           ),
-        ));
+        ),);
   }
 
   List<Widget> _buildUserGoalsList() {

@@ -11,8 +11,8 @@ class ReflectionController extends GetxController {
   Rx<TheStates> getReflectionState = TheStates.initial.obs;
   CancelToken? _cancelToken;
   Rx<String?> getReflectionError = Rx<String?>(null);
-  Rx<ReflectionModel> reflections = ReflectionModel().obs;
-  RxnString? userGoalId = RxnString(null);
+  Rx<ReflectionModel> reflections = const ReflectionModel().obs;
+  RxnString? userGoalId = RxnString();
 
   @override
   void onInit() {

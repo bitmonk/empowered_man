@@ -1,11 +1,11 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 import 'package:empowered/features/home/data/model/reflection_question_answer_model.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_library_bindings.dart';
 import 'package:empowered/features/home/presentation/screens/reflection_library_screen.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/am_pm_chat_input_field.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_exit_bottomsheet.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 

@@ -1,6 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_chat_model.dart';
 import 'package:empowered/features/goals/data/source/goals_chat_remote_source.dart';
@@ -106,8 +104,6 @@ class GoalsChatController extends GetxController {
     isEditMode.value = true;
     editingAnswerId.value = answerId;
     chatController.text = currentText;
-    // Don't automatically enable rich text editor in edit mode
-    // User can manually enable it if needed
   }
 
   Future<bool> getGoalsChat() async {
@@ -137,13 +133,10 @@ class GoalsChatController extends GetxController {
           getGoalsChatState.value = TheStates.success;
           goalsChatModel.value = chatModel;
 
-          // Update chat conversation list
           _updateChatConversationList();
 
-          // Check if we should show begin journal button
           showBeginJournalButton.value = _shouldShowBeginButton();
 
-          // Clear pending messages if not currently sending
           if (!isSendingMessage.value) {
             pendingMessages.clear();
           }
@@ -215,8 +208,6 @@ class GoalsChatController extends GetxController {
     );
   }
 
-  // In your GoalsChatController class, update the _processSendMessage method:
-
   Future<void> _processSendMessage({
     required String messageText,
     String? mediaPath,
@@ -237,7 +228,7 @@ class GoalsChatController extends GetxController {
 
     // Clear input and show thinking
     chatController.clear();
-    showRichTextEditor.value = false; // Reset rich text editor
+    showRichTextEditor.value = false;
     isShowingThinking.value = true;
     isSendingMessage.value = true;
     sendMessageState.value = TheStates.loading;
@@ -247,13 +238,12 @@ class GoalsChatController extends GetxController {
     scrollToBottom();
 
     try {
-      // Get the question ID - either from parameter or determine the current question
-      String? effectiveQuestionId = questionId ?? _getCurrentQuestionId();
+      var effectiveQuestionId = questionId ?? _getCurrentQuestionId();
 
       final result = await remoteSource.sendGoalsMessage(
         goalsChatModel.value.data?.userGoal?.id.toString() ?? '',
         _cancelToken,
-        effectiveQuestionId, // Use the effective question ID
+        effectiveQuestionId,
         messageText,
       );
 
@@ -262,13 +252,14 @@ class GoalsChatController extends GetxController {
           sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: failure.message);
 
-          // Remove pending message on error
           pendingMessages.removeWhere(
               (msg) => msg.message == messageText && msg.isMine == true);
           _updateChatConversationList();
         },
         (success) {
           sendMessageState.value = TheStates.success;
+
+          pendingMessages.clear();
 
           getGoalsChat();
         },
@@ -331,13 +322,12 @@ class GoalsChatController extends GetxController {
           AppUtils.showErrorSnackbar(message: failure.message);
         },
         (success) async {
+          chatController.clear();
           updateMessageState.value = TheStates.success;
           resetEditMode();
 
-          // Refresh chat data
           await getGoalsChat();
 
-          // Small delay to ensure UI updates
           await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
         },
@@ -354,13 +344,11 @@ class GoalsChatController extends GetxController {
     }
 
     final items = <MessageItem>[];
-    bool foundUnansweredQuestion = false;
+    var foundUnansweredQuestion = false;
 
-    // Process questions and answers
-    for (int i = 0; i < goals.questions!.length; i++) {
+    for (var i = 0; i < goals.questions!.length; i++) {
       final question = goals.questions![i];
 
-      // Add question
       items.add(
         MessageItem(
           type: MessageType.question,
@@ -370,7 +358,6 @@ class GoalsChatController extends GetxController {
         ),
       );
 
-      // Add answers if they exist
       if (question.answered == true && question.answer != null) {
         for (final answer in question.answer!) {
           items.add(
@@ -387,15 +374,23 @@ class GoalsChatController extends GetxController {
         foundUnansweredQuestion = true;
       }
 
-      // Stop if we found an unanswered question
       if (foundUnansweredQuestion) {
         break;
       }
     }
 
-    // Add pending messages
-    if (pendingMessages.isNotEmpty) {
-      items.addAll(pendingMessages);
+  
+    if (pendingMessages.isNotEmpty && isSendingMessage.value) {
+      final existingMessages = items
+          .where((item) => item.isMine == true)
+          .map((item) => item.message)
+          .toSet();
+
+      final filteredPendingMessages = pendingMessages
+          .where((pending) => !existingMessages.contains(pending.message))
+          .toList();
+
+      items.addAll(filteredPendingMessages);
     }
 
     // Add thinking indicator
@@ -442,5 +437,4 @@ class GoalsChatController extends GetxController {
     chatController.clear();
     showRichTextEditor.value = false;
   }
-
 }
