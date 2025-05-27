@@ -6,6 +6,7 @@ import 'package:empowered/features/goals/presentation/screens/widgets/goal_type_
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_buttons.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_header.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/progress_goal_widget.dart';
+import 'package:empowered/features/goals/presentation/controllers/reflection_bindings.dart';
 
 enum GoalDurationEnum {
   weekly,
@@ -29,6 +30,8 @@ class _GoalsScreenState extends State<GoalsScreen> {
     super.initState();
     GoalsChatInitializer.destroy();
     GoalsChatInitializer.initialize();
+    ReflectionInitializer.destroy();
+    ReflectionInitializer.initialize();
   }
 
   @override

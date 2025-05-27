@@ -1,9 +1,9 @@
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_chat_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_input_field.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 
 class GoalsChatScreen extends StatefulWidget {
   const GoalsChatScreen({

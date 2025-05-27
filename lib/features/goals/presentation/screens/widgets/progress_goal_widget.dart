@@ -2,7 +2,10 @@ import 'package:empowered/common/app_selected_button.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_model.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
+import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
+import 'package:empowered/features/goals/presentation/screens/reflection_screen.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:empowered/features/goals/data/model/reflection_model.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
   const ProgressGoalWidget({
@@ -23,7 +26,7 @@ class ProgressGoalWidget extends StatefulWidget {
 
 class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
   late GoalsController goalsController;
-
+  final reflectionController = Get.find<ReflectionController>();
   @override
   void initState() {
     super.initState();
@@ -114,19 +117,16 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     );
   }
 
-  // Get goal ID from selected goal
   String get goalId {
     final goal = selectedGoal;
     return goal?.id?.toString() ?? '';
   }
 
-  // Get goal detail ID from current time period and selected goal
   String get goalDetailId {
     final goalDetail = goalDetailForPeriod;
     return goalDetail?.id?.toString() ?? '';
   }
 
-  // Get progress value from controller
   double _getProgressValue() {
     final progressString = goalsController.getGoalProgressForIndex(
       widget.selectedGoalIndex,
@@ -137,7 +137,6 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     return progressValue / 100.0;
   }
 
-  // Get progress string from controller
   String _getProgressString() {
     return goalsController.getGoalProgressForIndex(
       widget.selectedGoalIndex,
@@ -182,9 +181,39 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ],
               ),
               const VerticalSpacing(4),
+
               InkWell(
-                onTap: () {
-                  Get.toNamed(AppRoutes.reflectionScreen);
+                onTap: () async {
+                  final currentUserGoal = _getCurrentUserGoal();
+                  final userGoalId = currentUserGoal?.id;
+
+                  // Check if we have a valid userGoalId before navigating
+                  if (userGoalId == null) {
+                    AppUtils.showErrorSnackbar(
+                        message: 'No user goal found for reflection');
+                    return;
+                  }
+
+                  print(
+                      'Navigating to reflection with userGoalId: $userGoalId');
+
+                  // Clear previous reflection data to ensure fresh load
+                  reflectionController.reflections.value = ReflectionModel();
+                  reflectionController.getReflectionState.value =
+                      TheStates.initial;
+
+                  // Set the userGoalId in controller
+                  reflectionController.userGoalId!.value =
+                      userGoalId.toString();
+
+                  // Navigate to reflection screen
+                  await Get.to(
+                    () => ReflectionScreen(
+                      userGoalId: userGoalId.toString(),
+                      goalDetailId: goalDetailId,
+                      goalId: goalId,
+                    ),
+                  );
                 },
                 child: Text(
                   'View full reflection',
