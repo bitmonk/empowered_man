@@ -64,8 +64,8 @@ class _SplashScreenState extends State<SplashScreen> {
                         return status == 0
                             ? Get.offNamed(AppRoutes.onboarding)
                             : status == 1
-                                ? Get.offAllNamed(AppRoutes.landingScreen)
-                                : Get.offAllNamed(AppRoutes.main);
+                                ? Get.offAllNamed(AppRoutes.main)
+                                : Get.offAllNamed(AppRoutes.landingScreen);
                       },
                     );
                   },

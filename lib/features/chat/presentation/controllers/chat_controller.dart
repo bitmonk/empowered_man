@@ -21,10 +21,8 @@ class ChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController chatScreenScrollController;
 
-  RxString currentUserId =
-      Get.find<ProfileController>().userProfile.value.slug!.obs;
-  RxString currentUserToken =
-      Get.find<ProfileController>().userProfile.value.agoraUserToken!.obs;
+  RxnString currentUserId = RxnString();
+  RxnString currentUserToken = RxnString();
 // unotech
   final String chatListenerId = 'chat_screen';
 
@@ -44,12 +42,21 @@ class ChatController extends GetxController {
     super.onInit();
     chatController = TextEditingController();
     chatScreenScrollController = ScrollController();
+    currentUserId.value = Get.find<ProfileController>().userProfile.value.slug;
+    currentUserToken.value =
+        Get.find<ProfileController>().userProfile.value.agoraUserToken;
     initSDK();
   }
 
   Rx<TheStates> initializingSdks = TheStates.initial.obs;
   RxnString loginError = RxnString();
   Future<void> initSDK() async {
+    if (currentUserId.value == null || currentUserToken.value == null) {
+      initializingSdks.value = TheStates.error;
+      loginError.value = 'Error while logging in';
+      return;
+    }
+
     // ChatClient.getInstance.logout();
     initializingSdks.value = TheStates.loading;
     final options = ChatOptions(appKey: AgoraChatConfig.appKey);
@@ -60,8 +67,8 @@ class ChatController extends GetxController {
       final isLoggedIn = await ChatClient.getInstance.isLoginBefore();
       if (!isLoggedIn) {
         await ChatClient.getInstance.loginWithToken(
-          currentUserId.value,
-          currentUserToken.value,
+          currentUserId.value!,
+          currentUserToken.value!,
         );
       }
       _addListeners();
