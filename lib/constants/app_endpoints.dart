@@ -66,6 +66,7 @@ class AppEndpoints {
   static const String postGoalsAnswer = '/user/target/answer';
   static const String postAchieveTarget = '/user/goal-answers';
   static const String postMarkOnTrackUrl = '/user/goal';
+  static const String getReflection = '/user/goal/reflection/';
 }
 
 class ExternalEndpoints {}

@@ -1,49 +1,128 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
-import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
+import 'package:empowered/features/goals/presentation/screens/goals_chat_screen.dart';
+import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
+import 'package:empowered/features/goals/data/model/reflection_model.dart';
 
-class ReflectionScreen extends StatelessWidget {
-  const ReflectionScreen({super.key});
+class ReflectionScreen extends StatefulWidget {
+  const ReflectionScreen({
+    super.key,
+    this.userGoalId,
+    this.goalDetailId,
+    this.goalId,
+  });
+  final String? userGoalId;
+  final String? goalDetailId;
+  final String? goalId;
+
+  @override
+  State<ReflectionScreen> createState() => _ReflectionScreenState();
+}
+
+class _ReflectionScreenState extends State<ReflectionScreen> {
+  late ReflectionController reflectionController;
+
+  @override
+  void initState() {
+    super.initState();
+    reflectionController = Get.find<ReflectionController>();
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _loadReflections();
+    });
+  }
+
+  void _loadReflections() {
+    if (widget.userGoalId != null && widget.userGoalId!.isNotEmpty) {
+      print('Loading reflections for userGoalId: ${widget.userGoalId}');
+      reflectionController.getReflections(userGoalId: widget.userGoalId);
+    } else {
+      print('Error: userGoalId is null or empty');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
       backgroundColor: AppColors.bgMedium,
-      appBar: const CustomAppBar(
+      appBar: CustomAppBar(
         backgroundColor: AppColors.bgMedium,
-        title: 'Reflection Title',
+        title: 'Reflection',
+        onTap: () {
+          reflectionController.cancelRequest();
+          Get.back();
+        },
       ),
       body: Column(
         children: [
-          const Expanded(
-            child: SingleChildScrollView(
-              padding: EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    reflectionFirst,
-                    style: AppTextStyles.textBodyB2,
+          Expanded(
+            child: Obx(() {
+              // Handle different states
+              if (reflectionController.getReflectionState.value ==
+                  TheStates.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(),
+                );
+              }
+
+              if (reflectionController.getReflectionState.value ==
+                  TheStates.error) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Text(
+                        'Error loading reflections',
+                        style: AppTextStyles.textBodyB1.copyWith(
+                          color: AppColors.textColor100,
+                        ),
+                      ),
+                      const VerticalSpacing(16),
+                      Text(
+                        reflectionController.getReflectionError.value ??
+                            'Unknown error',
+                        style: AppTextStyles.textBodyB2.copyWith(
+                          color: AppColors.textColor200,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const VerticalSpacing(24),
+                      ElevatedButton(
+                        onPressed: _loadReflections,
+                        child: const Text('Retry'),
+                      ),
+                    ],
                   ),
-                  VerticalSpacing(40),
-                  Text(
-                    'Title Placeholder #1',
-                    style: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w500,
-                      color: AppColors.textColor100,
-                    ),
+                );
+              }
+
+              // Success state - display reflections
+              final questions = reflectionController
+                      .reflections.value.data?.reflection?.questions ??
+                  [];
+
+              if (questions.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No reflection questions available',
+                    style: AppTextStyles.textBodyB1,
                   ),
-                  VerticalSpacing(24),
-                  Text(
-                    reflectionSecond,
-                    style: AppTextStyles.textBodyB2,
-                  ),
-                  VerticalSpacing(24),
-                ],
-              ),
-            ),
+                );
+              }
+
+              return SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Display each question and its answers
+                    ...questions
+                        .map((question) => _buildQuestionWidget(question))
+                        .toList(),
+                  ],
+                ),
+              );
+            }),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -52,38 +131,15 @@ class ReflectionScreen extends StatelessWidget {
                 Expanded(
                   child: InkWell(
                     onTap: () {
-                      JournalChatInitializer.destroy();
-                      JournalChatInitializer.initialize();
-                      Get.find<JournalChatController>().title.value =
-                          'Mind Tent';
-                      var chatConversationList = [
-//                         ChatConversationModel(
-//                           isMine: false,
-//                           timeStamp: '10:30 AM',
-//                           profileImageUrl: '',
-//                           name: '',
-//                           message: '''
-// A new week has arrived! Take a moment to review 
-// the insights from the past week in the Mind domain 
-// and create your updated fire map for the week ahead.''',
-//                           dateTime: '2024-02-10 10:30:00',
-//                         ),
-//                         ChatConversationModel(
-//                           isMine: true,
-//                           timeStamp: '11:00 AM',
-//                           hide: true,
-//                           profileImageUrl: '',
-//                           name: '',
-//                           message: 'Angry!',
-//                           dateTime: '2024-02-10 11:00:00',
-//                         ),
-                      ].obs;
-                      // Get.find<JournalChatController>()
-                      //     .chatConversationList
-                      //     .value = chatConversationList;
+                      // JournalChatInitializer.destroy();
+                      // JournalChatInitializer.initialize();
+                      // Get.find<JournalChatController>().title.value =
+                      //     'Mind Tent';
+                      // var chatConversationList = [].obs;
                       Get.to(
-                        () => const JournalChatScreen(
-                          isFromGoals: true,
+                        () => GoalsChatScreen(
+                          goalDetailId: widget.goalDetailId ?? '',
+                          goalId: widget.goalId ?? '',
                         ),
                       );
                     },
@@ -133,11 +189,116 @@ class ReflectionScreen extends StatelessWidget {
       ),
     );
   }
-}
 
-const String reflectionFirst = '''
-What new REASONABLE FRUIT in the BODY domain would be available to you that would make you pleased with your progress in the battle for more Freedom? What new REASONABLE FRUIT in the BODY domain would be available to you that would make you pleased with your progress in  Reasonable: Good results that don't exceed the limits prescribed by reason; not excessive, logical, or moderate. (1-2x growth)
-''';
-const String reflectionSecond = '''
-Reasonable: Good results that don't exceed the limits prescribed by reason; not excessive, logical, or moderate. (1-2x growth). This is placeholder text only, intended for visual demonstration purposes only.This is placeholder text only, intended for visual demonstration purposes only.
-''';
+  Widget _buildQuestionWidget(Question question) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Question Title/Text
+        if (question.questionText != null && question.questionText!.isNotEmpty)
+          Text(
+            question.questionText!,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w500,
+              color: AppColors.textColor100,
+            ),
+          ),
+        const VerticalSpacing(24),
+
+        // Display answers if available
+        if (question.answer != null && question.answer!.isNotEmpty) ...[
+          ...question.answer!
+              .map((answer) => _buildAnswerWidget(answer))
+              .toList(),
+        ] else if (question.answered == false) ...[
+          // Show placeholder if not answered
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: AppColors.bgContainer,
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(
+                color: AppColors.textColor200,
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'This question has not been answered yet.',
+              style: AppTextStyles.textBodyB2.copyWith(
+                color: AppColors.textColor50,
+                fontStyle: FontStyle.italic,
+              ),
+            ),
+          ),
+        ],
+
+        const VerticalSpacing(32),
+      ],
+    );
+  }
+
+  Widget _buildAnswerWidget(Answer answer) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: answer.achieved == true
+                ? AppColors.success100
+                : AppColors.bgBorderVLight,
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(
+              color: answer.achieved == true
+                  ? AppColors.success500
+                  : AppColors.textColor50,
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (answer.text != null && answer.text!.isNotEmpty) ...[
+                Text(
+                  answer.text!,
+                  style: AppTextStyles.textBodyB2.copyWith(
+                    color: AppColors.textColor100,
+                  ),
+                ),
+                const VerticalSpacing(8),
+              ],
+
+              // Achievement status indicator
+              Row(
+                children: [
+                  Icon(
+                    answer.achieved == true
+                        ? Icons.check_circle
+                        : Icons.radio_button_unchecked,
+                    size: 16,
+                    color: answer.achieved == true
+                        ? AppColors.success500
+                        : AppColors.bgContainer,
+                  ),
+                  const HorizontalSpacing(8),
+                  // Text(
+                  //   answer.achieved == true ? 'Achieved' : 'In Progress',
+                  //   style: AppTextStyles.captionMedium.copyWith(
+                  //     color: answer.achieved == true
+                  //         ? AppColors.success500
+                  //         : AppColors.textColor300,
+                  //     fontWeight: FontWeight.w500,
+                  //   ),
+                  // ),
+                ],
+              ),
+            ],
+          ),
+        ),
+        const VerticalSpacing(12),
+      ],
+    );
+  }
+}
