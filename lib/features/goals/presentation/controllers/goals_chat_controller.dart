@@ -110,7 +110,7 @@ class GoalsChatController extends GetxController {
     if (goalId.isEmpty || goalDetailId.isEmpty) {
       getGoalsChatState.value = TheStates.error;
       AppUtils.showErrorSnackbar(
-          message: 'Goal ID or Goal Detail ID is missing');
+          message: 'Goal ID or Goal Detail ID is missing',);
       return false;
     }
 
@@ -253,7 +253,7 @@ class GoalsChatController extends GetxController {
           AppUtils.showErrorSnackbar(message: failure.message);
 
           pendingMessages.removeWhere(
-              (msg) => msg.message == messageText && msg.isMine == true);
+              (msg) => msg.message == messageText && msg.isMine == true,);
           _updateChatConversationList();
         },
         (success) {
@@ -269,7 +269,7 @@ class GoalsChatController extends GetxController {
       AppUtils.showErrorSnackbar(message: 'Failed to send message: $e');
 
       pendingMessages.removeWhere(
-          (msg) => msg.message == messageText && msg.isMine == true);
+          (msg) => msg.message == messageText && msg.isMine == true,);
       _updateChatConversationList();
     } finally {
       isShowingThinking.value = false;

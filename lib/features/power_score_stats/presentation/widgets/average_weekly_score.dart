@@ -186,7 +186,7 @@ void paint(Canvas canvas, Size size) {
   // Find the maximum total value for scaling
   double maxTotal = 0;
   for (final day in weeklyData) {
-    var total = day.fold<double>(0.0, (sum, value) => sum + value.toDouble());
+    var total = day.fold<double>(0, (sum, value) => sum + value);
     if (total > maxTotal) maxTotal = total;
   }
 
@@ -195,10 +195,10 @@ void paint(Canvas canvas, Size size) {
     final barX = spaceBetweenBars + (dayIndex * (barWidth + spaceBetweenBars));
     
     double yOffset = 0;
-    var totalHeight = dayData.fold<double>(0.0, (sum, value) => sum + value.toDouble());
+    var totalHeight = dayData.fold<double>(0, (sum, value) => sum + value);
     
     for (var valueIndex = 0; valueIndex < dayData.length; valueIndex++) {
-      final value = dayData[valueIndex].toDouble();
+      final value = dayData[valueIndex];
       
       // Skip if value is 0 or very small
       if (value < 0.01) {
