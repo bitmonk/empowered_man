@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 
 class AverageScorePieChart extends StatelessWidget {
   const AverageScorePieChart({
@@ -35,18 +34,18 @@ class AverageScorePieChart extends StatelessWidget {
         children: [
           // Outer Blue Ring
           _buildProgressCircle(AppColors.primary500,
-              double.tryParse(averageGrowthJournalsPercentage) ?? 0.0, 6, 180),
+              double.tryParse(averageGrowthJournalsPercentage) ?? 0.0, 6, 180,),
           // Outer Blue Ring
           _buildProgressCircle(AppColors.colorF5CA41,
-              double.tryParse(averageGrowthHabitsPercentage) ?? 0.0, 6, 160),
+              double.tryParse(averageGrowthHabitsPercentage) ?? 0.0, 6, 160,),
 
           // Middle Yellow Ring
           _buildProgressCircle(AppColors.primary200,
-              double.tryParse(averageGrowthTasksPercentage) ?? 0.0, 6, 140),
+              double.tryParse(averageGrowthTasksPercentage) ?? 0.0, 6, 140,),
 
           // Inner Green Ring
           _buildProgressCircle(AppColors.color5CE0A0,
-              double.tryParse(averageGrowthGoalPercentage) ?? 0.0, 6, 120),
+              double.tryParse(averageGrowthGoalPercentage) ?? 0.0, 6, 120,),
 
           // Centered Score Text
           Positioned(
@@ -55,16 +54,15 @@ class AverageScorePieChart extends StatelessWidget {
               children: [
                 Text(
                   averageTotalPercentage,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: AppColors.textColor50,
                     fontWeight: FontWeight.w600,
                     fontSize: 28,
                   ),
                 ),
-                VerticalSpacing(4),
+                const VerticalSpacing(4),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 6),
@@ -72,7 +70,7 @@ class AverageScorePieChart extends StatelessWidget {
                     ),
                     Text(
                       averageTotalGrowthPercentage,
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: AppColors.color5CE0A0,
                         fontWeight: FontWeight.w600,
                         fontSize: 18,

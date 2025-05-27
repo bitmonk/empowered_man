@@ -170,7 +170,9 @@ class GoalsController extends GetxController {
   }
 
   void toggleGoalSelection(
-      int index, List<GoalsAnswerResponseModel> goalAnswers) {
+    int index,
+    List<GoalsAnswerResponseModel> goalAnswers,
+  ) {
     if (index >= 0 && index < goalAnswers.length) {
       final goalAnswer = goalAnswers[index];
       if (goalAnswer.data!.id != null) {
@@ -201,7 +203,7 @@ class GoalsController extends GetxController {
     if (targetDetails == null || targetDetails.isEmpty) return;
 
     // Get all goal answers from all user goals
-    List<GoalAnswer> allGoalAnswers = [];
+    var allGoalAnswers = <GoalAnswer>[];
     for (final detail in targetDetails) {
       if (detail.userGoals != null) {
         for (final userGoal in detail.userGoals!) {
@@ -220,16 +222,11 @@ class GoalsController extends GetxController {
     }
   }
 
-  // NEW: Update tracking status (On Track/Off Track or Won/Lost)
   Future<void> updateTrackingStatus({
     required int goalIndex,
     required String timePeriod,
     required bool isOnTrack,
   }) async {
-    // This method can be expanded based on your API requirements
-    // For now, it will use the existing achieveTarget mechanism
-    // You might need to create a separate API call for tracking status
-
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return;
 
@@ -243,14 +240,10 @@ class GoalsController extends GetxController {
 
     if (targetDetails == null || targetDetails.isEmpty) return;
 
-    // For now, update the first user goal's tracking status
-    // You might need to implement a specific API endpoint for this
     for (final detail in targetDetails) {
       if (detail.userGoals != null && detail.userGoals!.isNotEmpty) {
         final userGoal = detail.userGoals!.first;
         if (userGoal.id != null) {
-          // You might need to create a specific method for updating tracking status
-          // For now, using achieveTarget as a placeholder
           await achieveTarget(goalAnswerId: userGoal.id.toString());
           break;
         }
@@ -258,7 +251,6 @@ class GoalsController extends GetxController {
     }
   }
 
-  // NEW: Get goal answers for a specific goal index and time period
   List<GoalAnswer> getGoalAnswersForIndex(int goalIndex, String timePeriod) {
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return [];
@@ -273,7 +265,7 @@ class GoalsController extends GetxController {
 
     if (targetDetails == null || targetDetails.isEmpty) return [];
 
-    List<GoalAnswer> allGoalAnswers = [];
+    var allGoalAnswers = <GoalAnswer>[];
     for (final detail in targetDetails) {
       if (detail.userGoals != null) {
         for (final userGoal in detail.userGoals!) {
@@ -287,7 +279,6 @@ class GoalsController extends GetxController {
     return allGoalAnswers;
   }
 
-  // NEW: Get current tracking state for a specific goal index and time period
   bool? getCurrentTrackingState(int goalIndex, String timePeriod) {
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return null;
@@ -318,7 +309,6 @@ class GoalsController extends GetxController {
     return null;
   }
 
-  // NEW: Check if should show won question for a specific goal index and time period
   bool shouldShowWonQuestionForIndex(int goalIndex, String timePeriod) {
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return false;
@@ -346,7 +336,6 @@ class GoalsController extends GetxController {
     return false;
   }
 
-  // NEW: Check if should show track question for a specific goal index and time period
   bool shouldShowTrackQuestionForIndex(int goalIndex, String timePeriod) {
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return false;
@@ -388,12 +377,10 @@ class GoalsController extends GetxController {
     return "${DateFormat("dd.MM").format(fromDate.value)} - ${DateFormat("dd.MM").format(toDate.value)}";
   }
 
-  // Method to update selected goal index
   void updateSelectedGoalIndex(int index) {
     selectedGoalIndex.value = index;
   }
 
-  // Get the list of available goals
   List<Goal> get availableGoals {
     return goalsModel.value?.data?.goals ?? [];
   }
@@ -476,7 +463,8 @@ class GoalsController extends GetxController {
 
     // Check if any target detail has user goals (meaning it has been started/has progress)
     return targetDetails.any(
-        (detail) => detail.userGoals != null && detail.userGoals!.isNotEmpty);
+      (detail) => detail.userGoals != null && detail.userGoals!.isNotEmpty,
+    );
   }
 
   bool shouldShowStartButton(String timePeriod) {
@@ -496,7 +484,8 @@ class GoalsController extends GetxController {
 
     // Show start button if no user goals exist (not started yet)
     return targetDetails.every(
-        (detail) => detail.userGoals == null || detail.userGoals!.isEmpty);
+      (detail) => detail.userGoals == null || detail.userGoals!.isEmpty,
+    );
   }
 
   // Check if goal is completed for a specific time period
@@ -562,7 +551,7 @@ class GoalsController extends GetxController {
       return [];
     }
 
-    List<UserGoal> userGoals = [];
+    var userGoals = <UserGoal>[];
     for (final detail in targetDetails) {
       if (detail.userGoals != null) {
         userGoals.addAll(detail.userGoals!);
@@ -594,9 +583,11 @@ class GoalsController extends GetxController {
   // Check if user has answered questions for tracking (for the selected goal)
   bool hasTrackingQuestions(String timePeriod) {
     final userGoals = getUserGoalsForPeriod(timePeriod);
-    return userGoals.any((userGoal) =>
-        userGoal.showTrackQuestion == true ||
-        (userGoal.goalAnswers != null && userGoal.goalAnswers!.isNotEmpty));
+    return userGoals.any(
+      (userGoal) =>
+          userGoal.showTrackQuestion == true ||
+          (userGoal.goalAnswers != null && userGoal.goalAnswers!.isNotEmpty),
+    );
   }
 
   // Check if user should see won question (for the selected goal)
@@ -668,7 +659,8 @@ class GoalsController extends GetxController {
 
     // Check if any target detail has user goals
     return targetDetails.any(
-        (detail) => detail.userGoals != null && detail.userGoals!.isNotEmpty);
+      (detail) => detail.userGoals != null && detail.userGoals!.isNotEmpty,
+    );
   }
 
   // NEW: Check if should show start button for a specific goal index
@@ -688,12 +680,11 @@ class GoalsController extends GetxController {
       return true;
     }
 
-    // Show start button if no user goals exist
     return targetDetails.every(
-        (detail) => detail.userGoals == null || detail.userGoals!.isEmpty);
+      (detail) => detail.userGoals == null || detail.userGoals!.isEmpty,
+    );
   }
 
-  // NEW: Check if goal is completed for a specific goal index
   bool isGoalCompletedForIndex(int goalIndex, String timePeriod) {
     final goals = availableGoals;
     if (goalIndex < 0 || goalIndex >= goals.length) return false;
@@ -714,19 +705,16 @@ class GoalsController extends GetxController {
   }
 }
 
-// Helper class to hold navigation IDs
 class NavigationIds {
-  final String goalId;
-  final String goalDetailId;
-
   NavigationIds({
     required this.goalId,
     required this.goalDetailId,
   });
+  final String goalId;
+  final String goalDetailId;
 }
 
-// Updated function to accept and pass goalId and goalDetailId
-void initJournalWithNavigate({
+Future<void> initJournalWithNavigate({
   required String title,
   required String goalId,
   required String goalDetailId,
@@ -739,7 +727,8 @@ void initJournalWithNavigate({
   await controller.getGoalsChat();
   if (controller.getGoalsChatState.value == TheStates.error) {
     AppUtils.showErrorSnackbar(
-        message: 'User target already set for this period.');
+      message: 'User target already set for this period.',
+    );
     return;
   } else {
     Get.to(

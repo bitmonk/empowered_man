@@ -1,7 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/goals/presentation/screens/goals_chat_screen.dart';
-import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
 import 'package:empowered/features/goals/data/model/reflection_model.dart';
+import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
+import 'package:empowered/features/goals/presentation/screens/goals_chat_screen.dart';
 
 class ReflectionScreen extends StatefulWidget {
   const ReflectionScreen({
@@ -55,74 +55,79 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
       body: Column(
         children: [
           Expanded(
-            child: Obx(() {
-              // Handle different states
-              if (reflectionController.getReflectionState.value ==
-                  TheStates.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(),
-                );
-              }
+            child: RefreshIndicator(
+              onRefresh: () async {
+                _loadReflections();
+              },
+              child: Obx(() {
+                // Handle different states
+                if (reflectionController.getReflectionState.value ==
+                    TheStates.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(),
+                  );
+                }
 
-              if (reflectionController.getReflectionState.value ==
-                  TheStates.error) {
-                return Center(
+                if (reflectionController.getReflectionState.value ==
+                    TheStates.error) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          'Error loading reflections',
+                          style: AppTextStyles.textBodyB1.copyWith(
+                            color: AppColors.textColor100,
+                          ),
+                        ),
+                        const VerticalSpacing(16),
+                        Text(
+                          reflectionController.getReflectionError.value ??
+                              'Unknown error',
+                          style: AppTextStyles.textBodyB2.copyWith(
+                            color: AppColors.textColor200,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                        const VerticalSpacing(24),
+                        ElevatedButton(
+                          onPressed: _loadReflections,
+                          child: const Text('Retry'),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+
+                // Success state - display reflections
+                final questions = reflectionController
+                        .reflections.value.data?.reflection?.questions ??
+                    [];
+
+                if (questions.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No reflection questions available',
+                      style: AppTextStyles.textBodyB1,
+                    ),
+                  );
+                }
+
+                return SingleChildScrollView(
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Error loading reflections',
-                        style: AppTextStyles.textBodyB1.copyWith(
-                          color: AppColors.textColor100,
-                        ),
-                      ),
-                      const VerticalSpacing(16),
-                      Text(
-                        reflectionController.getReflectionError.value ??
-                            'Unknown error',
-                        style: AppTextStyles.textBodyB2.copyWith(
-                          color: AppColors.textColor200,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const VerticalSpacing(24),
-                      ElevatedButton(
-                        onPressed: _loadReflections,
-                        child: const Text('Retry'),
-                      ),
+                      // Display each question and its answers
+                      ...questions
+                          .map((question) => _buildQuestionWidget(question)),
                     ],
                   ),
                 );
-              }
-
-              // Success state - display reflections
-              final questions = reflectionController
-                      .reflections.value.data?.reflection?.questions ??
-                  [];
-
-              if (questions.isEmpty) {
-                return const Center(
-                  child: Text(
-                    'No reflection questions available',
-                    style: AppTextStyles.textBodyB1,
-                  ),
-                );
-              }
-
-              return SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Display each question and its answers
-                    ...questions
-                        .map((question) => _buildQuestionWidget(question))
-                        .toList(),
-                  ],
-                ),
-              );
-            }),
+              }),
+            ),
           ),
           Padding(
             padding: const EdgeInsets.all(20),
@@ -208,9 +213,7 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
 
         // Display answers if available
         if (question.answer != null && question.answer!.isNotEmpty) ...[
-          ...question.answer!
-              .map((answer) => _buildAnswerWidget(answer))
-              .toList(),
+          ...question.answer!.map((answer) => _buildAnswerWidget(answer)),
         ] else if (question.answered == false) ...[
           // Show placeholder if not answered
           Container(
@@ -220,7 +223,6 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
                 color: AppColors.textColor200,
-                width: 1,
               ),
             ),
             child: Text(
@@ -254,7 +256,6 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
               color: answer.achieved == true
                   ? AppColors.success500
                   : AppColors.textColor50,
-              width: 1,
             ),
           ),
           child: Column(
@@ -271,29 +272,29 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
               ],
 
               // Achievement status indicator
-              Row(
-                children: [
-                  Icon(
-                    answer.achieved == true
-                        ? Icons.check_circle
-                        : Icons.radio_button_unchecked,
-                    size: 16,
-                    color: answer.achieved == true
-                        ? AppColors.success500
-                        : AppColors.bgContainer,
-                  ),
-                  const HorizontalSpacing(8),
-                  // Text(
-                  //   answer.achieved == true ? 'Achieved' : 'In Progress',
-                  //   style: AppTextStyles.captionMedium.copyWith(
-                  //     color: answer.achieved == true
-                  //         ? AppColors.success500
-                  //         : AppColors.textColor300,
-                  //     fontWeight: FontWeight.w500,
-                  //   ),
-                  // ),
-                ],
-              ),
+              // Row(
+              //   children: [
+              //     Icon(
+              //       answer.achieved == true
+              //           ? Icons.check_circle
+              //           : Icons.radio_button_unchecked,
+              //       size: 16,
+              //       color: answer.achieved == true
+              //           ? AppColors.success500
+              //           : AppColors.bgContainer,
+              //     ),
+              //     const HorizontalSpacing(8),
+              //     // Text(
+              //     //   answer.achieved == true ? 'Achieved' : 'In Progress',
+              //     //   style: AppTextStyles.captionMedium.copyWith(
+              //     //     color: answer.achieved == true
+              //     //         ? AppColors.success500
+              //     //         : AppColors.textColor300,
+              //     //     fontWeight: FontWeight.w500,
+              //     //   ),
+              //     // ),
+              //   ],
+              // ),
             ],
           ),
         ),

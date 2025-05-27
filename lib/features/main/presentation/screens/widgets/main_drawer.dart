@@ -186,7 +186,7 @@ class MainDrawer extends GetView<MainController> {
                         Navigator.pop(context);
                         PowerScoreInitializer.destroy();
                         PowerScoreInitializer.initialize();
-                        Get.to(() => PowerScoreStatsScreen());
+                        Get.to(() => const PowerScoreStatsScreen());
                         // NavigationHelper.navigateWithFadeTransition(
                         //   AppWidgetKey.home.currentContext!,
                         //   const PowerScoreStatsScreen(),

@@ -1,16 +1,12 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/enum/the_states.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_chat_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:flutter_quill/flutter_quill.dart' as quill;
-import 'package:flutter_quill/quill_delta.dart' as quill;
 
 class GoalsChatInputField extends StatefulWidget {
   const GoalsChatInputField({
-    super.key,
     required this.focusNode,
     required this.goalId,
+    super.key,
     this.enabled = true,
     this.isEditMode = false,
     this.onSend,
@@ -94,37 +90,44 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
   }
 
   Future<void> sendMessageWithFormatting() async {
-    if (isDisabled) return;
+  if (isDisabled) return;
 
-    String messageText;
+  String messageText;
 
-    if (showEditor) {
-      // Get formatted text from Quill editor
-      final delta = _quillController.document.toDelta();
-      messageText = _quillController.document.toPlainText().trim();
+  if (showEditor) {
+    final delta = _quillController.document.toDelta();
+    messageText = _quillController.document.toPlainText().trim();
+    
+    if (messageText.isEmpty) return;
 
-      // You can also get HTML or other formats if needed
-      // final html = _quillController.document.toHtml();
-
-      if (messageText.isEmpty) return;
-
-      // Store the delta for rich text formatting if needed
+    // Check if we're in edit mode
+    if (chatController.isEditMode.value) {
+      // Update existing message
+      await chatController.updateGoalsAnswer(messageText);
+    } else {
+      // Send new message with formatting
       await chatController.sendMessageWithFormatting(
         text: messageText,
         delta: delta,
       );
+    }
 
-      // Clear the editor
-      _quillController.clear();
+    _quillController.clear();
+  } else {
+    messageText = chatController.chatController.text.trim();
+    if (messageText.isEmpty) return;
+
+    if (chatController.isEditMode.value) {
+      await chatController.updateGoalsAnswer(messageText);
     } else {
-      messageText = chatController.chatController.text.trim();
-      if (messageText.isEmpty) return;
-
       if (widget.onSend != null) {
         widget.onSend!(messageText);
+      } else {
+        await chatController.sendGoalsMessage(text: messageText);
       }
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -239,28 +242,6 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
                     ),
                   ),
                 const HorizontalSpacing(8),
-                // Rich text editor toggle button
-                // if (!isEditMode)
-                //   InkWell(
-                //     onTap: () {
-                //       chatController.toggleRichTextEditor();
-                //     },
-                //     child: Container(
-                //       padding: const EdgeInsets.all(8),
-                //       decoration: BoxDecoration(
-                //         color: showEditor
-                //             ? AppColors.primary500
-                //             : AppColors.bgBorder,
-                //         shape: BoxShape.circle,
-                //       ),
-                //       child: Icon(
-                //         Icons.text_format,
-                //         color:
-                //             showEditor ? Colors.white : AppColors.textColor300,
-                //         size: 20,
-                //       ),
-                //     ),
-                //   ),
                 const HorizontalSpacing(8),
                 if (isEditMode)
                   InkWell(

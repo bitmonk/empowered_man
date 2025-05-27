@@ -75,7 +75,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
     final isNowEditing = chatController.isEditMode.value;
 
     print(
-        'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing');
+        'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing',);
 
     if (isNowEditing && !_isInitialized) {
       print('Entering edit mode - initializing...');
@@ -117,7 +117,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
           _controller.moveCursorToEnd();
           _focusNode.requestFocus();
           print(
-              'Cursor moved to end, text: "${_controller.document.toPlainText()}"');
+              'Cursor moved to end, text: "${_controller.document.toPlainText()}"',);
         }
       });
     }
@@ -338,7 +338,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
     return Obx(() {
       final isEditMode = chatController.isEditMode.value;
       print(
-          'Building - isEditMode: $isEditMode, showEditor: $showEditor, _isInitialized: $_isInitialized');
+          'Building - isEditMode: $isEditMode, showEditor: $showEditor, _isInitialized: $_isInitialized',);
 
       return Container(
         margin: const EdgeInsets.all(12),

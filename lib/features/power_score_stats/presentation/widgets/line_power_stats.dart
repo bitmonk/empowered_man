@@ -3,7 +3,7 @@ import 'package:empowered/features/power_score_stats/data/model/power_stat_model
 import 'package:fl_chart/fl_chart.dart';
 
 class LinePowerStats extends StatelessWidget {
-  const LinePowerStats({super.key, required this.monthlystatus});
+  const LinePowerStats({required this.monthlystatus, super.key});
   final Monthlystatus? monthlystatus;
   @override
   Widget build(BuildContext context) {
@@ -199,7 +199,7 @@ class LinePowerStats extends StatelessWidget {
   }
 
   List<double> _extractMonthlyValues(MonthlystatusGoals? goal) {
-    if (goal == null) return List.filled(12, 0.0);
+    if (goal == null) return List.filled(12, 0);
 
     final rawValues = [
       goal.jan,

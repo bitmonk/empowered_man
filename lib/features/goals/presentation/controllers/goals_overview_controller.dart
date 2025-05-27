@@ -26,6 +26,13 @@ class GoalsOverviewController extends GetxController {
     getGoalsOverview();
   }
 
+  void resetValue() {
+    selectedYear.value = DateTime.now().year;
+    currentQuarter.value = _getCurrentQuarter();
+    months.value = _getMonthsForQuarter(currentQuarter.value);
+    getGoalsOverview();
+  }
+
   int _getCurrentQuarter() {
     final now = DateTime.now();
     return ((now.month - 1) ~/ 3) + 1;
@@ -82,7 +89,7 @@ class GoalsOverviewController extends GetxController {
       case 4:
         return ['October', 'November', 'December'];
       default:
-        return ['October', 'November', 'December']; 
+        return ['October', 'November', 'December'];
     }
   }
 
@@ -107,7 +114,7 @@ class GoalsOverviewController extends GetxController {
     final allKeys = <String>{};
 
     if (months != null) {
-      for (var month in months) {
+      for (final month in months) {
         allKeys.addAll(month.keys);
       }
     }
@@ -127,11 +134,7 @@ class GoalsOverviewController extends GetxController {
         quarterData!.quarterlyGoals!.isEmpty) {
       return {};
     }
-    final combinedGoals = <String, bool>{}
-
-   
-      ..addAll(quarterData.quarterlyGoals!);
-    
+    final combinedGoals = <String, bool>{}..addAll(quarterData.quarterlyGoals!);
 
     return combinedGoals;
   }
