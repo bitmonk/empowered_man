@@ -337,8 +337,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
   Widget build(BuildContext context) {
     return Obx(() {
       final isEditMode = chatController.isEditMode.value;
-      print(
-          'Building - isEditMode: $isEditMode, showEditor: $showEditor, _isInitialized: $_isInitialized',);
+     
 
       return Container(
         margin: const EdgeInsets.all(12),

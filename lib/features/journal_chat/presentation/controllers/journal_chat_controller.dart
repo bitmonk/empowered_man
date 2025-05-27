@@ -35,6 +35,10 @@ class JournalChatController extends GetxController {
   // Edit mode states
   RxBool isEditMode = false.obs;
   RxnString editingAnswerId = RxnString();
+  RxBool isYesNoEditMode = false.obs;
+  RxnString editingYesNoAnswerId = RxnString();
+  RxnString editingYesNoQuestionId = RxnString();
+  RxnString currentYesNoAnswer = RxnString();
 
   // Add this to track pending messages
   RxList<MessageItem> pendingMessages = RxList<MessageItem>([]);
@@ -79,11 +83,34 @@ class JournalChatController extends GetxController {
   void setEditMode(bool isEdit, String answerId) {
     isEditMode.value = isEdit;
     editingAnswerId.value = answerId;
+    isYesNoEditMode.value = false;
+    editingYesNoAnswerId.value = null;
+    editingYesNoQuestionId.value = null;
+    currentYesNoAnswer.value = null;
+  }
+
+  void setYesNoEditMode(
+    bool isEdit,
+    String answerId,
+    String currentAnswer,
+    String questionId,
+  ) {
+    isYesNoEditMode.value = isEdit;
+    editingYesNoAnswerId.value = answerId;
+    editingYesNoQuestionId.value = questionId;
+    currentYesNoAnswer.value = currentAnswer;
+    isEditMode.value = false;
+    editingAnswerId.value = null;
+    chatController.clear();
   }
 
   void resetEditMode() {
     isEditMode.value = false;
     editingAnswerId.value = null;
+    isYesNoEditMode.value = false;
+    editingYesNoAnswerId.value = null;
+    editingYesNoQuestionId.value = null;
+    currentYesNoAnswer.value = null;
     chatController.clear();
   }
 
@@ -94,12 +121,14 @@ class JournalChatController extends GetxController {
 
     if (message != null) {
       // Add the user's message to pending messages
-      pendingMessages.add(MessageItem(
-        type: MessageType.answer,
-        message: message,
-        timestamp: DateTime.now().toString(),
-        isMine: true,
-      ),);
+      pendingMessages.add(
+        MessageItem(
+          type: MessageType.answer,
+          message: message,
+          timestamp: DateTime.now().toString(),
+          isMine: true,
+        ),
+      );
 
       update();
     }
@@ -116,7 +145,46 @@ class JournalChatController extends GetxController {
     pendingAnswer.value = null;
   }
 
-  // Build complete message list including thinking states
+  Future<void> updateYesNoAnswer(
+    String option,
+    String answerId,
+    String questionId,
+  ) async {
+    updateMessageState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    autoScrollEnabled.value = true;
+
+    try {
+      final result = await remoteSource.updateJournal(
+        _cancelToken,
+        answerId,
+        option,
+      );
+
+      result.fold(
+        (l) {
+          updateMessageState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          chatController.clear();
+          resetEditMode();
+
+          await getJournalWithQuestionsAndAnswers();
+          update();
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          scrollToBottom();
+          updateMessageState.value = TheStates.success;
+        },
+      );
+    } catch (e) {
+      updateMessageState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: e.toString());
+      resetEditMode();
+    }
+  }
+
   List<MessageItem> buildCompleteMessageList(Journal? journal) {
     if (journal == null || journal.mainQuestions == null) {
       return [];
@@ -144,6 +212,7 @@ class JournalChatController extends GetxController {
           message: mainQuestion.question!,
           timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
           isMine: false,
+          questionId: mainQuestion.id?.toString(), // Add question ID
         ),
       );
 
@@ -173,6 +242,12 @@ class JournalChatController extends GetxController {
                 timestamp: DateTime.now().toString(),
                 isMine: false,
                 isYesNoQuestion: followUp.questionType == 'yes_no',
+                selectedOption: followUp.answered == true &&
+                        followUp.questionType == 'yes_no'
+                    ? followUp.answer?.text
+                    : null,
+                questionId:
+                    followUp.id?.toString(), // Add question ID for follow-ups
               ),
             );
 
@@ -188,6 +263,12 @@ class JournalChatController extends GetxController {
                   videos: followUp.answer?.media?.videos,
                   voices: followUp.answer?.media?.voices,
                   answerId: followUp.answer?.id?.toString(),
+                  isYesNoQuestion: followUp.questionType == 'yes_no',
+                  selectedOption: followUp.questionType == 'yes_no'
+                      ? followUp.answer?.text
+                      : null,
+                  questionId: followUp.id
+                      ?.toString(), // Add question ID for yes/no answers
                 ),
               );
             } else {
@@ -227,6 +308,124 @@ class JournalChatController extends GetxController {
 
     return items;
   }
+  // List<MessageItem> buildCompleteMessageList(Journal? journal) {
+  //   if (journal == null || journal.mainQuestions == null) {
+  //     return [];
+  //   }
+
+  //   var items = <MessageItem>[];
+  //   var foundUnansweredQuestion = false;
+
+  //   // Process main questions and their follow-ups
+  //   for (var i = 0; i < journal.mainQuestions!.length; i++) {
+  //     final mainQuestion = journal.mainQuestions![i];
+  //     var questionTimestamp = '';
+
+  //     if (i > 0) {
+  //       final previousQuestion = journal.mainQuestions![i - 1];
+  //       if (previousQuestion.answer?.createdAt != null) {
+  //         questionTimestamp = previousQuestion.answer?.createdAt ?? '';
+  //       }
+  //     }
+
+  //     // Add main question
+  //     items.add(
+  //       MessageItem(
+  //         type: MessageType.question,
+  //         message: mainQuestion.question!,
+  //         timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+  //         isMine: false,
+  //       ),
+  //     );
+
+  //     // Add the answer if it exists
+  //     if (mainQuestion.answered == true && mainQuestion.answer != null) {
+  //       items.add(
+  //         MessageItem(
+  //           type: MessageType.answer,
+  //           message: mainQuestion.answer?.text ?? '',
+  //           timestamp:
+  //               mainQuestion.answer?.createdAt ?? DateTime.now().toString(),
+  //           isMine: true,
+  //           images: mainQuestion.answer?.media?.images,
+  //           videos: mainQuestion.answer?.media?.videos,
+  //           voices: mainQuestion.answer?.media?.voices,
+  //           answerId: mainQuestion.answer?.id.toString(),
+  //         ),
+  //       );
+
+  //       // Process follow-up questions for answered main questions
+  //       if (mainQuestion.followUpQuestions != null) {
+  //         for (final followUp in mainQuestion.followUpQuestions!) {
+  //           items.add(
+  //             MessageItem(
+  //               type: MessageType.question,
+  //               message: followUp.question ?? '',
+  //               timestamp: DateTime.now().toString(),
+  //               isMine: false,
+  //               isYesNoQuestion: followUp.questionType == 'yes_no',
+  //               selectedOption: followUp.answered == true &&
+  //                       followUp.questionType == 'yes_no'
+  //                   ? followUp.answer?.text
+  //                   : null,
+  //             ),
+  //           );
+
+  //           if (followUp.answered == true && followUp.answer != null) {
+  //             items.add(
+  //               MessageItem(
+  //                 type: MessageType.answer,
+  //                 message: followUp.answer?.text ?? '',
+  //                 timestamp:
+  //                     followUp.answer?.createdAt ?? DateTime.now().toString(),
+  //                 isMine: true,
+  //                 images: followUp.answer?.media?.images,
+  //                 videos: followUp.answer?.media?.videos,
+  //                 voices: followUp.answer?.media?.voices,
+  //                 answerId: followUp.answer?.id?.toString(),
+  //                 isYesNoQuestion: followUp.questionType == 'yes_no',
+  //                 selectedOption: followUp.questionType == 'yes_no'
+  //                     ? followUp.answer?.text
+  //                     : null,
+  //               ),
+  //             );
+  //           } else {
+  //             // Found an unanswered follow-up question
+  //             foundUnansweredQuestion = true;
+  //             break;
+  //           }
+  //         }
+  //       }
+  //     } else {
+  //       // Found an unanswered main question
+  //       foundUnansweredQuestion = true;
+  //     }
+
+  //     // Stop processing if we found an unanswered question
+  //     if (foundUnansweredQuestion) {
+  //       break;
+  //     }
+  //   }
+
+  //   if (pendingMessages.isNotEmpty) {
+  //     items.addAll(pendingMessages);
+  //   }
+
+  //   // Add thinking indicator only if we're showing thinking
+  //   if (isShowingThinking.value) {
+  //     items.add(
+  //       MessageItem(
+  //         type: MessageType.question,
+  //         message: '',
+  //         timestamp: DateTime.now().toString(),
+  //         isMine: false,
+  //         isThinking: true,
+  //       ),
+  //     );
+  //   }
+
+  //   return items;
+  // }
 
   Future<bool?> getJournalWithQuestionsAndAnswers() async {
     showBeginJournallButton.value = false;
@@ -418,7 +617,8 @@ class JournalChatController extends GetxController {
           sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
           throw Exception(
-              l.message,); // Throw to trigger error handling in calling method
+            l.message,
+          ); // Throw to trigger error handling in calling method
         },
         (r) async {
           sendMessageState.value = TheStates.success;
@@ -480,4 +680,3 @@ class JournalChatController extends GetxController {
     }
   }
 }
-

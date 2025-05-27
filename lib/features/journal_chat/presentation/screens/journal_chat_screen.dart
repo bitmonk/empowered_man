@@ -225,6 +225,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             answered: item.answered,
                                             isThinking: item.isThinking,
                                             answerId: item.answerId,
+                                            questionId: item.questionId,
                                           );
 
                                           Widget messageWidget =
@@ -264,17 +265,59 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             answerId: messageItem.isMine
                                                 ? messageItem.answerId
                                                 : null,
+                                            questionId: item.questionId,
                                             onEditTap: () {
-                                              controller.chatController.text =
-                                                  messageItem.message;
-                                              if (messageItem.answerId !=
-                                                  null) {
-                                                controller.setEditMode(
-                                                  true,
-                                                  messageItem.answerId!,
-                                                );
+                                              if (messageItem.isYesNoQuestion &&
+                                                  messageItem.answerId !=
+                                                      null) {
+                                                String? questionId;
+
+                                                for (var i = index - 1;
+                                                    i >= 0;
+                                                    i--) {
+                                                  if (items[i].type ==
+                                                          MessageType
+                                                              .question &&
+                                                      items[i]
+                                                          .isYesNoQuestion &&
+                                                      items[i].questionId !=
+                                                          null) {
+                                                    questionId =
+                                                        items[i].questionId;
+                                                    break;
+                                                  }
+                                                }
+
+                                                if (questionId != null) {
+                                                  controller.setYesNoEditMode(
+                                                    true,
+                                                    messageItem.answerId!,
+                                                    messageItem
+                                                            .selectedOption ??
+                                                        '',
+                                                    questionId,
+                                                  );
+                                                }
+                                              } else {
+                                                // For regular text messages, enter text edit mode
+                                                controller.chatController.text =
+                                                    messageItem.message;
+                                                if (messageItem.answerId !=
+                                                    null) {
+                                                  controller.setEditMode(
+                                                    true,
+                                                    messageItem.answerId!,
+                                                  );
+                                                }
                                               }
-                                              Navigator.pop(context);
+                                            },
+                                            onYesNoEdit:
+                                                (option, answerId, questionId) {
+                                              controller.updateYesNoAnswer(
+                                                option,
+                                                answerId,
+                                                questionId,
+                                              );
                                             },
                                           );
 
@@ -351,8 +394,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               .isYesNoQuestionType(journal, followupQuestionId);
 
                           if (!controller.showBeginJournallButton.value) {
-                            if (journalCompleted == false &&
-                                isYesNoQuestion == false) {
+                            if ((journalCompleted == false &&
+                                    isYesNoQuestion == false) ||
+                                controller.isEditMode.value) {
                               return JournalChatInputField(
                                 focusNode: focusNode,
                                 journalId: journal?.id?.toString() ?? '',
