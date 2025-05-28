@@ -1708,7 +1708,7 @@ mixin _$FollowUpQuestion {
   @JsonKey(name: 'question_type')
   String? get questionType => throw _privateConstructorUsedError;
   @JsonKey(name: 'options')
-  String? get options => throw _privateConstructorUsedError;
+  dynamic get options => throw _privateConstructorUsedError;
   @JsonKey(name: 'answered')
   bool? get answered => throw _privateConstructorUsedError;
   @JsonKey(name: 'answer')
@@ -1735,7 +1735,7 @@ abstract class $FollowUpQuestionCopyWith<$Res> {
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'question_type') String? questionType,
-      @JsonKey(name: 'options') String? options,
+      @JsonKey(name: 'options') dynamic options,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') Answer? answer});
 
@@ -1785,7 +1785,7 @@ class _$FollowUpQuestionCopyWithImpl<$Res, $Val extends FollowUpQuestion>
       options: freezed == options
           ? _value.options
           : options // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       answered: freezed == answered
           ? _value.answered
           : answered // ignore: cast_nullable_to_non_nullable
@@ -1825,7 +1825,7 @@ abstract class _$$FollowUpQuestionImplCopyWith<$Res>
       @JsonKey(name: 'question') String? question,
       @JsonKey(name: 'keywords') String? keywords,
       @JsonKey(name: 'question_type') String? questionType,
-      @JsonKey(name: 'options') String? options,
+      @JsonKey(name: 'options') dynamic options,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') Answer? answer});
 
@@ -1874,7 +1874,7 @@ class __$$FollowUpQuestionImplCopyWithImpl<$Res>
       options: freezed == options
           ? _value.options
           : options // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       answered: freezed == answered
           ? _value.answered
           : answered // ignore: cast_nullable_to_non_nullable
@@ -1916,7 +1916,7 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
   final String? questionType;
   @override
   @JsonKey(name: 'options')
-  final String? options;
+  final dynamic options;
   @override
   @JsonKey(name: 'answered')
   final bool? answered;
@@ -1941,7 +1941,7 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
                 other.keywords == keywords) &&
             (identical(other.questionType, questionType) ||
                 other.questionType == questionType) &&
-            (identical(other.options, options) || other.options == options) &&
+            const DeepCollectionEquality().equals(other.options, options) &&
             (identical(other.answered, answered) ||
                 other.answered == answered) &&
             (identical(other.answer, answer) || other.answer == answer));
@@ -1949,8 +1949,15 @@ class _$FollowUpQuestionImpl implements _FollowUpQuestion {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, question, keywords,
-      questionType, options, answered, answer);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      question,
+      keywords,
+      questionType,
+      const DeepCollectionEquality().hash(options),
+      answered,
+      answer);
 
   /// Create a copy of FollowUpQuestion
   /// with the given fields replaced by the non-null parameter values.
@@ -1975,7 +1982,7 @@ abstract class _FollowUpQuestion implements FollowUpQuestion {
       @JsonKey(name: 'question') final String? question,
       @JsonKey(name: 'keywords') final String? keywords,
       @JsonKey(name: 'question_type') final String? questionType,
-      @JsonKey(name: 'options') final String? options,
+      @JsonKey(name: 'options') final dynamic options,
       @JsonKey(name: 'answered') final bool? answered,
       @JsonKey(name: 'answer') final Answer? answer}) = _$FollowUpQuestionImpl;
 
@@ -1996,7 +2003,7 @@ abstract class _FollowUpQuestion implements FollowUpQuestion {
   String? get questionType;
   @override
   @JsonKey(name: 'options')
-  String? get options;
+  dynamic get options;
   @override
   @JsonKey(name: 'answered')
   bool? get answered;
