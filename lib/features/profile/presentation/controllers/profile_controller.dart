@@ -81,7 +81,6 @@ class ProfileController extends GetxController {
       (r) {
         userProfile.value = r;
         userProfileState.value = TheStates.success;
-
         if (userProfile.value.image != null) {
           selectedImage.value = null;
         }

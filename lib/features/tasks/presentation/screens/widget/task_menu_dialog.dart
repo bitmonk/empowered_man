@@ -8,9 +8,11 @@ class TaskMenuDialog extends GetView<TasksController> {
   const TaskMenuDialog({
     required this.task,
     required this.currentLevel,
+    required this.completed,
     super.key,
   });
   final Task task;
+  final bool completed;
   final String currentLevel;
   @override
   Widget build(BuildContext context) {
@@ -52,56 +54,65 @@ class TaskMenuDialog extends GetView<TasksController> {
                       .copyWith(color: AppColors.primary500),
                 ),
               ),
-              Expanded(
-                child: ListView.builder(
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount:
-                      controller.getTaskCategoryTitle(currentLevel).length,
-                  itemBuilder: (context, index) {
-                    final label =
-                        controller.getTaskCategoryTitle(currentLevel)[index];
-                    return InkWell(
-                      customBorder: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      onTap: () {
-                        Navigator.pop(context);
-                        controller.changeTaskLevel(
-                          taskId: task.id.toString(),
-                          level: controller.levelList
-                                  .where((e) =>
-                                      e.toLowerCase() == label.toLowerCase(),)
-                                  .isNotEmpty
-                              ? controller.levelList.firstWhere((e) =>
-                                  e.toLowerCase() == label.toLowerCase(),)
-                              : null,
-                          completionStatus: controller.completionStatusList
-                                  .where((e) => label
-                                      .toLowerCase()
-                                      .contains(e.toLowerCase()),)
-                                  .isNotEmpty
-                              ? controller.completionStatusList.firstWhere(
-                                  (e) => label
-                                      .toLowerCase()
-                                      .contains(e.toLowerCase()),)
-                              : null,
-                        );
-                      },
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
+              if (completed)
+                Expanded(
+                  child: ListView.builder(
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount:
+                        controller.getTaskCategoryTitle(currentLevel).length,
+                    itemBuilder: (context, index) {
+                      final label =
+                          controller.getTaskCategoryTitle(currentLevel)[index];
+                      return InkWell(
+                        customBorder: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: Obx(
-                          () => Text(
-                            '    ${controller.taskCategoryTitle[index]}',
-                            style: AppTextStyles.textBodyB2,
+                        onTap: () {
+                          Navigator.pop(context);
+                          controller.changeTaskLevel(
+                            taskId: task.id.toString(),
+                            level: controller.levelList
+                                    .where(
+                                      (e) =>
+                                          e.toLowerCase() ==
+                                          label.toLowerCase(),
+                                    )
+                                    .isNotEmpty
+                                ? controller.levelList.firstWhere(
+                                    (e) =>
+                                        e.toLowerCase() == label.toLowerCase(),
+                                  )
+                                : null,
+                            completionStatus: controller.completionStatusList
+                                    .where(
+                                      (e) => label
+                                          .toLowerCase()
+                                          .contains(e.toLowerCase()),
+                                    )
+                                    .isNotEmpty
+                                ? controller.completionStatusList.firstWhere(
+                                    (e) => label
+                                        .toLowerCase()
+                                        .contains(e.toLowerCase()),
+                                  )
+                                : null,
+                          );
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 8,
+                          ),
+                          child: Obx(
+                            () => Text(
+                              '    ${controller.taskCategoryTitle[index]}',
+                              style: AppTextStyles.textBodyB2,
+                            ),
                           ),
                         ),
-                      ),
-                    );
-                  },
+                      );
+                    },
+                  ),
                 ),
-              ),
             ],
           ),
         ),

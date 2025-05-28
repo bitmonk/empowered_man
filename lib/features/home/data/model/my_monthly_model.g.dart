@@ -25,14 +25,14 @@ Map<String, dynamic> _$$MyMonthlyModelImplToJson(
 
 _$MyMonthlyDataImpl _$$MyMonthlyDataImplFromJson(Map<String, dynamic> json) =>
     _$MyMonthlyDataImpl(
-      myMonthlyTargets: (json['My Monthly Targets'] as List<dynamic>?)
+      myMonthlyTargets: (json['My_Monthly_Targets'] as List<dynamic>?)
           ?.map((e) => MyMonthlyTarget.fromJson(e as Map<String, dynamic>))
           .toList(),
     );
 
 Map<String, dynamic> _$$MyMonthlyDataImplToJson(_$MyMonthlyDataImpl instance) =>
     <String, dynamic>{
-      'My Monthly Targets': instance.myMonthlyTargets,
+      'My_Monthly_Targets': instance.myMonthlyTargets,
     };
 
 _$MyMonthlyTargetImpl _$$MyMonthlyTargetImplFromJson(

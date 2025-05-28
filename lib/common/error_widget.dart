@@ -5,9 +5,11 @@ class CustomErrorWidget extends StatelessWidget {
     super.key,
     this.error,
     this.onPressed,
+    this.buttonText = 'Retry',
     this.verticlePadding,
   });
   final String? error;
+  final String buttonText;
   final Function()? onPressed;
   final EdgeInsetsGeometry? verticlePadding;
   @override
@@ -32,7 +34,7 @@ class CustomErrorWidget extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 80, vertical: 20),
                 child: AppOutlinedButton(
-                  text: 'Retry',
+                  text: buttonText,
                   onPressed: onPressed,
                 ),
               ),

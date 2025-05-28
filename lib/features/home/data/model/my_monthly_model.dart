@@ -18,7 +18,7 @@ class MyMonthlyModel with _$MyMonthlyModel {
 @freezed
 class MyMonthlyData with _$MyMonthlyData {
   const factory MyMonthlyData({
-    @JsonKey(name: 'My Monthly Targets')
+    @JsonKey(name: 'My_Monthly_Targets')
     List<MyMonthlyTarget>? myMonthlyTargets,
   }) = _MyMonthlyData;
 

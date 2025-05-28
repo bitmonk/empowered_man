@@ -15,6 +15,7 @@ import 'package:empowered/features/journal_chat/presentation/screens/journal_dra
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:flutter/services.dart';
@@ -44,6 +45,7 @@ class _MainScreenState extends State<MainScreen>
 
     FirebaseNotificationService().requestPermission();
     FirebaseNotificationService().init();
+    ProfileInitializer.initialize();
     HomeInitializer.initialize();
     ChatInitializer.initialize();
     TasksInitializer.initialize();
@@ -62,6 +64,7 @@ class _MainScreenState extends State<MainScreen>
     HabitInitializer.destroy();
     LogoutInitializer.destroy();
     GoalsInitializer.destroy();
+    ProfileInitializer.destroy();
     ReflectionJournalChatInitializer.destroy();
 
     super.dispose();

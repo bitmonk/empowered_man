@@ -188,7 +188,6 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
                     }
                   },
                   isInEditMode,
-                  false,
                 ),
                 const SizedBox(height: 12),
                 _buildYesNoOption(
@@ -205,8 +204,7 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
                       _handleYesNoSelection('No');
                     }
                   },
-                  isInEditMode,
-                  false, 
+                  isInEditMode, 
                 ),
               ],
             ),

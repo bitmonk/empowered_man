@@ -17,17 +17,49 @@ class HomeScreen extends GetView<HomeController> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
-            const HomeHeaderWidgets(),
+            Obx(
+              () => controller.dashboardLevelState.value.showWidget(
+                  success: () {
+                    return HomeHeaderWidgets(
+                      level: controller.dashboardLevelData.value.currentLevel ??
+                          '',
+                      upcomingLevel:
+                          controller.dashboardLevelData.value.upcomingLevel ??
+                              '',
+                      totalPointsProgressBar: controller.dashboardLevelData
+                              .value.totalPointsProgressbar ??
+                          '',
+                      userProgressbarPoints: controller
+                              .dashboardLevelData.value.userProgressbarPoints ??
+                          '',
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: () => Row(
+                        children: [
+                          Expanded(
+                            child: CustomErrorWidget(
+                              error: controller.dashboardLevelError.value,
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: AppColors.primary500,
+                              ),),
+                        ],
+                      ),),
+            ),
             // Tab Buttons
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(
+                spacing: 10,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _buildTabButton(0, 'My Daily'),
-                  const SizedBox(width: 12),
                   _buildTabButton(1, 'My Weekly'),
-                  const SizedBox(width: 12),
                   _buildTabButton(2, 'My Monthly'),
                 ],
               ),
@@ -60,6 +92,9 @@ class HomeScreen extends GetView<HomeController> {
           onTap: () {
             if (index == 2) {
               controller.getMyMonthy();
+            }
+            if (index == 1) {
+              controller.getDashboardPowerStreak();
             }
             controller.updateSelectedTab(index);
           },

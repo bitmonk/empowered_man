@@ -39,9 +39,11 @@ class _SubTaskTileState extends State<SubTaskTile> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(
-                  widget.subtask.title ?? '',
-                  style: AppTextStyles.textBodyB3,
+                Expanded(
+                  child: Text(
+                    widget.subtask.title ?? '',
+                    style: AppTextStyles.textBodyB3,
+                  ),
                 ),
                 Assets.images.more.svg(),
               ],

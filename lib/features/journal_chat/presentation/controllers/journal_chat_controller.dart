@@ -581,6 +581,6 @@ class JournalChatController extends GetxController {
     isJustCompleted.value = false;
     wasAlreadyCompleted.value = false;
 
-    Get.to(JournalLibrary());
+    Get.to(const JournalLibrary());
   }
 }

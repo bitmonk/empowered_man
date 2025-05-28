@@ -3,18 +3,18 @@ import 'package:empowered/features/profile/presentation/controllers/profile_cont
 
 class HomeHeaderWidgets extends StatelessWidget {
   const HomeHeaderWidgets({
-    this.level,
-    this.upcomingLevel,
-    this.userProgressbarPoints,
-    this.totalPointsProgressBar,
+    required this.level,
+    required this.upcomingLevel,
+    required this.userProgressbarPoints,
+    required this.totalPointsProgressBar,
     super.key,
     this.hideControls = false,
   });
   final bool hideControls;
-  final String? level;
-  final String? upcomingLevel;
-  final String? userProgressbarPoints;
-  final String? totalPointsProgressBar;
+  final String level;
+  final String upcomingLevel;
+  final String userProgressbarPoints;
+  final String totalPointsProgressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -56,28 +56,30 @@ class HomeHeaderWidgets extends StatelessWidget {
                       style: AppTextStyles.textBodyB3,
                     ),
                     const VerticalSpacing(2),
-                    Text(
-                      Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .fullName!
-                                  .length >
-                              12
-                          ? Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .fullName
-                                  ?.split(' ')
-                                  .first ??
-                              ''
-                          : Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .fullName ??
-                              '',
-                      style: AppTextStyles.textBodyB3
-                          .copyWith(color: AppColors.white),
-                      maxLines: 2,
+                    Obx(
+                      () => Text(
+                        Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .fullName!
+                                    .length >
+                                12
+                            ? Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .fullName
+                                    ?.split(' ')
+                                    .first ??
+                                ''
+                            : Get.find<ProfileController>()
+                                    .userProfile
+                                    .value
+                                    .fullName ??
+                                '',
+                        style: AppTextStyles.textBodyB3
+                            .copyWith(color: AppColors.white),
+                        maxLines: 2,
+                      ),
                     ),
                   ],
                 ),
@@ -110,11 +112,11 @@ class HomeHeaderWidgets extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              level ?? 'Level 3',
+              level,
               style: AppTextStyles.textBodyB1,
             ),
             Text(
-              upcomingLevel ?? 'Needs 100 points to level 4',
+              upcomingLevel,
               style: AppTextStyles.textBodyB3,
             ),
           ],
@@ -124,18 +126,19 @@ class HomeHeaderWidgets extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           minHeight: 8,
           color: AppColors.colorF5CA41,
-          value: 0.4,
+          value: int.parse(userProgressbarPoints) /
+              int.parse(totalPointsProgressBar),
         ),
         const VerticalSpacing(4),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              userProgressbarPoints ?? '200',
+              userProgressbarPoints,
               style: AppTextStyles.textBodyB3,
             ),
             Text(
-              totalPointsProgressBar ?? '5000',
+              totalPointsProgressBar,
               style: AppTextStyles.textBodyB3,
             ),
           ],

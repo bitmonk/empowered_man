@@ -242,7 +242,7 @@ MyMonthlyData _$MyMonthlyDataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$MyMonthlyData {
-  @JsonKey(name: 'My Monthly Targets')
+  @JsonKey(name: 'My_Monthly_Targets')
   List<MyMonthlyTarget>? get myMonthlyTargets =>
       throw _privateConstructorUsedError;
 
@@ -263,7 +263,7 @@ abstract class $MyMonthlyDataCopyWith<$Res> {
       _$MyMonthlyDataCopyWithImpl<$Res, MyMonthlyData>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'My Monthly Targets')
+      {@JsonKey(name: 'My_Monthly_Targets')
       List<MyMonthlyTarget>? myMonthlyTargets});
 }
 
@@ -302,7 +302,7 @@ abstract class _$$MyMonthlyDataImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'My Monthly Targets')
+      {@JsonKey(name: 'My_Monthly_Targets')
       List<MyMonthlyTarget>? myMonthlyTargets});
 }
 
@@ -334,7 +334,7 @@ class __$$MyMonthlyDataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MyMonthlyDataImpl implements _MyMonthlyData {
   const _$MyMonthlyDataImpl(
-      {@JsonKey(name: 'My Monthly Targets')
+      {@JsonKey(name: 'My_Monthly_Targets')
       final List<MyMonthlyTarget>? myMonthlyTargets})
       : _myMonthlyTargets = myMonthlyTargets;
 
@@ -343,7 +343,7 @@ class _$MyMonthlyDataImpl implements _MyMonthlyData {
 
   final List<MyMonthlyTarget>? _myMonthlyTargets;
   @override
-  @JsonKey(name: 'My Monthly Targets')
+  @JsonKey(name: 'My_Monthly_Targets')
   List<MyMonthlyTarget>? get myMonthlyTargets {
     final value = _myMonthlyTargets;
     if (value == null) return null;
@@ -390,14 +390,14 @@ class _$MyMonthlyDataImpl implements _MyMonthlyData {
 
 abstract class _MyMonthlyData implements MyMonthlyData {
   const factory _MyMonthlyData(
-      {@JsonKey(name: 'My Monthly Targets')
+      {@JsonKey(name: 'My_Monthly_Targets')
       final List<MyMonthlyTarget>? myMonthlyTargets}) = _$MyMonthlyDataImpl;
 
   factory _MyMonthlyData.fromJson(Map<String, dynamic> json) =
       _$MyMonthlyDataImpl.fromJson;
 
   @override
-  @JsonKey(name: 'My Monthly Targets')
+  @JsonKey(name: 'My_Monthly_Targets')
   List<MyMonthlyTarget>? get myMonthlyTargets;
 
   /// Create a copy of MyMonthlyData

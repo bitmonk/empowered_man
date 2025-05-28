@@ -320,7 +320,7 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                                                 }
                                               },
                                               onYesNoEdit: (option, answerId,
-                                                  questionId) {
+                                                  questionId,) {
                                                 controller.updateYesNoAnswer(
                                                   option,
                                                   answerId,

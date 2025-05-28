@@ -70,6 +70,13 @@ class AppEndpoints {
 
   //Dashboard
   static const String myMonthly = '/user/dashboard/targets';
+  static String getDailyMitList(String date) => '/tasks/mit-lists?date=$date';
+  static String mitTaskkNote(String id) => '/tasks/$id/note';
+  static const String getDashboardLevel = '/user/level-details';
+  static String getDashboardHabit(String date) =>
+      '/user/habits-details?date=$date';
+  static const String updateDashboardHabit = '/user/habits/update-status';
+  static const String dashboardPowerStreak = '/user/weekly-details';
 }
 
 class ExternalEndpoints {}

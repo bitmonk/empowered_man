@@ -41,13 +41,17 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
             children: [
               HomeHeaderWidgets(
                 hideControls: true,
-                level: powerController.powerScoreResponse.value.currentLevel,
-                upcomingLevel:
-                    powerController.powerScoreResponse.value.upcomingLevel,
+                level: powerController.powerScoreResponse.value.currentLevel
+                    .toString(),
+                upcomingLevel: powerController
+                    .powerScoreResponse.value.upcomingLevel
+                    .toString(),
                 userProgressbarPoints: powerController
-                    .powerScoreResponse.value.userProgressbarPoints,
+                    .powerScoreResponse.value.userProgressbarPoints
+                    .toString(),
                 totalPointsProgressBar: powerController
-                    .powerScoreResponse.value.totalPointsProgressbar,
+                    .powerScoreResponse.value.totalPointsProgressbar
+                    .toString(),
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
@@ -77,8 +81,9 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
               _buildSummaryBreakdown(),
               const VerticalSpacing(20),
               AverageWeeklyScore(
-                  weeklyStatus:
-                      powerController.powerScoreResponse.value.weeklystatus,),
+                weeklyStatus:
+                    powerController.powerScoreResponse.value.weeklystatus,
+              ),
               const VerticalSpacing(20),
               LinePowerStats(
                 monthlystatus:
@@ -290,29 +295,35 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       childAspectRatio: 1.2,
       children: [
         _scoreCard(
-            'Power Score',
-            '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
-            Assets.images.powerLine.path,),
+          'Power Score',
+          '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
+          Assets.images.powerLine.path,
+        ),
         _scoreCard(
-            'Journal',
-            '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
-            Assets.images.powerJournal.path,),
+          'Journal',
+          '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
+          Assets.images.powerJournal.path,
+        ),
         _scoreCard(
-            'Habits',
-            '${powerController.powerScoreResponse.value.userHabits}/${powerController.powerScoreResponse.value.totalHabits}',
-            Assets.images.powerLine.path,),
+          'Habits',
+          '${powerController.powerScoreResponse.value.userHabits}/${powerController.powerScoreResponse.value.totalHabits}',
+          Assets.images.powerLine.path,
+        ),
         _scoreCard(
-            'Tasks',
-            '${powerController.powerScoreResponse.value.userTasks}/${powerController.powerScoreResponse.value.totalTasks}',
-            Assets.images.powerTasks.path,),
+          'Tasks',
+          '${powerController.powerScoreResponse.value.userTasks}/${powerController.powerScoreResponse.value.totalTasks}',
+          Assets.images.powerTasks.path,
+        ),
         _scoreCard(
-            'Goals',
-            '${powerController.powerScoreResponse.value.userTotalGoals}/${powerController.powerScoreResponse.value.totalGoals}',
-            Assets.images.powerLine.path,),
+          'Goals',
+          '${powerController.powerScoreResponse.value.userTotalGoals}/${powerController.powerScoreResponse.value.totalGoals}',
+          Assets.images.powerLine.path,
+        ),
         _scoreCard(
-            'Assessment',
-            '${powerController.powerScoreResponse.value.userAssessments}/${powerController.powerScoreResponse.value.totalAssessments}',
-            Assets.images.powerTasks.path,),
+          'Assessment',
+          '${powerController.powerScoreResponse.value.userAssessments}/${powerController.powerScoreResponse.value.totalAssessments}',
+          Assets.images.powerTasks.path,
+        ),
       ],
     );
   }

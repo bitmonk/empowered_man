@@ -3,7 +3,9 @@ import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/profile/data/model/user_profile_model.dart';
+import 'package:get/get.dart' hide FormData, MultipartFile;
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
 
@@ -107,7 +109,9 @@ class ProfileRemoteSource {
         // cancelToken: cancelToken,
       );
       final data = response['data']['user'];
-      return right(UserProfileModel.fromJson(data));
+      var user = UserProfileModel.fromJson(data);
+      await Get.find<AppSharedPref>().saveUserModel(user);
+      return right(user);
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

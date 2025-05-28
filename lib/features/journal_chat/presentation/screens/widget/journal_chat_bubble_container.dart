@@ -188,7 +188,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                     }
                   },
                   isInEditMode,
-                  false,
                 ),
                 const SizedBox(height: 12),
                 _buildYesNoOption(
@@ -205,8 +204,7 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                       _handleYesNoSelection('No');
                     }
                   },
-                  isInEditMode,
-                  false, 
+                  isInEditMode, 
                 ),
               ],
             ),
