@@ -2,6 +2,7 @@ import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/data/model/reflection_question_answer_model.dart';
 import 'package:empowered/features/home/data/source/reflection_journal_chat_remote_source.dart';
+import 'package:empowered/features/home/presentation/screens/reflection_library_screen.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 
 class ReflectionJournalChatController extends GetxController {
@@ -19,9 +20,23 @@ class ReflectionJournalChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController scrollController;
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
+  // Thinking indicator states
+  RxBool isShowingThinking = false.obs;
+  RxBool isSendingMessage = false.obs;
+  Rx<MessageItem?> pendingAnswer = Rx<MessageItem?>(null);
+  final Map<String, String> yesNoAnswers = {};
 
+  // Edit mode states
   RxBool isEditMode = false.obs;
   RxnString editingAnswerId = RxnString();
+  RxBool isYesNoEditMode = false.obs;
+  RxnString editingYesNoAnswerId = RxnString();
+  RxnString editingYesNoQuestionId = RxnString();
+  RxnString currentYesNoAnswer = RxnString();
+  RxBool isJustCompleted = false.obs;
+  RxBool wasAlreadyCompleted = false.obs;
+
+  RxList<MessageItem> pendingMessages = RxList<MessageItem>([]);
 
   @override
   void onInit() {
@@ -29,6 +44,12 @@ class ReflectionJournalChatController extends GetxController {
     chatController = TextEditingController();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    ever(reflectionQuestionAnswerResponse,
+        (ReflectionQuestionAnswerModel conversation) {
+      if (conversation.data?.isCompleted == true && !isJustCompleted.value) {
+        wasAlreadyCompleted.value = true;
+      }
+    });
     reflectionQuestionAnswerResponseState.listen((state) {
       if (state == TheStates.success && autoScrollEnabled.value) {
         WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -46,24 +67,250 @@ class ReflectionJournalChatController extends GetxController {
   }
 
   void _scrollListener() {
-    // If we're close to the bottom (within 100 pixels), enable auto-scrolling
     if (scrollController.hasClients) {
       final position = scrollController.position;
       final maxScroll = position.maxScrollExtent;
       final currentScroll = position.pixels;
 
-      // Enable auto-scroll if user is at or near bottom
       if (maxScroll - currentScroll <= 100) {
         autoScrollEnabled.value = true;
       } else {
-        // Disable auto-scroll if user manually scrolled up
         autoScrollEnabled.value = false;
       }
     }
   }
 
+  void setEditMode(bool isEdit, String answerId) {
+    isEditMode.value = isEdit;
+    editingAnswerId.value = answerId;
+    isYesNoEditMode.value = false;
+    editingYesNoAnswerId.value = null;
+    editingYesNoQuestionId.value = null;
+    currentYesNoAnswer.value = null;
+  }
+
+  void setYesNoEditMode(
+    bool isEdit,
+    String answerId,
+    String currentAnswer,
+    String questionId,
+  ) {
+    isYesNoEditMode.value = isEdit;
+    editingYesNoAnswerId.value = answerId;
+    editingYesNoQuestionId.value = questionId;
+    currentYesNoAnswer.value = currentAnswer;
+    isEditMode.value = false;
+    editingAnswerId.value = null;
+    chatController.clear();
+  }
+
+  void resetEditMode() {
+    isEditMode.value = false;
+    editingAnswerId.value = null;
+    isYesNoEditMode.value = false;
+    editingYesNoAnswerId.value = null;
+    editingYesNoQuestionId.value = null;
+    currentYesNoAnswer.value = null;
+    chatController.clear();
+  }
+
+  void _showThinking({String? message}) {
+    isShowingThinking.value = true;
+    isSendingMessage.value = true;
+
+    if (message != null) {
+      // Add the user's message to pending messages
+      pendingMessages.add(
+        MessageItem(
+          type: MessageType.answer,
+          message: message,
+          timestamp: DateTime.now().toString(),
+          isMine: true,
+        ),
+      );
+
+      update();
+    }
+
+    // Force UI update and scroll
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToBottom();
+    });
+  }
+
+  void _hideThinking() {
+    isShowingThinking.value = false;
+    isSendingMessage.value = false;
+    pendingAnswer.value = null;
+  }
+
+  Future<void> updateYesNoAnswer(
+    String option,
+    String answerId,
+    String questionId,
+  ) async {
+    // if (editingAnswerId.value == null) return;
+    updateMessageState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    autoScrollEnabled.value = true;
+
+    try {
+      final result = await remoteSource.updateMessage(
+        _cancelToken,
+        answerId,
+        option,
+      );
+
+      result.fold(
+        (l) {
+          updateMessageState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          chatController.clear();
+          resetEditMode();
+
+          var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+          await getReflectionWithQuestionAnswers(period);
+          update();
+          await Future.delayed(const Duration(milliseconds: 100));
+
+          scrollToBottom();
+          updateMessageState.value = TheStates.success;
+        },
+      );
+    } catch (e) {
+      updateMessageState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: e.toString());
+      resetEditMode();
+    }
+  }
+
+  List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
+    if (reflection == null || reflection.mainQuestions == null) {
+      return [];
+    }
+
+    var items = <MessageItem>[];
+    var foundUnansweredQuestion = false;
+
+    // Process main questions and their follow-ups
+    for (var i = 0; i < reflection.mainQuestions!.length; i++) {
+      final mainQuestion = reflection.mainQuestions![i];
+      var questionTimestamp = '';
+
+      if (i > 0) {
+        final previousQuestion = reflection.mainQuestions![i - 1];
+        if (previousQuestion.answer?.createdAt != null) {
+          questionTimestamp =
+              previousQuestion.answer?.createdAt.toString() ?? '';
+        }
+      }
+
+      // Add main question
+      items.add(
+        MessageItem(
+          type: MessageType.question,
+          message: mainQuestion.question!,
+          timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+          isMine: false,
+          questionId: mainQuestion.id?.toString(), // Add question ID
+        ),
+      );
+
+      // Add the answer if it exists
+      if (mainQuestion.answered == true && mainQuestion.answer != null) {
+        items.add(
+          MessageItem(
+            type: MessageType.answer,
+            message: mainQuestion.answer?.text ?? '',
+            timestamp: mainQuestion.answer?.createdAt.toString() ??
+                DateTime.now().toString(),
+            isMine: true,
+            images: mainQuestion.answer?.media?.images,
+            videos: mainQuestion.answer?.media?.videos,
+            voices: mainQuestion.answer?.media?.voices,
+            answerId: mainQuestion.answer?.id.toString(),
+          ),
+        );
+
+        // Process follow-up questions for answered main questions
+        if (mainQuestion.followUpQuestions != null) {
+          for (final followUp in mainQuestion.followUpQuestions!) {
+            items.add(
+              MessageItem(
+                type: MessageType.question,
+                message: followUp.question ?? '',
+                timestamp: DateTime.now().toString(),
+                isMine: false,
+                isYesNoQuestion: followUp.questionType == 'yes_no',
+                selectedOption: followUp.answered == true &&
+                        followUp.questionType == 'yes_no'
+                    ? followUp.answer?.text
+                    : null,
+                questionId: followUp.id?.toString(),
+              ),
+            );
+
+            if (followUp.answered == true && followUp.answer != null) {
+              items.add(
+                MessageItem(
+                  type: MessageType.answer,
+                  message: followUp.answer?.text ?? '',
+                  timestamp: followUp.answer?.createdAt.toString() ??
+                      DateTime.now().toString(),
+                  isMine: true,
+                  images: followUp.answer?.media?.images,
+                  videos: followUp.answer?.media?.videos,
+                  voices: followUp.answer?.media?.voices,
+                  answerId: followUp.answer?.id?.toString(),
+                  isYesNoQuestion: followUp.questionType == 'yes_no',
+                  selectedOption: followUp.questionType == 'yes_no'
+                      ? followUp.answer?.text
+                      : null,
+                  questionId: followUp.id?.toString(),
+                ),
+              );
+            } else {
+              // Found an unanswered follow-up question
+              foundUnansweredQuestion = true;
+              break;
+            }
+          }
+        }
+      } else {
+        // Found an unanswered main question
+        foundUnansweredQuestion = true;
+      }
+
+      // Stop processing if we found an unanswered question
+      if (foundUnansweredQuestion) {
+        break;
+      }
+    }
+
+    if (pendingMessages.isNotEmpty) {
+      items.addAll(pendingMessages);
+    }
+
+    // Add thinking indicator only if we're showing thinking
+    if (isShowingThinking.value) {
+      items.add(
+        MessageItem(
+          type: MessageType.question,
+          message: '',
+          timestamp: DateTime.now().toString(),
+          isMine: false,
+          isThinking: true,
+        ),
+      );
+    }
+
+    return items;
+  }
+
   Future<bool?> getReflectionWithQuestionAnswers(String reflectionType) async {
-  //  reflectionQuestionAnswerResponseState.value = TheStates.loading;
+    //  reflectionQuestionAnswerResponseState.value = TheStates.loading;
     final result = await remoteSource.getReflectionWithQuestionAnswers(
       reflectionType: reflectionType,
     );
@@ -75,7 +322,26 @@ class ReflectionJournalChatController extends GetxController {
       },
       (r) {
         reflectionQuestionAnswerResponseState.value = TheStates.success;
+        final previouslyCompleted =
+            reflectionQuestionAnswerResponse.value.data?.isCompleted ?? false;
         reflectionQuestionAnswerResponse.value = r;
+        final currentlyCompleted = r.data?.isCompleted ?? false;
+        if (currentlyCompleted && !previouslyCompleted) {
+          // Journal just got completed
+          isJustCompleted.value = true;
+          wasAlreadyCompleted.value = false;
+        } else if (currentlyCompleted && previouslyCompleted) {
+          // Journal was already completed
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = true;
+        } else {
+          // Journal is not completed
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = false;
+        }
+        if (!isSendingMessage.value) {
+          pendingMessages.clear();
+        }
         scrollToBottom();
         return true;
       },
@@ -83,21 +349,137 @@ class ReflectionJournalChatController extends GetxController {
     return res;
   }
 
-  void scrollToBottom() {
-    if (scrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        const extraPadding = 200.0;
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent + extraPadding,
-          duration: const Duration(milliseconds: 1),
-          curve: Curves.easeOut,
-        );
-      });
+  Future<void> handleYesNoSelection(String option, String questionId) async {
+    yesNoAnswers[questionId] = option;
+    _showThinking(message: option);
+
+    try {
+      final reflection =
+          reflectionQuestionAnswerResponse.value.data?.reflection;
+      final questionIds = getNextQuestionIds(reflection);
+      final mainQuestionId = questionIds['mainQuestionId'];
+      final followupQuestionId = questionIds['followUpQuestionId'];
+
+      await Future.delayed(const Duration(milliseconds: 800));
+
+      await sendMessage(
+        reflection?.id?.toString() ?? '',
+        null,
+        option,
+        mainQuestionId,
+        followupQuestionId,
+      );
+
+      await Future.delayed(const Duration(seconds: 1));
+
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      await getReflectionWithQuestionAnswers(period);
+
+      pendingMessages.clear();
+
+      autoScrollEnabled.value = true;
+      scrollToBottom();
+    } catch (e) {
+      print('Error in yes/no selection: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to send response');
+      // Clear pending messages on error
+      pendingMessages.clear();
+    } finally {
+      _hideThinking();
+    }
+  }
+
+  Map<String, String?> getNextQuestionIds(Reflection? reflection) {
+    if (reflection == null || reflection.mainQuestions == null) {
+      return {'mainQuestionId': null, 'followUpQuestionId': null};
+    }
+
+    for (final mainQuestion in reflection.mainQuestions!) {
+      if (mainQuestion.answered != true) {
+        return {
+          'mainQuestionId': mainQuestion.id?.toString(),
+          'followUpQuestionId': null,
+        };
+      }
+
+      if (mainQuestion.followUpQuestions != null) {
+        for (final followUpQuestion in mainQuestion.followUpQuestions!) {
+          if (followUpQuestion.answered != true) {
+            return {
+              'mainQuestionId': null,
+              'followUpQuestionId': followUpQuestion.id?.toString(),
+            };
+          }
+        }
+      }
+    }
+
+    return {'mainQuestionId': null, 'followUpQuestionId': null};
+  }
+
+  bool isYesNoQuestionType(Reflection? reflection, String? followUpQuestionId) {
+    if (reflection == null ||
+        reflection.mainQuestions == null ||
+        followUpQuestionId == null) {
+      return false;
+    }
+
+    for (final mainQuestion in reflection.mainQuestions!) {
+      if (mainQuestion.followUpQuestions != null) {
+        final followUpQuestion = mainQuestion.followUpQuestions!
+            .firstWhereOrNull((q) => q.id?.toString() == followUpQuestionId);
+        if (followUpQuestion != null) {
+          return followUpQuestion.questionType == 'yes_no';
+        }
+      }
+    }
+    return false;
+  }
+
+  Future<void> handleTextMessageSent() async {
+    final messageText = chatController.text.trim();
+    if (messageText.isEmpty) return;
+
+    _showThinking(message: messageText);
+
+    chatController.clear();
+
+    try {
+      final reflection =
+          reflectionQuestionAnswerResponse.value.data?.reflection;
+      final questionIds = getNextQuestionIds(reflection);
+      final mainQuestionId = questionIds['mainQuestionId'];
+      final followupQuestionId = questionIds['followUpQuestionId'];
+
+      // Send the message
+      await sendMessage(
+        reflection?.id?.toString() ?? '',
+        null,
+        messageText,
+        mainQuestionId,
+        followupQuestionId,
+      );
+
+      await Future.delayed(const Duration(milliseconds: 1000));
+
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      await getReflectionWithQuestionAnswers(period);
+      pendingMessages.clear();
+
+      autoScrollEnabled.value = true;
+      scrollToBottom();
+    } catch (e) {
+      print('Error sending message: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to send message');
+      chatController.text = messageText;
+      pendingMessages.clear();
+    } finally {
+      _hideThinking();
     }
   }
 
   Future<void> sendMessage(
-    String journalId,
+    String reflectionId,
     String? mediaPath,
     String? text,
     String? mainQuestionId,
@@ -109,7 +491,7 @@ class ReflectionJournalChatController extends GetxController {
 
     try {
       final result = await remoteSource.sendMessage(
-        journalId,
+        reflectionId,
         mediaPath,
         _cancelToken,
         mainQuestionId,
@@ -117,49 +499,54 @@ class ReflectionJournalChatController extends GetxController {
         followupQuestionId,
       );
       var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      await getReflectionWithQuestionAnswers(period);
+      // await getReflectionWithQuestionAnswers(period);
       result.fold(
         (l) {
           sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) async {
-          chatConversationList
-            ..clear()
-            ..add(
-              MessageItem(
-                message: chatController.text.trim(),
-                isMine: true,
-                timestamp: getCurrentTime(),
-                type: MessageType.answer,
-              ),
-            );
+          // chatConversationList
+          //   ..clear()
+          //   ..add(
+          //     MessageItem(
+          //       message: chatController.text.trim(),
+          //       isMine: true,
+          //       timestamp: getCurrentTime(),
+          //       type: MessageType.answer,
+          //     ),
+          //   );
 
-          chatController.clear();
+          // chatController.clear();
           await getReflectionWithQuestionAnswers(period);
-          await Future.delayed(const Duration(milliseconds: 100));
-          scrollToBottom();
+          // await Future.delayed(const Duration(milliseconds: 100));
+          // scrollToBottom();
 
           sendMessageState.value = TheStates.success;
         },
       );
     } catch (e) {
-      reflectionQuestionAnswerResponseState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: e.toString());
+      sendMessageState.value = TheStates.error;
+      rethrow;
     }
   }
 
-  void setEditMode(bool isEdit, String answerId) {
-    isEditMode.value = isEdit;
-    editingAnswerId.value = answerId;
+  void scrollToBottom() {
+    if (scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        const extraPadding = 200.0;
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent + extraPadding,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
   }
 
-  
-
-  void resetEditMode() {
-    isEditMode.value = false;
-    editingAnswerId.value = null;
-    chatController.clear();
+  String getCurrentTime() {
+    final now = DateTime.now();
+    return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
   }
 
   Future<void> updateMessage(
@@ -176,31 +563,22 @@ class ReflectionJournalChatController extends GetxController {
         editingAnswerId.value!,
         text ?? chatController.text.trim(),
       );
-      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      await getReflectionWithQuestionAnswers(period);
+
       result.fold(
         (l) {
           updateMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) async {
-          chatConversationList
-            ..clear()
-            ..add(
-              MessageItem(
-                message: chatController.text.trim(),
-                isMine: true,
-                timestamp: getCurrentTime(),
-                type: MessageType.answer,
-              ),
-            );
-
           chatController.clear();
+          var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+
           await getReflectionWithQuestionAnswers(period);
           await Future.delayed(const Duration(milliseconds: 100));
           scrollToBottom();
 
           updateMessageState.value = TheStates.success;
+          resetEditMode();
         },
       );
     } catch (e) {
@@ -209,8 +587,9 @@ class ReflectionJournalChatController extends GetxController {
     }
   }
 
-  String getCurrentTime() {
-    final now = DateTime.now();
-    return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
+  void navigateToJournalLibrary() {
+    isJustCompleted.value = false;
+    wasAlreadyCompleted.value = false;
+    Get.to(() => const ReflectionLibraryScreen());
   }
 }

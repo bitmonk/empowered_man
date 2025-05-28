@@ -4,6 +4,7 @@ import 'package:empowered/features/journal_chat/data/model/chat_conversation_mod
 import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
 import 'package:empowered/features/journal_chat/data/source/journal_chat_remote_source.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/journal_library.dart';
 
 class JournalChatController extends GetxController {
   JournalChatController({required this.remoteSource});
@@ -39,7 +40,8 @@ class JournalChatController extends GetxController {
   RxnString editingYesNoAnswerId = RxnString();
   RxnString editingYesNoQuestionId = RxnString();
   RxnString currentYesNoAnswer = RxnString();
-
+  RxBool isJustCompleted = false.obs;
+  RxBool wasAlreadyCompleted = false.obs;
   // Add this to track pending messages
   RxList<MessageItem> pendingMessages = RxList<MessageItem>([]);
 
@@ -49,6 +51,11 @@ class JournalChatController extends GetxController {
     chatController = TextEditingController();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    ever(journalWithQuestionsAndAnswers, (ChatConversationModel conversation) {
+      if (conversation.data?.isCompleted == true && !isJustCompleted.value) {
+        wasAlreadyCompleted.value = true;
+      }
+    });
 
     journalChatConversationState.listen((state) {
       if (state == TheStates.success && autoScrollEnabled.value) {
@@ -114,7 +121,6 @@ class JournalChatController extends GetxController {
     chatController.clear();
   }
 
-  // Centralized thinking indicator management
   void _showThinking({String? message}) {
     isShowingThinking.value = true;
     isSendingMessage.value = true;
@@ -246,8 +252,7 @@ class JournalChatController extends GetxController {
                         followUp.questionType == 'yes_no'
                     ? followUp.answer?.text
                     : null,
-                questionId:
-                    followUp.id?.toString(), // Add question ID for follow-ups
+                questionId: followUp.id?.toString(),
               ),
             );
 
@@ -268,7 +273,7 @@ class JournalChatController extends GetxController {
                       ? followUp.answer?.text
                       : null,
                   questionId: followUp.id
-                      ?.toString(), // Add question ID for yes/no answers
+                      ?.toString(), 
                 ),
               );
             } else {
@@ -308,124 +313,6 @@ class JournalChatController extends GetxController {
 
     return items;
   }
-  // List<MessageItem> buildCompleteMessageList(Journal? journal) {
-  //   if (journal == null || journal.mainQuestions == null) {
-  //     return [];
-  //   }
-
-  //   var items = <MessageItem>[];
-  //   var foundUnansweredQuestion = false;
-
-  //   // Process main questions and their follow-ups
-  //   for (var i = 0; i < journal.mainQuestions!.length; i++) {
-  //     final mainQuestion = journal.mainQuestions![i];
-  //     var questionTimestamp = '';
-
-  //     if (i > 0) {
-  //       final previousQuestion = journal.mainQuestions![i - 1];
-  //       if (previousQuestion.answer?.createdAt != null) {
-  //         questionTimestamp = previousQuestion.answer?.createdAt ?? '';
-  //       }
-  //     }
-
-  //     // Add main question
-  //     items.add(
-  //       MessageItem(
-  //         type: MessageType.question,
-  //         message: mainQuestion.question!,
-  //         timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
-  //         isMine: false,
-  //       ),
-  //     );
-
-  //     // Add the answer if it exists
-  //     if (mainQuestion.answered == true && mainQuestion.answer != null) {
-  //       items.add(
-  //         MessageItem(
-  //           type: MessageType.answer,
-  //           message: mainQuestion.answer?.text ?? '',
-  //           timestamp:
-  //               mainQuestion.answer?.createdAt ?? DateTime.now().toString(),
-  //           isMine: true,
-  //           images: mainQuestion.answer?.media?.images,
-  //           videos: mainQuestion.answer?.media?.videos,
-  //           voices: mainQuestion.answer?.media?.voices,
-  //           answerId: mainQuestion.answer?.id.toString(),
-  //         ),
-  //       );
-
-  //       // Process follow-up questions for answered main questions
-  //       if (mainQuestion.followUpQuestions != null) {
-  //         for (final followUp in mainQuestion.followUpQuestions!) {
-  //           items.add(
-  //             MessageItem(
-  //               type: MessageType.question,
-  //               message: followUp.question ?? '',
-  //               timestamp: DateTime.now().toString(),
-  //               isMine: false,
-  //               isYesNoQuestion: followUp.questionType == 'yes_no',
-  //               selectedOption: followUp.answered == true &&
-  //                       followUp.questionType == 'yes_no'
-  //                   ? followUp.answer?.text
-  //                   : null,
-  //             ),
-  //           );
-
-  //           if (followUp.answered == true && followUp.answer != null) {
-  //             items.add(
-  //               MessageItem(
-  //                 type: MessageType.answer,
-  //                 message: followUp.answer?.text ?? '',
-  //                 timestamp:
-  //                     followUp.answer?.createdAt ?? DateTime.now().toString(),
-  //                 isMine: true,
-  //                 images: followUp.answer?.media?.images,
-  //                 videos: followUp.answer?.media?.videos,
-  //                 voices: followUp.answer?.media?.voices,
-  //                 answerId: followUp.answer?.id?.toString(),
-  //                 isYesNoQuestion: followUp.questionType == 'yes_no',
-  //                 selectedOption: followUp.questionType == 'yes_no'
-  //                     ? followUp.answer?.text
-  //                     : null,
-  //               ),
-  //             );
-  //           } else {
-  //             // Found an unanswered follow-up question
-  //             foundUnansweredQuestion = true;
-  //             break;
-  //           }
-  //         }
-  //       }
-  //     } else {
-  //       // Found an unanswered main question
-  //       foundUnansweredQuestion = true;
-  //     }
-
-  //     // Stop processing if we found an unanswered question
-  //     if (foundUnansweredQuestion) {
-  //       break;
-  //     }
-  //   }
-
-  //   if (pendingMessages.isNotEmpty) {
-  //     items.addAll(pendingMessages);
-  //   }
-
-  //   // Add thinking indicator only if we're showing thinking
-  //   if (isShowingThinking.value) {
-  //     items.add(
-  //       MessageItem(
-  //         type: MessageType.question,
-  //         message: '',
-  //         timestamp: DateTime.now().toString(),
-  //         isMine: false,
-  //         isThinking: true,
-  //       ),
-  //     );
-  //   }
-
-  //   return items;
-  // }
 
   Future<bool?> getJournalWithQuestionsAndAnswers() async {
     showBeginJournallButton.value = false;
@@ -442,7 +329,24 @@ class JournalChatController extends GetxController {
       },
       (r) {
         journalChatConversationState.value = TheStates.success;
+        final previouslyCompleted =
+            journalWithQuestionsAndAnswers.value.data?.isCompleted ?? false;
+
         journalWithQuestionsAndAnswers.value = r;
+        final currentlyCompleted = r.data?.isCompleted ?? false;
+        if (currentlyCompleted && !previouslyCompleted) {
+          // Journal just got completed
+          isJustCompleted.value = true;
+          wasAlreadyCompleted.value = false;
+        } else if (currentlyCompleted && previouslyCompleted) {
+          // Journal was already completed
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = true;
+        } else {
+          // Journal is not completed
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = false;
+        }
         showBeginJournallButton.value = journalWithQuestionsAndAnswers
                 .value.data?.journal?.mainQuestions?[0].answered ==
             false;
@@ -459,9 +363,6 @@ class JournalChatController extends GetxController {
   }
 
   Future<void> handleYesNoSelection(String option, String questionId) async {
-    print('Handling yes/no selection: $option for question: $questionId');
-
-    // Show thinking immediately with user's selection
     yesNoAnswers[questionId] = option;
     _showThinking(message: option);
 
@@ -550,8 +451,6 @@ class JournalChatController extends GetxController {
     final messageText = chatController.text.trim();
     if (messageText.isEmpty) return;
 
-    print('Handling text message: $messageText');
-
     _showThinking(message: messageText);
 
     chatController.clear();
@@ -573,7 +472,6 @@ class JournalChatController extends GetxController {
 
       await Future.delayed(const Duration(milliseconds: 1000));
 
-      // Refresh the journal to get the updated conversation
       await getJournalWithQuestionsAndAnswers();
 
       pendingMessages.clear();
@@ -583,7 +481,6 @@ class JournalChatController extends GetxController {
     } catch (e) {
       print('Error sending message: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send message');
-      // If there's an error, restore the message to the input field and clear pending messages
       chatController.text = messageText;
       pendingMessages.clear();
     } finally {
@@ -618,7 +515,7 @@ class JournalChatController extends GetxController {
           AppUtils.showErrorSnackbar(message: l.message);
           throw Exception(
             l.message,
-          ); // Throw to trigger error handling in calling method
+          );
         },
         (r) async {
           sendMessageState.value = TheStates.success;
@@ -626,7 +523,7 @@ class JournalChatController extends GetxController {
       );
     } catch (e) {
       sendMessageState.value = TheStates.error;
-      rethrow; // Re-throw to be handled by calling method
+      rethrow;
     }
   }
 
@@ -678,5 +575,12 @@ class JournalChatController extends GetxController {
       updateMessageState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: e.toString());
     }
+  }
+
+  void navigateToJournalLibrary() {
+    isJustCompleted.value = false;
+    wasAlreadyCompleted.value = false;
+
+    Get.to(JournalLibrary());
   }
 }

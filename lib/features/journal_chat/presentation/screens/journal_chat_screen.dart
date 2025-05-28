@@ -392,7 +392,21 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               questionIds['followUpQuestionId'];
                           final isYesNoQuestion = controller
                               .isYesNoQuestionType(journal, followupQuestionId);
-
+                          if (journalCompleted) {
+                            if (controller.isJustCompleted.value) {
+                              return JournalThankYouWidget(
+                                onContinuePressed:
+                                    controller.navigateToJournalLibrary,
+                                buttonTitle: 'Go to Journal Library',
+                              );
+                            }
+                            // else if (controller.wasAlreadyCompleted.value) {
+                            //   return JournalAlreadyCompletedWidget(
+                            //     onContinuePressed:
+                            //         controller.navigateToJournalLibrary,
+                            //   );
+                            // }
+                          }
                           if (!controller.showBeginJournallButton.value) {
                             if ((journalCompleted == false &&
                                     isYesNoQuestion == false) ||
@@ -404,7 +418,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                 followupQuestionId: followupQuestionId,
                                 isDisabled: controller.isShowingThinking.value,
                                 onMessageSent: () async {
-                                  // Use controller's centralized method
                                   await controller.handleTextMessageSent();
                                 },
                               );
@@ -427,18 +440,21 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
   }
 }
 
-class JournalCompletedWidget extends StatelessWidget {
-  const JournalCompletedWidget({
+class JournalThankYouWidget extends StatelessWidget {
+  const JournalThankYouWidget({
     required this.onContinuePressed,
+    required this.buttonTitle,
     super.key,
   });
+
   final VoidCallback onContinuePressed;
+  final String buttonTitle;
 
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(16),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         color: AppColors.bgContainer,
         borderRadius: BorderRadius.circular(16),
@@ -454,20 +470,29 @@ class JournalCompletedWidget extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           const Icon(
-            Icons.check_circle_outline,
+            Icons.celebration,
             color: AppColors.appGreen,
-            size: 48,
+            size: 56,
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(
-            'Journal Entry Completed',
+            'Thank You!',
             style: AppTextStyles.bodyLGMedium.copyWith(
               color: AppColors.textColor100,
+              fontSize: 24,
+              fontWeight: FontWeight.bold,
             ),
           ),
           const SizedBox(height: 12),
           Text(
-            'You have completed all questions in this journal. Your responses have been saved successfully.',
+            'Thank you for completing your journal!',
+            style: AppTextStyles.bodyLGMedium.copyWith(
+              color: AppColors.textColor100,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Your thoughts and reflections have been saved. Take a moment to appreciate your journey of self-discovery.',
             textAlign: TextAlign.center,
             style: AppTextStyles.textBodyB2.copyWith(
               color: AppColors.textColor200,
@@ -475,7 +500,7 @@ class JournalCompletedWidget extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           AppOutlinedButton(
-            text: 'Continue to Library',
+            text: buttonTitle,
             onPressed: onContinuePressed,
           ),
         ],
@@ -483,3 +508,61 @@ class JournalCompletedWidget extends StatelessWidget {
     );
   }
 }
+
+// class JournalAlreadyCompletedWidget extends StatelessWidget {
+//   const JournalAlreadyCompletedWidget({
+//     required this.onContinuePressed,
+//     super.key,
+//   });
+  
+//   final VoidCallback onContinuePressed;
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       margin: const EdgeInsets.all(16),
+//       padding: const EdgeInsets.all(20),
+//       decoration: BoxDecoration(
+//         color: AppColors.bgContainer,
+//         borderRadius: BorderRadius.circular(16),
+//         boxShadow: [
+//           BoxShadow(
+//             color: Colors.black.withOpacity(0.1),
+//             blurRadius: 8,
+//             offset: const Offset(0, 2),
+//           ),
+//         ],
+//       ),
+//       child: Column(
+//         mainAxisSize: MainAxisSize.min,
+//         children: [
+//           const Icon(
+//             Icons.check_circle_outline,
+//             color: AppColors.appGreen,
+//             size: 48,
+//           ),
+//           const SizedBox(height: 16),
+//           Text(
+//             'Journal Entry Completed',
+//             style: AppTextStyles.bodyLGMedium.copyWith(
+//               color: AppColors.textColor100,
+//             ),
+//           ),
+//           const SizedBox(height: 12),
+//           Text(
+//             'This journal has been completed. You can view it in your journal library.',
+//             textAlign: TextAlign.center,
+//             style: AppTextStyles.textBodyB2.copyWith(
+//               color: AppColors.textColor200,
+//             ),
+//           ),
+//           const SizedBox(height: 20),
+//           AppOutlinedButton(
+//             text: 'Go to Journal Library',
+//             onPressed: onContinuePressed,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//}

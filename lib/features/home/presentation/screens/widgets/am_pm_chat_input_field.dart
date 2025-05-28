@@ -26,9 +26,9 @@ class AmPmChatInputField extends StatefulWidget {
 }
 
 class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
-  final controller = Get.find<ReflectionJournalChatController>();
-  bool isEditing = false;
-  final quill.QuillController _controller = quill.QuillController.basic();
+  final chatController = Get.find<ReflectionJournalChatController>();
+
+  late quill.QuillController _controller;
   bool showEditor = true;
   late FocusNode _focusNode;
   bool _contentChanged = false;
@@ -38,9 +38,10 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   void initState() {
     super.initState();
     _focusNode = widget.focusNode;
-    _updateEditState();
-    _initializeWithEditingText();
-    controller.addListener(_handleControllerChanges);
+    _controller = quill.QuillController.basic();
+    // _updateEditState();
+    // _initializeWithEditingText();
+    chatController.addListener(_handleControllerChanges);
 
     // Track content changes
     _controller.addListener(() {
@@ -56,78 +57,107 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     });
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted && showEditor && isEditing) {
-        print('Requesting focus in initState');
-        _focusNode.requestFocus();
-      }
+      _initializeIfNeeded();
     });
   }
 
   @override
   void dispose() {
-    controller.removeListener(_handleControllerChanges);
+    chatController.removeListener(_handleControllerChanges);
     _controller.dispose();
     super.dispose();
   }
 
   void _handleControllerChanges() {
-    if (mounted) {
-      final wasEditing = isEditing;
-      _updateEditState();
+    if (!mounted) return;
 
-      if (controller.isEditMode.value && !wasEditing) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _initializeWithEditingText();
-            _isInitialized = true;
-            _focusNode.requestFocus();
-          }
-        });
-      }
+    final wasEditing = _isInitialized && chatController.isEditMode.value;
+    final isNowEditing = chatController.isEditMode.value;
 
-      if (!controller.isEditMode.value && wasEditing) {
-        _isInitialized = false;
-      }
+    print(
+      'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing',
+    );
+
+    if (isNowEditing && !_isInitialized) {
+      print('Entering edit mode - initializing...');
+      _initializeEditMode();
+    } else if (!isNowEditing && _isInitialized) {
+      print('Exiting edit mode - cleaning up...');
+      _cleanupEditMode();
+    }
+
+    // Always update the UI
+    setState(() {});
+  }
+
+  void _initializeIfNeeded() {
+    if (chatController.isEditMode.value && !_isInitialized) {
+      _initializeEditMode();
     }
   }
 
-  void _updateEditState() {
-    setState(() {
-      isEditing = controller.isEditMode.value;
-      if (isEditing) {
-        showEditor = true;
-      }
-    });
-  }
+  void _initializeEditMode() {
+    if (_isInitialized) return;
 
-  void _initializeWithEditingText() {
-    if (controller.isEditMode.value &&
-        controller.chatController.text.isNotEmpty) {
-      final htmlText = controller.chatController.text;
+    final textToEdit = chatController.chatController.text;
+    print('Initializing edit mode with text: "$textToEdit"');
 
-      print('Initializing with HTML: $htmlText'); // Debug print
+    if (textToEdit.isNotEmpty) {
+      // Convert HTML/text to QuillDelta
+      final delta = _convertHtmlToQuillDelta(textToEdit);
 
-      final newDelta = _convertHtmlToQuillDelta(htmlText);
+      // Create new document with the delta
+      final newDocument = quill.Document.fromDelta(delta);
 
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _controller.document = quill.Document.fromDelta(newDelta);
-            _contentChanged = false;
-          });
+      // Update controller
+      _controller.document = newDocument;
 
+      // Move cursor to end after a short delay
+      Future.delayed(const Duration(milliseconds: 100), () {
+        if (mounted && _isInitialized) {
           _controller.moveCursorToEnd();
-
+          _focusNode.requestFocus();
           print(
-              'Document updated with formatting: ${_controller.document.toPlainText()}',);
+            'Cursor moved to end, text: "${_controller.document.toPlainText()}"',
+          );
         }
       });
     }
+
+    _isInitialized = true;
+    showEditor = true;
+    setState(() {});
+  }
+
+  void _cleanupEditMode() {
+    _isInitialized = false;
+    _controller.clear();
+    _contentChanged = false;
+    setState(() {});
   }
 
   quill.Delta _convertHtmlToQuillDelta(String html) {
+    print('Converting HTML to Delta: "$html"');
+
     final delta = quill.Delta();
 
+    // Handle empty or null input
+    if (html.trim().isEmpty) {
+      delta.insert('\n');
+      return delta;
+    }
+
+    if (!html.contains('<') || !html.contains('>')) {
+      // Plain text case
+      delta.insert(html);
+      if (!html.endsWith('\n')) {
+        delta.insert('\n');
+      }
+      print('Plain text delta created');
+      return delta;
+    }
+
+    // Handle HTML with tags
     final tagPattern = RegExp(r'<(/?)(\w+)[^>]*>');
     final boldStack = <String>[];
     final italicStack = <String>[];
@@ -220,6 +250,7 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       delta.insert('\n');
     }
 
+    print('HTML delta created with ${delta.operations.length} operations');
     return delta;
   }
 
@@ -262,43 +293,34 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   }
 
   void sendMessageWithFormatting() {
-    print('isDisabled: ${widget.isDisabled}');
+    print('Sending message - isDisabled: ${widget.isDisabled}');
     if (widget.isDisabled) return;
 
     final htmlContent = getFormattedHtml();
-    if (htmlContent.trim().isNotEmpty) {
-      if (controller.isEditMode.value) {
-        controller.updateMessage(htmlContent).then((_) {
-          controller.resetEditMode();
-          _controller.clear();
-          setState(() {
-            _contentChanged = false;
-            _isInitialized = false;
-          });
-          widget.onMessageSent?.call();
-        });
-      } else {
-        controller
-            .sendMessage(
-          widget.reflectionId,
-          null,
-          htmlContent,
-          widget.mainQuestionId,
-          widget.followupQuestionId,
-        )
-            .then((_) {
-          setState(() {
-            _contentChanged = false;
-          });
-          widget.onMessageSent?.call();
-        });
-      }
+    if (htmlContent.trim().isEmpty) return;
+
+    if (chatController.isEditMode.value) {
+      // Handle edit mode
+      chatController.updateMessage(htmlContent).then((_) {
+        chatController.resetEditMode();
+        _cleanupEditMode();
+        widget.onMessageSent?.call();
+      });
+    } else {
+      chatController.chatController.text = htmlContent;
+
+      _controller.clear();
       setState(() {
-        _controller.clear();
+        _contentChanged = false;
+      });
+
+      chatController.handleTextMessageSent().then((_) {
+        widget.onMessageSent?.call();
       });
     }
   }
 
+  @override
   @override
   void didUpdateWidget(AmPmChatInputField oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -307,128 +329,131 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       _focusNode = widget.focusNode;
     }
 
-    final wasEditing = isEditing;
-    _updateEditState();
-
-    if (controller.isEditMode.value && !wasEditing) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          _initializeWithEditingText();
-          _isInitialized = true;
-        }
-      });
-    }
+    // Check if we need to initialize edit mode
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeIfNeeded();
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: const EdgeInsets.all(12),
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: isEditing
-            ? AppColors.bgBorder.withOpacity(0.9)
-            : AppColors.bgBorder,
-        borderRadius: const BorderRadius.all(Radius.circular(24)),
-        border: isEditing
-            ? Border.all(color: AppColors.primary500, width: 1.5)
-            : null,
-      ),
-      child: Column(
-        children: [
-          if (isEditing)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 4),
-              child: Text(
-                'Editing message...',
-                style: AppTextStyles.textCaptionC2.copyWith(
-                  color: AppColors.primary500,
-                  fontStyle: FontStyle.italic,
-                ),
-              ),
-            ),
-          if (showEditor)
-            DefaultTextStyle(
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textColor100,
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: quill.QuillEditor.basic(
-                  focusNode: _focusNode,
-                  controller: _controller,
-                  configurations: quill.QuillEditorConfigurations(
-                    minHeight: 50,
-                    maxHeight: 120,
-                    placeholder:
-                        isEditing ? 'Edit your message...' : 'Message...',
-                    showCursor: true,
-                    padding: const EdgeInsets.all(4),
-                    
+    return Obx(
+      () {
+        final isEditMode = chatController.isEditMode.value;
+        return Container(
+          margin: const EdgeInsets.all(12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: isEditMode
+                ? AppColors.bgBorder.withOpacity(0.9)
+                : AppColors.bgBorder,
+            borderRadius: const BorderRadius.all(Radius.circular(24)),
+            border: isEditMode
+                ? Border.all(color: AppColors.primary500, width: 1.5)
+                : null,
+          ),
+          child: Column(
+            children: [
+              if (isEditMode)
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Text(
+                    'Editing message...',
+                    style: AppTextStyles.textCaptionC2.copyWith(
+                      color: AppColors.primary500,
+                      fontStyle: FontStyle.italic,
+                    ),
                   ),
                 ),
-              ),
-            ),
-          Row(
-            children: [
               if (showEditor)
-                Expanded(
-                  child: Theme(
-                    data: Theme.of(context).copyWith(
-                      iconTheme: const IconThemeData(
-                        color: Colors.white,
-                        size: 22,
-                      ),
-                      buttonTheme: const ButtonThemeData(
-                        buttonColor: Colors.white,
-                      ),
-                    ),
-                    child: quill.QuillSimpleToolbar(
+                DefaultTextStyle(
+                  style: const TextStyle(
+                    fontSize: 16,
+                    color: AppColors.textColor100,
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8),
+                    child: quill.QuillEditor.basic(
+                      focusNode: _focusNode,
                       controller: _controller,
-                      configurations:
-                          const quill.QuillSimpleToolbarConfigurations(
-                        showJustifyAlignment: false,
-                        showListBullets: false,
-                        showCenterAlignment: false,
-                        showClearFormat: false,
-                        showFontFamily: false,
-                        showFontSize: false,
-                        showBackgroundColorButton: false,
-                        showColorButton: false,
-                        showHeaderStyle: false,
-                        showLink: false,
-                        showUndo: false,
-                        showRedo: false,
-                        showListCheck: false,
-                        showIndent: false,
-                        showSubscript: false,
-                        showSuperscript: false,
-                        showSearchButton: false,
-                        showClipboardCut: false,
-                        showClipboardCopy: false,
-                        showClipboardPaste: false,
-                        multiRowsDisplay: false,
-                        color: AppColors.transparent,
+                      configurations: quill.QuillEditorConfigurations(
+                        minHeight: 50,
+                        maxHeight: 120,
+                        placeholder:
+                            isEditMode ? 'Edit your message...' : 'Message...',
+                        showCursor: true,
+                        padding: const EdgeInsets.all(4),
                       ),
                     ),
                   ),
                 )
               else
-                buildControls(),
-              const SizedBox(width: 8),
+                TextField(
+                  focusNode: _focusNode,
+                  onTap: () async {
+                    await Future.delayed(const Duration(milliseconds: 500));
+                    chatController.scrollToBottom();
+                  },
+                  controller: chatController.chatController,
+                  decoration: InputDecoration(
+                    hintText: 'Message...',
+                    hintStyle: AppTextStyles.textBodyB2
+                        .copyWith(color: AppColors.textColor200),
+                    border: InputBorder.none,
+                  ),
+                  style: const TextStyle(color: Colors.white),
+                ),
               Row(
                 children: [
-                  if (isEditing)
+                  if (showEditor)
+                    Expanded(
+                      child: Theme(
+                        data: Theme.of(context).copyWith(
+                          iconTheme: const IconThemeData(
+                            color: Colors.white,
+                            size: 22,
+                          ),
+                          buttonTheme: const ButtonThemeData(
+                            buttonColor: Colors.white,
+                          ),
+                        ),
+                        child: quill.QuillSimpleToolbar(
+                          controller: _controller,
+                          configurations:
+                              const quill.QuillSimpleToolbarConfigurations(
+                            showJustifyAlignment: false,
+                            showListBullets: false,
+                            showCenterAlignment: false,
+                            showClearFormat: false,
+                            showFontFamily: false,
+                            showFontSize: false,
+                            showBackgroundColorButton: false,
+                            showColorButton: false,
+                            showHeaderStyle: false,
+                            showLink: false,
+                            showUndo: false,
+                            showRedo: false,
+                            showListCheck: false,
+                            showIndent: false,
+                            showSubscript: false,
+                            showSuperscript: false,
+                            showSearchButton: false,
+                            showClipboardCut: false,
+                            showClipboardCopy: false,
+                            showClipboardPaste: false,
+                            multiRowsDisplay: false,
+                            color: AppColors.transparent,
+                          ),
+                        ),
+                      ),
+                    ),
+                  const HorizontalSpacing(8),
+                  if (isEditMode)
                     InkWell(
                       onTap: () {
-                        controller.resetEditMode();
-                        _controller.clear();
-                        setState(() {
-                          _contentChanged = false;
-                          _isInitialized = false;
-                        });
+                        chatController.resetEditMode();
+                        _cleanupEditMode();
                       },
                       child: Container(
                         padding: const EdgeInsets.all(8),
@@ -443,7 +468,7 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
                         ),
                       ),
                     ),
-                  const SizedBox(width: 8),
+                  const HorizontalSpacing(8),
                   InkWell(
                     onTap: widget.isDisabled ? null : sendMessageWithFormatting,
                     child: Assets.images.sendMessageIcon
@@ -453,37 +478,8 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
               ),
             ],
           ),
-        ],
-      ),
-    );
-  }
-
-  Expanded buildControls() {
-    return Expanded(
-      child: Row(
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child:
-                Assets.images.addIconWithBackground.svg(width: 40, height: 40),
-          ),
-          InkWell(
-            onTap: () {
-              setState(() {
-                showEditor = true;
-              });
-              WidgetsBinding.instance.addPostFrameCallback((_) {
-                if (mounted) {
-                  _focusNode.requestFocus();
-                }
-              });
-            },
-            child: Assets.images.chatText.image(width: 20),
-          ),
-          const SizedBox(width: 20),
-          const Spacer(),
-        ],
-      ),
+        );
+      },
     );
   }
 }
