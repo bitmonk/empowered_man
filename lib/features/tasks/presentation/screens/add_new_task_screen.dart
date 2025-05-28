@@ -18,7 +18,7 @@ class AddNewTaskScreen extends StatefulWidget {
 
 class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
   TextEditingController titleController = TextEditingController();
-  TextEditingController descriptionController = TextEditingController();
+  // TextEditingController descriptionController = TextEditingController();
   TextEditingController dateController = TextEditingController();
   List<TextEditingController> subtaskControllers = [];
   quill.QuillController _controller = quill.QuillController.basic();
@@ -35,8 +35,8 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
     if (widget.task != null) {
       setState(() {
         titleController = TextEditingController(text: widget.task?.title ?? '');
-        descriptionController =
-            TextEditingController(text: widget.task?.description ?? '');
+        // descriptionController =
+        //     TextEditingController(text: widget.task?.description ?? '');
         dateController = TextEditingController(
           text: DateFormat('yyyy-MM-dd').format(widget.task!.dueDate!),
         );
@@ -50,7 +50,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         }
         addTaskRequestModel
           ..title = titleController.text
-          ..description = descriptionController.text
+          // ..description = descriptionController.text
           ..level = widget.task?.level
           ..priority = widget.task?.priority
           ..dueDate = dateController.text
@@ -67,7 +67,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
 
   @override
   void dispose() {
-    descriptionController.dispose();
+    // descriptionController.dispose();
     titleController.dispose();
     dateController.dispose();
     for (final controller in subtaskControllers) {
@@ -109,17 +109,17 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  AppTextFormField(
-                    enabledBorderSide:
-                        const BorderSide(color: AppColors.color354451),
-                    labelText: 'Description',
-                    controller: descriptionController,
-                    validator: ValidationBuilder().required().build(),
-                    onChanged: (v) {
-                      addTaskRequestModel.description = v;
-                    },
-                  ),
-                  const SizedBox(height: 16),
+                  // AppTextFormField(
+                  //   enabledBorderSide:
+                  //       const BorderSide(color: AppColors.color354451),
+                  //   labelText: 'Description',
+                  //   controller: descriptionController,
+                  //   validator: ValidationBuilder().required().build(),
+                  //   onChanged: (v) {
+                  //     addTaskRequestModel.description = v;
+                  //   },
+                  // ),
+                  // const SizedBox(height: 16),
                   Row(
                     children: [
                       Expanded(

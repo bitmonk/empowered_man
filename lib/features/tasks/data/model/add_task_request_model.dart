@@ -1,7 +1,7 @@
 class AddTaskRequestModel {
   AddTaskRequestModel({
     this.title,
-    this.description,
+    // this.description,
     this.level,
     this.priority,
     this.dueDate,
@@ -10,7 +10,7 @@ class AddTaskRequestModel {
   });
 
   String? title;
-  String? description;
+  // String? description;
   String? level;
   String? priority;
   String? dueDate;
@@ -21,7 +21,7 @@ class AddTaskRequestModel {
     final map = <String, dynamic>{};
 
     if (title != null) map['title'] = title;
-    if (description != null) map['description'] = description;
+    // if (description != null) map['description'] = description;
     if (level != null) map['level'] = level;
     if (priority != null) map['priority'] = priority;
     if (dueDate != null) map['due_date'] = dueDate;

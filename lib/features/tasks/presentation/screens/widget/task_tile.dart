@@ -71,7 +71,8 @@ class _TaskTileState extends State<TaskTile> {
                               );
                             } else {
                               AppUtils.showErrorSnackbar(
-                                  message: 'Please complete task first.',);
+                                message: 'Please complete task first.',
+                              );
                             }
                           },
                           child: Padding(
@@ -203,10 +204,12 @@ class _TaskTileState extends State<TaskTile> {
                                   style: AppTextStyles.textBodyB1,
                                 ),
                                 const VerticalSpacing(12),
-                                HtmlWidget(
-                                  widget.task.notes ?? '',
-                                  textStyle: const TextStyle(
-                                    color: AppColors.textColor100,
+                                Expanded(
+                                  child: HtmlWidget(
+                                    widget.task.notes ?? '',
+                                    textStyle: const TextStyle(
+                                      color: AppColors.textColor100,
+                                    ),
                                   ),
                                 ),
                               ],
