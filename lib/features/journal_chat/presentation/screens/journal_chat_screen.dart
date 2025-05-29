@@ -226,6 +226,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             isThinking: item.isThinking,
                                             answerId: item.answerId,
                                             questionId: item.questionId,
+                                            createdAt: item.createdAt,
+                                            updatedAt: item.updatedAt,
+                                            isEdited: item.isEdited,
                                           );
 
                                           Widget messageWidget =
@@ -233,8 +236,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             isJournal: true,
                                             message: messageItem.message,
                                             isMine: messageItem.isMine,
-                                            timeStamp:
-                                                messageItem.timestamp ?? '',
+                                            // timeStamp:
+                                            //     messageItem.timestamp ?? '',
                                             onLike: () {},
                                             images: messageItem.images,
                                             videos: messageItem.videos,
@@ -266,6 +269,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                                 ? messageItem.answerId
                                                 : null,
                                             questionId: item.questionId,
+                                            createdAt: messageItem.createdAt,
+                                            updatedAt: messageItem.updatedAt,
+                                            isEdited: messageItem.isEdited,
                                             onEditTap: () {
                                               if (messageItem.isYesNoQuestion &&
                                                   messageItem.answerId !=

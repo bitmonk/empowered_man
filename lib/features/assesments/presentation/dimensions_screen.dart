@@ -24,7 +24,7 @@ class DimensionScreen extends StatefulWidget {
 }
 
 class _DimensionScreenState extends State<DimensionScreen> {
-  double selectedScore = 1;
+  double selectedScore = 0;
   int? expandedIndex;
   bool isLoading = false;
   void navigateToDetail(String title) {}
@@ -116,7 +116,7 @@ class _DimensionScreenState extends State<DimensionScreen> {
     Navigator.pop(context);
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     var progressValue = widget.dimensionIndex / widget.totalDimensions;
 
@@ -151,37 +151,51 @@ class _DimensionScreenState extends State<DimensionScreen> {
                       style: AppTextStyles.textHeadingH3,
                     ),
                     const VerticalSpacing(8),
-                    Column(
-                      children: [
-                        SliderTheme(
-                          data: const SliderThemeData(trackHeight: 6),
-                          child: Slider(
-                            value: selectedScore,
-                            min: 1,
-                            max: 12,
-                            divisions: 11,
-                            inactiveColor: AppColors.color324E65,
-                            thumbColor: AppColors.white,
-                            activeColor: AppColors.primary300,
-                            label: selectedScore.toString(),
-                            onChanged: (value) {
-                              setState(() {
-                                selectedScore = value;
-                              });
-                            },
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: List.generate(
-                            13,
-                            (index) => Text(
-                              (index).toString(),
-                              style: AppTextStyles.textBodyB3,
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                      child: Column(
+                        children: [
+                          SliderTheme(
+                            data: const SliderThemeData(
+                              trackHeight: 6,
+                              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12),
+                              overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+                            ),
+                            child: Slider(
+                              value: selectedScore,
+                              min: 0,
+                              max: 12,
+                              divisions: 12,
+                              inactiveColor: AppColors.color324E65,
+                              thumbColor: AppColors.white,
+                              activeColor: AppColors.primary300,
+                              label: selectedScore.toInt().toString(),
+                              onChanged: (value) {
+                                setState(() {
+                                  selectedScore = value;
+                                });
+                              },
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 8),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: List.generate(
+                                13,
+                                (index) => Expanded(
+                                  child: Text(
+                                    index.toString(),
+                                    style: AppTextStyles.textBodyB3,
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                     const VerticalSpacing(24),
                     Theme(

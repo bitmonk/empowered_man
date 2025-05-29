@@ -25,7 +25,7 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
   void initState() {
     super.initState();
     reflectionController = Get.find<ReflectionController>();
-
+reflectionController.userGoalId!.value = widget.userGoalId;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _loadReflections();
     });
@@ -34,7 +34,7 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
   void _loadReflections() {
     if (widget.userGoalId != null && widget.userGoalId!.isNotEmpty) {
       print('Loading reflections for userGoalId: ${widget.userGoalId}');
-      reflectionController.getReflections(userGoalId: widget.userGoalId);
+      reflectionController.getReflections();
     } else {
       print('Error: userGoalId is null or empty');
     }
@@ -143,6 +143,7 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
                       // var chatConversationList = [].obs;
                       Get.to(
                         () => GoalsChatScreen(
+                          // title: reflectionController.reflections.value.data?.reflection.,
                           goalDetailId: widget.goalDetailId ?? '',
                           goalId: widget.goalId ?? '',
                         ),
@@ -197,109 +198,124 @@ class _ReflectionScreenState extends State<ReflectionScreen> {
 
   Widget _buildQuestionWidget(Question question) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        // Question Title/Text
-        if (question.questionText != null && question.questionText!.isNotEmpty)
-          Text(
-            question.questionText!,
-            style: const TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.w500,
-              color: AppColors.textColor100,
-            ),
-          ),
-        const VerticalSpacing(24),
-
-        // Display answers if available
-        if (question.answer != null && question.answer!.isNotEmpty) ...[
-          ...question.answer!.map((answer) => _buildAnswerWidget(answer)),
-        ] else if (question.answered == false) ...[
-          // Show placeholder if not answered
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: AppColors.bgContainer,
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: AppColors.textColor200,
-              ),
-            ),
-            child: Text(
-              'This question has not been answered yet.',
-              style: AppTextStyles.textBodyB2.copyWith(
-                color: AppColors.textColor50,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ),
-        ],
-
-        const VerticalSpacing(32),
-      ],
-    );
-  }
-
-  Widget _buildAnswerWidget(Answer answer) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: answer.achieved == true
-                ? AppColors.success100
-                : AppColors.bgBorderVLight,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(
-              color: answer.achieved == true
-                  ? AppColors.success500
-                  : AppColors.textColor50,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (answer.text != null && answer.text!.isNotEmpty) ...[
-                Text(
-                  answer.text!,
-                  style: AppTextStyles.textBodyB2.copyWith(
-                    color: AppColors.textColor100,
+        // Question bubble (aligned to left)
+        Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: [
+            Flexible(
+              child: Container(
+                constraints: BoxConstraints(
+                  maxWidth: MediaQuery.of(context).size.width * 0.75,
+                ),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.bgContainer,
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(20),
+                    topRight: Radius.circular(20),
+                    bottomLeft: Radius.circular(4),
+                    bottomRight: Radius.circular(20),
+                  ),
+                  border: Border.all(
+                    color: AppColors.textColor200.withOpacity(0.3),
                   ),
                 ),
-                const VerticalSpacing(8),
-              ],
-
-              // Achievement status indicator
-              // Row(
-              //   children: [
-              //     Icon(
-              //       answer.achieved == true
-              //           ? Icons.check_circle
-              //           : Icons.radio_button_unchecked,
-              //       size: 16,
-              //       color: answer.achieved == true
-              //           ? AppColors.success500
-              //           : AppColors.bgContainer,
-              //     ),
-              //     const HorizontalSpacing(8),
-              //     // Text(
-              //     //   answer.achieved == true ? 'Achieved' : 'In Progress',
-              //     //   style: AppTextStyles.captionMedium.copyWith(
-              //     //     color: answer.achieved == true
-              //     //         ? AppColors.success500
-              //     //         : AppColors.textColor300,
-              //     //     fontWeight: FontWeight.w500,
-              //     //   ),
-              //     // ),
-              //   ],
-              // ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (question.questionText != null && question.questionText!.isNotEmpty)
+                      Text(
+                        question.questionText!,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: AppColors.textColor100,
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+        
+        const VerticalSpacing(12),
+        
+        // Answer bubbles (aligned to right)
+        if (question.answer != null && question.answer!.isNotEmpty) ...[
+          ...question.answer!.map((answer) => Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.primary500,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(4),
+                    ),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (answer.text != null && answer.text!.isNotEmpty)
+                        Text(
+                          answer.text!,
+                          style: AppTextStyles.textBodyB2.copyWith(
+                            color: Colors.white,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          )),
+        ] else if (question.answered == false) ...[
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Flexible(
+                child: Container(
+                  constraints: BoxConstraints(
+                    maxWidth: MediaQuery.of(context).size.width * 0.75,
+                  ),
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: AppColors.textColor200.withOpacity(0.3),
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(20),
+                      topRight: Radius.circular(20),
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(4),
+                    ),
+                  ),
+                  child: Text(
+                    'This question has not been answered yet.',
+                    style: AppTextStyles.textBodyB2.copyWith(
+                      color: AppColors.textColor50,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-        const VerticalSpacing(12),
+        ],
+        
+        const VerticalSpacing(24),
       ],
     );
   }
+
+
 }

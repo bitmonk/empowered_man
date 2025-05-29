@@ -17,22 +17,16 @@ class ReflectionController extends GetxController {
   @override
   void onInit() {
     super.onInit();
-    getReflections(userGoalId: userGoalId?.value);
+   // getReflections();
   }
 
-  Future<void> getReflections({required String? userGoalId}) async {
-    if (userGoalId == null) {
-      getReflectionState.value = TheStates.error;
-      getReflectionError.value = 'User Goal ID is required';
-      AppUtils.showErrorSnackbar(message: 'User Goal ID is required');
-      return;
-    }
-
+  Future<void> getReflections() async {
     getReflectionState.value = TheStates.loading;
     _cancelToken = CancelToken();
 
     // Pass the userGoalId to the remote source
-    final result = await remoteSource.getReflection(reflectionId: userGoalId);
+    final result =
+        await remoteSource.getReflection(reflectionId: userGoalId!.value);
 
     return result.fold(
       (l) {
@@ -51,5 +45,4 @@ class ReflectionController extends GetxController {
     _cancelToken?.cancel();
     getReflectionState.value = TheStates.initial;
   }
- 
 }

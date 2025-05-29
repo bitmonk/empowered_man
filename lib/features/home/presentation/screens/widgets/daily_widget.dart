@@ -1,4 +1,3 @@
-
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/screens/am_pm_journal_screen.dart';
@@ -17,6 +16,13 @@ class DailyWidget extends StatefulWidget {
 class _DailyWidgetState extends State<DailyWidget> {
   final controller = Get.find<ReflectionJournalChatController>();
   String period = DateTime.now().hour < 12 ? 'am' : 'pm';
+
+  @override
+  void initState() {
+    super.initState();
+    controller.getReflectionWithQuestionAnswers(period);
+  }
+
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
@@ -26,17 +32,23 @@ class _DailyWidgetState extends State<DailyWidget> {
             onTap: () {
               controller.resetEditMode();
               if (period == 'am') {
-                Get.to(const AmPmJournalScreen(
-                  reflectionType: 'am',
-                ),);
+                Get.to(
+                  const AmPmJournalScreen(
+                    reflectionType: 'am',
+                  ),
+                );
               } else {
-                AppUtils.showErrorSnackbar(message: 'You can only access AM questions in the morning.');
+                AppUtils.showErrorSnackbar(
+                    message:
+                        'You can only access AM questions in the morning.');
               }
             },
-            child: HomeJournalWidget(
-              image: Assets.images.stickynote.path,
-              title: 'AM Journal',
-              decription: 'You have not completed your AM journal today.',
+            child: Obx(
+              () => HomeJournalWidget(
+                image: Assets.images.stickynote.path,
+                title: 'AM Journal',
+                decription: _getJournalDescription('am'),
+              ),
             ),
           ),
           const VerticalSpacing(20),
@@ -44,17 +56,23 @@ class _DailyWidgetState extends State<DailyWidget> {
             onTap: () {
               controller.resetEditMode();
               if (period == 'pm') {
-                Get.to(const AmPmJournalScreen(
-                  reflectionType: 'pm',
-                ),);
+                Get.to(
+                  const AmPmJournalScreen(
+                    reflectionType: 'pm',
+                  ),
+                );
               } else {
-                AppUtils.showErrorSnackbar(message: 'You can only access PM questions in the afternoon.');
+                AppUtils.showErrorSnackbar(
+                    message:
+                        'You can only access PM questions in the afternoon.');
               }
             },
-            child: HomeJournalWidget(
-              image: Assets.images.journalPng.path,
-              title: 'PM Journal',
-              decription: 'You have not completed your Pm reflection today.',
+            child: Obx(
+              () => HomeJournalWidget(
+                image: Assets.images.journalPng.path,
+                title: 'PM Journal',
+                decription: _getJournalDescription('pm'),
+              ),
             ),
           ),
           const VerticalSpacing(20),
@@ -196,6 +214,22 @@ class _DailyWidgetState extends State<DailyWidget> {
         ],
       ),
     );
+  }
+
+  String _getJournalDescription(String journalType) {
+    final response = controller.reflectionQuestionAnswerResponse.value;
+
+    if (response.data == null) {
+      return 'Loading...';
+    }
+
+    final isCompleted = response.data?.isCompleted ?? false;
+
+    if (isCompleted) {
+      return 'You have completed your ${journalType.toUpperCase()} journal today.';
+    } else {
+      return 'You have not completed your ${journalType.toUpperCase()} journal today.';
+    }
   }
 
   void _showMemoryBottomSheet(BuildContext context) {

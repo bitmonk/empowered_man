@@ -28,6 +28,9 @@ class ReflectionChatBubbleContainer extends StatefulWidget {
     this.questionId,
     this.isEditMode = false,
     this.onYesNoEdit,
+    this.createdAt,
+    this.updatedAt,
+    this.isEdited = false,
   });
 
   final bool isMine;
@@ -51,14 +54,17 @@ class ReflectionChatBubbleContainer extends StatefulWidget {
   final String? questionId;
   final bool isEditMode;
   final Function(String, String, String)? onYesNoEdit;
+  final String? createdAt;
+  final String? updatedAt;
+  final bool isEdited;
 
   @override
   State<ReflectionChatBubbleContainer> createState() =>
       _ReflectionChatBubbleContainerState();
 }
 
-class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleContainer>
-    with TickerProviderStateMixin {
+class _ReflectionChatBubbleContainerState
+    extends State<ReflectionChatBubbleContainer> with TickerProviderStateMixin {
   bool isLiked = false; // Internal state for like
   String? _selectedOption;
   String? _editingSelectedOption; // For edit mode
@@ -102,13 +108,13 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
   @override
   void didUpdateWidget(ReflectionChatBubbleContainer oldWidget) {
     super.didUpdateWidget(oldWidget);
-    
+
     // Update local state when widget properties change
     if (oldWidget.selectedOption != widget.selectedOption) {
       _selectedOption = widget.selectedOption;
       _editingSelectedOption = widget.selectedOption;
     }
-    
+
     if (oldWidget.isLiked != widget.isLiked) {
       isLiked = widget.isLiked;
     }
@@ -116,7 +122,7 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
 
   Widget _buildYesNoQuestion() {
     final controller = Get.find<ReflectionJournalChatController>();
-    
+
     return Obx(() {
       final isInEditMode = controller.isYesNoEditMode.value &&
           controller.editingYesNoQuestionId.value == widget.questionId;
@@ -206,7 +212,7 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
                     }
                   },
                   isInEditMode,
-                  false, 
+                  false,
                 ),
               ],
             ),
@@ -251,9 +257,9 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
                             ? () async {
                                 // Save the edit
                                 if (widget.onYesNoEdit != null &&
-                                    controller.editingYesNoAnswerId.value != null &&
+                                    controller.editingYesNoAnswerId.value !=
+                                        null &&
                                     widget.questionId != null) {
-                                  
                                   // Call the edit function and wait for completion
                                   await widget.onYesNoEdit!(
                                     _editingSelectedOption!,
@@ -399,35 +405,49 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
     super.dispose();
   }
 
-  String _formatTimestamp(String timestamp) {
-    try {
+  String _formatTimestamp(String? timestamp) {
+  try {
+    DateTime dateTime;
+
+    // If no timestamp provided, use current time
+    if (timestamp == null || timestamp.isEmpty) {
+      dateTime = DateTime.now();
+    } else {
       // Parse the ISO 8601 timestamp
-      final dateTime = DateTime.parse(timestamp).timeZoneName == 'UTC'
+      dateTime = DateTime.parse(timestamp).timeZoneName == 'UTC'
           ? DateTime.parse(timestamp).toLocal()
           : DateTime.parse(timestamp);
-
-      // Format based on how long ago the message was sent
-      final now = DateTime.now();
-      final difference = now.difference(dateTime);
-
-      if (difference.inDays == 0) {
-        // Same day - show time only
-        return DateFormat('hh:mm a').format(dateTime);
-      } else if (difference.inDays == 1) {
-        // Yesterday - show "Yesterday at HH:MM"
-        return 'Yesterday at ${DateFormat('hh:mm a').format(dateTime)}';
-      } else if (difference.inDays < 7) {
-        // Within last week - show weekday
-        return DateFormat('EEEE').format(dateTime);
-      } else {
-        // Older than a week - show date
-        return DateFormat('MMM d, yyyy').format(dateTime);
-      }
-    } catch (e) {
-      // Fallback to original timestamp if parsing fails
-      return timestamp;
     }
+
+    // Format based on how long ago the message was sent
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays == 0) {
+      // Same day - show time only (e.g., "2:30 PM")
+      return DateFormat('h:mm a').format(dateTime);
+    } else if (difference.inDays == 1) {
+      // 1 day passed - show "Yesterday at HH:MM"
+      return 'Yesterday at ${DateFormat('h:mm a').format(dateTime)}';
+    } else if (difference.inDays > 1 && difference.inDays < 7) {
+      // 2-6 days passed - show "Day at HH:MM" (e.g., "Monday at 2:30 PM")
+      return '${DateFormat('EEEE').format(dateTime)} at ${DateFormat('h:mm a').format(dateTime)}';
+    } else {
+      // 7+ days passed - check if same year
+      if (dateTime.year == now.year) {
+        // Same year - show month, date and time (e.g., "Jan 15 at 2:30 PM")
+        return '${DateFormat('MMM d').format(dateTime)} at ${DateFormat('h:mm a').format(dateTime)}';
+      } else {
+        // Different year - show full date and time (e.g., "Jan 15, 2024 at 2:30 PM")
+        return '${DateFormat('MMM d, yyyy').format(dateTime)} at ${DateFormat('h:mm a').format(dateTime)}';
+      }
+    }
+  } catch (e) {
+    // Fallback to current time if parsing fails
+    return DateFormat('h:mm a').format(DateTime.now());
   }
+}
+
 
   void _showPopupMenu(BuildContext context, Offset position) {
     final left = position.dx - 80;
@@ -496,7 +516,7 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
                     children: [
                       _buildThinkingIndicator(),
                       Text(
-                        _formatTimestamp(widget.timeStamp),
+                        _formatTimestamp(widget.createdAt),
                         style: AppTextStyles.textCaptionC2,
                       ),
                     ],
@@ -508,7 +528,8 @@ class _ReflectionChatBubbleContainerState extends State<ReflectionChatBubbleCont
         ),
       );
     } else {
-      final formattedTimestamp = _formatTimestamp(widget.timeStamp);
+      final displayTimestamp = widget.createdAt ;
+      final formattedTimestamp = _formatTimestamp(displayTimestamp);
 
       return Align(
         alignment: widget.isMine ? Alignment.centerRight : Alignment.centerLeft,

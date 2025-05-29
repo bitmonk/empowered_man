@@ -191,6 +191,27 @@ class JournalChatController extends GetxController {
     }
   }
 
+  String getLatestTimestampFromQuestion(MainQuestion question) {
+    String latestTimestamp =
+        question.answer?.createdAt ?? DateTime.now().toString();
+
+    // Check follow-up questions for more recent timestamps
+    if (question.followUpQuestions != null) {
+      for (final followUp in question.followUpQuestions!) {
+        if (followUp.answered == true && followUp.answer?.createdAt != null) {
+          final followUpTime = DateTime.parse(followUp.answer!.createdAt!);
+          final currentLatest = DateTime.parse(latestTimestamp);
+
+          if (followUpTime.isAfter(currentLatest)) {
+            latestTimestamp = followUp.answer!.createdAt!;
+          }
+        }
+      }
+    }
+
+    return latestTimestamp;
+  }
+
   List<MessageItem> buildCompleteMessageList(Journal? journal) {
     if (journal == null || journal.mainQuestions == null) {
       return [];
@@ -202,13 +223,18 @@ class JournalChatController extends GetxController {
     // Process main questions and their follow-ups
     for (var i = 0; i < journal.mainQuestions!.length; i++) {
       final mainQuestion = journal.mainQuestions![i];
-      var questionTimestamp = '';
 
-      if (i > 0) {
-        final previousQuestion = journal.mainQuestions![i - 1];
-        if (previousQuestion.answer?.createdAt != null) {
-          questionTimestamp = previousQuestion.answer?.createdAt ?? '';
+      String questionTimestamp;
+      if (i == 0) {
+        if (mainQuestion.answered == true &&
+            mainQuestion.answer?.createdAt != null) {
+          questionTimestamp = mainQuestion.answer!.createdAt!;
+        } else {
+          questionTimestamp = DateTime.now().toString();
         }
+      } else {
+        final previousQuestion = journal.mainQuestions![i - 1];
+        questionTimestamp = getLatestTimestampFromQuestion(previousQuestion);
       }
 
       // Add main question
@@ -216,13 +242,13 @@ class JournalChatController extends GetxController {
         MessageItem(
           type: MessageType.question,
           message: mainQuestion.question!,
-          timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+          timestamp: questionTimestamp,
           isMine: false,
-          questionId: mainQuestion.id?.toString(), // Add question ID
+          questionId: mainQuestion.id?.toString(),
+          createdAt: questionTimestamp,
         ),
       );
 
-      // Add the answer if it exists
       if (mainQuestion.answered == true && mainQuestion.answer != null) {
         items.add(
           MessageItem(
@@ -235,17 +261,32 @@ class JournalChatController extends GetxController {
             videos: mainQuestion.answer?.media?.videos,
             voices: mainQuestion.answer?.media?.voices,
             answerId: mainQuestion.answer?.id.toString(),
+            createdAt:
+                mainQuestion.answer?.createdAt ?? DateTime.now().toString(),
+            updatedAt: mainQuestion.answer?.updatedAt ?? '',
           ),
         );
 
-        // Process follow-up questions for answered main questions
         if (mainQuestion.followUpQuestions != null) {
-          for (final followUp in mainQuestion.followUpQuestions!) {
+          for (var j = 0; j < mainQuestion.followUpQuestions!.length; j++) {
+            final followUp = mainQuestion.followUpQuestions![j];
+
+            String followUpQuestionTimestamp;
+            if (j == 0) {
+              followUpQuestionTimestamp =
+                  mainQuestion.answer?.createdAt ?? DateTime.now().toString();
+            } else {
+              final previousFollowUp = mainQuestion.followUpQuestions![j - 1];
+              followUpQuestionTimestamp = previousFollowUp.answer?.createdAt ??
+                  mainQuestion.answer?.createdAt ??
+                  DateTime.now().toString();
+            }
+
             items.add(
               MessageItem(
                 type: MessageType.question,
                 message: followUp.question ?? '',
-                timestamp: DateTime.now().toString(),
+                timestamp: followUpQuestionTimestamp,
                 isMine: false,
                 isYesNoQuestion: followUp.questionType == 'yes_no',
                 selectedOption: followUp.answered == true &&
@@ -253,6 +294,7 @@ class JournalChatController extends GetxController {
                     ? followUp.answer?.text
                     : null,
                 questionId: followUp.id?.toString(),
+                createdAt: followUpQuestionTimestamp,
               ),
             );
 
@@ -272,8 +314,10 @@ class JournalChatController extends GetxController {
                   selectedOption: followUp.questionType == 'yes_no'
                       ? followUp.answer?.text
                       : null,
-                  questionId: followUp.id
-                      ?.toString(), 
+                  questionId: followUp.id?.toString(),
+                  createdAt:
+                      followUp.answer?.createdAt ?? DateTime.now().toString(),
+                  updatedAt: followUp.answer?.updatedAt ?? '',
                 ),
               );
             } else {

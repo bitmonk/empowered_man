@@ -450,7 +450,7 @@ mixin _$Question {
   @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal_detail_id')
-  int? get goalDetailId => throw _privateConstructorUsedError;
+  dynamic get goalDetailId => throw _privateConstructorUsedError;
   @JsonKey(name: 'question_text')
   String? get questionText => throw _privateConstructorUsedError;
   @JsonKey(name: 'answered')
@@ -475,7 +475,7 @@ abstract class $QuestionCopyWith<$Res> {
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+      @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
       @JsonKey(name: 'question_text') String? questionText,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') List<Answer>? answer});
@@ -510,7 +510,7 @@ class _$QuestionCopyWithImpl<$Res, $Val extends Question>
       goalDetailId: freezed == goalDetailId
           ? _value.goalDetailId
           : goalDetailId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       questionText: freezed == questionText
           ? _value.questionText
           : questionText // ignore: cast_nullable_to_non_nullable
@@ -537,7 +537,7 @@ abstract class _$$QuestionImplCopyWith<$Res>
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+      @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
       @JsonKey(name: 'question_text') String? questionText,
       @JsonKey(name: 'answered') bool? answered,
       @JsonKey(name: 'answer') List<Answer>? answer});
@@ -570,7 +570,7 @@ class __$$QuestionImplCopyWithImpl<$Res>
       goalDetailId: freezed == goalDetailId
           ? _value.goalDetailId
           : goalDetailId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       questionText: freezed == questionText
           ? _value.questionText
           : questionText // ignore: cast_nullable_to_non_nullable
@@ -606,7 +606,7 @@ class _$QuestionImpl implements _Question {
   final int? id;
   @override
   @JsonKey(name: 'goal_detail_id')
-  final int? goalDetailId;
+  final dynamic goalDetailId;
   @override
   @JsonKey(name: 'question_text')
   final String? questionText;
@@ -635,8 +635,8 @@ class _$QuestionImpl implements _Question {
         (other.runtimeType == runtimeType &&
             other is _$QuestionImpl &&
             (identical(other.id, id) || other.id == id) &&
-            (identical(other.goalDetailId, goalDetailId) ||
-                other.goalDetailId == goalDetailId) &&
+            const DeepCollectionEquality()
+                .equals(other.goalDetailId, goalDetailId) &&
             (identical(other.questionText, questionText) ||
                 other.questionText == questionText) &&
             (identical(other.answered, answered) ||
@@ -646,8 +646,13 @@ class _$QuestionImpl implements _Question {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, goalDetailId, questionText,
-      answered, const DeepCollectionEquality().hash(_answer));
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      const DeepCollectionEquality().hash(goalDetailId),
+      questionText,
+      answered,
+      const DeepCollectionEquality().hash(_answer));
 
   /// Create a copy of Question
   /// with the given fields replaced by the non-null parameter values.
@@ -668,7 +673,7 @@ class _$QuestionImpl implements _Question {
 abstract class _Question implements Question {
   const factory _Question(
       {@JsonKey(name: 'id') final int? id,
-      @JsonKey(name: 'goal_detail_id') final int? goalDetailId,
+      @JsonKey(name: 'goal_detail_id') final dynamic goalDetailId,
       @JsonKey(name: 'question_text') final String? questionText,
       @JsonKey(name: 'answered') final bool? answered,
       @JsonKey(name: 'answer') final List<Answer>? answer}) = _$QuestionImpl;
@@ -681,7 +686,7 @@ abstract class _Question implements Question {
   int? get id;
   @override
   @JsonKey(name: 'goal_detail_id')
-  int? get goalDetailId;
+  dynamic get goalDetailId;
   @override
   @JsonKey(name: 'question_text')
   String? get questionText;
@@ -711,13 +716,17 @@ mixin _$Answer {
   @JsonKey(name: 'user_id')
   int? get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'question_id')
-  int? get questionId => throw _privateConstructorUsedError;
+  dynamic get questionId => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_goal_id')
-  int? get userGoalId => throw _privateConstructorUsedError;
+  dynamic get userGoalId => throw _privateConstructorUsedError;
   @JsonKey(name: 'text')
   String? get text => throw _privateConstructorUsedError;
   @JsonKey(name: 'achieved')
   bool? get achieved => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Answer to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -736,10 +745,12 @@ abstract class $AnswerCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'question_id') int? questionId,
-      @JsonKey(name: 'user_goal_id') int? userGoalId,
+      @JsonKey(name: 'question_id') dynamic questionId,
+      @JsonKey(name: 'user_goal_id') dynamic userGoalId,
       @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'achieved') bool? achieved});
+      @JsonKey(name: 'achieved') bool? achieved,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -763,6 +774,8 @@ class _$AnswerCopyWithImpl<$Res, $Val extends Answer>
     Object? userGoalId = freezed,
     Object? text = freezed,
     Object? achieved = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -776,11 +789,11 @@ class _$AnswerCopyWithImpl<$Res, $Val extends Answer>
       questionId: freezed == questionId
           ? _value.questionId
           : questionId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       userGoalId: freezed == userGoalId
           ? _value.userGoalId
           : userGoalId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       text: freezed == text
           ? _value.text
           : text // ignore: cast_nullable_to_non_nullable
@@ -789,6 +802,14 @@ class _$AnswerCopyWithImpl<$Res, $Val extends Answer>
           ? _value.achieved
           : achieved // ignore: cast_nullable_to_non_nullable
               as bool?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ) as $Val);
   }
 }
@@ -803,10 +824,12 @@ abstract class _$$AnswerImplCopyWith<$Res> implements $AnswerCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'question_id') int? questionId,
-      @JsonKey(name: 'user_goal_id') int? userGoalId,
+      @JsonKey(name: 'question_id') dynamic questionId,
+      @JsonKey(name: 'user_goal_id') dynamic userGoalId,
       @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'achieved') bool? achieved});
+      @JsonKey(name: 'achieved') bool? achieved,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 }
 
 /// @nodoc
@@ -828,6 +851,8 @@ class __$$AnswerImplCopyWithImpl<$Res>
     Object? userGoalId = freezed,
     Object? text = freezed,
     Object? achieved = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
   }) {
     return _then(_$AnswerImpl(
       id: freezed == id
@@ -841,11 +866,11 @@ class __$$AnswerImplCopyWithImpl<$Res>
       questionId: freezed == questionId
           ? _value.questionId
           : questionId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       userGoalId: freezed == userGoalId
           ? _value.userGoalId
           : userGoalId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       text: freezed == text
           ? _value.text
           : text // ignore: cast_nullable_to_non_nullable
@@ -854,6 +879,14 @@ class __$$AnswerImplCopyWithImpl<$Res>
           ? _value.achieved
           : achieved // ignore: cast_nullable_to_non_nullable
               as bool?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
     ));
   }
 }
@@ -867,7 +900,9 @@ class _$AnswerImpl implements _Answer {
       @JsonKey(name: 'question_id') this.questionId,
       @JsonKey(name: 'user_goal_id') this.userGoalId,
       @JsonKey(name: 'text') this.text,
-      @JsonKey(name: 'achieved') this.achieved});
+      @JsonKey(name: 'achieved') this.achieved,
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt});
 
   factory _$AnswerImpl.fromJson(Map<String, dynamic> json) =>
       _$$AnswerImplFromJson(json);
@@ -880,20 +915,26 @@ class _$AnswerImpl implements _Answer {
   final int? userId;
   @override
   @JsonKey(name: 'question_id')
-  final int? questionId;
+  final dynamic questionId;
   @override
   @JsonKey(name: 'user_goal_id')
-  final int? userGoalId;
+  final dynamic userGoalId;
   @override
   @JsonKey(name: 'text')
   final String? text;
   @override
   @JsonKey(name: 'achieved')
   final bool? achieved;
+  @override
+  @JsonKey(name: 'created_at')
+  final DateTime? createdAt;
+  @override
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'Answer(id: $id, userId: $userId, questionId: $questionId, userGoalId: $userGoalId, text: $text, achieved: $achieved)';
+    return 'Answer(id: $id, userId: $userId, questionId: $questionId, userGoalId: $userGoalId, text: $text, achieved: $achieved, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -903,19 +944,31 @@ class _$AnswerImpl implements _Answer {
             other is _$AnswerImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.questionId, questionId) ||
-                other.questionId == questionId) &&
-            (identical(other.userGoalId, userGoalId) ||
-                other.userGoalId == userGoalId) &&
+            const DeepCollectionEquality()
+                .equals(other.questionId, questionId) &&
+            const DeepCollectionEquality()
+                .equals(other.userGoalId, userGoalId) &&
             (identical(other.text, text) || other.text == text) &&
             (identical(other.achieved, achieved) ||
-                other.achieved == achieved));
+                other.achieved == achieved) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   int get hashCode => Object.hash(
-      runtimeType, id, userId, questionId, userGoalId, text, achieved);
+      runtimeType,
+      id,
+      userId,
+      const DeepCollectionEquality().hash(questionId),
+      const DeepCollectionEquality().hash(userGoalId),
+      text,
+      achieved,
+      createdAt,
+      updatedAt);
 
   /// Create a copy of Answer
   /// with the given fields replaced by the non-null parameter values.
@@ -937,10 +990,12 @@ abstract class _Answer implements Answer {
   const factory _Answer(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'user_id') final int? userId,
-      @JsonKey(name: 'question_id') final int? questionId,
-      @JsonKey(name: 'user_goal_id') final int? userGoalId,
+      @JsonKey(name: 'question_id') final dynamic questionId,
+      @JsonKey(name: 'user_goal_id') final dynamic userGoalId,
       @JsonKey(name: 'text') final String? text,
-      @JsonKey(name: 'achieved') final bool? achieved}) = _$AnswerImpl;
+      @JsonKey(name: 'achieved') final bool? achieved,
+      @JsonKey(name: 'created_at') final DateTime? createdAt,
+      @JsonKey(name: 'updated_at') final DateTime? updatedAt}) = _$AnswerImpl;
 
   factory _Answer.fromJson(Map<String, dynamic> json) = _$AnswerImpl.fromJson;
 
@@ -952,16 +1007,22 @@ abstract class _Answer implements Answer {
   int? get userId;
   @override
   @JsonKey(name: 'question_id')
-  int? get questionId;
+  dynamic get questionId;
   @override
   @JsonKey(name: 'user_goal_id')
-  int? get userGoalId;
+  dynamic get userGoalId;
   @override
   @JsonKey(name: 'text')
   String? get text;
   @override
   @JsonKey(name: 'achieved')
   bool? get achieved;
+  @override
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt;
+  @override
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt;
 
   /// Create a copy of Answer
   /// with the given fields replaced by the non-null parameter values.
@@ -982,25 +1043,25 @@ mixin _$UserGoal {
   @JsonKey(name: 'user_id')
   int? get userId => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal_id')
-  int? get goalId => throw _privateConstructorUsedError;
+  dynamic get goalId => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal_detail_id')
-  int? get goalDetailId => throw _privateConstructorUsedError;
+  dynamic get goalDetailId => throw _privateConstructorUsedError;
   @JsonKey(name: 'progress')
   dynamic get progress => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_ontrack')
-  dynamic get isOntrack => throw _privateConstructorUsedError;
+  bool? get isOntrack => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_complete')
-  dynamic get isComplete => throw _privateConstructorUsedError;
+  bool? get isComplete => throw _privateConstructorUsedError;
   @JsonKey(name: 'show_won_question')
-  dynamic get showWonQuestion => throw _privateConstructorUsedError;
+  bool? get showWonQuestion => throw _privateConstructorUsedError;
   @JsonKey(name: 'show_track_question')
-  dynamic get showTrackQuestion => throw _privateConstructorUsedError;
+  bool? get showTrackQuestion => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal')
   Goal? get goal => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal_detail')
   GoalDetail? get goalDetail => throw _privateConstructorUsedError;
   @JsonKey(name: 'goal_answers')
-  List<dynamic>? get goalAnswers => throw _privateConstructorUsedError;
+  List<Answer>? get goalAnswers => throw _privateConstructorUsedError;
 
   /// Serializes this UserGoal to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1020,16 +1081,16 @@ abstract class $UserGoalCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'goal_id') int? goalId,
-      @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+      @JsonKey(name: 'goal_id') dynamic goalId,
+      @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
       @JsonKey(name: 'progress') dynamic progress,
-      @JsonKey(name: 'is_ontrack') dynamic isOntrack,
-      @JsonKey(name: 'is_complete') dynamic isComplete,
-      @JsonKey(name: 'show_won_question') dynamic showWonQuestion,
-      @JsonKey(name: 'show_track_question') dynamic showTrackQuestion,
+      @JsonKey(name: 'is_ontrack') bool? isOntrack,
+      @JsonKey(name: 'is_complete') bool? isComplete,
+      @JsonKey(name: 'show_won_question') bool? showWonQuestion,
+      @JsonKey(name: 'show_track_question') bool? showTrackQuestion,
       @JsonKey(name: 'goal') Goal? goal,
       @JsonKey(name: 'goal_detail') GoalDetail? goalDetail,
-      @JsonKey(name: 'goal_answers') List<dynamic>? goalAnswers});
+      @JsonKey(name: 'goal_answers') List<Answer>? goalAnswers});
 
   $GoalCopyWith<$Res>? get goal;
   $GoalDetailCopyWith<$Res>? get goalDetail;
@@ -1075,11 +1136,11 @@ class _$UserGoalCopyWithImpl<$Res, $Val extends UserGoal>
       goalId: freezed == goalId
           ? _value.goalId
           : goalId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       goalDetailId: freezed == goalDetailId
           ? _value.goalDetailId
           : goalDetailId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       progress: freezed == progress
           ? _value.progress
           : progress // ignore: cast_nullable_to_non_nullable
@@ -1087,19 +1148,19 @@ class _$UserGoalCopyWithImpl<$Res, $Val extends UserGoal>
       isOntrack: freezed == isOntrack
           ? _value.isOntrack
           : isOntrack // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       isComplete: freezed == isComplete
           ? _value.isComplete
           : isComplete // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       showWonQuestion: freezed == showWonQuestion
           ? _value.showWonQuestion
           : showWonQuestion // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       showTrackQuestion: freezed == showTrackQuestion
           ? _value.showTrackQuestion
           : showTrackQuestion // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       goal: freezed == goal
           ? _value.goal
           : goal // ignore: cast_nullable_to_non_nullable
@@ -1111,7 +1172,7 @@ class _$UserGoalCopyWithImpl<$Res, $Val extends UserGoal>
       goalAnswers: freezed == goalAnswers
           ? _value.goalAnswers
           : goalAnswers // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
+              as List<Answer>?,
     ) as $Val);
   }
 
@@ -1155,16 +1216,16 @@ abstract class _$$UserGoalImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'goal_id') int? goalId,
-      @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+      @JsonKey(name: 'goal_id') dynamic goalId,
+      @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
       @JsonKey(name: 'progress') dynamic progress,
-      @JsonKey(name: 'is_ontrack') dynamic isOntrack,
-      @JsonKey(name: 'is_complete') dynamic isComplete,
-      @JsonKey(name: 'show_won_question') dynamic showWonQuestion,
-      @JsonKey(name: 'show_track_question') dynamic showTrackQuestion,
+      @JsonKey(name: 'is_ontrack') bool? isOntrack,
+      @JsonKey(name: 'is_complete') bool? isComplete,
+      @JsonKey(name: 'show_won_question') bool? showWonQuestion,
+      @JsonKey(name: 'show_track_question') bool? showTrackQuestion,
       @JsonKey(name: 'goal') Goal? goal,
       @JsonKey(name: 'goal_detail') GoalDetail? goalDetail,
-      @JsonKey(name: 'goal_answers') List<dynamic>? goalAnswers});
+      @JsonKey(name: 'goal_answers') List<Answer>? goalAnswers});
 
   @override
   $GoalCopyWith<$Res>? get goal;
@@ -1210,11 +1271,11 @@ class __$$UserGoalImplCopyWithImpl<$Res>
       goalId: freezed == goalId
           ? _value.goalId
           : goalId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       goalDetailId: freezed == goalDetailId
           ? _value.goalDetailId
           : goalDetailId // ignore: cast_nullable_to_non_nullable
-              as int?,
+              as dynamic,
       progress: freezed == progress
           ? _value.progress
           : progress // ignore: cast_nullable_to_non_nullable
@@ -1222,19 +1283,19 @@ class __$$UserGoalImplCopyWithImpl<$Res>
       isOntrack: freezed == isOntrack
           ? _value.isOntrack
           : isOntrack // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       isComplete: freezed == isComplete
           ? _value.isComplete
           : isComplete // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       showWonQuestion: freezed == showWonQuestion
           ? _value.showWonQuestion
           : showWonQuestion // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       showTrackQuestion: freezed == showTrackQuestion
           ? _value.showTrackQuestion
           : showTrackQuestion // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
       goal: freezed == goal
           ? _value.goal
           : goal // ignore: cast_nullable_to_non_nullable
@@ -1246,7 +1307,7 @@ class __$$UserGoalImplCopyWithImpl<$Res>
       goalAnswers: freezed == goalAnswers
           ? _value._goalAnswers
           : goalAnswers // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
+              as List<Answer>?,
     ));
   }
 }
@@ -1266,7 +1327,7 @@ class _$UserGoalImpl implements _UserGoal {
       @JsonKey(name: 'show_track_question') this.showTrackQuestion,
       @JsonKey(name: 'goal') this.goal,
       @JsonKey(name: 'goal_detail') this.goalDetail,
-      @JsonKey(name: 'goal_answers') final List<dynamic>? goalAnswers})
+      @JsonKey(name: 'goal_answers') final List<Answer>? goalAnswers})
       : _goalAnswers = goalAnswers;
 
   factory _$UserGoalImpl.fromJson(Map<String, dynamic> json) =>
@@ -1280,35 +1341,35 @@ class _$UserGoalImpl implements _UserGoal {
   final int? userId;
   @override
   @JsonKey(name: 'goal_id')
-  final int? goalId;
+  final dynamic goalId;
   @override
   @JsonKey(name: 'goal_detail_id')
-  final int? goalDetailId;
+  final dynamic goalDetailId;
   @override
   @JsonKey(name: 'progress')
   final dynamic progress;
   @override
   @JsonKey(name: 'is_ontrack')
-  final dynamic isOntrack;
+  final bool? isOntrack;
   @override
   @JsonKey(name: 'is_complete')
-  final dynamic isComplete;
+  final bool? isComplete;
   @override
   @JsonKey(name: 'show_won_question')
-  final dynamic showWonQuestion;
+  final bool? showWonQuestion;
   @override
   @JsonKey(name: 'show_track_question')
-  final dynamic showTrackQuestion;
+  final bool? showTrackQuestion;
   @override
   @JsonKey(name: 'goal')
   final Goal? goal;
   @override
   @JsonKey(name: 'goal_detail')
   final GoalDetail? goalDetail;
-  final List<dynamic>? _goalAnswers;
+  final List<Answer>? _goalAnswers;
   @override
   @JsonKey(name: 'goal_answers')
-  List<dynamic>? get goalAnswers {
+  List<Answer>? get goalAnswers {
     final value = _goalAnswers;
     if (value == null) return null;
     if (_goalAnswers is EqualUnmodifiableListView) return _goalAnswers;
@@ -1328,17 +1389,18 @@ class _$UserGoalImpl implements _UserGoal {
             other is _$UserGoalImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.goalId, goalId) || other.goalId == goalId) &&
-            (identical(other.goalDetailId, goalDetailId) ||
-                other.goalDetailId == goalDetailId) &&
+            const DeepCollectionEquality().equals(other.goalId, goalId) &&
+            const DeepCollectionEquality()
+                .equals(other.goalDetailId, goalDetailId) &&
             const DeepCollectionEquality().equals(other.progress, progress) &&
-            const DeepCollectionEquality().equals(other.isOntrack, isOntrack) &&
-            const DeepCollectionEquality()
-                .equals(other.isComplete, isComplete) &&
-            const DeepCollectionEquality()
-                .equals(other.showWonQuestion, showWonQuestion) &&
-            const DeepCollectionEquality()
-                .equals(other.showTrackQuestion, showTrackQuestion) &&
+            (identical(other.isOntrack, isOntrack) ||
+                other.isOntrack == isOntrack) &&
+            (identical(other.isComplete, isComplete) ||
+                other.isComplete == isComplete) &&
+            (identical(other.showWonQuestion, showWonQuestion) ||
+                other.showWonQuestion == showWonQuestion) &&
+            (identical(other.showTrackQuestion, showTrackQuestion) ||
+                other.showTrackQuestion == showTrackQuestion) &&
             (identical(other.goal, goal) || other.goal == goal) &&
             (identical(other.goalDetail, goalDetail) ||
                 other.goalDetail == goalDetail) &&
@@ -1352,13 +1414,13 @@ class _$UserGoalImpl implements _UserGoal {
       runtimeType,
       id,
       userId,
-      goalId,
-      goalDetailId,
+      const DeepCollectionEquality().hash(goalId),
+      const DeepCollectionEquality().hash(goalDetailId),
       const DeepCollectionEquality().hash(progress),
-      const DeepCollectionEquality().hash(isOntrack),
-      const DeepCollectionEquality().hash(isComplete),
-      const DeepCollectionEquality().hash(showWonQuestion),
-      const DeepCollectionEquality().hash(showTrackQuestion),
+      isOntrack,
+      isComplete,
+      showWonQuestion,
+      showTrackQuestion,
       goal,
       goalDetail,
       const DeepCollectionEquality().hash(_goalAnswers));
@@ -1383,16 +1445,16 @@ abstract class _UserGoal implements UserGoal {
   const factory _UserGoal(
           {@JsonKey(name: 'id') final int? id,
           @JsonKey(name: 'user_id') final int? userId,
-          @JsonKey(name: 'goal_id') final int? goalId,
-          @JsonKey(name: 'goal_detail_id') final int? goalDetailId,
+          @JsonKey(name: 'goal_id') final dynamic goalId,
+          @JsonKey(name: 'goal_detail_id') final dynamic goalDetailId,
           @JsonKey(name: 'progress') final dynamic progress,
-          @JsonKey(name: 'is_ontrack') final dynamic isOntrack,
-          @JsonKey(name: 'is_complete') final dynamic isComplete,
-          @JsonKey(name: 'show_won_question') final dynamic showWonQuestion,
-          @JsonKey(name: 'show_track_question') final dynamic showTrackQuestion,
+          @JsonKey(name: 'is_ontrack') final bool? isOntrack,
+          @JsonKey(name: 'is_complete') final bool? isComplete,
+          @JsonKey(name: 'show_won_question') final bool? showWonQuestion,
+          @JsonKey(name: 'show_track_question') final bool? showTrackQuestion,
           @JsonKey(name: 'goal') final Goal? goal,
           @JsonKey(name: 'goal_detail') final GoalDetail? goalDetail,
-          @JsonKey(name: 'goal_answers') final List<dynamic>? goalAnswers}) =
+          @JsonKey(name: 'goal_answers') final List<Answer>? goalAnswers}) =
       _$UserGoalImpl;
 
   factory _UserGoal.fromJson(Map<String, dynamic> json) =
@@ -1406,25 +1468,25 @@ abstract class _UserGoal implements UserGoal {
   int? get userId;
   @override
   @JsonKey(name: 'goal_id')
-  int? get goalId;
+  dynamic get goalId;
   @override
   @JsonKey(name: 'goal_detail_id')
-  int? get goalDetailId;
+  dynamic get goalDetailId;
   @override
   @JsonKey(name: 'progress')
   dynamic get progress;
   @override
   @JsonKey(name: 'is_ontrack')
-  dynamic get isOntrack;
+  bool? get isOntrack;
   @override
   @JsonKey(name: 'is_complete')
-  dynamic get isComplete;
+  bool? get isComplete;
   @override
   @JsonKey(name: 'show_won_question')
-  dynamic get showWonQuestion;
+  bool? get showWonQuestion;
   @override
   @JsonKey(name: 'show_track_question')
-  dynamic get showTrackQuestion;
+  bool? get showTrackQuestion;
   @override
   @JsonKey(name: 'goal')
   Goal? get goal;
@@ -1433,7 +1495,7 @@ abstract class _UserGoal implements UserGoal {
   GoalDetail? get goalDetail;
   @override
   @JsonKey(name: 'goal_answers')
-  List<dynamic>? get goalAnswers;
+  List<Answer>? get goalAnswers;
 
   /// Create a copy of UserGoal
   /// with the given fields replaced by the non-null parameter values.
@@ -1629,7 +1691,7 @@ mixin _$GoalDetail {
   @JsonKey(name: 'time_period')
   String? get timePeriod => throw _privateConstructorUsedError;
   @JsonKey(name: 'is_completed')
-  dynamic get isCompleted => throw _privateConstructorUsedError;
+  bool? get isCompleted => throw _privateConstructorUsedError;
 
   /// Serializes this GoalDetail to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1652,7 +1714,7 @@ abstract class $GoalDetailCopyWith<$Res> {
       @JsonKey(name: 'goal_id') int? goalId,
       @JsonKey(name: 'type') String? type,
       @JsonKey(name: 'time_period') String? timePeriod,
-      @JsonKey(name: 'is_completed') dynamic isCompleted});
+      @JsonKey(name: 'is_completed') bool? isCompleted});
 }
 
 /// @nodoc
@@ -1696,7 +1758,7 @@ class _$GoalDetailCopyWithImpl<$Res, $Val extends GoalDetail>
       isCompleted: freezed == isCompleted
           ? _value.isCompleted
           : isCompleted // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
     ) as $Val);
   }
 }
@@ -1714,7 +1776,7 @@ abstract class _$$GoalDetailImplCopyWith<$Res>
       @JsonKey(name: 'goal_id') int? goalId,
       @JsonKey(name: 'type') String? type,
       @JsonKey(name: 'time_period') String? timePeriod,
-      @JsonKey(name: 'is_completed') dynamic isCompleted});
+      @JsonKey(name: 'is_completed') bool? isCompleted});
 }
 
 /// @nodoc
@@ -1756,7 +1818,7 @@ class __$$GoalDetailImplCopyWithImpl<$Res>
       isCompleted: freezed == isCompleted
           ? _value.isCompleted
           : isCompleted // ignore: cast_nullable_to_non_nullable
-              as dynamic,
+              as bool?,
     ));
   }
 }
@@ -1788,7 +1850,7 @@ class _$GoalDetailImpl implements _GoalDetail {
   final String? timePeriod;
   @override
   @JsonKey(name: 'is_completed')
-  final dynamic isCompleted;
+  final bool? isCompleted;
 
   @override
   String toString() {
@@ -1805,14 +1867,14 @@ class _$GoalDetailImpl implements _GoalDetail {
             (identical(other.type, type) || other.type == type) &&
             (identical(other.timePeriod, timePeriod) ||
                 other.timePeriod == timePeriod) &&
-            const DeepCollectionEquality()
-                .equals(other.isCompleted, isCompleted));
+            (identical(other.isCompleted, isCompleted) ||
+                other.isCompleted == isCompleted));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, goalId, type, timePeriod,
-      const DeepCollectionEquality().hash(isCompleted));
+  int get hashCode =>
+      Object.hash(runtimeType, id, goalId, type, timePeriod, isCompleted);
 
   /// Create a copy of GoalDetail
   /// with the given fields replaced by the non-null parameter values.
@@ -1836,7 +1898,7 @@ abstract class _GoalDetail implements GoalDetail {
           @JsonKey(name: 'goal_id') final int? goalId,
           @JsonKey(name: 'type') final String? type,
           @JsonKey(name: 'time_period') final String? timePeriod,
-          @JsonKey(name: 'is_completed') final dynamic isCompleted}) =
+          @JsonKey(name: 'is_completed') final bool? isCompleted}) =
       _$GoalDetailImpl;
 
   factory _GoalDetail.fromJson(Map<String, dynamic> json) =
@@ -1856,7 +1918,7 @@ abstract class _GoalDetail implements GoalDetail {
   String? get timePeriod;
   @override
   @JsonKey(name: 'is_completed')
-  dynamic get isCompleted;
+  bool? get isCompleted;
 
   /// Create a copy of GoalDetail
   /// with the given fields replaced by the non-null parameter values.

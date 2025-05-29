@@ -170,8 +170,7 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
-                        GoalsOverviewInitializer.destroy();
-                        GoalsOverviewInitializer.initialize();
+                        
                         GoalsInitializer.destroy();
                         GoalsInitializer.initialize();
 

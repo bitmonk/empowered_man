@@ -70,18 +70,12 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
   void _handleControllerChanges() {
     if (!mounted) return;
 
-    final wasEditing = _isInitialized && chatController.isEditMode.value;
+    // final wasEditing = _isInitialized && chatController.isEditMode.value;
     final isNowEditing = chatController.isEditMode.value;
 
-    print(
-      'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing',
-    );
-
     if (isNowEditing && !_isInitialized) {
-      print('Entering edit mode - initializing...');
       _initializeEditMode();
     } else if (!isNowEditing && _isInitialized) {
-      print('Exiting edit mode - cleaning up...');
       _cleanupEditMode();
     }
 

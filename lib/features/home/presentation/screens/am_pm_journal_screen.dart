@@ -63,12 +63,6 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
     super.dispose();
   }
 
-  void navigateToLibrary() {
-    if (controller.reflectionQuestionAnswerResponse.value.data?.reflection !=
-        null) {}
-    Get.back();
-  }
-
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -87,6 +81,9 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
               message:
                   'You can continue this journal from dashboard or journal library',
               onPressed: () {
+                controller.getReflectionWithQuestionAnswers(
+                    widget.reflectionType ?? '');
+
                 Get.back();
               },
             ),
@@ -116,6 +113,9 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                   message:
                       'You can continue this journal from dashboard or journal library',
                   onPressed: () {
+                    controller.getReflectionWithQuestionAnswers(
+                        widget.reflectionType ?? '');
+
                     Get.back();
                   },
                 ),
@@ -228,6 +228,9 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                                               answered: item.answered,
                                               answerId: item.answerId,
                                               questionId: item.questionId,
+                                              createdAt: item.createdAt,
+                                              updatedAt: item.updatedAt,
+                                              isEdited: item.isEdited,
                                             );
 
                                             // Create the base message widget
@@ -272,6 +275,9 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
                                               answerId: messageItem.isMine
                                                   ? messageItem.answerId
                                                   : null,
+                                              createdAt: messageItem.createdAt,
+                                              updatedAt: messageItem.updatedAt,
+                                              isEdited: messageItem.isEdited,
                                               onEditTap: () {
                                                 if (messageItem
                                                         .isYesNoQuestion &&

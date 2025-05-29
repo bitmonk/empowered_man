@@ -3,42 +3,40 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_chat_model.dart';
 import 'package:empowered/features/goals/data/source/goals_chat_remote_source.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
-import 'package:flutter_quill/quill_delta.dart' as quill;
 
 class GoalsChatController extends GetxController {
   GoalsChatController({required this.remoteSource});
-
   final GoalsChatRemoteSource remoteSource;
+
   late TextEditingController chatController;
   late ScrollController scrollController;
 
+  RxString title = 'Goals Chat'.obs;
+  CancelToken? _cancelToken;
   // States
   Rx<TheStates> getGoalsChatState = TheStates.initial.obs;
   Rx<TheStates> sendMessageState = TheStates.initial.obs;
   Rx<TheStates> updateMessageState = TheStates.initial.obs;
-
-  // Flags
-  RxBool isEditMode = false.obs;
-  RxBool autoScrollEnabled = true.obs;
-  RxBool showBeginJournalButton = false.obs;
-  RxBool isSendingMessage = false.obs;
-  RxBool isShowingThinking = false.obs;
-  RxBool showRichTextEditor = false.obs;
-
-  // Data
-  RxString goalId = RxString('');
-  RxString goalDetailId = RxString('');
-  RxString title = ''.obs;
-  RxnString editingAnswerId = RxnString();
-
-  // Cancel token for API calls
-  CancelToken? _cancelToken;
-
   // Chat data
   Rx<GoalsChatModel> goalsChatModel = const GoalsChatModel().obs;
   RxList<MessageItem> chatConversationList = RxList<MessageItem>([]);
   RxList<MessageItem> pendingMessages = RxList<MessageItem>([]);
   Rx<MessageItem?> pendingAnswer = Rx<MessageItem?>(null);
+
+  RxBool autoScrollEnabled = true.obs;
+  RxBool showBeginJournallButton = false.obs;
+
+  // Thinking indicator states
+  RxBool isShowingThinking = false.obs;
+  RxBool isSendingMessage = false.obs;
+  RxBool isEditMode = false.obs;
+  RxnString editingAnswerId = RxnString();
+  RxBool isJustCompleted = false.obs;
+  RxBool wasAlreadyCompleted = false.obs;
+RxnString initialEditText = RxnString();
+
+  RxString goalId = RxString('');
+  RxString goalDetailId = RxString('');
 
   @override
   void onInit() {
@@ -46,20 +44,27 @@ class GoalsChatController extends GetxController {
     chatController = TextEditingController();
     scrollController = ScrollController();
     scrollController.addListener(_scrollListener);
+    ever(goalsChatModel, (GoalsChatModel conversation) {
+      if (conversation.data?.userGoal?.goalDetail?.isCompleted == true &&
+          !isJustCompleted.value) {
+        wasAlreadyCompleted.value = true;
+      }
+    });
+
+    getGoalsChatState.listen((state) {
+      if (state == TheStates.success && autoScrollEnabled.value) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          scrollToBottom();
+        });
+      }
+    });
   }
 
   @override
   void onClose() {
     chatController.dispose();
     scrollController.dispose();
-    _cancelToken?.cancel();
     super.onClose();
-  }
-
-  void initializeWithIds(String goalId, String goalDetailId) {
-    this.goalId.value = goalId;
-    this.goalDetailId.value = goalDetailId;
-    getGoalsChat();
   }
 
   void _scrollListener() {
@@ -68,274 +73,59 @@ class GoalsChatController extends GetxController {
       final maxScroll = position.maxScrollExtent;
       final currentScroll = position.pixels;
 
-      autoScrollEnabled.value = maxScroll - currentScroll <= 100;
-    }
-  }
-
-  void scrollToBottom({bool animated = true}) {
-    if (scrollController.hasClients) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (animated) {
-          scrollController.animateTo(
-            scrollController.position.maxScrollExtent + 200,
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOut,
-          );
-        } else {
-          scrollController
-              .jumpTo(scrollController.position.maxScrollExtent + 200);
-        }
-      });
-    }
-  }
-
-  void toggleRichTextEditor() {
-    showRichTextEditor.value = !showRichTextEditor.value;
-  }
-
-  void resetEditMode() {
-    isEditMode.value = false;
-    editingAnswerId.value = null;
-    chatController.clear();
-    showRichTextEditor.value = false;
-  }
-
-  void enableEditMode(String answerId, String currentText) {
-    isEditMode.value = true;
-    editingAnswerId.value = answerId;
-    chatController.text = currentText;
-  }
-
-  Future<bool> getGoalsChat() async {
-    if (goalId.isEmpty || goalDetailId.isEmpty) {
-      getGoalsChatState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(
-          message: 'Goal ID or Goal Detail ID is missing',);
-      return false;
-    }
-
-    getGoalsChatState.value = TheStates.loading;
-    showBeginJournalButton.value = false;
-
-    try {
-      final result = await remoteSource.getGoalsChat(
-        goalId: goalId.value,
-        goalDetailId: goalDetailId.value,
-      );
-
-      return result.fold(
-        (failure) {
-          getGoalsChatState.value = TheStates.error;
-          AppUtils.showErrorSnackbar(message: failure.message);
-          return false;
-        },
-        (chatModel) {
-          getGoalsChatState.value = TheStates.success;
-          goalsChatModel.value = chatModel;
-
-          _updateChatConversationList();
-
-          showBeginJournalButton.value = _shouldShowBeginButton();
-
-          if (!isSendingMessage.value) {
-            pendingMessages.clear();
-          }
-
-          // Update title
-          title.value = chatModel.data?.userGoal?.goal?.title ?? 'Goals Chat';
-
-          scrollToBottom();
-          return true;
-        },
-      );
-    } catch (e) {
-      getGoalsChatState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: 'Failed to load chat: $e');
-      return false;
-    }
-  }
-
-  void _updateChatConversationList() {
-    final goals = goalsChatModel.value.data;
-    chatConversationList.value = buildCompleteMessageList(goals);
-  }
-
-  bool _shouldShowBeginButton() {
-    final questions = goalsChatModel.value.data?.questions;
-    if (questions == null || questions.isEmpty) return false;
-
-    return questions.first.answered == false;
-  }
-
-  Future<void> sendGoalsMessage({
-    String? text,
-    String? mediaPath,
-    String? questionId,
-    String? followupQuestionId,
-  }) async {
-    final messageText = text ?? chatController.text.trim();
-    if (messageText.isEmpty && mediaPath == null) {
-      AppUtils.showErrorSnackbar(message: 'Please enter a message');
-      return;
-    }
-
-    await _processSendMessage(
-      messageText: messageText,
-      mediaPath: mediaPath,
-      questionId: questionId,
-      followupQuestionId: followupQuestionId,
-    );
-  }
-
-  Future<void> sendMessageWithFormatting({
-    required String text,
-    quill.Delta? delta,
-    String? mediaPath,
-    String? questionId,
-    String? followupQuestionId,
-  }) async {
-    if (text.trim().isEmpty && mediaPath == null) {
-      AppUtils.showErrorSnackbar(message: 'Please enter a message');
-      return;
-    }
-
-    await _processSendMessage(
-      messageText: text.trim(),
-      mediaPath: mediaPath,
-      questionId: questionId,
-      followupQuestionId: followupQuestionId,
-      delta: delta,
-    );
-  }
-
-  Future<void> _processSendMessage({
-    required String messageText,
-    String? mediaPath,
-    String? questionId,
-    String? followupQuestionId,
-    quill.Delta? delta,
-  }) async {
-    // Add user message to pending list
-    final userMessage = MessageItem(
-      type: MessageType.answer,
-      message: messageText,
-      timestamp: DateTime.now().toString(),
-      isMine: true,
-    );
-
-    pendingMessages.add(userMessage);
-    _updateChatConversationList();
-
-    // Clear input and show thinking
-    chatController.clear();
-    showRichTextEditor.value = false;
-    isShowingThinking.value = true;
-    isSendingMessage.value = true;
-    sendMessageState.value = TheStates.loading;
-    _cancelToken = CancelToken();
-    autoScrollEnabled.value = true;
-
-    scrollToBottom();
-
-    try {
-      var effectiveQuestionId = questionId ?? _getCurrentQuestionId();
-
-      final result = await remoteSource.sendGoalsMessage(
-        goalsChatModel.value.data?.userGoal?.id.toString() ?? '',
-        _cancelToken,
-        effectiveQuestionId,
-        messageText,
-      );
-
-      result.fold(
-        (failure) {
-          sendMessageState.value = TheStates.error;
-          AppUtils.showErrorSnackbar(message: failure.message);
-
-          pendingMessages.removeWhere(
-              (msg) => msg.message == messageText && msg.isMine == true,);
-          _updateChatConversationList();
-        },
-        (success) {
-          sendMessageState.value = TheStates.success;
-
-          pendingMessages.clear();
-
-          getGoalsChat();
-        },
-      );
-    } catch (e) {
-      sendMessageState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: 'Failed to send message: $e');
-
-      pendingMessages.removeWhere(
-          (msg) => msg.message == messageText && msg.isMine == true,);
-      _updateChatConversationList();
-    } finally {
-      isShowingThinking.value = false;
-      isSendingMessage.value = false;
-    }
-  }
-
-  String? _getCurrentQuestionId() {
-    final questions = goalsChatModel.value.data?.questions;
-    if (questions == null || questions.isEmpty) {
-      return null;
-    }
-
-    // Find the first unanswered question
-    for (final question in questions) {
-      if (question.answered == false || question.answered == null) {
-        return question.id?.toString();
+      if (maxScroll - currentScroll <= 100) {
+        autoScrollEnabled.value = true;
+      } else {
+        autoScrollEnabled.value = false;
       }
     }
-
-    return questions.last.id?.toString();
   }
 
-  Future<void> updateGoalsAnswer(String? text) async {
-    final messageText = text ?? chatController.text.trim();
-    if (messageText.isEmpty) {
-      AppUtils.showErrorSnackbar(message: 'Please enter a message');
-      return;
-    }
+  void setEditMode(bool isEdit, String answerId, {String? initialText}) {
+  isEditMode.value = isEdit;
+  editingAnswerId.value = answerId;
+  initialEditText.value = initialText; // Store the initial text
+  
+  if (initialText != null && initialText.isNotEmpty) {
+    chatController.text = initialText;
+  }
+}
 
-    if (editingAnswerId.value == null) {
-      AppUtils.showErrorSnackbar(message: 'No answer selected for editing');
-      return;
-    }
+  void resetEditMode() {
+  isEditMode.value = false;
+  editingAnswerId.value = null;
+  initialEditText.value = null; 
+  chatController.clear();
+}
 
-    updateMessageState.value = TheStates.loading;
-    _cancelToken = CancelToken();
-    autoScrollEnabled.value = true;
+  void _showThinking({String? message}) {
+    isShowingThinking.value = true;
+    isSendingMessage.value = true;
 
-    try {
-      final result = await remoteSource.updateGoalsAnswer(
-        _cancelToken,
-        editingAnswerId.value!,
-        messageText,
+    if (message != null) {
+      // Add the user's message to pending messages
+      pendingMessages.add(
+        MessageItem(
+          type: MessageType.answer,
+          message: message,
+          timestamp: DateTime.now().toString(),
+          isMine: true,
+        ),
       );
 
-      result.fold(
-        (failure) {
-          updateMessageState.value = TheStates.error;
-          AppUtils.showErrorSnackbar(message: failure.message);
-        },
-        (success) async {
-          chatController.clear();
-          updateMessageState.value = TheStates.success;
-          resetEditMode();
-
-          await getGoalsChat();
-
-          await Future.delayed(const Duration(milliseconds: 100));
-          scrollToBottom();
-        },
-      );
-    } catch (e) {
-      updateMessageState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: 'Failed to update answer: $e');
+      update();
     }
+
+    // Force UI update and scroll
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      scrollToBottom();
+    });
+  }
+
+  void _hideThinking() {
+    isShowingThinking.value = false;
+    isSendingMessage.value = false;
+    pendingAnswer.value = null;
   }
 
   List<MessageItem> buildCompleteMessageList(Data? goals) {
@@ -343,21 +133,34 @@ class GoalsChatController extends GetxController {
       return [];
     }
 
-    final items = <MessageItem>[];
+    var items = <MessageItem>[];
     var foundUnansweredQuestion = false;
 
+    // Process main questions and their follow-ups
     for (var i = 0; i < goals.questions!.length; i++) {
       final question = goals.questions![i];
+      var questionTimestamp = '';
 
+      if (i > 0) {
+        final previousQuestion = goals.questions![i - 1];
+        if (previousQuestion.answer?.first.createdAt != null) {
+          questionTimestamp =
+              previousQuestion.answer?.first.createdAt.toString() ?? '';
+        }
+      }
+
+      // Add main question
       items.add(
         MessageItem(
           type: MessageType.question,
           message: question.questionText ?? '',
-          timestamp: DateTime.now().toString(),
+          timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
           isMine: false,
+          questionId: question.id?.toString(),
         ),
       );
 
+      // Add the answer if it exists
       if (question.answered == true && question.answer != null) {
         for (final answer in question.answer!) {
           items.add(
@@ -371,29 +174,32 @@ class GoalsChatController extends GetxController {
           );
         }
       } else {
+        // Found an unanswered main question
         foundUnansweredQuestion = true;
       }
 
+      // Stop processing if we found an unanswered question
       if (foundUnansweredQuestion) {
         break;
       }
     }
 
-  
-    if (pendingMessages.isNotEmpty && isSendingMessage.value) {
-      final existingMessages = items
-          .where((item) => item.isMine == true)
-          .map((item) => item.message)
-          .toSet();
-
-      final filteredPendingMessages = pendingMessages
-          .where((pending) => !existingMessages.contains(pending.message))
-          .toList();
-
-      items.addAll(filteredPendingMessages);
+    if (pendingMessages.isNotEmpty) {
+      items.addAll(pendingMessages);
     }
+//     if (pendingMessages.isNotEmpty && isSendingMessage.value) {
+//       final existingMessages = items
+//           .where((item) => item.isMine == true)
+//           .map((item) => item.message)
+//           .toSet();
 
-    // Add thinking indicator
+//       final filteredPendingMessages = pendingMessages
+//           .where((pending) => !existingMessages.contains(pending.message))
+//           .toList();
+
+//       items.addAll(filteredPendingMessages);
+//     }
+    // Add thinking indicator only if we're showing thinking
     if (isShowingThinking.value) {
       items.add(
         MessageItem(
@@ -409,32 +215,314 @@ class GoalsChatController extends GetxController {
     return items;
   }
 
-  void cancelCurrentOperation() {
-    _cancelToken?.cancel();
-    isShowingThinking.value = false;
-    isSendingMessage.value = false;
-    sendMessageState.value = TheStates.initial;
-    updateMessageState.value = TheStates.initial;
-
-    // Clear pending messages
-    pendingMessages.clear();
-    _updateChatConversationList();
+  void initializeWithIds(String goalId, String goalDetailId) {
+    this.goalId.value = goalId;
+    this.goalDetailId.value = goalDetailId;
+    getGoalsChat();
   }
 
-  bool get canSendMessage =>
-      !isSendingMessage.value &&
-      sendMessageState.value != TheStates.loading &&
-      updateMessageState.value != TheStates.loading;
+  Future<bool> getGoalsChat() async {
+    // if (goalId.isEmpty || goalDetailId.isEmpty) {
+    //   getGoalsChatState.value = TheStates.error;
+    //   AppUtils.showErrorSnackbar(
+    //       message: 'Goal ID or Goal Detail ID is missing',);
+    //   return false;
+    // }
 
-  // Helper method to validate input before sending
-  bool validateInput({String? text, String? mediaPath}) {
+    getGoalsChatState.value = TheStates.loading;
+    // showBeginJournallButton.value = false;
+
+    try {
+      final result = await remoteSource.getGoalsChat(
+        goalId: goalId.value,
+        goalDetailId: goalDetailId.value,
+      );
+
+      return result.fold(
+        (l) {
+          getGoalsChatState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+          return false;
+        },
+        (r) {
+          getGoalsChatState.value = TheStates.success;
+          final previouslyCompleted =
+              goalsChatModel.value.data?.userGoal?.goalDetail?.isCompleted ??
+                  false;
+          goalsChatModel.value = r;
+          final currentlyCompleted =
+              r.data?.userGoal?.goalDetail?.isCompleted ?? false;
+          if (currentlyCompleted && !previouslyCompleted) {
+            // Journal just got completed
+            isJustCompleted.value = true;
+            wasAlreadyCompleted.value = false;
+          } else if (currentlyCompleted && previouslyCompleted) {
+            // Journal was already completed
+            isJustCompleted.value = false;
+            wasAlreadyCompleted.value = true;
+          } else {
+            // Journal is not completed
+            isJustCompleted.value = false;
+            wasAlreadyCompleted.value = false;
+          }
+
+          if (!isSendingMessage.value) {
+            pendingMessages.clear();
+          }
+
+          // Update title
+          title.value =
+              goalsChatModel.value.data?.userGoal?.goal?.title ?? 'Goals Chat';
+
+          scrollToBottom();
+          return true;
+        },
+      );
+    } catch (e) {
+      getGoalsChatState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load chat: $e');
+      return false;
+    }
+  }
+
+  Map<String, String?> getNextQuestionIds(Data? goals) {
+    if (goals == null || goals.questions == null) {
+      return {'id': null, 'goal_detail_id': null};
+    }
+
+    for (final question in goals.questions!) {
+      if (question.answered != true) {
+        return {
+          'id': question.id?.toString(),
+          'goal_detail_id': null,
+        };
+      }
+    }
+
+    return {'id': null, 'goal_detail_id': null};
+  }
+
+  String? _getCurrentQuestionId() {
+  final questions = goalsChatModel.value.data?.questions;
+  
+  if (questions == null || questions.isEmpty) {
+    print('No questions available');
+    return null;
+  }
+
+  // Find the first unanswered question
+  for (final question in questions) {
+    if (question.answered == false || question.answered == null) {
+      final questionId = question.id?.toString();
+      print('Found unanswered question ID: $questionId');
+      return questionId;
+    }
+  }
+
+  final lastQuestionId = questions.last.id?.toString();
+  print('All questions answered, returning last question ID: $lastQuestionId');
+  return lastQuestionId;
+}
+
+Future<void> handleTextMessageSent() async {
+  final messageText = chatController.text.trim();
+  if (messageText.isEmpty) return;
+
+  final goals = goalsChatModel.value.data;
+  final userGoalId = goals?.userGoal?.id?.toString();
+  final questionId = _getCurrentQuestionId();
+
+  if (userGoalId == null || userGoalId.isEmpty) {
+    AppUtils.showErrorSnackbar(message: 'User Goal ID is missing');
+    return;
+  }
+
+  if (questionId == null || questionId.isEmpty) {
+    AppUtils.showErrorSnackbar(message: 'Question ID is missing');
+    return;
+  }
+
+  _batchStateUpdate(() {
+    isShowingThinking.value = true;
+    isSendingMessage.value = true;
+    pendingMessages.add(
+      MessageItem(
+        type: MessageType.answer,
+        message: messageText,
+        timestamp: DateTime.now().toString(),
+        isMine: true,
+      ),
+    );
+  });
+
+  chatController.clear();
+
+  try {
+    _cancelToken = CancelToken();
+
+    await sendMessage(userGoalId, _cancelToken!, messageText, questionId);
+    
+    // Small delay before refreshing
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    // BATCH THE CLEANUP TOGETHER
+    _batchStateUpdate(() {
+      isShowingThinking.value = false;
+      isSendingMessage.value = false;
+      pendingMessages.clear();
+      autoScrollEnabled.value = true;
+    });
+
+    // Refresh chat data
+    await getGoalsChat();
+    
+    scrollToBottom();
+  } catch (e) {
+    print('Error sending message: $e');
+    
+    String errorMessage = 'Failed to send message';
+    if (e.toString().contains('network')) {
+      errorMessage = 'Network error. Please check your connection.';
+    } else if (e.toString().contains('timeout')) {
+      errorMessage = 'Request timeout. Please try again.';
+    } else if (e.toString().contains('unauthorized')) {
+      errorMessage = 'Unauthorized. Please login again.';
+    }
+    
+    AppUtils.showErrorSnackbar(message: errorMessage);
+    chatController.text = messageText;
+    
+    // BATCH ERROR CLEANUP
+    _batchStateUpdate(() {
+      isShowingThinking.value = false;
+      isSendingMessage.value = false;
+      pendingMessages.clear();
+    });
+  }
+}
+
+// Helper method to batch state updates
+void _batchStateUpdate(VoidCallback updates) {
+  // Disable auto-updates temporarily
+  Get.config(enableLog: false);
+  updates();
+  // Force single update
+  update();
+}
+
+  Future<void> sendMessage(
+  String userGoalId,
+  CancelToken cancelToken,
+  String? text,
+  String? mainQuestionId,
+) async {
+  sendMessageState.value = TheStates.loading;
+  autoScrollEnabled.value = true;
+
+  try {
+    // Validate inputs
+    if (userGoalId.isEmpty) {
+      throw Exception('User Goal ID is required');
+    }
+    
+    if (mainQuestionId == null || mainQuestionId.isEmpty) {
+      throw Exception('Question ID is required');
+    }
+
     final messageText = text ?? chatController.text.trim();
-    return messageText.isNotEmpty || mediaPath != null;
+    if (messageText.isEmpty) {
+      throw Exception('Message text is required');
+    }
+
+    print('Sending message with:');
+    print('- userGoalId: $userGoalId');
+    print('- questionId: $mainQuestionId'); 
+    print('- message: $messageText');
+
+    final result = await remoteSource.sendGoalsMessage(
+      userGoalId,
+      cancelToken,
+      mainQuestionId,
+      messageText,
+    );
+
+    result.fold(
+      (l) {
+        sendMessageState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+        throw Exception(l.message);
+      },
+      (r) async {
+        print('Message sent successfully');
+        await getGoalsChat();
+        sendMessageState.value = TheStates.success;
+      },
+    );
+  } catch (e) {
+    sendMessageState.value = TheStates.error;
+    print('Error in sendMessage: $e');
+    rethrow;
+  }
+}
+
+  void scrollToBottom() {
+    if (scrollController.hasClients) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        const extraPadding = 200.0;
+        scrollController.animateTo(
+          scrollController.position.maxScrollExtent + extraPadding,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      });
+    }
   }
 
-  // Method to clear all input fields
-  void clearAllInputs() {
-    chatController.clear();
-    showRichTextEditor.value = false;
+  String getCurrentTime() {
+    final now = DateTime.now();
+    return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
+  }
+
+  Future<void> updateMessage(
+    String? text,
+  ) async {
+    if (editingAnswerId.value == null) return;
+    updateMessageState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    autoScrollEnabled.value = true;
+
+    try {
+      final result = await remoteSource.updateGoalsAnswer(
+        _cancelToken,
+        editingAnswerId.value!,
+        text ?? chatController.text.trim(),
+      );
+
+      result.fold(
+        (l) {
+          updateMessageState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          chatController.clear();
+
+          await getGoalsChat();
+          await Future.delayed(const Duration(milliseconds: 100));
+          scrollToBottom();
+
+          updateMessageState.value = TheStates.success;
+          resetEditMode();
+        },
+      );
+    } catch (e) {
+      updateMessageState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: e.toString());
+    }
+  }
+
+  void navigateToJournalLibrary() {
+    isJustCompleted.value = false;
+    wasAlreadyCompleted.value = false;
+    // Get.to(() => const ReflectionLibraryScreen());
   }
 }

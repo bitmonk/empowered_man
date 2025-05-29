@@ -44,7 +44,7 @@ class GoalsController extends GetxController {
   }
 
   void resetValue() {
-    fromDate = _getMonday(DateTime.now()).obs;
+    fromDate.value = _getMonday(DateTime.now());
     toDate = fromDate.value.add(const Duration(days: 6)).obs;
     selectedGoalIndex.value = 0;
     getGoals();
@@ -58,6 +58,22 @@ class GoalsController extends GetxController {
   void onClose() {
     _cancelToken?.cancel();
     super.onClose();
+  }
+
+  bool get isCurrentWeek {
+    final currentMonday = _getMonday(DateTime.now());
+    final selectedMonday = _getMonday(fromDate.value);
+
+    // Debug prints to help diagnose the issue
+    print('Current Monday: ${DateFormat('yyyy-MM-dd').format(currentMonday)}');
+    print(
+        'Selected Monday: ${DateFormat('yyyy-MM-dd').format(selectedMonday)}');
+    print('Are they same? ${currentMonday.isAtSameMomentAs(selectedMonday)}');
+
+    // Use date comparison instead of moment comparison to avoid time issues
+    return currentMonday.year == selectedMonday.year &&
+        currentMonday.month == selectedMonday.month &&
+        currentMonday.day == selectedMonday.day;
   }
 
   Future<void> getGoals() async {
@@ -365,7 +381,43 @@ class GoalsController extends GetxController {
     return false;
   }
 
+  bool shouldShowActionButtons(int goalIndex, String timePeriod) {
+    final goals = availableGoals;
+    if (goalIndex < 0 || goalIndex >= goals.length) return false;
+
+    final goal = goals[goalIndex];
+    final targetDetails = goal.details
+        ?.where(
+          (detail) =>
+              detail.type == 'target' && detail.timePeriod == timePeriod,
+        )
+        .toList();
+
+    if (targetDetails == null || targetDetails.isEmpty) return false;
+
+    for (final detail in targetDetails) {
+      if (detail.userGoals != null) {
+        for (final userGoal in detail.userGoals!) {
+          if (userGoal.isOntrack == null && userGoal.isComplete == null) {
+            return true;
+          }
+        }
+      }
+    }
+
+    return false;
+  }
+
+  bool shouldShowWonQuestionButton(int goalIndex, String timePeriod) {
+    return shouldShowActionButtons(goalIndex, timePeriod);
+  }
+
+  bool shouldShowTrackQuestionButton(int goalIndex, String timePeriod) {
+    return shouldShowActionButtons(goalIndex, timePeriod);
+  }
+
   void changeWeek(int weekOffset) {
+    print(">>>>>>>>>>>>>>>>>>>>>>>>");
     fromDate.value = fromDate.value.add(Duration(days: 7 * weekOffset));
     toDate.value = fromDate.value.add(const Duration(days: 6));
     getGoalsError.value = null;
@@ -373,7 +425,7 @@ class GoalsController extends GetxController {
   }
 
   String getDateRange() {
-    toDate.value = fromDate.value.add(const Duration(days: 6));
+    // toDate.value = fromDate.value.add(const Duration(days: 6));
     return "${DateFormat("dd.MM").format(fromDate.value)} - ${DateFormat("dd.MM").format(toDate.value)}";
   }
 
@@ -430,6 +482,12 @@ class GoalsController extends GetxController {
     required String title,
     required String timePeriod,
   }) {
+    if (!isCurrentWeek) {
+      AppUtils.showErrorSnackbar(
+          message:
+              'You can only set targets for the current week, not for other weeks.');
+      return;
+    }
     final navIds = getNavigationIds(timePeriod);
 
     if (navIds.goalId.isEmpty) {
@@ -719,13 +777,23 @@ Future<void> initJournalWithNavigate({
   required String goalId,
   required String goalDetailId,
 }) async {
+  final goalsController = Get.find<GoalsController>();
+
+  // Validate that user can only set targets for current week
+  if (!goalsController.isCurrentWeek) {
+    AppUtils.showErrorSnackbar(
+      message:
+          'You can only set targets for the current week, not for other weeks.',
+    );
+    return;
+  }
   GoalsChatInitializer.initialize();
-  final controller = Get.find<GoalsChatController>();
-  controller.title.value = '$title Tent';
-  controller.goalId.value = goalId;
-  controller.goalDetailId.value = goalDetailId;
-  await controller.getGoalsChat();
-  if (controller.getGoalsChatState.value == TheStates.error) {
+  final goalsChatController = Get.find<GoalsChatController>();
+  goalsChatController.title.value = '$title Tent';
+  goalsChatController.goalId.value = goalId;
+  goalsChatController.goalDetailId.value = goalDetailId;
+  await goalsChatController.getGoalsChat();
+  if (goalsChatController.getGoalsChatState.value == TheStates.error) {
     AppUtils.showErrorSnackbar(
       message: 'User target already set for this period.',
     );
@@ -735,6 +803,7 @@ Future<void> initJournalWithNavigate({
       () => GoalsChatScreen(
         goalId: goalId,
         goalDetailId: goalDetailId,
+        title: goalsChatController.title.value,
       ),
     );
   }

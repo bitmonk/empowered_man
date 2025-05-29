@@ -5,11 +5,13 @@ import 'package:empowered/core/push_notification/firebase_notification_service.d
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_bindings.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_overview_bindings.dart';
 import 'package:empowered/features/goals/presentation/screens/goals_screen.dart';
 import 'package:empowered/features/habits/presentation/controllers/habit_bindings.dart';
 import 'package:empowered/features/habits/presentation/habit_screen.dart';
 import 'package:empowered/features/home/presentation/controllers/home_bindings.dart';
 import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_bindings.dart';
+import 'package:empowered/features/home/presentation/controllers/reflection_journal_chat_controller.dart';
 import 'package:empowered/features/home/presentation/screens/home_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_drawer.dart';
 import 'package:empowered/features/main/presentation/controllers/main_controller.dart';
@@ -52,6 +54,7 @@ class _MainScreenState extends State<MainScreen>
     LogoutInitializer.initialize();
     GoalsInitializer.initialize();
     ReflectionJournalChatInitializer.initialize();
+    GoalsOverviewInitializer.initialize();
   }
 
   @override
@@ -63,6 +66,7 @@ class _MainScreenState extends State<MainScreen>
     LogoutInitializer.destroy();
     GoalsInitializer.destroy();
     ReflectionJournalChatInitializer.destroy();
+    GoalsOverviewInitializer.destroy();
 
     super.dispose();
   }
@@ -75,7 +79,7 @@ class _MainScreenState extends State<MainScreen>
       onWillPop: () async {
         final scaffoldState = AppWidgetKey.mainScaffold.currentState;
         if (scaffoldState?.isDrawerOpen ?? false) {
-          Navigator.of(context).pop(); // Closes drawer
+          Navigator.of(context).pop();
           return false;
         }
 
@@ -86,7 +90,7 @@ class _MainScreenState extends State<MainScreen>
         }
 
         if (Platform.isAndroid) {
-          SystemNavigator.pop(); // For Android
+          SystemNavigator.pop();
         } else if (Platform.isIOS) {
           exit(0); // Force exit on iOS (not recommended by Apple)
         }

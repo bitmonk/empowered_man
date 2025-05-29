@@ -71,29 +71,33 @@ class _EmptyGoalState extends State<EmptyGoal> {
             ],
           ),
           const VerticalSpacing(20),
-          const Text(
-            'You have not completed\nyour Body Targets.',
+          Text(
+            'You have not completed\nyour ${widget.selectedTent} Targets.',
             textAlign: TextAlign.center,
             style: TextStyle(
               color: AppColors.textColor300,
             ),
           ),
-          if (widget.showStart)
-            Padding(
-              padding: const EdgeInsets.only(
-                top: 18,
-              ),
-              child: AppOutlinedButton(
-                height: 40,
-                width: 250,
-                text: 'Start ${widget.selectedTent} Reflection',
-                borderRadius: 12,
-                textStyle: AppTextStyles.textBodyB3,
-                onPressed: () {
-                  // initJournalWithNavigate(selectedTent);
-                },
-              ),
+          // if (widget.showStart)
+          Padding(
+            padding: const EdgeInsets.only(
+              top: 18,
             ),
+            child: AppOutlinedButton(
+              height: 40,
+              width: 250,
+              text: 'Start ${widget.selectedTent} Reflection',
+              borderRadius: 12,
+              textStyle: AppTextStyles.textBodyB3,
+              onPressed: () {
+                initJournalWithNavigate(
+                  title: widget.title,
+                  goalId: goalId,
+                  goalDetailId: goalDetailId,
+                );
+              },
+            ),
+          ),
           const VerticalSpacing(30),
         ],
       ),
