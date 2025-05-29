@@ -1,18 +1,19 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_chat_controller.dart';
+import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_bubble_container.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_input_field.dart';
-import 'package:empowered/features/journal_chat/data/model/message_item.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_chat_bubble_container.dart';
 
 class GoalsChatScreen extends StatefulWidget {
   const GoalsChatScreen({
     required this.goalDetailId,
     required this.goalId,
+    this.title,
     super.key,
   });
 
   final String goalDetailId;
   final String goalId;
+  final String? title;
 
   @override
   State<GoalsChatScreen> createState() => _GoalsChatScreenState();
@@ -51,18 +52,180 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
     }
   }
 
-  void _onBeginGoalsPressed() {
+  void _onEditMessage(String answerId, String currentText) {
+    controller.setEditMode(true, answerId, initialText: currentText);
+
     focusNode.requestFocus();
-    controller.showBeginJournalButton.value = false;
   }
 
-  void _onEditMessage(String answerId, String currentText) {
-    controller.enableEditMode(answerId, currentText);
+  void _onBeginGoalsPressed() {
     focusNode.requestFocus();
+    controller.showBeginJournallButton.value = false;
   }
 
   void _onRefresh() {
     controller.getGoalsChat();
+  }
+
+  /// Check if the chat is completed (all questions are answered)
+  bool _isChatCompleted() {
+    final questions = controller.goalsChatModel.value.data?.questions;
+    if (questions == null || questions.isEmpty) {
+      return false;
+    }
+
+    // Check if all questions are answered
+    return questions.every((question) => question.answered == true);
+  }
+
+  Widget _buildInputField() {
+    // Show input field if in edit mode OR if chat is not completed
+    if (controller.isEditMode.value || !_isChatCompleted()) {
+      final goal = controller.goalsChatModel.value.data?.userGoal;
+      return GoalsChatInputField(
+        focusNode: focusNode,
+        goalId: goal?.id.toString() ?? widget.goalId,
+        isEditMode: controller.isEditMode.value,
+        onMessageSent: () async {
+          // Handle message sent
+        },
+        onCancel: controller.isEditMode.value
+            ? () => controller.resetEditMode()
+            : null,
+      );
+    }
+
+    // Hide input field only if chat is completed AND not in edit mode
+    return const SizedBox.shrink();
+  }
+
+  Widget _buildChatMessages(List<dynamic> items) {
+    if (items.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    return ListView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final chat = items[index];
+
+        if (chat.hide == true) {
+          return const SizedBox.shrink();
+        }
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 8),
+          child: GoalsChatBubbleContainer(
+            message: chat.message,
+            isMine: chat.isMine,
+            createdAt: chat.timestamp ?? '',
+            isThinking: chat.isThinking,
+            // timeStamp: chat.timestamp ?? '',
+            onLike: () {
+              // Handle like functionality if needed
+            },
+            onEditTap: chat.isMine == true && chat.answerId != null
+                ? () => _onEditMessage(chat.answerId!, chat.message)
+                : null,
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildChatContent() {
+    final items = controller.buildCompleteMessageList(
+      controller.goalsChatModel.value.data,
+    );
+
+    if (items.isEmpty && !controller.showBeginJournallButton.value) {
+      return const Center(
+        child: Text(
+          'No messages yet. Start the conversation!',
+          style: TextStyle(
+            fontSize: 16,
+            color: Colors.grey,
+          ),
+        ),
+      );
+    }
+
+    return RefreshIndicator(
+      onRefresh: () async {
+        await controller.getGoalsChat();
+      },
+      child: SingleChildScrollView(
+        controller: controller.scrollController,
+        physics: const AlwaysScrollableScrollPhysics(),
+        child: Column(
+          children: [
+            _buildChatMessages(items),
+            if (!controller.showBeginJournallButton.value)
+              const SizedBox.shrink()
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 32,
+                ),
+                child: AppOutlinedButton(
+                  text: 'Begin Goals',
+                  onPressed: _onBeginGoalsPressed,
+                ),
+              ),
+            if (!_isChatCompleted())
+              const SizedBox.shrink()
+            else
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 32,
+                ),
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.green.withOpacity(0.3),
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      const Icon(
+                        Icons.check_circle,
+                        color: Colors.green,
+                        size: 24,
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Text(
+                          "Great! You've completed all the goal questions.",
+                          style: TextStyle(
+                            color: Colors.green[700],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            const SizedBox(height: 80),
+            const SizedBox(
+              height: 1,
+              width: double.infinity,
+              key: ValueKey('scroll-bottom-anchor'),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
@@ -70,9 +233,7 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
     return Scaffold(
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: CustomAppBar(
-        title: controller.title.value.isNotEmpty
-            ? controller.title.value
-            : 'Goals Chat',
+        title: widget.title ?? controller.title.value,
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -80,13 +241,12 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            // Chat messages area
-            Expanded(
-              child: Obx(() {
-                return controller.getGoalsChatState.value.showWidget(
+      body: Obx(
+        () => SafeArea(
+          child: Column(
+            children: [
+              Expanded(
+                child: controller.getGoalsChatState.value.showWidget(
                   loading: () => const Center(
                     child: LoadingWidget(),
                   ),
@@ -100,182 +260,12 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
                   orElse: () => const Center(
                     child: LoadingWidget(),
                   ),
-                );
-              }),
-            ),
-
-            // Input field
-            _buildInputSection(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildChatContent() {
-    return Obx(() {
-      final items = controller.chatConversationList;
-
-      if (items.isEmpty && !controller.showBeginJournalButton.value) {
-        return const Center(
-          child: Text(
-            'No messages yet. Start the conversation!',
-            style: TextStyle(
-              fontSize: 16,
-              color: Colors.grey,
-            ),
-          ),
-        );
-      }
-
-      return RefreshIndicator(
-        onRefresh: () async {
-          await controller.getGoalsChat();
-        },
-        child: SingleChildScrollView(
-          controller: controller.scrollController,
-          physics: const AlwaysScrollableScrollPhysics(),
-          child: Column(
-            children: [
-              // Chat messages
-              if (items.isNotEmpty)
-                ListView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 8,
-                  ),
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final chat = items[index];
-
-                    if (chat.hide == true) {
-                      return const SizedBox.shrink();
-                    }
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8),
-                      child: _buildMessageBubble(chat),
-                    );
-                  },
                 ),
-
-              // Begin journal button
-              if (controller.showBeginJournalButton.value)
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 40,
-                    vertical: 32,
-                  ),
-                  child: AppOutlinedButton(
-                    text: 'Begin Goals',
-                    onPressed: _onBeginGoalsPressed,
-                  ),
-                ),
-
-              // Bottom spacing
-              const SizedBox(height: 80),
-
-              // Scroll anchor
-              const SizedBox(
-                height: 1,
-                width: double.infinity,
-                key: ValueKey('scroll-bottom-anchor'),
               ),
+              _buildInputField(),
             ],
           ),
         ),
-      );
-    });
-  }
-
-  Widget _buildMessageBubble(MessageItem chat) {
-    if (chat.isThinking == true) {
-      return _buildThinkingIndicator();
-    }
-
-    return JournalChatBubbleContainer(
-      message: chat.message ?? '',
-      isMine: chat.isMine ?? false,
-      timeStamp: chat.timestamp ?? '',
-      onLike: () {
-        // Handle like functionality if needed
-      },
-      onEditTap: chat.isMine == true && chat.answerId != null
-          ? () => _onEditMessage(chat.answerId!, chat.message ?? '')
-          : null,
-    );
-  }
-
-  Widget _buildThinkingIndicator() {
-    return Container(
-      alignment: Alignment.centerLeft,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        decoration: BoxDecoration(
-          color: Colors.grey[200],
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Theme.of(context).primaryColor,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            const Text(
-              'Thinking...',
-              style: TextStyle(
-                color: Colors.grey,
-                fontStyle: FontStyle.italic,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInputSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey[300]!,
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: SafeArea(
-        top: false,
-        child: Obx(() {
-          final goal = controller.goalsChatModel.value.data?.userGoal;
-          return GoalsChatInputField(
-            focusNode: focusNode,
-            goalId: goal?.id.toString() ?? widget.goalId,
-            enabled: controller.canSendMessage,
-            isEditMode: controller.isEditMode.value,
-            onSend: controller.isEditMode.value
-                ? (text) => controller.updateGoalsAnswer(text)
-                : (text) => controller.sendGoalsMessage(text: text),
-            onCancel: controller.isEditMode.value
-                ? () => controller.resetEditMode()
-                : null,
-          );
-        }),
       ),
     );
   }

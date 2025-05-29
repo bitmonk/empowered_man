@@ -51,14 +51,14 @@ class _GoalTypeScrollState extends State<GoalTypeScroll> {
                           fontSize: 12,
                         ),
                       ),
-                      if (isSelected) ...[
-                        const HorizontalSpacing(10),
-                        const Icon(
-                          Icons.check_circle,
-                          color: AppColors.color2AD674,
-                          size: 16,
-                        ),
-                      ],
+                      // if (isSelected) ...[
+                      //   const HorizontalSpacing(10),
+                      //   const Icon(
+                      //     Icons.check_circle,
+                      //     color: AppColors.color2AD674,
+                      //     size: 16,
+                      //   ),
+                      // ],
                     ],
                   ),
                 ),

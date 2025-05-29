@@ -25,7 +25,6 @@ class _JournalDrawerState extends State<JournalDrawer> {
   @override
   Widget build(BuildContext context) {
     return Drawer(
-      
       backgroundColor: AppColors.bgMedium,
       child: Obx(
         () => Container(
@@ -67,11 +66,16 @@ class _JournalDrawerState extends State<JournalDrawer> {
                     ),
                   ),
                   const HorizontalSpacing(16),
-                  Text(
-                    Get.find<ProfileController>().userProfile.value.fullName ??
-                        '',
-                    style: AppTextStyles.textBodyB3.copyWith(
-                      color: AppColors.white,
+                  Expanded(
+                    child: Text(
+                      Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .fullName ??
+                          '',
+                      style: AppTextStyles.textBodyB3.copyWith(
+                        color: AppColors.white,
+                      ),
                     ),
                   ),
                 ],
@@ -81,37 +85,38 @@ class _JournalDrawerState extends State<JournalDrawer> {
               // Reframes Section
               _buildSectionTitle('Reframes'),
               Expanded(
-                  child: controller.journalEmotionNameState.value.showWidget(
-                loading: () => const LoadingWidget(),
-                error: () => CustomErrorWidget(
-                  error: 'Failed to fetch emotions.',
-                  onPressed: () {
-                    Get.find<JournalEmotionNameController>()
-                        .getJournalEmotionName();
-                  },
-                ),
-                orElse: () => SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildEmotionList(context),
+                child: controller.journalEmotionNameState.value.showWidget(
+                  loading: () => const LoadingWidget(),
+                  error: () => CustomErrorWidget(
+                    error: 'Failed to fetch emotions.',
+                    onPressed: () {
+                      Get.find<JournalEmotionNameController>()
+                          .getJournalEmotionName();
+                    },
+                  ),
+                  orElse: () => SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildEmotionList(context),
 
-                      const Divider(
-                        color: Colors.grey,
-                        thickness: 0.2,
-                        height: 30,
-                      ),
+                        const Divider(
+                          color: Colors.grey,
+                          thickness: 0.2,
+                          height: 30,
+                        ),
 
-                      // Results Section
-                      _buildSectionTitle('Results'),
-                      _buildMenuItem('Lessons', context),
-                      _buildMenuItem('Idea', context),
-                      _buildMenuItem('Money', context),
-                      _buildMenuItem('Production Mission', context),
-                    ],
+                        // Results Section
+                        _buildSectionTitle('Results'),
+                        _buildMenuItem('Lessons', context),
+                        _buildMenuItem('Idea', context),
+                        _buildMenuItem('Money', context),
+                        _buildMenuItem('Production Mission', context),
+                      ],
+                    ),
                   ),
                 ),
-              ),),
+              ),
               Padding(
                 padding: const EdgeInsets.only(right: 110),
                 child: AppOutlinedButton(

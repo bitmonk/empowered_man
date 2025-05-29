@@ -29,7 +29,7 @@ class Data with _$Data {
 class Question with _$Question {
   const factory Question({
     @JsonKey(name: 'id') int? id,
-    @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+    @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
     @JsonKey(name: 'question_text') String? questionText,
     @JsonKey(name: 'answered') bool? answered,
     @JsonKey(name: 'answer') List<Answer>? answer,
@@ -44,10 +44,12 @@ class Answer with _$Answer {
   const factory Answer({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'user_id') int? userId,
-    @JsonKey(name: 'question_id') int? questionId,
-    @JsonKey(name: 'user_goal_id') int? userGoalId,
+    @JsonKey(name: 'question_id') dynamic questionId,
+    @JsonKey(name: 'user_goal_id') dynamic userGoalId,
     @JsonKey(name: 'text') String? text,
     @JsonKey(name: 'achieved') bool? achieved,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
   }) = _Answer;
 
   factory Answer.fromJson(Map<String, dynamic> json) => _$AnswerFromJson(json);
@@ -58,16 +60,16 @@ class UserGoal with _$UserGoal {
   const factory UserGoal({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'user_id') int? userId,
-    @JsonKey(name: 'goal_id') int? goalId,
-    @JsonKey(name: 'goal_detail_id') int? goalDetailId,
+    @JsonKey(name: 'goal_id') dynamic goalId,
+    @JsonKey(name: 'goal_detail_id') dynamic goalDetailId,
     @JsonKey(name: 'progress') dynamic progress,
-    @JsonKey(name: 'is_ontrack') dynamic isOntrack,
-    @JsonKey(name: 'is_complete') dynamic isComplete,
-    @JsonKey(name: 'show_won_question') dynamic showWonQuestion,
-    @JsonKey(name: 'show_track_question') dynamic showTrackQuestion,
+    @JsonKey(name: 'is_ontrack') bool? isOntrack,
+    @JsonKey(name: 'is_complete') bool? isComplete,
+    @JsonKey(name: 'show_won_question') bool? showWonQuestion,
+    @JsonKey(name: 'show_track_question') bool? showTrackQuestion,
     @JsonKey(name: 'goal') Goal? goal,
     @JsonKey(name: 'goal_detail') GoalDetail? goalDetail,
-    @JsonKey(name: 'goal_answers') List<dynamic>? goalAnswers,
+    @JsonKey(name: 'goal_answers') List<Answer>? goalAnswers,
   }) = _UserGoal;
 
   factory UserGoal.fromJson(Map<String, dynamic> json) =>
@@ -91,7 +93,7 @@ class GoalDetail with _$GoalDetail {
     @JsonKey(name: 'goal_id') int? goalId,
     @JsonKey(name: 'type') String? type,
     @JsonKey(name: 'time_period') String? timePeriod,
-    @JsonKey(name: 'is_completed') dynamic isCompleted,
+    @JsonKey(name: 'is_completed') bool? isCompleted,
   }) = _GoalDetail;
 
   factory GoalDetail.fromJson(Map<String, dynamic> json) =>

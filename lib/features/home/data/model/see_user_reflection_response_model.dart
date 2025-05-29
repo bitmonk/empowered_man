@@ -93,7 +93,7 @@ class FollowUpQuestion with _$FollowUpQuestion {
     @JsonKey(name: 'question') String? question,
     @JsonKey(name: 'keywords') String? keywords,
     @JsonKey(name: 'question_type') String? questionType,
-    @JsonKey(name: 'options') String? options,
+    @JsonKey(name: 'options') dynamic options,
     @JsonKey(name: 'answered') bool? answered,
     @JsonKey(name: 'answer') Answer? answer,
   }) = _FollowUpQuestion;

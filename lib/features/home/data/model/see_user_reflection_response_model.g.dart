@@ -149,7 +149,7 @@ _$FollowUpQuestionImpl _$$FollowUpQuestionImplFromJson(
       question: json['question'] as String?,
       keywords: json['keywords'] as String?,
       questionType: json['question_type'] as String?,
-      options: json['options'] as String?,
+      options: json['options'],
       answered: json['answered'] as bool?,
       answer: json['answer'] == null
           ? null

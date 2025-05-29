@@ -6,7 +6,6 @@ import 'package:empowered/features/assesments/presentation/controllers/assessmen
 import 'package:empowered/features/courses/presentation/controllers/course_bindings.dart';
 import 'package:empowered/features/courses/presentation/screens/courses_screen.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_bindings.dart';
-import 'package:empowered/features/goals/presentation/controllers/goals_overview_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
@@ -170,8 +169,7 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
-                        GoalsOverviewInitializer.destroy();
-                        GoalsOverviewInitializer.initialize();
+                        
                         GoalsInitializer.destroy();
                         GoalsInitializer.initialize();
 

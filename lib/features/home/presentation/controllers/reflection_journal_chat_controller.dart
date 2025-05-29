@@ -186,6 +186,28 @@ class ReflectionJournalChatController extends GetxController {
     }
   }
 
+  String getLatestTimestampFromQuestion(MainQuestion question) {
+    var latestTimestamp =
+        question.answer?.createdAt.toString() ?? DateTime.now().toString();
+
+    // Check follow-up questions for more recent timestamps
+    if (question.followUpQuestions != null) {
+      for (final followUp in question.followUpQuestions!) {
+        if (followUp.answered == true && followUp.answer?.createdAt != null) {
+          final followUpTime =
+              DateTime.parse(followUp.answer!.createdAt!.toString());
+          final currentLatest = DateTime.parse(latestTimestamp);
+
+          if (followUpTime.isAfter(currentLatest)) {
+            latestTimestamp = followUp.answer!.createdAt!.toString();
+          }
+        }
+      }
+    }
+
+    return latestTimestamp;
+  }
+
   List<MessageItem> buildCompleteMessageList(Reflection? reflection) {
     if (reflection == null || reflection.mainQuestions == null) {
       return [];
@@ -198,23 +220,34 @@ class ReflectionJournalChatController extends GetxController {
     for (var i = 0; i < reflection.mainQuestions!.length; i++) {
       final mainQuestion = reflection.mainQuestions![i];
       var questionTimestamp = '';
-
-      if (i > 0) {
-        final previousQuestion = reflection.mainQuestions![i - 1];
-        if (previousQuestion.answer?.createdAt != null) {
-          questionTimestamp =
-              previousQuestion.answer?.createdAt.toString() ?? '';
+      if (i == 0) {
+        if (mainQuestion.answered == true &&
+            mainQuestion.answer?.createdAt != null) {
+          questionTimestamp = mainQuestion.answer!.createdAt!.toString();
+        } else {
+          questionTimestamp = DateTime.now().toString();
         }
+      } else {
+        final previousQuestion = reflection.mainQuestions![i - 1];
+        questionTimestamp = getLatestTimestampFromQuestion(previousQuestion);
       }
+      // if (i > 0) {
+      //   final previousQuestion = reflection.mainQuestions![i - 1];
+      //   if (previousQuestion.answer?.createdAt != null) {
+      //     questionTimestamp =
+      //         previousQuestion.answer?.createdAt.toString() ?? '';
+      //   }
+      // }
 
       // Add main question
       items.add(
         MessageItem(
           type: MessageType.question,
           message: mainQuestion.question!,
-          timestamp: i == 0 ? DateTime.now().toString() : questionTimestamp,
+          timestamp: questionTimestamp,
           isMine: false,
-          questionId: mainQuestion.id?.toString(), // Add question ID
+          questionId: mainQuestion.id?.toString(),
+          createdAt: questionTimestamp,
         ),
       );
 
@@ -231,12 +264,29 @@ class ReflectionJournalChatController extends GetxController {
             videos: mainQuestion.answer?.media?.videos,
             voices: mainQuestion.answer?.media?.voices,
             answerId: mainQuestion.answer?.id.toString(),
+            createdAt: mainQuestion.answer?.createdAt.toString() ??
+                DateTime.now().toString(),
+            updatedAt: mainQuestion.answer?.updatedAt.toString() ?? '',
           ),
         );
 
         // Process follow-up questions for answered main questions
         if (mainQuestion.followUpQuestions != null) {
-          for (final followUp in mainQuestion.followUpQuestions!) {
+          for (var j = 0; j < mainQuestion.followUpQuestions!.length; j++) {
+            final followUp = mainQuestion.followUpQuestions![j];
+
+            String followUpQuestionTimestamp;
+            if (j == 0) {
+              followUpQuestionTimestamp =
+                  mainQuestion.answer?.createdAt.toString() ??
+                      DateTime.now().toString();
+            } else {
+              final previousFollowUp = mainQuestion.followUpQuestions![j - 1];
+              followUpQuestionTimestamp =
+                  previousFollowUp.answer?.createdAt.toString() ??
+                      mainQuestion.answer?.createdAt.toString() ??
+                      DateTime.now().toString();
+            }
             items.add(
               MessageItem(
                 type: MessageType.question,
@@ -249,6 +299,7 @@ class ReflectionJournalChatController extends GetxController {
                     ? followUp.answer?.text
                     : null,
                 questionId: followUp.id?.toString(),
+                createdAt: followUpQuestionTimestamp,
               ),
             );
 
@@ -269,6 +320,9 @@ class ReflectionJournalChatController extends GetxController {
                       ? followUp.answer?.text
                       : null,
                   questionId: followUp.id?.toString(),
+                  createdAt: followUp.answer?.createdAt.toString() ??
+                      DateTime.now().toString(),
+                  updatedAt: followUp.answer?.updatedAt.toString() ?? '',
                 ),
               );
             } else {
@@ -326,18 +380,20 @@ class ReflectionJournalChatController extends GetxController {
             reflectionQuestionAnswerResponse.value.data?.isCompleted ?? false;
         reflectionQuestionAnswerResponse.value = r;
         final currentlyCompleted = r.data?.isCompleted ?? false;
-        if (currentlyCompleted && !previouslyCompleted) {
-          // Journal just got completed
-          isJustCompleted.value = true;
-          wasAlreadyCompleted.value = false;
-        } else if (currentlyCompleted && previouslyCompleted) {
-          // Journal was already completed
-          isJustCompleted.value = false;
-          wasAlreadyCompleted.value = true;
-        } else {
-          // Journal is not completed
-          isJustCompleted.value = false;
-          wasAlreadyCompleted.value = false;
+        if (!isJustCompleted.value) {
+          if (currentlyCompleted && !previouslyCompleted) {
+            // Journal just got completed
+            isJustCompleted.value = true;
+            wasAlreadyCompleted.value = false;
+          } else if (currentlyCompleted && previouslyCompleted) {
+            // Journal was already completed
+            isJustCompleted.value = false;
+            wasAlreadyCompleted.value = true;
+          } else {
+            // Journal is not completed
+            isJustCompleted.value = false;
+            wasAlreadyCompleted.value = false;
+          }
         }
         if (!isSendingMessage.value) {
           pendingMessages.clear();
@@ -590,6 +646,6 @@ class ReflectionJournalChatController extends GetxController {
   void navigateToJournalLibrary() {
     isJustCompleted.value = false;
     wasAlreadyCompleted.value = false;
-    Get.to(() => const ReflectionLibraryScreen());
+    Get.to(const ReflectionLibraryScreen());
   }
 }

@@ -32,6 +32,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
     GoalsChatInitializer.initialize();
     ReflectionInitializer.destroy();
     ReflectionInitializer.initialize();
+    controller.getGoals();
   }
 
   @override
@@ -81,7 +82,10 @@ class _GoalsScreenState extends State<GoalsScreen> {
               ),
 
               const VerticalSpacing(24),
-              const GoalsButtons(),
+              GoalsButtons(
+                goal: controller.availableGoals,
+                selectedIndex: controller.selectedGoalIndex.value,
+              ),
 
               Expanded(
                 child: RefreshIndicator(
@@ -151,7 +155,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                 timePeriod,
                               );
 
-                              if (hasProgress || isCompleted) {
+                              if ( isCompleted) {
                                 return ProgressGoalWidget(
                                   selectedTent: controller.selectedGoalTitle,
                                   title: '${timePeriod.capitalizeFirst!} Tasks',

@@ -14,6 +14,9 @@ class MessageItem {
     this.answered = false,
     this.isThinking = false,
     this.answerId,
+    this.createdAt,
+    this.updatedAt,
+    this.isEdited = false,
     this.hide = false,
   });
   final MessageType type;
@@ -31,6 +34,9 @@ class MessageItem {
   final bool isThinking;
   final String? answerId;
   final bool hide;
+  final String? createdAt;
+  final String? updatedAt;
+  final bool isEdited;
 }
 
 enum MessageType { question, answer, option, thinking }

@@ -1,10 +1,9 @@
 import 'package:empowered/common/app_selected_button.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_model.dart';
-import 'package:empowered/features/goals/data/model/reflection_model.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
-import 'package:empowered/features/goals/presentation/controllers/reflection_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/reflection_screen.dart';
+import 'package:empowered/features/goals/presentation/screens/widgets/empty_goal.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ProgressGoalWidget extends StatefulWidget {
@@ -26,7 +25,6 @@ class ProgressGoalWidget extends StatefulWidget {
 
 class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
   late GoalsController goalsController;
-  final reflectionController = Get.find<ReflectionController>();
   @override
   void initState() {
     super.initState();
@@ -109,7 +107,13 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     );
   }
 
-  // Get current tracking state from controller
+  bool get shouldShowActionButtons {
+    return goalsController.shouldShowActionButtons(
+      widget.selectedGoalIndex,
+      widget.timePeriod,
+    );
+  }
+
   bool? get currentTrackingState {
     return goalsController.getCurrentTrackingState(
       widget.selectedGoalIndex,
@@ -151,15 +155,38 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
         goalsController.completeGoalState.value == TheStates.loading;
   }
 
+  bool get _hasGoalAnswers {
+    final goalAnswers = goalsController.getGoalAnswersForIndex(
+      widget.selectedGoalIndex,
+      widget.timePeriod,
+    );
+    return goalAnswers.isNotEmpty;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Obx(() => ThemedContainer(
+    return Obx(
+      () {
+        if (!_hasGoalAnswers) {
+          return EmptyGoal(
+            title: widget.title,
+            selectedTent: widget.selectedTent,
+            timePeriod: widget.timePeriod,
+            showStart: true,
+          );
+        }
+        
+        final showButtons = shouldShowActionButtons &&
+            (shouldShowTrackQuestion || shouldShowWonQuestion);
+        
+        return ThemedContainer(
           margin: const EdgeInsets.symmetric(vertical: 12),
           border: Border.all(
             color: AppColors.primary600,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min, // Take minimum space needed
             children: [
               // Title & Actions
               Row(
@@ -187,26 +214,17 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   final currentUserGoal = _getCurrentUserGoal();
                   final userGoalId = currentUserGoal?.id;
 
-                  // Check if we have a valid userGoalId before navigating
                   if (userGoalId == null) {
                     AppUtils.showErrorSnackbar(
-                        message: 'No user goal found for reflection',);
+                      message: 'No user goal found for reflection',
+                    );
                     return;
                   }
 
                   print(
-                      'Navigating to reflection with userGoalId: $userGoalId',);
+                    'Navigating to reflection with userGoalId: $userGoalId',
+                  );
 
-                  // Clear previous reflection data to ensure fresh load
-                  reflectionController.reflections.value = const ReflectionModel();
-                  reflectionController.getReflectionState.value =
-                      TheStates.initial;
-
-                  // Set the userGoalId in controller
-                  reflectionController.userGoalId!.value =
-                      userGoalId.toString();
-
-                  // Navigate to reflection screen
                   await Get.to(
                     () => ReflectionScreen(
                       userGoalId: userGoalId.toString(),
@@ -225,6 +243,8 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ),
               ),
               const VerticalSpacing(16),
+              
+              // Progress section
               Row(
                 children: [
                   const Text(
@@ -252,19 +272,21 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   ),
                 ],
               ),
-              // Goals list section
-              const VerticalSpacing(8),
-              SizedBox(
-                height: 200,
-                child: ListView(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  children: _buildUserGoalsList(),
-                ),
+              
+              // Dynamic spacing based on content
+              VerticalSpacing(showButtons ? 8 : 4),
+              
+              // Goals list section - shrink to content
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: _buildUserGoalsList(),
               ),
-              const VerticalSpacing(30),
+              
+              // Dynamic spacing before buttons
+              if (showButtons) const VerticalSpacing(16),
 
-              if (shouldShowTrackQuestion || shouldShowWonQuestion)
+              // Action buttons
+              if (showButtons)
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: Row(
@@ -280,7 +302,9 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                               horizontal: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: _getButtonColor(true),
+                              color: shouldShowWonQuestion
+                                  ? AppColors.primary500
+                                  : AppColors.bgBorder,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -294,19 +318,20 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,),
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 else
-                                  Icon(
+                                  const Icon(
                                     Icons.check,
-                                    color: _getButtonTextColor(true),
+                                    color: AppColors.white,
                                   ),
                                 const HorizontalSpacing(8),
                                 Text(
                                   shouldShowWonQuestion ? 'Won' : 'On Track',
                                   style: AppTextStyles.textBodyB1.copyWith(
-                                    color: _getButtonTextColor(true),
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ],
@@ -326,7 +351,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                               horizontal: 12,
                             ),
                             decoration: BoxDecoration(
-                              color: _getButtonColor(false),
+                              color: AppColors.bgBorder,
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
@@ -340,19 +365,20 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,),
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 else
-                                  Icon(
+                                  const Icon(
                                     Icons.close,
-                                    color: _getButtonTextColor(false),
+                                    color: AppColors.white,
                                   ),
                                 const HorizontalSpacing(8),
                                 Text(
                                   shouldShowWonQuestion ? 'Lost' : 'Off Track',
                                   style: AppTextStyles.textBodyB1.copyWith(
-                                    color: _getButtonTextColor(false),
+                                    color: AppColors.white,
                                   ),
                                 ),
                               ],
@@ -364,9 +390,10 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   ),
                 ),
 
+              // Error messages
               if (goalsController.markOnTrackError.value != null)
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     goalsController.markOnTrackError.value!,
                     style: const TextStyle(color: Colors.red),
@@ -374,7 +401,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ),
               if (goalsController.completeGoalError.value != null)
                 Padding(
-                  padding: const EdgeInsets.all(16),
+                  padding: const EdgeInsets.only(top: 8),
                   child: Text(
                     goalsController.completeGoalError.value!,
                     style: const TextStyle(color: Colors.red),
@@ -382,7 +409,9 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                 ),
             ],
           ),
-        ),);
+        );
+      },
+    );
   }
 
   List<Widget> _buildUserGoalsList() {
@@ -391,30 +420,20 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
       widget.timePeriod,
     );
 
-    if (goalAnswers.isEmpty) {
-      return [
-        Align(
-          child: AppSelectedButton(
-            selectedItem: false,
-            title:
-                'No targets set for ${widget.selectedTent} ${widget.timePeriod}',
-          ),
-        ),
-      ];
-    }
-
-    // Build list from goal answers
     return goalAnswers.asMap().entries.map((entry) {
       final index = entry.key;
       final goalAnswer = entry.value;
 
-      return Align(
-        child: GestureDetector(
-          onTap: () => toggleGoalSelection(index),
-          child: AppSelectedButton(
-            selectedItem: goalAnswer.achieved ?? false,
-            title:
-                goalAnswer.text ?? '${widget.selectedTent} Target ${index + 1}',
+      return Padding(
+        padding: EdgeInsets.only(bottom: index < goalAnswers.length - 1 ? 8 : 0),
+        child: Align(
+          child: GestureDetector(
+            onTap: () => toggleGoalSelection(index),
+            child: AppSelectedButton(
+              selectedItem: goalAnswer.achieved ?? false,
+              title:
+                  goalAnswer.text ?? '${widget.selectedTent} Target ${index + 1}',
+            ),
           ),
         ),
       );
@@ -423,34 +442,6 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
   bool _shouldShowLoadingForButton(bool isPositive) {
     final currentState = currentTrackingState;
-
     return currentState == null || currentState == isPositive;
-  }
-
-  // Get button color based on current state from controller
-  Color _getButtonColor(bool isPositive) {
-    final currentState = currentTrackingState;
-
-    if (currentState == null) {
-      // No state set yet, show default unselected
-      return AppColors.bgBorder;
-    } else {
-      // Use state from controller
-      return (isPositive == currentState)
-          ? AppColors.primary500
-          : AppColors.bgBorder;
-    }
-  }
-
-  Color _getButtonTextColor(bool isPositive) {
-    final currentState = currentTrackingState;
-
-    if (currentState == null) {
-      return AppColors.textColor100;
-    } else {
-      return (isPositive == currentState)
-          ? Colors.white
-          : AppColors.textColor100;
-    }
   }
 }
