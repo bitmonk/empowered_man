@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/data/model/goals_model.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/goals_chat_screen.dart';
 
 class GoalsButtons extends StatelessWidget {
@@ -30,6 +31,7 @@ class GoalsButtons extends StatelessWidget {
     final goalDetailId = selectedGoal.details?[tentTypeIndex - 1].id ?? '';
     final isCompleted =
         selectedGoal.details?[tentTypeIndex - 1].isCompleted ?? false;
+    final isCurrentWeek = Get.find<GoalsController>().isCurrentWeek;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -39,7 +41,21 @@ class GoalsButtons extends StatelessWidget {
             flex: 2,
             child: InkWell(
               onTap: () {
-                if (!isCompleted) {
+                // if (!isCompleted) {
+                // Get.to(
+                //   GoalsChatScreen(
+                //     title: selectedGoalTitle,
+                //     goalDetailId: goalDetailId.toString(),
+                //     goalId: goalId.toString(),
+                //   ),
+                // );
+                // } else {
+                //   AppUtils.showSnackbar(
+                //     message:
+                //         'Goal Completed, You have already completed this goal.',
+                //   );
+                // }
+                if (!isCurrentWeek) {
                   Get.to(
                     GoalsChatScreen(
                       title: selectedGoalTitle,
@@ -48,9 +64,9 @@ class GoalsButtons extends StatelessWidget {
                     ),
                   );
                 } else {
-                  AppUtils.showSnackbar(
+                  AppUtils.showErrorSnackbar(
                     message:
-                        'Goal Completed, You have already completed this goal.',
+                        'You can only set/view tent from current week, not from other weeks.',
                   );
                 }
               },
