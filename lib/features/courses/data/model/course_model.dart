@@ -20,11 +20,10 @@ class Course with _$Course {
   const factory Course({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'title') String? title,
-    @JsonKey(name: 'created_at') DateTime? createdAt,
-    @JsonKey(name: 'updated_at') DateTime? updatedAt,
-    @JsonKey(name: 'completion_percentage') int? completionPercentage,
-    @JsonKey(name: 'status') String? status,
+    @JsonKey(name: 'published') bool? published,
     @JsonKey(name: 'thumbnail') String? thumbnail,
+    @JsonKey(name: 'status') String? status,
+    @JsonKey(name: 'completion_percentage') int? completionPercentage,
   }) = _Course;
 
   factory Course.fromJson(Map<String, dynamic> json) => _$CourseFromJson(json);

@@ -47,10 +47,12 @@ class ChatScreen extends GetView<ChatController> {
                     ),
                     child: AppTextFormField(
                       onChanged: (v) {
-                        // controller.searchUserAndChat(v);
-                      },
-                      onTap: () {
-                        // controller.searchUserAndChat('v');
+                        if (v.length > 2) {
+                          controller.fetchConversations(
+                            query: v,
+                            isInitialLoad: true,
+                          );
+                        }
                       },
                       enabledBorderSide:
                           const BorderSide(color: AppColors.bgMedium),
@@ -125,6 +127,7 @@ class ChatScreen extends GetView<ChatController> {
                             false)
                           InkWell(
                             onTap: () {
+                              controller.selectedUsers.clear();
                               showModalBottomSheet(
                                 useRootNavigator: true,
                                 useSafeArea: true,

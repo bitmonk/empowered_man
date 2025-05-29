@@ -14,6 +14,7 @@ class _NewMessageModalState extends State<NewMessageModal> {
   final controller = Get.find<ChatController>();
   TextEditingController groupNameCont = TextEditingController();
   TextEditingController groupDescpCont = TextEditingController();
+  TextEditingController searchUserController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -59,7 +60,14 @@ class _NewMessageModalState extends State<NewMessageModal> {
                       ),
                     ],
                   ),
-
+                  AppTextFormField(
+                    controller: searchUserController,
+                    hintText: 'Enter name to search...',
+                    onChanged: (v) {
+                      controller.searchUserAndChat(query: v);
+                    },
+                  ),
+                  const VerticalSpacing(10),
                   const Divider(color: Color(0xff1B3144)),
 
                   // To: @SelectedUsers
@@ -73,11 +81,8 @@ class _NewMessageModalState extends State<NewMessageModal> {
                           const TextSpan(text: 'To: @ '),
                           TextSpan(
                             text: controller.selectedUsers
-                                .asMap()
-                                .entries
                                 .map(
-                                  (entry) => controller.userNames[entry.key]
-                                      .split(' ')[0],
+                                  (entry) => entry.nickname!.split(' ')[0],
                                 ) // Only first name
                                 .join(', '), // Separate names with commas
                             style: AppTextStyles.textBodyB3.copyWith(),
@@ -90,62 +95,77 @@ class _NewMessageModalState extends State<NewMessageModal> {
                   const Divider(color: Color(0xff1B3144)),
 
                   // User List
-                  Expanded(
-                    child: ListView.builder(
-                      keyboardDismissBehavior:
-                          ScrollViewKeyboardDismissBehavior.onDrag,
-                      controller: scrollController,
-                      itemCount: controller.userNames.length,
-                      itemBuilder: (context, index) {
-                        final user = controller.userNames[index];
-                        return ListTile(
-                          onTap: () {
-                            if (controller.selectedUsers.contains(user)) {
-                              controller.selectedUsers.remove(user);
-                            } else {
-                              controller.selectedUsers.add(user);
-                            }
-                          },
-                          contentPadding:
-                              const EdgeInsets.symmetric(vertical: 8),
-                          leading: ClipOval(
-                            child: Assets.images.profilePic.image(
-                                width: 40, height: 40, fit: BoxFit.cover,),
+                  controller.searchUserState.value.showWidget(
+                      error: () => CustomErrorWidget(
+                            error: controller.searchUserError.value,
                           ),
-                          title: Row(
-                            children: [
-                              Text(
-                                user,
-                                style: AppTextStyles.textBodyB1,
-                              ),
-                              const HorizontalSpacing(4),
-                              if (index < 2)
-                                const CircleAvatar(
-                                  radius: 2.5,
-                                  backgroundColor: AppColors.color5CE0A0,
-                                ),
-                            ],
-                          ),
-                          trailing: Checkbox(
-                            value: controller.selectedUsers.contains(user),
-                            onChanged: (value) {
-                              if (controller.selectedUsers.contains(user)) {
-                                controller.selectedUsers.remove(user);
-                              } else {
-                                controller.selectedUsers.add(user);
-                              }
-                            },
-                            side:
-                                const BorderSide(color: AppColors.textColor50),
-                            activeColor: AppColors.primary500,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
+                      loading: () => const LoadingWidget(),
+                      success: () => Expanded(
+                            child: ListView.builder(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              controller: scrollController,
+                              itemCount: controller.agoraUserList.length,
+                              itemBuilder: (context, index) {
+                                final user = controller.agoraUserList[index];
+                                return ListTile(
+                                  onTap: () {
+                                    if (controller.selectedUsers
+                                        .contains(user)) {
+                                      controller.selectedUsers.remove(user);
+                                    } else {
+                                      controller.selectedUsers.add(user);
+                                    }
+                                  },
+                                  contentPadding:
+                                      const EdgeInsets.symmetric(vertical: 8),
+                                  leading: ClipOval(
+                                    child: Assets.images.profilePic.image(
+                                      width: 40,
+                                      height: 40,
+                                      fit: BoxFit.cover,
+                                    ),
+                                  ),
+                                  title: Row(
+                                    children: [
+                                      Text(
+                                        user.nickname ?? '',
+                                        style: AppTextStyles.textBodyB1,
+                                      ),
+                                      const HorizontalSpacing(4),
+                                      if (index < 2)
+                                        const CircleAvatar(
+                                          radius: 2.5,
+                                          backgroundColor:
+                                              AppColors.color5CE0A0,
+                                        ),
+                                    ],
+                                  ),
+                                  trailing: Checkbox(
+                                    value:
+                                        controller.selectedUsers.contains(user),
+                                    onChanged: (value) {
+                                      if (controller.selectedUsers
+                                          .contains(user)) {
+                                        controller.selectedUsers.remove(user);
+                                      } else {
+                                        controller.selectedUsers.add(user);
+                                      }
+                                    },
+                                    side: const BorderSide(
+                                        color: AppColors.textColor50,),
+                                    activeColor: AppColors.primary500,
+                                  ),
+                                );
+                              },
+                            ),
+                          ),),
 
-                  if (controller.selectedUsers.length < 2)
-                    const ChatInputField(isNewMessage: true),
+                  if (controller.selectedUsers.length < 2 &&
+                      controller.selectedUsers.isNotEmpty)
+                    const ChatInputField(
+                      isNewMessage: true,
+                    ),
                   if (controller.selectedUsers.length > 1)
                     Column(
                       children: [
@@ -163,9 +183,12 @@ class _NewMessageModalState extends State<NewMessageModal> {
                           text: 'Create Group',
                           onPressed: () async {
                             await Get.find<ChatController>().createGroupAndChat(
-                                groupName: groupNameCont.text,
-                                desc: groupDescpCont.text,
-                                members: controller.selectedUsers,);
+                              groupName: groupNameCont.text,
+                              desc: groupDescpCont.text,
+                              members: controller.selectedUsers
+                                  .map((e) => e.username!)
+                                  .toList(),
+                            );
                             Get.to(
                               () => const ChatCoversationScreen(
                                 isGroupChat: true,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/data/model/agora_chat_config.dart';
+import 'package:empowered/features/chat/data/model/agora_user_model.dart';
 import 'package:empowered/features/chat/data/model/chat_conversation_wrapper.dart';
 import 'package:empowered/features/chat/data/source/chat_remote_source.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
@@ -17,16 +18,6 @@ class ChatController extends GetxController {
 
   RxList<String> filterList = ['All', 'Threads', 'Squads'].obs;
   RxInt selectedFilterindex = 0.obs;
-  RxList<String> selectedUsers = <String>[].obs;
-  RxList<String> userNames = [
-    'Liam Cooper',
-    'Sophia Reed',
-    'Mason Diaz',
-    'Ava Brooks',
-    'Noah Clarke',
-    'Emma Hayes',
-    'Oliver Bennett',
-  ].obs;
 
   late TextEditingController chatController;
   late ScrollController chatScreenScrollController;
@@ -112,9 +103,8 @@ class ChatController extends GetxController {
   Rx<TheStates> fetchConversationState = TheStates.initial.obs;
   RxnString fetchCoversationError = RxnString();
 
-  Future<void> fetchConversations({
-    bool isInitialLoad = false,
-  }) async {
+  Future<void> fetchConversations(
+      {bool isInitialLoad = false, String? query,}) async {
     try {
       if (isInitialLoad) {
         allConversations.clear();
@@ -207,7 +197,7 @@ class ChatController extends GetxController {
             id: convo.id,
             conversation: convo,
             userName:
-                group?.name ?? userInfo?.nickName ?? userInfo?.userId ?? 's',
+                group?.name ?? userInfo?.nickName ?? userInfo?.userId ?? '',
             avatarUrl: userInfo?.avatarUrl,
             isOnline: true,
             latestMessage: latestMessage,
@@ -216,11 +206,18 @@ class ChatController extends GetxController {
           ),
         );
       }
-
+      final filteredConversations = query != null && query.isNotEmpty
+          ? wrappedConversations
+              .where((c) => c.userName
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()),)
+              .toList()
+          : wrappedConversations;
       if (!isInitialLoad) {
-        allConversations.addAll(wrappedConversations);
+        allConversations.addAll(filteredConversations);
       } else {
-        allConversations.value = wrappedConversations;
+        allConversations.value = filteredConversations;
       }
 
       _nextConversationCursor = result.cursor;
@@ -642,6 +639,7 @@ class ChatController extends GetxController {
   Rx<TheStates> sendingMessageState = TheStates.initial.obs;
   RxnString sendMessageError = RxnString();
   Future<void> sendMessage({
+    String? targetID,
     String? text,
     String? filePath,
     String? audioPath,
@@ -657,7 +655,7 @@ class ChatController extends GetxController {
         selectedConversationType.value == ChatConversationType.GroupChat
             ? ChatType.GroupChat
             : ChatType.Chat;
-    final targetId = selectedConversation.value!.id;
+    var targetId = targetID ?? selectedConversation.value!.id;
 
     ChatMessage? message;
 
@@ -882,19 +880,36 @@ class ChatController extends GetxController {
     await loadMessages();
   }
 
-  // Future<void> searchUserAndChat(String? targetUserId) async {
-  //   print("a");
-  //   final convo =
-  //       await ChatClient.getInstance.userInfoManager.fetchUserInfoById(targetUserId);
-  //   print(convo);
-  // }
+  RxList<AgoraUser> selectedUsers = <AgoraUser>[].obs;
+  RxList<AgoraUser> agoraUserList = <AgoraUser>[].obs;
+  Rx<TheStates> searchUserState = TheStates.initial.obs;
+  RxnString searchUserError = RxnString();
+  Future<void> searchUserAndChat({required String query}) async {
+    // if (query.length < 3) {
+    //   searchUserState.value = TheStates.error;
+
+    // }
+    searchUserState.value = TheStates.loading;
+
+    final result = await remoteSource.searchUser(query: query);
+
+    result.fold(
+      (l) {
+        searchUserState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+      },
+      (r) {
+        agoraUserList.assignAll(r.data ?? []);
+        searchUserState.value = TheStates.success;
+      },
+    );
+  }
 
   Future<void> createGroupAndChat({
     required String groupName,
     required String desc,
     List<String>? members,
   }) async {
-    print('a');
     final options = ChatGroupOptions();
     final group = await ChatClient.getInstance.groupManager.createGroup(
       groupName: groupName,

@@ -1,8 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/data/model/course_model.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_controller.dart';
-import 'package:empowered/features/courses/presentation/screens/chapter_list_screen.dart';
 import 'package:empowered/features/courses/presentation/screens/components/badge_wid.dart';
+import 'package:empowered/features/courses/presentation/screens/modules_list_screen.dart';
 
 enum CourseStatus { completed, inProgress, notStarted }
 
@@ -157,7 +157,7 @@ class _CoursesScreenState extends State<CoursesScreen> {
       onTap: () {
         controller.selectedCourse.value = course;
         Get.to(
-          () => const ChapterListScreen(),
+          () => const ModulesListScreen(),
         );
       },
       child: Container(

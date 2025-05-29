@@ -3,6 +3,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/data/model/chapter_model.dart'
     as chap;
 import 'package:empowered/features/courses/data/model/course_model.dart';
+import 'package:empowered/features/courses/data/model/module_model.dart';
 import 'package:empowered/features/courses/data/source/course_remote_source.dart';
 
 class CourseController extends GetxController {
@@ -40,7 +41,7 @@ class CourseController extends GetxController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   Rx<String?> chapterError = Rx<String?>(null);
-  Rx<chap.ChapterData?> selectedChapter = Rx<chap.ChapterData?>(null);
+  Rxn<chap.Chapter> selectedChapter = Rxn<chap.Chapter>();
   Rx<Course?> selectedCourse = Rx<Course?>(null);
   Rx<String?> queryText = Rx<String?>(null);
 
@@ -99,6 +100,33 @@ class CourseController extends GetxController {
     );
   }
 
+  Rx<TheStates> moduleState = TheStates.initial.obs;
+  Rx<ModuleData> moduleData = const ModuleData().obs;
+  Rx<Module> selectedModule = const Module().obs;
+  Future<void> getModules({
+    CancelToken? cancelToken,
+  }) async {
+    moduleState.value = TheStates.loading;
+    _cancelToken = CancelToken();
+    chapterError.value = null;
+    final result = await remoteSource.getModules(
+      chapterId: selectedCourse.value!.id.toString(),
+      cancelToken: _cancelToken,
+    );
+
+    result.fold(
+      (l) {
+        moduleState.value = TheStates.error;
+        chapterError.value = l.message;
+      },
+      (r) async {
+        moduleData.value = r.moduledata ?? const ModuleData();
+        moduleState.value = TheStates.success;
+      },
+    );
+  }
+
+  Rx<chap.ChapterData> chapterData = const chap.ChapterData().obs;
   Future<void> getChapters({
     CancelToken? cancelToken,
   }) async {
@@ -106,7 +134,7 @@ class CourseController extends GetxController {
     _cancelToken = CancelToken();
     chapterError.value = null;
     final result = await remoteSource.getChapters(
-      courseId: selectedCourse.value!.id.toString(),
+      moduleId: selectedModule.value.id.toString(),
       cancelToken: _cancelToken,
     );
 
@@ -116,14 +144,14 @@ class CourseController extends GetxController {
         chapterError.value = l.message;
       },
       (r) async {
-        selectedChapter.value = r.data;
+        chapterData.value = r.data?.chapterData ?? const chap.ChapterData();
         getChapterState.value = TheStates.success;
       },
     );
   }
 
   Future<bool> markChapterCompleted({
-    required String courseId,
+    required String moduleId,
     required String chapterId,
     CancelToken? cancelToken,
   }) async {
@@ -132,7 +160,7 @@ class CourseController extends GetxController {
 
     final result = await remoteSource.markChapterCompleted(
       chapterId: chapterId,
-      courseId: courseId,
+      moduleId: moduleId,
       cancelToken: _cancelToken,
     );
 
@@ -153,7 +181,7 @@ class CourseController extends GetxController {
   }
 
   Future<bool> changeCourseStatus({
-    required String courseId,
+    required String moduleId,
     required String chapterId,
     CancelToken? cancelToken,
   }) async {
@@ -162,7 +190,7 @@ class CourseController extends GetxController {
 
     final result = await remoteSource.changeCourseStatus(
       chapterId: chapterId,
-      courseId: courseId,
+      moduleId: moduleId,
       cancelToken: _cancelToken,
     );
 

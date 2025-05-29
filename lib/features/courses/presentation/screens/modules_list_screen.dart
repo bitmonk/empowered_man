@@ -1,16 +1,16 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_controller.dart';
-import 'package:empowered/features/courses/presentation/screens/chapter_detail_screen.dart';
+import 'package:empowered/features/courses/presentation/screens/chapter_list_screen.dart';
 import 'package:empowered/features/courses/presentation/screens/components/badge_wid.dart';
 
-class ChapterListScreen extends StatefulWidget {
-  const ChapterListScreen({super.key});
+class ModulesListScreen extends StatefulWidget {
+  const ModulesListScreen({super.key});
 
   @override
-  State<ChapterListScreen> createState() => _ChapterListScreenState();
+  State<ModulesListScreen> createState() => _ModulesListScreenState();
 }
 
-class _ChapterListScreenState extends State<ChapterListScreen> {
+class _ModulesListScreenState extends State<ModulesListScreen> {
   final controller = Get.find<CourseController>();
 
   @override
@@ -21,19 +21,19 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
   }
 
   void _refresh() {
-    controller.getChapters();
+    controller.getModules();
   }
 
   @override
   Widget build(BuildContext context) {
     return AppScaffold(
-      appBar: const CustomAppBar(title: 'Modules'),
+      appBar: const CustomAppBar(title: 'Courses'),
       body: Obx(
         () => RefreshIndicator(
           onRefresh: () async {
             _refresh();
           },
-          child: controller.getChapterState.value.showWidget(
+          child: controller.moduleState.value.showWidget(
             orElse: () => const LoadingWidget(),
             error: () => CustomErrorWidget(
               onPressed: _refresh,
@@ -46,10 +46,10 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const VerticalSpacing(12),
-                    _buildChapterHeader(),
+                    _buildModuleHeader(),
                     const SizedBox(height: 24),
                     const Text(
-                      'Chapters',
+                      'Modules',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -57,7 +57,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    _buildChapterList(),
+                    _buildModulesList(),
                   ],
                 ),
               );
@@ -68,8 +68,8 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
     );
   }
 
-  Widget _buildChapterHeader() {
-    final chapterData = controller.chapterData.value;
+  Widget _buildModuleHeader() {
+    final moduleData = controller.moduleData.value.course!;
     return ThemedContainer(
       padding: const EdgeInsets.all(20),
       child: Column(
@@ -81,7 +81,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(12),
                 child: AppCachedImage(
-                  imgUrl: chapterData.thumbnail ?? '',
+                  imgUrl: moduleData.thumbnail ?? '',
                   width: double.infinity,
                   height: 180,
                   fit: BoxFit.cover,
@@ -105,7 +105,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                           horizontal: 12,
                         ),
                         child: Text(
-                          '${chapterData.completionPercentage}%',
+                          '${moduleData.completionPercentage}%',
                           style: AppTextStyles.textBodyB1.copyWith(
                             color: AppColors.primary300,
                           ),
@@ -116,7 +116,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                     LinearProgressIndicator(
                       borderRadius: BorderRadius.circular(20),
                       minHeight: 6,
-                      value: chapterData.completionPercentage! / 100,
+                      value: moduleData.completionPercentage! / 100,
                       backgroundColor: Colors.white24,
                       color: AppColors.primary300,
                     ),
@@ -127,7 +127,7 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
           const VerticalSpacing(16),
           Text(
-            chapterData.title ?? '',
+            moduleData.title ?? '',
             style: const TextStyle(
               fontWeight: FontWeight.w600,
               color: AppColors.textColor50,
@@ -135,33 +135,33 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
           ),
           const VerticalSpacing(16),
           StatusBadge(
-            status: chapterData.status,
+            status: moduleData.status,
           ),
         ],
       ),
     );
   }
 
-  Widget _buildChapterList() {
-    return controller.chapterData.value.chapters?.isEmpty ?? true
+  Widget _buildModulesList() {
+    return controller.moduleData.value.modules?.isEmpty ?? true
         ? const SizedBox.shrink()
         : ListView.builder(
-            itemCount: controller.chapterData.value.chapters?.length,
+            itemCount: controller.moduleData.value.modules!.length,
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemBuilder: (context, index) {
-              final chapter = controller.chapterData.value.chapters?[index];
+              final modules = controller.moduleData.value.modules![index];
               return ListTile(
                 leading: Container(
                   padding: const EdgeInsets.all(2),
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: chapter!.status.toString() == 'completed'
+                    color: modules.status == 'completed'
                         ? AppColors.primary500
                         : null, // Background color
                     border: Border.all(color: AppColors.primary500),
                   ),
-                  child: chapter.status != 'completed'
+                  child: modules.status != 'completed'
                       ? const SizedBox(
                           height: 16,
                           width: 16,
@@ -173,35 +173,17 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                         ),
                 ),
                 title: Text(
-                  chapter.title ?? '',
+                  modules.title ?? '',
                   style: const TextStyle(
                     color: AppColors.textColor200,
                     fontSize: 16,
                   ),
                 ),
                 onTap: () {
-                  if (index == 0 ||
-                      controller
-                              .chapterData.value.chapters![index - 1].status ==
-                          'completed' ||
-                      chapter.status == 'completed') {
-                    if (index == 0) {
-                      controller.changeCourseStatus(
-                        chapterId: chapter.id.toString(),
-                        moduleId: controller.selectedModule.value.id.toString(),
-                      );
-                    }
-                    controller.selectedChapter.value = chapter;
-                    Get.to(
-                      () => ChapterDetailScreen(
-                        chapterIndex: index,
-                      ),
-                    );
-                  } else {
-                    AppUtils.showErrorSnackbar(
-                      message: 'Please complete previous chapters',
-                    );
-                  }
+                  controller.selectedModule.value = modules;
+                  Get.to(
+                    () => const ChapterListScreen(),
+                  );
                 },
               );
             },

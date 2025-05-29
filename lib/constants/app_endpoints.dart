@@ -14,11 +14,13 @@ class AppEndpoints {
 
   // Course Api
   static const String getCourses = '/user/courses';
-  static String getChapters(String courseId) =>
-      '/user/courses/$courseId/chapters';
-  static String markChapterCompleted({String? courseId, String? chapterId}) =>
-      '/user/courses/$courseId/chapters/$chapterId/complete';
-  static const String changeCourseStatus = '/user/course-chapter/update-status';
+  static String getModule(String courseId) =>
+      '/user/modules?course_id=$courseId';
+  static String getChapters(String moduleId) =>
+      '/user/modules/$moduleId/chapters';
+  static String markChapterCompleted({String? moduleId, String? chapterId}) =>
+      '/user/modules/$moduleId/chapters/$chapterId/complete';
+  static const String changeCourseStatus = '/user/module-chapter/update-status';
 
   static const String habits = '/user/habits';
   static const String updateHabit = '/user/habit/update-status';
@@ -77,6 +79,9 @@ class AppEndpoints {
       '/user/habits-details?date=$date';
   static const String updateDashboardHabit = '/user/habits/update-status';
   static const String dashboardPowerStreak = '/user/weekly-details';
+
+  //Chat
+  static const String searchUser = '/agora/users/search';
 }
 
 class ExternalEndpoints {}

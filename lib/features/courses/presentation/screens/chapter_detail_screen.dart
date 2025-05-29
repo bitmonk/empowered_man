@@ -1,20 +1,11 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/extension/string_extension.dart';
-import 'package:empowered/features/courses/data/model/chapter_model.dart';
 import 'package:empowered/features/courses/presentation/controllers/course_controller.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class ChapterDetailScreen extends StatefulWidget {
-  const ChapterDetailScreen({
-    required this.chapter,
-    required this.chapterIndex,
-    required this.courseID,
-    super.key,
-  });
-  final Chapter chapter;
+  const ChapterDetailScreen({required this.chapterIndex, super.key});
   final int chapterIndex;
-  final String courseID;
-
   @override
   State<ChapterDetailScreen> createState() => _ChapterDetailScreenState();
 }
@@ -41,12 +32,12 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
                     _buildVideoPlayer(),
                     const VerticalSpacing(24),
                     Text(
-                      widget.chapter.title ?? '',
+                      controller.selectedChapter.value?.title ?? '',
                       style: AppTextStyles.textBodyB1,
                     ),
                     const VerticalSpacing(12),
                     HtmlWidget(
-                      widget.chapter.description ?? '-',
+                      controller.selectedChapter.value?.description ?? '-',
                       textStyle: AppTextStyles.textBodyB3.copyWith(height: 1.8),
                     ),
                     const VerticalSpacing(24),
@@ -69,16 +60,14 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${controller.selectedChapter.value!.course!.completionPercentage!}% Complete - ${controller.selectedCourse.value!.title}',
+            '${controller.selectedModule.value.completionPercentage!}% Complete - ${controller.selectedModule.value.title}',
             style: AppTextStyles.textBodyB4
                 .copyWith(color: AppColors.textColor100),
           ),
           const VerticalSpacing(12),
           LinearProgressIndicator(
             borderRadius: BorderRadius.circular(20),
-            value: (controller
-                        .selectedChapter.value!.course!.completionPercentage ??
-                    0) /
+            value: (controller.selectedModule.value.completionPercentage ?? 0) /
                 100,
             minHeight: 8,
             backgroundColor: AppColors.textColor200,
@@ -87,7 +76,7 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
           ),
           const VerticalSpacing(12),
           Text(
-            'Chapter ${widget.chapterIndex + 1} - ${widget.chapter.title}',
+            'Chapter ${widget.chapterIndex + 1} - ${controller.selectedChapter.value?.title}',
             style: AppTextStyles.textHeadingH3,
           ),
         ],
@@ -96,10 +85,10 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
   }
 
   Widget _buildVideoPlayer() {
-    return widget.chapter.videoUrl.isNullOrEmpty()
+    return controller.selectedChapter.value!.videoUrl.isNullOrEmpty()
         ? const SizedBox.shrink()
         : AppVideoPlayer(
-            videoUrl: widget.chapter.videoUrl,
+            videoUrl: controller.selectedChapter.value?.videoUrl,
             showListener: true,
             onProgressUpdate: (v) {
               setState(() {
@@ -114,31 +103,33 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
       () => Padding(
         padding: const EdgeInsets.symmetric(horizontal: 16),
         child: AppOutlinedButton(
-          text: widget.chapter.status != 'completed'
+          text: controller.selectedChapter.value?.status != 'completed'
               ? 'Mark as Completed'
               : 'Completed',
-          backgroundColor: widget.chapter.status == 'completed'
-              ? AppColors.appGreen
-              : (widget.chapter.status != 'completed' &&
-                      widget.chapter.videoUrl == null)
-                  ? AppColors.primary500
-                  : AppColors.dividerGrey,
-          progress:
-              widget.chapter.status == 'completed' ? null : _videoCompleteValue,
+          backgroundColor:
+              controller.selectedChapter.value?.status == 'completed'
+                  ? AppColors.appGreen
+                  : (controller.selectedChapter.value?.status != 'completed' &&
+                          controller.selectedChapter.value?.videoUrl == null)
+                      ? AppColors.primary500
+                      : AppColors.dividerGrey,
+          progress: controller.selectedChapter.value?.status == 'completed'
+              ? null
+              : _videoCompleteValue,
           isLoading:
               controller.markChapterCompletedState.value == TheStates.loading,
           onPressed: () {
-            if (widget.chapter.status != 'completed') {
+            if (controller.selectedChapter.value?.status != 'completed') {
               if (_videoCompleteValue > 0.9 &&
-                  widget.chapter.videoUrl != null) {
+                  controller.selectedChapter.value?.videoUrl != null) {
                 controller.markChapterCompleted(
-                  courseId: widget.courseID,
-                  chapterId: widget.chapter.id.toString(),
+                  moduleId: controller.selectedModule.value.id.toString(),
+                  chapterId: controller.selectedChapter.value!.id.toString(),
                 );
-              } else if (widget.chapter.videoUrl == null) {
+              } else if (controller.selectedChapter.value?.videoUrl == null) {
                 controller.markChapterCompleted(
-                  courseId: widget.courseID,
-                  chapterId: widget.chapter.id.toString(),
+                  moduleId: controller.selectedModule.value.id.toString(),
+                  chapterId: controller.selectedChapter.value!.id.toString(),
                 );
               } else {
                 AppUtils.showErrorSnackbar(message: 'Please watch full video');

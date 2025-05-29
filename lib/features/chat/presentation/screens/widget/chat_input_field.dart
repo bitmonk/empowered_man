@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:math';
 
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
 import 'package:file_picker/file_picker.dart';
@@ -15,8 +17,10 @@ class ChatInputField extends StatefulWidget {
   const ChatInputField({
     super.key,
     this.isNewMessage = false,
+    this.isSquad = false,
   });
   final bool isNewMessage;
+  final bool isSquad;
 
   @override
   State<ChatInputField> createState() => _ChatInputFieldState();
@@ -371,10 +375,29 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 onTap: () {
                   if (widget.isNewMessage) {
                     Navigator.pop(context);
+                    AudioPlayerInitializer.initialize();
+
+                    if (!widget.isSquad) {
+                      controller.selectedConversationType.value =
+                          ChatConversationType.Chat;
+                      controller
+                          .sendMessage(
+                        targetID:
+                            controller.selectedUsers.first.username.toString(),
+                        text: controller.chatController.text,
+                        filePath: getSelectedFilePath(),
+                        audioPath: selectedAudioPath,
+                        audioDuration: audioDuration?.inSeconds,
+                      )
+                          .then((_) {
+                        clearSelection();
+                        controller.fetchConversations(isInitialLoad: true);
+                      });
+                    } else {}
                     Get.to(
-                      () => const ChatCoversationScreen(
-                        isSoloChat: false,
-                        isGroupChat: true,
+                      () => ChatCoversationScreen(
+                        isGroupChat: widget.isSquad,
+                        isSoloChat: !widget.isSquad,
                       ),
                     );
                   } else {

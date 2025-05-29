@@ -235,16 +235,14 @@ mixin _$Course {
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'title')
   String? get title => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'completion_percentage')
-  int? get completionPercentage => throw _privateConstructorUsedError;
-  @JsonKey(name: 'status')
-  String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'published')
+  bool? get published => throw _privateConstructorUsedError;
   @JsonKey(name: 'thumbnail')
   String? get thumbnail => throw _privateConstructorUsedError;
+  @JsonKey(name: 'status')
+  String? get status => throw _privateConstructorUsedError;
+  @JsonKey(name: 'completion_percentage')
+  int? get completionPercentage => throw _privateConstructorUsedError;
 
   /// Serializes this Course to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -263,11 +261,10 @@ abstract class $CourseCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'title') String? title,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt,
-      @JsonKey(name: 'completion_percentage') int? completionPercentage,
+      @JsonKey(name: 'published') bool? published,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
       @JsonKey(name: 'status') String? status,
-      @JsonKey(name: 'thumbnail') String? thumbnail});
+      @JsonKey(name: 'completion_percentage') int? completionPercentage});
 }
 
 /// @nodoc
@@ -287,11 +284,10 @@ class _$CourseCopyWithImpl<$Res, $Val extends Course>
   $Res call({
     Object? id = freezed,
     Object? title = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-    Object? completionPercentage = freezed,
-    Object? status = freezed,
+    Object? published = freezed,
     Object? thumbnail = freezed,
+    Object? status = freezed,
+    Object? completionPercentage = freezed,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -302,26 +298,22 @@ class _$CourseCopyWithImpl<$Res, $Val extends Course>
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      completionPercentage: freezed == completionPercentage
-          ? _value.completionPercentage
-          : completionPercentage // ignore: cast_nullable_to_non_nullable
-              as int?,
-      status: freezed == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String?,
+      published: freezed == published
+          ? _value.published
+          : published // ignore: cast_nullable_to_non_nullable
+              as bool?,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
               as String?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
+      completionPercentage: freezed == completionPercentage
+          ? _value.completionPercentage
+          : completionPercentage // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
@@ -336,11 +328,10 @@ abstract class _$$CourseImplCopyWith<$Res> implements $CourseCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') int? id,
       @JsonKey(name: 'title') String? title,
-      @JsonKey(name: 'created_at') DateTime? createdAt,
-      @JsonKey(name: 'updated_at') DateTime? updatedAt,
-      @JsonKey(name: 'completion_percentage') int? completionPercentage,
+      @JsonKey(name: 'published') bool? published,
+      @JsonKey(name: 'thumbnail') String? thumbnail,
       @JsonKey(name: 'status') String? status,
-      @JsonKey(name: 'thumbnail') String? thumbnail});
+      @JsonKey(name: 'completion_percentage') int? completionPercentage});
 }
 
 /// @nodoc
@@ -358,11 +349,10 @@ class __$$CourseImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? title = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-    Object? completionPercentage = freezed,
-    Object? status = freezed,
+    Object? published = freezed,
     Object? thumbnail = freezed,
+    Object? status = freezed,
+    Object? completionPercentage = freezed,
   }) {
     return _then(_$CourseImpl(
       id: freezed == id
@@ -373,26 +363,22 @@ class __$$CourseImplCopyWithImpl<$Res>
           ? _value.title
           : title // ignore: cast_nullable_to_non_nullable
               as String?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as DateTime?,
-      completionPercentage: freezed == completionPercentage
-          ? _value.completionPercentage
-          : completionPercentage // ignore: cast_nullable_to_non_nullable
-              as int?,
-      status: freezed == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as String?,
+      published: freezed == published
+          ? _value.published
+          : published // ignore: cast_nullable_to_non_nullable
+              as bool?,
       thumbnail: freezed == thumbnail
           ? _value.thumbnail
           : thumbnail // ignore: cast_nullable_to_non_nullable
               as String?,
+      status: freezed == status
+          ? _value.status
+          : status // ignore: cast_nullable_to_non_nullable
+              as String?,
+      completionPercentage: freezed == completionPercentage
+          ? _value.completionPercentage
+          : completionPercentage // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
@@ -403,11 +389,10 @@ class _$CourseImpl implements _Course {
   const _$CourseImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'title') this.title,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt,
-      @JsonKey(name: 'completion_percentage') this.completionPercentage,
+      @JsonKey(name: 'published') this.published,
+      @JsonKey(name: 'thumbnail') this.thumbnail,
       @JsonKey(name: 'status') this.status,
-      @JsonKey(name: 'thumbnail') this.thumbnail});
+      @JsonKey(name: 'completion_percentage') this.completionPercentage});
 
   factory _$CourseImpl.fromJson(Map<String, dynamic> json) =>
       _$$CourseImplFromJson(json);
@@ -419,24 +404,21 @@ class _$CourseImpl implements _Course {
   @JsonKey(name: 'title')
   final String? title;
   @override
-  @JsonKey(name: 'created_at')
-  final DateTime? createdAt;
+  @JsonKey(name: 'published')
+  final bool? published;
   @override
-  @JsonKey(name: 'updated_at')
-  final DateTime? updatedAt;
-  @override
-  @JsonKey(name: 'completion_percentage')
-  final int? completionPercentage;
+  @JsonKey(name: 'thumbnail')
+  final String? thumbnail;
   @override
   @JsonKey(name: 'status')
   final String? status;
   @override
-  @JsonKey(name: 'thumbnail')
-  final String? thumbnail;
+  @JsonKey(name: 'completion_percentage')
+  final int? completionPercentage;
 
   @override
   String toString() {
-    return 'Course(id: $id, title: $title, createdAt: $createdAt, updatedAt: $updatedAt, completionPercentage: $completionPercentage, status: $status, thumbnail: $thumbnail)';
+    return 'Course(id: $id, title: $title, published: $published, thumbnail: $thumbnail, status: $status, completionPercentage: $completionPercentage)';
   }
 
   @override
@@ -446,21 +428,19 @@ class _$CourseImpl implements _Course {
             other is _$CourseImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.title, title) || other.title == title) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt) &&
-            (identical(other.completionPercentage, completionPercentage) ||
-                other.completionPercentage == completionPercentage) &&
-            (identical(other.status, status) || other.status == status) &&
+            (identical(other.published, published) ||
+                other.published == published) &&
             (identical(other.thumbnail, thumbnail) ||
-                other.thumbnail == thumbnail));
+                other.thumbnail == thumbnail) &&
+            (identical(other.status, status) || other.status == status) &&
+            (identical(other.completionPercentage, completionPercentage) ||
+                other.completionPercentage == completionPercentage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, title, createdAt, updatedAt,
-      completionPercentage, status, thumbnail);
+  int get hashCode => Object.hash(runtimeType, id, title, published, thumbnail,
+      status, completionPercentage);
 
   /// Create a copy of Course
   /// with the given fields replaced by the non-null parameter values.
@@ -482,11 +462,11 @@ abstract class _Course implements Course {
   const factory _Course(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'title') final String? title,
-      @JsonKey(name: 'created_at') final DateTime? createdAt,
-      @JsonKey(name: 'updated_at') final DateTime? updatedAt,
-      @JsonKey(name: 'completion_percentage') final int? completionPercentage,
+      @JsonKey(name: 'published') final bool? published,
+      @JsonKey(name: 'thumbnail') final String? thumbnail,
       @JsonKey(name: 'status') final String? status,
-      @JsonKey(name: 'thumbnail') final String? thumbnail}) = _$CourseImpl;
+      @JsonKey(name: 'completion_percentage')
+      final int? completionPercentage}) = _$CourseImpl;
 
   factory _Course.fromJson(Map<String, dynamic> json) = _$CourseImpl.fromJson;
 
@@ -497,20 +477,17 @@ abstract class _Course implements Course {
   @JsonKey(name: 'title')
   String? get title;
   @override
-  @JsonKey(name: 'created_at')
-  DateTime? get createdAt;
+  @JsonKey(name: 'published')
+  bool? get published;
   @override
-  @JsonKey(name: 'updated_at')
-  DateTime? get updatedAt;
-  @override
-  @JsonKey(name: 'completion_percentage')
-  int? get completionPercentage;
+  @JsonKey(name: 'thumbnail')
+  String? get thumbnail;
   @override
   @JsonKey(name: 'status')
   String? get status;
   @override
-  @JsonKey(name: 'thumbnail')
-  String? get thumbnail;
+  @JsonKey(name: 'completion_percentage')
+  int? get completionPercentage;
 
   /// Create a copy of Course
   /// with the given fields replaced by the non-null parameter values.

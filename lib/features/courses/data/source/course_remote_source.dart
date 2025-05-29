@@ -5,6 +5,7 @@ import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/courses/data/model/chapter_model.dart';
 import 'package:empowered/features/courses/data/model/course_model.dart';
+import 'package:empowered/features/courses/data/model/module_model.dart';
 
 class CourseRemoteSource {
   const CourseRemoteSource(this._client);
@@ -35,13 +36,33 @@ class CourseRemoteSource {
     }
   }
 
-  Future<Either<AppError, ChapterModel>> getChapters({
-    required String courseId,
+  Future<Either<AppError, ModuleModel>> getModules({
+    required String chapterId,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.get(
-        AppEndpoints.getChapters(courseId),
+        AppEndpoints.getModule(chapterId),
+        cancelToken: cancelToken,
+      );
+
+      return right(ModuleModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, ChapterModel>> getChapters({
+    required String moduleId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.getChapters(moduleId),
         cancelToken: cancelToken,
       );
 
@@ -56,14 +77,14 @@ class CourseRemoteSource {
   }
 
   Future<Either<AppError, String>> markChapterCompleted({
-    required String courseId,
+    required String moduleId,
     required String chapterId,
     CancelToken? cancelToken,
   }) async {
     try {
       final response = await _client.post(
         AppEndpoints.markChapterCompleted(
-          courseId: courseId,
+          moduleId: moduleId,
           chapterId: chapterId,
         ),
         cancelToken: cancelToken,
@@ -80,7 +101,7 @@ class CourseRemoteSource {
   }
 
   Future<Either<AppError, String>> changeCourseStatus({
-    required String courseId,
+    required String moduleId,
     required String chapterId,
     CancelToken? cancelToken,
   }) async {
@@ -88,7 +109,7 @@ class CourseRemoteSource {
       final response = await _client.post(
         AppEndpoints.changeCourseStatus,
         body: {
-          'course_id': courseId,
+          'module_id': moduleId,
           'chapter_id': chapterId,
           'status': 'in_progress',
         },
