@@ -11,6 +11,7 @@ class AppEndpoints {
   static const String updateProfile = '/user/update/profile';
   static const String changePassword = '/user/update/password';
   static const String deleteAccount = '/user/delete';
+  static const String getPushNotification = '/notifications';
 
   // Course Api
   static const String getCourses = '/user/courses';
