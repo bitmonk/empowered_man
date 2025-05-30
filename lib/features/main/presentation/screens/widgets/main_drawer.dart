@@ -169,7 +169,6 @@ class MainDrawer extends GetView<MainController> {
                     ),
                     DrawerTile(
                       onTap: () {
-                        
                         GoalsInitializer.destroy();
                         GoalsInitializer.initialize();
 
@@ -233,13 +232,11 @@ class MainDrawer extends GetView<MainController> {
                         final controller = Get.find<LogoutController>();
 
                         final deviceId = await getUniqueDeviceId();
-                        final result = await controller.logout(deviceId);
+                        controller.logout(deviceId);
 
-                        if (result) {
-                          await ChatClient.getInstance.logout();
-                          await Get.find<AppSharedPref>().removeAll();
-                          Get.offAllNamed(AppRoutes.landingScreen);
-                        }
+                        await ChatClient.getInstance.logout();
+                        await Get.find<AppSharedPref>().removeAll();
+                        Get.offAllNamed(AppRoutes.landingScreen);
                       },
                       title: 'Logout',
                       image: Assets.images.logout.path,

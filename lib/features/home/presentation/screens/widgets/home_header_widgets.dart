@@ -57,29 +57,20 @@ class HomeHeaderWidgets extends StatelessWidget {
                     ),
                     const VerticalSpacing(2),
                     Obx(
-                      () => Text(
-                        Get.find<ProfileController>()
-                                    .userProfile
-                                    .value
-                                    .fullName!
-                                    .length >
-                                12
-                            ? Get.find<ProfileController>()
-                                    .userProfile
-                                    .value
-                                    .fullName
-                                    ?.split(' ')
-                                    .first ??
-                                ''
-                            : Get.find<ProfileController>()
-                                    .userProfile
-                                    .value
-                                    .fullName ??
-                                '',
-                        style: AppTextStyles.textBodyB3
-                            .copyWith(color: AppColors.white),
-                        maxLines: 2,
-                      ),
+                      () {
+                        final fullName = Get.find<ProfileController>()
+                            .userProfile
+                            .value
+                            .fullName;
+                        return Text(
+                          (fullName != null && fullName.length > 12)
+                              ? fullName.split(' ').first
+                              : fullName ?? '',
+                          style: AppTextStyles.textBodyB3
+                              .copyWith(color: AppColors.white),
+                          maxLines: 2,
+                        );
+                      },
                     ),
                   ],
                 ),

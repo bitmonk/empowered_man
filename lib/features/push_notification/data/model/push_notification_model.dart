@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:convert';
 
 part 'push_notification_model.freezed.dart';
 part 'push_notification_model.g.dart';

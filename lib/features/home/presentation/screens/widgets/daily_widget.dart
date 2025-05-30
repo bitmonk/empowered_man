@@ -146,57 +146,62 @@ class _DailyWidgetState extends State<DailyWidget> {
                     ),
                   ],
                 ),
-                orElse: () => ThemedContainer(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Habits',
-                        style: AppTextStyles.textBodyB1,
-                      ),
-                      const VerticalSpacing(6),
-                      ...homeController.dashboardHabitlData.map((e) {
-                        if (e.habits?.isNotEmpty ?? false) {
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  e.category?.capitalize ?? '',
-                                  style: AppTextStyles.textBodyB3,
-                                ),
-                                const VerticalSpacing(12),
-                                GridView.builder(
-                                  padding: EdgeInsets.zero,
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  gridDelegate:
-                                      const SliverGridDelegateWithFixedCrossAxisCount(
-                                    mainAxisSpacing: 16,
-                                    crossAxisSpacing: 16,
-                                    crossAxisCount: 2,
-                                  ),
-                                  itemCount: e.habits?.length,
-                                  itemBuilder: (context, i) {
-                                    return HabitsContainer(
-                                      habit: e.habits![i],
-                                    );
-                                  },
-                                ),
-                              ],
+                orElse: () => homeController.dashboardHabitlData.isNotEmpty
+                    ? ThemedContainer(
+                        width: double.infinity,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Habits',
+                              style: AppTextStyles.textBodyB1,
                             ),
-                          );
-                        } else {
-                          return const SizedBox.shrink();
-                        }
-                      }),
-                    ],
-                  ),
-                ),
+                            const VerticalSpacing(6),
+                            ...homeController.dashboardHabitlData.map((e) {
+                              if (e.habits?.isNotEmpty ?? false) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        e.category?.capitalize ?? '',
+                                        style: AppTextStyles.textBodyB3,
+                                      ),
+                                      const VerticalSpacing(12),
+                                      GridView.builder(
+                                        padding: EdgeInsets.zero,
+                                        shrinkWrap: true,
+                                        physics:
+                                            const NeverScrollableScrollPhysics(),
+                                        gridDelegate:
+                                            const SliverGridDelegateWithFixedCrossAxisCount(
+                                          mainAxisSpacing: 16,
+                                          crossAxisSpacing: 16,
+                                          crossAxisCount: 2,
+                                        ),
+                                        itemCount: e.habits?.length,
+                                        itemBuilder: (context, i) {
+                                          return HabitsContainer(
+                                            habit: e.habits![i],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                );
+                              } else {
+                                return const SizedBox.shrink();
+                              }
+                            }),
+                          ],
+                        ),
+                      )
+                    : const SizedBox.shrink(),
               ),
-              const VerticalSpacing(20),
+              if (homeController.dashboardHabitlData.isNotEmpty)
+                const VerticalSpacing(20),
               const ImportantTasksWidget(),
               const VerticalSpacing(120),
             ],

@@ -31,9 +31,9 @@ class ChatRemoteSource {
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _client.post(
+      final response = await _client.get(
         AppEndpoints.searchUser,
-        body: {
+        queryParameters: {
           'query': query,
           'limit': limit,
         },

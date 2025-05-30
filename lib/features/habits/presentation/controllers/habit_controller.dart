@@ -61,7 +61,7 @@ class HabitController extends GetxController {
       (l) {
         getHabitState.value = TheStates.error;
         getHabitError.value = l.message;
-        AppUtils.showErrorSnackbar(message: l.message);
+        // AppUtils.showErrorSnackbar(message: l.message);
       },
       (r) async {
         weeklyHabits.value = convertDomainToWeeklyHabits(r.domain ?? {});

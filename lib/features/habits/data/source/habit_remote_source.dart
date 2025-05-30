@@ -20,8 +20,11 @@ class HabitRemoteSource {
         queryParameters: {'from_date': fromDate, 'to_date': toDate},
         cancelToken: cancelToken,
       );
-
-      return right(HabitModel.fromJson(response));
+      if (response['data'] is List) {
+        return left(const InternalAppError(message: 'No data found.'));
+      } else {
+        return right(HabitModel.fromJson(response));
+      }
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

@@ -52,13 +52,12 @@ class ChatController extends GetxController {
   Rx<TheStates> initializingSdks = TheStates.initial.obs;
   RxnString loginError = RxnString();
   Future<void> initSDK() async {
+    print('a');
     if (currentUserId.value == null || currentUserToken.value == null) {
       initializingSdks.value = TheStates.error;
       loginError.value = '${currentUserId.value} Error while logging in';
       return;
     }
-
-    // ChatClient.getInstance.logout();
     initializingSdks.value = TheStates.loading;
     final options = ChatOptions(appKey: AgoraChatConfig.appKey);
     await ChatClient.getInstance.init(options);
@@ -72,6 +71,7 @@ class ChatController extends GetxController {
           currentUserToken.value!,
         );
       }
+
       _addListeners();
       fetchConversations(isInitialLoad: true);
       chatScreenScrollController.addListener(() {
@@ -103,8 +103,10 @@ class ChatController extends GetxController {
   Rx<TheStates> fetchConversationState = TheStates.initial.obs;
   RxnString fetchCoversationError = RxnString();
 
-  Future<void> fetchConversations(
-      {bool isInitialLoad = false, String? query,}) async {
+  Future<void> fetchConversations({
+    bool isInitialLoad = false,
+    String? query,
+  }) async {
     try {
       if (isInitialLoad) {
         allConversations.clear();
@@ -208,10 +210,12 @@ class ChatController extends GetxController {
       }
       final filteredConversations = query != null && query.isNotEmpty
           ? wrappedConversations
-              .where((c) => c.userName
-                  .toString()
-                  .toLowerCase()
-                  .contains(query.toLowerCase()),)
+              .where(
+                (c) => c.userName
+                    .toString()
+                    .toLowerCase()
+                    .contains(query.toLowerCase()),
+              )
               .toList()
           : wrappedConversations;
       if (!isInitialLoad) {
@@ -896,7 +900,7 @@ class ChatController extends GetxController {
     result.fold(
       (l) {
         searchUserState.value = TheStates.error;
-        AppUtils.showErrorSnackbar(message: l.message);
+        // AppUtils.showErrorSnackbar(message: l.message);
       },
       (r) {
         agoraUserList.assignAll(r.data ?? []);

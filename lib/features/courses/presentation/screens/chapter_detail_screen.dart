@@ -87,14 +87,17 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
   Widget _buildVideoPlayer() {
     return controller.selectedChapter.value!.videoUrl.isNullOrEmpty()
         ? const SizedBox.shrink()
-        : AppVideoPlayer(
-            videoUrl: controller.selectedChapter.value?.videoUrl,
-            showListener: true,
-            onProgressUpdate: (v) {
-              setState(() {
-                _videoCompleteValue = v;
-              });
-            },
+        : SizedBox(
+            height: 200,
+            child: AppVideoPlayer(
+              videoUrl: controller.selectedChapter.value?.videoUrl,
+              showListener: true,
+              onProgressUpdate: (v) {
+                setState(() {
+                  _videoCompleteValue = v;
+                });
+              },
+            ),
           );
   }
 

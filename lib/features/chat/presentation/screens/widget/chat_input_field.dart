@@ -5,7 +5,6 @@ import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:just_audio/just_audio.dart';
@@ -380,26 +379,19 @@ class _ChatInputFieldState extends State<ChatInputField> {
                     if (!widget.isSquad) {
                       controller.selectedConversationType.value =
                           ChatConversationType.Chat;
-                      controller
-                          .sendMessage(
-                        targetID:
-                            controller.selectedUsers.first.username.toString(),
-                        text: controller.chatController.text,
-                        filePath: getSelectedFilePath(),
-                        audioPath: selectedAudioPath,
-                        audioDuration: audioDuration?.inSeconds,
-                      )
-                          .then((_) {
-                        clearSelection();
-                        controller.fetchConversations(isInitialLoad: true);
-                      });
-                    } else {}
-                    Get.to(
-                      () => ChatCoversationScreen(
-                        isGroupChat: widget.isSquad,
-                        isSoloChat: !widget.isSquad,
-                      ),
-                    );
+                      for (final e in controller.selectedUsers) {
+                        controller.sendMessage(
+                          targetID: e.username,
+                          text: controller.chatController.text,
+                          filePath: getSelectedFilePath(),
+                          audioPath: selectedAudioPath,
+                          audioDuration: audioDuration?.inSeconds,
+                        );
+                      }
+
+                      clearSelection();
+                      controller.fetchConversations(isInitialLoad: true);
+                    }
                   } else {
                     if (controller.messageToEdit.value != null) {
                       controller

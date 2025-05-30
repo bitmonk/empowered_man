@@ -4,7 +4,6 @@ import 'package:empowered/features/chat/presentation/controllers/chat_controller
 import 'package:empowered/features/chat/presentation/screens/widget/chat_list.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/new_message_model.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ChatScreen extends GetView<ChatController> {
@@ -23,14 +22,6 @@ class ChatScreen extends GetView<ChatController> {
               error: () => CustomErrorWidget(
                 error: controller.loginError.value,
                 onPressed: () {
-                  controller.currentUserId.value =
-                      Get.find<ProfileController>().userProfile.value.slug;
-                  controller.currentUserToken.value =
-                      Get.find<ProfileController>()
-                          .userProfile
-                          .value
-                          .agoraUserToken;
-
                   controller.initSDK();
                 },
               ),
@@ -120,26 +111,23 @@ class ChatScreen extends GetView<ChatController> {
                             ),
                           ),
                         ),
-                        if (Get.find<ProfileController>()
-                                .userProfile
-                                .value
-                                .isCoach ??
-                            false)
-                          InkWell(
-                            onTap: () {
-                              controller.selectedUsers.clear();
-                              showModalBottomSheet(
-                                useRootNavigator: true,
-                                useSafeArea: true,
-                                context: context,
-                                isScrollControlled: true,
-                                backgroundColor: Colors.transparent,
-                                builder: (context) => const NewMessageModal(),
-                              );
-                            },
-                            child: Assets.images.addIconWithBackground
-                                .svg(width: 30, height: 30),
-                          ),
+                        InkWell(
+                          onTap: () {
+                            controller.selectedUsers.clear();
+                            controller.agoraUserList.clear();
+                            controller.chatController.clear();
+                            showModalBottomSheet(
+                              useRootNavigator: true,
+                              useSafeArea: true,
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: Colors.transparent,
+                              builder: (context) => const NewMessageModal(),
+                            );
+                          },
+                          child: Assets.images.addIconWithBackground
+                              .svg(width: 30, height: 30),
+                        ),
                       ],
                     ),
                   ),

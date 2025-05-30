@@ -1,6 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/notification/presentation/screen/widget/notification_tile.dart';
 import 'package:empowered/features/push_notification/presentation/controller/push_notification_controller.dart';
-import 'package:empowered/features/settings_notification/presentation/screen/widget/notification_tile.dart';
 
 class PushNotificationScreen extends GetView<PushNotificationController> {
   const PushNotificationScreen(this.showDone, {super.key});
@@ -47,7 +47,7 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
                   },
                   text: 'Retry',
                 ),
-                orElse: () => Column(
+                orElse: () => const Column(
                   children: [NotificationTile()],
                 ),
               ),

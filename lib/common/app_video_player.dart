@@ -90,20 +90,18 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-      child: _errorMessage != null
-          ? Padding(
-              padding: const EdgeInsets.all(8),
-              child: CustomErrorWidget(
-                error: _errorMessage,
-                onPressed: _initializePlayer,
-                verticlePadding: const EdgeInsets.symmetric(vertical: 100),
-              ),
-            )
-          : ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: AspectRatio(
-                aspectRatio: _videoController.value.aspectRatio,
+      body: Center(
+        child: _errorMessage != null
+            ? Padding(
+                padding: const EdgeInsets.all(8),
+                child: CustomErrorWidget(
+                  error: _errorMessage,
+                  onPressed: _initializePlayer,
+                  verticlePadding: const EdgeInsets.symmetric(vertical: 100),
+                ),
+              )
+            : ClipRRect(
+                borderRadius: BorderRadius.circular(12),
                 child: _chewieController != null &&
                         _chewieController!
                             .videoPlayerController.value.isInitialized
@@ -113,8 +111,8 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
                         child: LoadingWidget(),
                       ),
               ),
-            ),
-    ),);
+      ),
+    );
   }
 
   @override
