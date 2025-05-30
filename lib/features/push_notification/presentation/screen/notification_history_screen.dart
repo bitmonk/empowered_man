@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/settings_notification/presentation/screen/widget/notification_tile.dart';
+import 'package:empowered/features/notification/presentation/screen/widget/notification_tile.dart';
 
 class NotificationHistoryScreen extends StatelessWidget {
   const NotificationHistoryScreen({super.key});
@@ -12,7 +12,11 @@ class NotificationHistoryScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         itemCount: 10,
-        itemBuilder: (context, index) => const NotificationTile(),
+        itemBuilder: (context, index) => const NotificationTile(
+          title: '',
+          body: '',
+          createdAt: '',
+        ),
       ),
     );
   }

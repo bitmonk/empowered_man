@@ -17,6 +17,7 @@ import 'package:empowered/features/main/presentation/controllers/main_controller
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
+import 'package:empowered/features/push_notification/presentation/controller/push_notification_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
 import 'package:flutter/services.dart';
@@ -56,6 +57,7 @@ class _MainScreenState extends State<MainScreen>
     GoalsInitializer.initialize();
     ReflectionJournalChatInitializer.initialize();
     GoalsOverviewInitializer.initialize();
+    PushNotificationInitializer.initialize();
   }
 
   @override
@@ -69,6 +71,7 @@ class _MainScreenState extends State<MainScreen>
     ProfileInitializer.destroy();
     ReflectionJournalChatInitializer.destroy();
     GoalsOverviewInitializer.destroy();
+    PushNotificationInitializer.destroy();
 
     super.dispose();
   }

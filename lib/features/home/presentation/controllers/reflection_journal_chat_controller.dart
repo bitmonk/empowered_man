@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/data/model/reflection_question_answer_model.dart';
@@ -25,6 +27,7 @@ class ReflectionJournalChatController extends GetxController {
   RxBool isSendingMessage = false.obs;
   Rx<MessageItem?> pendingAnswer = Rx<MessageItem?>(null);
   final Map<String, String> yesNoAnswers = {};
+  Timer? _scrollTimer;
 
   // Edit mode states
   RxBool isEditMode = false.obs;
@@ -64,6 +67,13 @@ class ReflectionJournalChatController extends GetxController {
     chatController.dispose();
     scrollController.dispose();
     super.onClose();
+  }
+
+  void _debouncedScrollToBottom({int delay = 100}) {
+    _scrollTimer?.cancel();
+    _scrollTimer = Timer(Duration(milliseconds: delay), () {
+      scrollToBottom();
+    });
   }
 
   void _scrollListener() {
@@ -119,6 +129,8 @@ class ReflectionJournalChatController extends GetxController {
     isSendingMessage.value = true;
 
     if (message != null) {
+      print('Adding pending message: $message'); // Debug log
+
       // Add the user's message to pending messages
       pendingMessages.add(
         MessageItem(
@@ -175,7 +187,7 @@ class ReflectionJournalChatController extends GetxController {
           update();
           await Future.delayed(const Duration(milliseconds: 100));
 
-          scrollToBottom();
+          _debouncedScrollToBottom(delay: 200);
           updateMessageState.value = TheStates.success;
         },
       );
@@ -395,10 +407,12 @@ class ReflectionJournalChatController extends GetxController {
             wasAlreadyCompleted.value = false;
           }
         }
-        if (!isSendingMessage.value) {
-          pendingMessages.clear();
+        // if (!isSendingMessage.value) {
+        //   pendingMessages.clear();
+        // }
+        if (autoScrollEnabled.value && !isSendingMessage.value) {
+          _debouncedScrollToBottom();
         }
-        scrollToBottom();
         return true;
       },
     );
@@ -426,15 +440,14 @@ class ReflectionJournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      await Future.delayed(const Duration(seconds: 1));
+      // await Future.delayed(const Duration(seconds: 1));
+      // pendingMessages.clear();
 
-      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      await getReflectionWithQuestionAnswers(period);
+      // var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      // await getReflectionWithQuestionAnswers(period);
 
-      pendingMessages.clear();
-
-      autoScrollEnabled.value = true;
-      scrollToBottom();
+      // autoScrollEnabled.value = true;
+      // scrollToBottom();
     } catch (e) {
       print('Error in yes/no selection: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send response');
@@ -518,12 +531,11 @@ class ReflectionJournalChatController extends GetxController {
 
       await Future.delayed(const Duration(milliseconds: 1000));
 
-      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      await getReflectionWithQuestionAnswers(period);
-      pendingMessages.clear();
+      // var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      // await getReflectionWithQuestionAnswers(period);
 
-      autoScrollEnabled.value = true;
-      scrollToBottom();
+      // autoScrollEnabled.value = true;
+      // scrollToBottom();
     } catch (e) {
       print('Error sending message: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send message');
@@ -560,6 +572,7 @@ class ReflectionJournalChatController extends GetxController {
         (l) {
           sendMessageState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
+          _hideThinking();
         },
         (r) async {
           // chatConversationList
@@ -572,11 +585,14 @@ class ReflectionJournalChatController extends GetxController {
           //       type: MessageType.answer,
           //     ),
           //   );
+          pendingMessages.clear();
+          _hideThinking();
 
           // chatController.clear();
           await getReflectionWithQuestionAnswers(period);
           // await Future.delayed(const Duration(milliseconds: 100));
           // scrollToBottom();
+          _debouncedScrollToBottom(delay: 300);
 
           sendMessageState.value = TheStates.success;
         },
@@ -588,14 +604,18 @@ class ReflectionJournalChatController extends GetxController {
   }
 
   void scrollToBottom() {
-    if (scrollController.hasClients) {
+    if (scrollController.hasClients && autoScrollEnabled.value) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        const extraPadding = 200.0;
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent + extraPadding,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (scrollController.hasClients) {
+          final maxScroll = scrollController.position.maxScrollExtent;
+          const extraPadding = 100.0; // Reduced padding
+
+          scrollController.animateTo(
+            maxScroll + extraPadding,
+            duration: const Duration(milliseconds: 200), // Faster animation
+            curve: Curves.easeOut,
+          );
+        }
       });
     }
   }
@@ -631,7 +651,7 @@ class ReflectionJournalChatController extends GetxController {
 
           await getReflectionWithQuestionAnswers(period);
           await Future.delayed(const Duration(milliseconds: 100));
-          scrollToBottom();
+          _debouncedScrollToBottom(delay: 200);
 
           updateMessageState.value = TheStates.success;
           resetEditMode();

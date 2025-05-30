@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/push_notification/presentation/screen/push_notification_screen.dart';
 
 class HomeHeaderWidgets extends StatelessWidget {
   const HomeHeaderWidgets({
@@ -91,7 +92,7 @@ class HomeHeaderWidgets extends StatelessWidget {
                 const HorizontalSpacing(8),
                 InkWell(
                   onTap: () {
-                    Get.toNamed(AppRoutes.notificationHistory);
+                    Get.to(PushNotificationScreen(true));
                   },
                   child: Assets.images.notification.svg(width: 40),
                 ),
