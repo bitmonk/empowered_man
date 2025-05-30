@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/journal_chat/data/model/chat_conversation_model.dart';
@@ -14,6 +16,7 @@ class JournalChatController extends GetxController {
   late TextEditingController chatController;
   late ScrollController scrollController;
   RxString title = 'Rage'.obs;
+  Timer? _scrollTimer;
 
   Rx<ChatConversationModel> journalWithQuestionsAndAnswers =
       const ChatConversationModel().obs;
@@ -57,13 +60,13 @@ class JournalChatController extends GetxController {
       }
     });
 
-    journalChatConversationState.listen((state) {
-      if (state == TheStates.success && autoScrollEnabled.value) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          scrollToBottom();
-        });
-      }
-    });
+    // journalChatConversationState.listen((state) {
+    //   if (state == TheStates.success && autoScrollEnabled.value) {
+    //     WidgetsBinding.instance.addPostFrameCallback((_) {
+    //       scrollToBottom();
+    //     });
+    //   }
+    // });
   }
 
   @override
@@ -71,6 +74,13 @@ class JournalChatController extends GetxController {
     chatController.dispose();
     scrollController.dispose();
     super.onClose();
+  }
+
+  void _debouncedScrollToBottom({int delay = 100}) {
+    _scrollTimer?.cancel();
+    _scrollTimer = Timer(Duration(milliseconds: delay), () {
+      scrollToBottom();
+    });
   }
 
   void _scrollListener() {
@@ -139,10 +149,7 @@ class JournalChatController extends GetxController {
       update();
     }
 
-    // Force UI update and scroll
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      scrollToBottom();
-    });
+    _debouncedScrollToBottom();
   }
 
   void _hideThinking() {
@@ -395,11 +402,13 @@ class JournalChatController extends GetxController {
                 .value.data?.journal?.mainQuestions?[0].answered ==
             false;
 
-        if (!isSendingMessage.value) {
-          pendingMessages.clear();
-        }
+        // if (!isSendingMessage.value) {
+        //   pendingMessages.clear();
+        // }
 
-        scrollToBottom();
+        if (autoScrollEnabled.value && !isSendingMessage.value) {
+          _debouncedScrollToBottom();
+        }
         return true;
       },
     );
@@ -426,14 +435,14 @@ class JournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      await Future.delayed(const Duration(seconds: 1));
+      // await Future.delayed(const Duration(seconds: 1));
 
-      await getJournalWithQuestionsAndAnswers();
+      // await getJournalWithQuestionsAndAnswers();
 
-      pendingMessages.clear();
+      // pendingMessages.clear();
 
-      autoScrollEnabled.value = true;
-      scrollToBottom();
+      // autoScrollEnabled.value = true;
+      // scrollToBottom();
     } catch (e) {
       print('Error in yes/no selection: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send response');
@@ -514,14 +523,14 @@ class JournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      await Future.delayed(const Duration(milliseconds: 1000));
+      // await Future.delayed(const Duration(milliseconds: 1000));
 
-      await getJournalWithQuestionsAndAnswers();
+      // await getJournalWithQuestionsAndAnswers();
 
-      pendingMessages.clear();
+      // pendingMessages.clear();
 
-      autoScrollEnabled.value = true;
-      scrollToBottom();
+      // autoScrollEnabled.value = true;
+      // scrollToBottom();
     } catch (e) {
       print('Error sending message: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send message');
@@ -562,6 +571,10 @@ class JournalChatController extends GetxController {
           );
         },
         (r) async {
+          pendingMessages.clear();
+          _hideThinking();
+          await getJournalWithQuestionsAndAnswers();
+          _debouncedScrollToBottom(delay: 300);
           sendMessageState.value = TheStates.success;
         },
       );
@@ -572,14 +585,18 @@ class JournalChatController extends GetxController {
   }
 
   void scrollToBottom() {
-    if (scrollController.hasClients) {
+    if (scrollController.hasClients && autoScrollEnabled.value) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        const extraPadding = 200.0;
-        scrollController.animateTo(
-          scrollController.position.maxScrollExtent + extraPadding,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        if (scrollController.hasClients) {
+          final maxScroll = scrollController.position.maxScrollExtent;
+          const extraPadding = 100.0; // Reduced padding
+
+          scrollController.animateTo(
+            maxScroll + extraPadding,
+            duration: const Duration(milliseconds: 200), // Faster animation
+            curve: Curves.easeOut,
+          );
+        }
       });
     }
   }
@@ -609,8 +626,10 @@ class JournalChatController extends GetxController {
         (r) async {
           chatController.clear();
           await getJournalWithQuestionsAndAnswers();
-          await Future.delayed(const Duration(milliseconds: 100));
-          scrollToBottom();
+          // await Future.delayed(const Duration(milliseconds: 100));
+          // scrollToBottom();
+                    _debouncedScrollToBottom(delay: 200);
+
           updateMessageState.value = TheStates.success;
           resetEditMode();
         },

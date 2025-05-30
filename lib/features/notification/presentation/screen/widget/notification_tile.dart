@@ -1,8 +1,15 @@
 import 'package:empowered/core/extension/extensions.dart';
 
 class NotificationTile extends StatelessWidget {
-  const NotificationTile({super.key});
-
+  const NotificationTile({
+    required this.title,
+    required this.body,
+    required this.createdAt,
+    super.key,
+  });
+  final String? title;
+  final String? body;
+  final String? createdAt;
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -13,24 +20,29 @@ class NotificationTile extends StatelessWidget {
         ),
         child: Column(
           children: [
-            const VerticalSpacing(24),
+            const VerticalSpacing(12),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Assets.images.notificationProfile.image(width: 32),
-                const HorizontalSpacing(16),
+                // Assets.images.notificationProfile.image(width: 32),
+                // const HorizontalSpacing(16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'You have recieved a new notification',
+                        title ?? '',
                         style: AppTextStyles.bodyLGMedium
                             .copyWith(color: AppColors.textColor200),
                       ),
                       const VerticalSpacing(4),
                       Text(
-                        'Last Wednesday at 9:42 AM',
+                        body ?? '',
+                        style: AppTextStyles.bodySmRegular
+                            .copyWith(color: AppColors.textColor300),
+                      ),
+                      Text(
+                        createdAt ?? '',
                         style: AppTextStyles.bodySmRegular
                             .copyWith(color: AppColors.textColor300),
                       ),

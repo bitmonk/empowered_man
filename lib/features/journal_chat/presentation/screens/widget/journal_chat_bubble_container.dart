@@ -67,6 +67,7 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
   String? _editingSelectedOption; // For edit mode
   late List<AnimationController> _dotAnimationControllers;
   late List<Animation<double>> _dotAnimations;
+  bool _showEditIcon = false; // Add this state variable
 
   @override
   void initState() {
@@ -438,45 +439,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
     }
   }
 
-  void _showPopupMenu(BuildContext context, Offset position) {
-    final left = position.dx - 80;
-    final top = position.dy - 60;
-
-    showDialog(
-      context: context,
-      barrierColor: AppColors.transparent,
-      builder: (context) {
-        return Stack(
-          children: [
-            Positioned(
-              left: left,
-              top: top,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgMedium,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                      if (widget.onEditTap != null) {
-                        widget.onEditTap!();
-                      }
-                    },
-                    child: Assets.images.chatEdit.svg(width: 20),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.isThinking) {
@@ -527,144 +489,193 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
               widget.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
             const VerticalSpacing(16),
-            GestureDetector(
-              onLongPressStart: (details) {
-                widget.isMine
-                    ? _showPopupMenu(context, details.globalPosition)
-                    : null;
-              },
-              child: Row(
-                mainAxisAlignment: widget.isMine
-                    ? MainAxisAlignment.end
-                    : MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (!widget.isMine)
-                    Padding(
-                      padding: const EdgeInsets.only(right: 8),
-                      child: ClipOval(
-                        child: widget.isAnotherUser
-                            ? Assets.images.chatUserPic
-                                .image(height: 25, width: 25)
-                            : widget.isJournal
-                                ? Assets.images.appIcon
-                                    .image(height: 25, width: 25)
-                                : Assets.images.chatUserPicTwo
-                                    .image(height: 25, width: 25),
-                      ),
+            Row(
+              mainAxisAlignment: widget.isMine
+                  ? MainAxisAlignment.end
+                  : MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                if (!widget.isMine)
+                  Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: ClipOval(
+                      child: widget.isAnotherUser
+                          ? Assets.images.chatUserPic
+                              .image(height: 25, width: 25)
+                          : widget.isJournal
+                              ? Assets.images.appIcon
+                                  .image(height: 25, width: 25)
+                              : Assets.images.chatUserPicTwo
+                                  .image(height: 25, width: 25),
                     ),
-                  Flexible(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Stack(
-                          alignment: Alignment.bottomRight,
-                          clipBehavior: Clip.none,
-                          children: [
-                            if (widget.message.isNotEmpty)
-                              Container(
-                                margin: const EdgeInsets.all(4),
-                                padding: const EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  border: Border.all(
-                                    color: !widget.isMine
-                                        ? AppColors.bgBorder
-                                        : Colors.transparent,
-                                  ),
-                                  color: widget.isMine
-                                      ? AppColors.primary500
-                                      : AppColors.bgMedium,
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: const Radius.circular(14),
-                                    topLeft: !widget.isMine
-                                        ? Radius.zero
-                                        : const Radius.circular(14),
-                                    bottomLeft: const Radius.circular(14),
-                                    topRight: widget.isMine
-                                        ? Radius.zero
-                                        : const Radius.circular(14),
-                                  ),
-                                ),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    // Show yes/no question UI for questions (answered or unanswered) or when in edit mode
-                                    if (widget.isYesNoQuestion &&
-                                        !widget.isMine)
-                                      _buildYesNoQuestion()
-                                    else
-                                      HtmlWidget(
-                                        widget.message,
-                                        textStyle: widget.isMine
-                                            ? AppTextStyles.textBodyB2
-                                                .copyWith(color: Colors.white)
-                                            : AppTextStyles.textBodyB2,
+                  ),
+                Flexible(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Stack(
+                        alignment: Alignment.bottomRight,
+                        clipBehavior: Clip.none,
+                        children: [
+                          if (widget.message.isNotEmpty)
+                            Stack(
+                              clipBehavior: Clip.none,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    // Show edit icon on tap for user's own messages
+                                    if (widget.isMine && widget.onEditTap != null) {
+                                      setState(() {
+                                        _showEditIcon = !_showEditIcon;
+                                      });
+                                      
+                                      // Hide edit icon after 3 seconds
+                                      Future.delayed(const Duration(seconds: 3), () {
+                                        if (mounted) {
+                                          setState(() {
+                                            _showEditIcon = false;
+                                          });
+                                        }
+                                      });
+                                    }
+                                  },
+                                  child: Container(
+                                    margin: const EdgeInsets.all(4),
+                                    padding: const EdgeInsets.all(10),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: !widget.isMine
+                                            ? AppColors.bgBorder
+                                            : Colors.transparent,
                                       ),
-                                  ],
-                                ),
-                              ),
-                            if (widget.isLoading)
-                              Positioned(
-                                bottom: -10,
-                                right: widget.isMine ? -10 : null,
-                                left: widget.isMine ? null : -10,
-                                child: SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      widget.isMine
-                                          ? Theme.of(context).primaryColor
-                                          : Colors.grey[600]!,
+                                      color: widget.isMine
+                                          ? AppColors.primary500
+                                          : AppColors.bgMedium,
+                                      borderRadius: BorderRadius.only(
+                                        bottomRight: const Radius.circular(14),
+                                        topLeft: !widget.isMine
+                                            ? Radius.zero
+                                            : const Radius.circular(14),
+                                        bottomLeft: const Radius.circular(14),
+                                        topRight: widget.isMine
+                                            ? Radius.zero
+                                            : const Radius.circular(14),
+                                      ),
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment: CrossAxisAlignment.end,
+                                      children: [
+                                        // Show yes/no question UI for questions (answered or unanswered) or when in edit mode
+                                        if (widget.isYesNoQuestion &&
+                                            !widget.isMine)
+                                          _buildYesNoQuestion()
+                                        else
+                                          HtmlWidget(
+                                            widget.message,
+                                            textStyle: widget.isMine
+                                                ? AppTextStyles.textBodyB2
+                                                    .copyWith(color: Colors.white)
+                                                : AppTextStyles.textBodyB2,
+                                          ),
+                                      ],
                                     ),
                                   ),
                                 ),
-                              ),
-                          ],
-                        ),
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (widget.isEdited)
-                              Padding(
-                                padding: const EdgeInsets.only(right: 4),
-                                child: Text(
-                                  'edited',
-                                  style: AppTextStyles.textCaptionC2.copyWith(
-                                    fontStyle: FontStyle.italic,
-                                    color: AppColors.textColor300,
+                                // Edit icon positioned at top left corner for "isMine" messages
+                                // Only show when _showEditIcon is true
+                                if (widget.isMine && 
+                                    widget.onEditTap != null && 
+                                    _showEditIcon)
+                                  Positioned(
+                                    top: -8,
+                                    left: -8,
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        setState(() {
+                                          _showEditIcon = false;
+                                        });
+                                        widget.onEditTap!();
+                                      },
+                                      child: Container(
+                                        padding: const EdgeInsets.all(6),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.bgMedium,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: AppColors.bgBorder,
+                                            width: 1,
+                                          ),
+                                        ),
+                                        child: Assets.images.chatEdit.svg(
+                                          width: 16,
+                                          height: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          if (widget.isLoading)
+                            Positioned(
+                              bottom: -10,
+                              right: widget.isMine ? -10 : null,
+                              left: widget.isMine ? null : -10,
+                              child: SizedBox(
+                                width: 16,
+                                height: 16,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    widget.isMine
+                                        ? Theme.of(context).primaryColor
+                                        : Colors.grey[600]!,
                                   ),
                                 ),
                               ),
-                            Text(
-                              formattedTimestamp,
-                              style: AppTextStyles.textCaptionC2,
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                        ],
+                      ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (widget.isEdited)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 4),
+                              child: Text(
+                                'edited',
+                                style: AppTextStyles.textCaptionC2.copyWith(
+                                  fontStyle: FontStyle.italic,
+                                  color: AppColors.textColor300,
+                                ),
+                              ),
+                            ),
+                          Text(
+                            formattedTimestamp,
+                            style: AppTextStyles.textCaptionC2,
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
-                  if (widget.isMine)
-                    Padding(
-                      padding: const EdgeInsets.only(left: 8),
-                      child: ClipOval(
-                        child: AppCachedImage(
-                          width: 25,
-                          height: 25,
-                          fit: BoxFit.cover,
-                          errorWid: const Icon(Icons.person),
-                          imgUrl: Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .image ??
-                              '',
-                        ),
+                ),
+                if (widget.isMine)
+                  Padding(
+                    padding: const EdgeInsets.only(left: 8),
+                    child: ClipOval(
+                      child: AppCachedImage(
+                        width: 25,
+                        height: 25,
+                        fit: BoxFit.cover,
+                        errorWid: const Icon(Icons.person),
+                        imgUrl: Get.find<ProfileController>()
+                                .userProfile
+                                .value
+                                .image ??
+                            '',
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
           ],
         ),

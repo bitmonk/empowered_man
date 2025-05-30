@@ -13,7 +13,7 @@ class PushNotificationRemoteSource {
   }) async {
     try {
       final response = await _client.get(
-        AppEndpoints.getNotification,
+        AppEndpoints.getPushNotification,
         cancelToken: cancelToken,
       );
       var res = PushNotificationModel.fromJson(response);

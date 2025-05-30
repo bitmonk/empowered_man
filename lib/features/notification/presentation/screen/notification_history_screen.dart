@@ -12,7 +12,11 @@ class NotificationHistoryScreen extends StatelessWidget {
       ),
       body: ListView.builder(
         itemCount: 10,
-        itemBuilder: (context, index) => const NotificationTile(),
+        itemBuilder: (context, index) => const NotificationTile(
+          title: '',
+          body: '',
+          createdAt: '',
+        ),
       ),
     );
   }

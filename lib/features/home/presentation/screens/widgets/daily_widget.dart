@@ -17,11 +17,15 @@ class DailyWidget extends StatefulWidget {
 class _DailyWidgetState extends State<DailyWidget> {
   final controller = Get.find<ReflectionJournalChatController>();
   final homeController = Get.find<HomeController>();
-  String period = DateTime.now().hour < 12 ? 'am' : 'pm';
+
+  // String period = DateTime.now().hour < 12 ? 'am' : 'pm';
+
+  String period = '';
 
   @override
   void initState() {
     super.initState();
+    period = DateTime.now().hour >= 12 ? 'pm' : 'am';
     controller.getReflectionWithQuestionAnswers(period);
   }
 

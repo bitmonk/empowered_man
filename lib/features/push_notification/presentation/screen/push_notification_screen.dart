@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/notification/presentation/screen/widget/notification_tile.dart';
 import 'package:empowered/features/push_notification/presentation/controller/push_notification_controller.dart';
+import 'package:intl/intl.dart';
 
 class PushNotificationScreen extends GetView<PushNotificationController> {
   const PushNotificationScreen(this.showDone, {super.key});
@@ -9,6 +10,10 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
   @override
   Widget build(BuildContext context) {
     controller.getNotification();
+    String formatDate(DateTime dateTime) {
+      return DateFormat('dd MMM yyyy, hh:mm a').format(dateTime.toLocal());
+    }
+
     return WillPopScope(
       onWillPop: () async {
         if (showDone) {
@@ -36,7 +41,7 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
             },
             child: Padding(
               // physics: AlwaysScrollableScrollPhysics(),
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
               child: controller.getPushNotificationState.value.showWidget(
                 loading: () => const AppLoadingWidget.small(
                   color: AppColors.colorWhite,
@@ -47,9 +52,46 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
                   },
                   text: 'Retry',
                 ),
-                orElse: () => const Column(
-                  children: [NotificationTile()],
-                ),
+                orElse: () {
+                  final notifications = controller
+                          .pushNotificationModel.value.data?.notifications ??
+                      [];
+
+                  if (notifications.isEmpty) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24),
+                        child: Text(
+                          'No notifications yet',
+                          style: AppTextStyles.bodyLGMedium,
+                        ),
+                      ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    itemCount: notifications.length,
+                    itemBuilder: (context, index) {
+                      final notification = notifications[index];
+                      return NotificationTile(
+                        title: notification.data?.title ?? '',
+                        body: notification.data?.body ?? '',
+                        createdAt: formatDate(
+                            notification.createdAt ?? DateTime.now()),
+                        // notification: notification,
+                        // onTap: () {
+                        //   // Handle notification tap
+                        //   // You can navigate to specific screens based on notification type
+                        //   _handleNotificationTap(notification);
+                        // },
+                      );
+                    },
+                  );
+                  //   return Column(
+                  //   children: [NotificationTile()],
+                  // );
+                },
               ),
             ),
           ),
