@@ -25,6 +25,11 @@ class ProgressGoalWidget extends StatefulWidget {
 
 class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
   late GoalsController goalsController;
+  
+  bool _isTrackButtonLoading = false;
+  bool _isWonButtonLoading = false;
+  Set<int> _loadingTargetIndices = <int>{};
+
   @override
   void initState() {
     super.initState();
@@ -37,22 +42,81 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
     final goalAnswerId = userGoal!.id.toString();
 
-    if (shouldShowWonQuestion) {
-      await goalsController.completeGoal(goalAnswerId: goalAnswerId);
-    } else {
-      await goalsController.markOnTrack(goalAnswerId: goalAnswerId);
-    }
+    // Set local loading state
+    setState(() {
+      if (shouldShowWonQuestion) {
+        _isWonButtonLoading = true;
+      } else {
+        _isTrackButtonLoading = true;
+      }
+    });
 
-    setState(() {});
+    try {
+      if (shouldShowWonQuestion) {
+        // For won/lost scenario
+        await goalsController.completeGoal(goalAnswerId: goalAnswerId);
+
+        // Show success message based on the action
+        if (onTrack) {
+          AppUtils.showSnackbar(
+            message: 'Congratulations! Goal marked as won successfully.',
+          );
+        } else {
+          AppUtils.showSnackbar(
+            message: 'Goal marked as lost. Better luck next time!',
+          );
+        }
+      } else {
+        // For on track/off track scenario
+        await goalsController.markOnTrack(goalAnswerId: goalAnswerId);
+
+        // Show success message based on the action
+        if (onTrack) {
+          AppUtils.showSnackbar(
+            message: 'User goal marked as on track successfully.',
+          );
+        } else {
+          AppUtils.showSnackbar(
+            message: 'Goal marked as off track. Keep pushing forward!',
+          );
+        }
+      }
+    } catch (e) {
+      // Handle any errors that might occur
+      AppUtils.showErrorSnackbar(
+        message: 'Failed to update goal status. Please try again.',
+      );
+    } finally {
+      // Clear local loading state
+      if (mounted) {
+        setState(() {
+          _isTrackButtonLoading = false;
+          _isWonButtonLoading = false;
+        });
+      }
+    }
   }
 
   Future<void> toggleGoalSelection(int goalAnswerIndex) async {
-    await goalsController.toggleGoalAnswerFromUserGoals(
-      goalIndex: widget.selectedGoalIndex,
-      timePeriod: widget.timePeriod,
-      goalAnswerIndex: goalAnswerIndex,
-    );
-    setState(() {});
+    // Set local loading state for specific index
+    setState(() {
+      _loadingTargetIndices.add(goalAnswerIndex);
+    });
+
+    try {
+      await goalsController.toggleGoalAnswerFromUserGoals(
+        goalIndex: widget.selectedGoalIndex,
+        timePeriod: widget.timePeriod,
+        goalAnswerIndex: goalAnswerIndex,
+      );
+    } finally {
+      // Clear local loading state for specific index
+      if (mounted) {
+        setState(() {
+          _loadingTargetIndices.remove(goalAnswerIndex);
+        });
+      }
+    }
   }
 
   Goal? get selectedGoal {
@@ -148,13 +212,6 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     );
   }
 
-  // Check if any operation is currently loading
-  bool get _isLoading {
-    return goalsController.achieveTargetState.value == TheStates.loading ||
-        goalsController.markOnTrackState.value == TheStates.loading ||
-        goalsController.completeGoalState.value == TheStates.loading;
-  }
-
   bool get _hasGoalAnswers {
     final goalAnswers = goalsController.getGoalAnswersForIndex(
       widget.selectedGoalIndex,
@@ -165,232 +222,161 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () {
-        if (!_hasGoalAnswers) {
-          return EmptyGoal(
-            title: widget.title,
-            selectedTent: widget.selectedTent,
-            timePeriod: widget.timePeriod,
-            showStart: true,
-          );
-        }
-        
-        final showButtons = shouldShowActionButtons &&
-            (shouldShowTrackQuestion || shouldShowWonQuestion);
-        
-        return ThemedContainer(
-          margin: const EdgeInsets.symmetric(vertical: 12),
-          border: Border.all(
-            color: AppColors.primary600,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min, // Take minimum space needed
+    // Only check for goal answers once - no Obx needed here
+    if (!_hasGoalAnswers) {
+      return EmptyGoal(
+        title: widget.title,
+        selectedTent: widget.selectedTent,
+        timePeriod: widget.timePeriod,
+        showStart: true,
+      );
+    }
+
+    final showButtons = shouldShowActionButtons &&
+        (shouldShowTrackQuestion || shouldShowWonQuestion);
+
+    return ThemedContainer(
+      margin: const EdgeInsets.symmetric(vertical: 12),
+      border: Border.all(
+        color: AppColors.primary600,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          // Title & Actions
+          Row(
             children: [
-              // Title & Actions
-              Row(
-                children: [
-                  Text(widget.title, style: AppTextStyles.textHeadingH3),
-                  const Spacer(),
-                  InkWell(
-                    onTap: () {
-                      initJournalWithNavigate(
-                        title: widget.title,
-                        goalId: goalId,
-                        goalDetailId: goalDetailId,
-                      );
-                    },
-                    child: Assets.images.goalAdd.image(width: 32),
-                  ),
-                  const HorizontalSpacing(16),
-                  Assets.images.goalThreeDot.image(width: 32),
-                ],
-              ),
-              const VerticalSpacing(4),
-
+              Text(widget.title, style: AppTextStyles.textHeadingH3),
+              const Spacer(),
               InkWell(
-                onTap: () async {
-                  final currentUserGoal = _getCurrentUserGoal();
-                  final userGoalId = currentUserGoal?.id;
-
-                  if (userGoalId == null) {
-                    AppUtils.showErrorSnackbar(
-                      message: 'No user goal found for reflection',
-                    );
-                    return;
-                  }
-
-                  print(
-                    'Navigating to reflection with userGoalId: $userGoalId',
-                  );
-
-                  await Get.to(
-                    () => ReflectionScreen(
-                      userGoalId: userGoalId.toString(),
-                      goalDetailId: goalDetailId,
-                      goalId: goalId,
-                    ),
+                onTap: () {
+                  initJournalWithNavigate(
+                    title: widget.title,
+                    goalId: goalId,
+                    goalDetailId: goalDetailId,
                   );
                 },
-                child: Text(
-                  'View full reflection',
-                  style: AppTextStyles.textBodyB2.copyWith(
-                    color: AppColors.primary400,
-                    decoration: TextDecoration.underline,
-                    decorationColor: AppColors.primary400,
-                  ),
+                child: Assets.images.goalAdd.image(width: 32),
+              ),
+              const HorizontalSpacing(16),
+              Assets.images.goalThreeDot.image(width: 32),
+            ],
+          ),
+          const VerticalSpacing(4),
+
+          InkWell(
+            onTap: () async {
+              final currentUserGoal = _getCurrentUserGoal();
+              final userGoalId = currentUserGoal?.id;
+
+              if (userGoalId == null) {
+                AppUtils.showErrorSnackbar(
+                  message: 'No user goal found for reflection',
+                );
+                return;
+              }
+
+              print(
+                'Navigating to reflection with userGoalId: $userGoalId',
+              );
+
+              await Get.to(
+                () => ReflectionScreen(
+                  userGoalId: userGoalId.toString(),
+                  goalDetailId: goalDetailId,
+                  goalId: goalId,
+                ),
+              );
+            },
+            child: Text(
+              'View full reflection',
+              style: AppTextStyles.textBodyB2.copyWith(
+                color: AppColors.primary400,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.primary400,
+              ),
+            ),
+          ),
+          const VerticalSpacing(16),
+
+          // Progress section - wrap only this section in Obx for progress updates
+          Obx(() => Row(
+            children: [
+              const Text(
+                'Targets',
+                style: TextStyle(
+                  fontSize: 28,
+                  color: AppColors.textColor50,
+                  fontWeight: FontWeight.w500,
                 ),
               ),
-              const VerticalSpacing(16),
-              
-              // Progress section
-              Row(
+              const Spacer(),
+              SizedBox(
+                width: 120.w,
+                child: LinearProgressIndicator(
+                  borderRadius: BorderRadius.circular(20),
+                  minHeight: 8,
+                  color: AppColors.colorF5CA41,
+                  value: _getProgressValue(),
+                ),
+              ),
+              const HorizontalSpacing(8),
+              Text(
+                _getProgressString(),
+                style: AppTextStyles.textBodyB3,
+              ),
+            ],
+          )),
+
+          VerticalSpacing(showButtons ? 8 : 4),
+
+          // Goals list section - wrap only this in Obx for target updates
+          Obx(() => Column(
+            mainAxisSize: MainAxisSize.min,
+            children: _buildUserGoalsList(),
+          )),
+
+          if (showButtons) const VerticalSpacing(16),
+
+          // Action buttons - no Obx needed, using local state
+          if (showButtons)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              child: Row(
                 children: [
-                  const Text(
-                    'Targets',
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: AppColors.textColor50,
-                      fontWeight: FontWeight.w500,
+                  // Positive Button (On Track / Won)
+                  Expanded(
+                    child: _buildActionButton(
+                      onTap: () => selectTrack(true),
+                      isLoading: shouldShowWonQuestion 
+                          ? _isWonButtonLoading 
+                          : _isTrackButtonLoading,
+                      icon: Icons.check,
+                      text: shouldShowWonQuestion ? 'Won' : 'On Track',
+                      backgroundColor: shouldShowWonQuestion
+                          ? AppColors.primary500
+                          : AppColors.bgBorder,
                     ),
                   ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 120.w,
-                    child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(20),
-                      minHeight: 8,
-                      color: AppColors.colorF5CA41,
-                      value: _getProgressValue(),
+                  const HorizontalSpacing(16),
+                  // Negative Button (Off Track / Lost)
+                  Expanded(
+                    child: _buildActionButton(
+                      onTap: () => selectTrack(false),
+                      isLoading: false, // Only positive button shows loading
+                      icon: Icons.close,
+                      text: shouldShowWonQuestion ? 'Lost' : 'Off Track',
+                      backgroundColor: AppColors.bgBorder,
                     ),
-                  ),
-                  const HorizontalSpacing(8),
-                  Text(
-                    _getProgressString(),
-                    style: AppTextStyles.textBodyB3,
                   ),
                 ],
               ),
-              
-              // Dynamic spacing based on content
-              VerticalSpacing(showButtons ? 8 : 4),
-              
-              // Goals list section - shrink to content
-              Column(
-                mainAxisSize: MainAxisSize.min,
-                children: _buildUserGoalsList(),
-              ),
-              
-              // Dynamic spacing before buttons
-              if (showButtons) const VerticalSpacing(16),
+            ),
 
-              // Action buttons
-              if (showButtons)
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4),
-                  child: Row(
-                    children: [
-                      // Positive Button (On Track / Won)
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _isLoading ? null : () => selectTrack(true),
-                          child: Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: shouldShowWonQuestion
-                                  ? AppColors.primary500
-                                  : AppColors.bgBorder,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (_isLoading &&
-                                    _shouldShowLoadingForButton(true))
-                                  const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  const Icon(
-                                    Icons.check,
-                                    color: AppColors.white,
-                                  ),
-                                const HorizontalSpacing(8),
-                                Text(
-                                  shouldShowWonQuestion ? 'Won' : 'On Track',
-                                  style: AppTextStyles.textBodyB1.copyWith(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const HorizontalSpacing(16),
-                      // Negative Button (Off Track / Lost)
-                      Expanded(
-                        child: GestureDetector(
-                          onTap: _isLoading ? null : () => selectTrack(false),
-                          child: Container(
-                            alignment: Alignment.center,
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 14,
-                              horizontal: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.bgBorder,
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                if (_isLoading &&
-                                    _shouldShowLoadingForButton(false))
-                                  const SizedBox(
-                                    width: 16,
-                                    height: 16,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                      valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.white,
-                                      ),
-                                    ),
-                                  )
-                                else
-                                  const Icon(
-                                    Icons.close,
-                                    color: AppColors.white,
-                                  ),
-                                const HorizontalSpacing(8),
-                                Text(
-                                  shouldShowWonQuestion ? 'Lost' : 'Off Track',
-                                  style: AppTextStyles.textBodyB1.copyWith(
-                                    color: AppColors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-              // Error messages
+          // Error messages - wrap in Obx only for error updates
+          Obx(() => Column(
+            children: [
               if (goalsController.markOnTrackError.value != null)
                 Padding(
                   padding: const EdgeInsets.only(top: 8),
@@ -408,9 +394,60 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   ),
                 ),
             ],
-          ),
-        );
-      },
+          )),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildActionButton({
+    required VoidCallback onTap,
+    required bool isLoading,
+    required IconData icon,
+    required String text,
+    required Color backgroundColor,
+  }) {
+    return GestureDetector(
+      onTap: isLoading ? null : onTap,
+      child: Container(
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(
+          vertical: 14,
+          horizontal: 12,
+        ),
+        decoration: BoxDecoration(
+          color: backgroundColor,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (isLoading)
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: CircularProgressIndicator(
+                  strokeWidth: 2,
+                  valueColor: AlwaysStoppedAnimation<Color>(
+                    Colors.white,
+                  ),
+                ),
+              )
+            else
+              Icon(
+                icon,
+                color: AppColors.white,
+              ),
+            const HorizontalSpacing(8),
+            Text(
+              text,
+              style: AppTextStyles.textBodyB1.copyWith(
+                color: AppColors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -423,25 +460,47 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     return goalAnswers.asMap().entries.map((entry) {
       final index = entry.key;
       final goalAnswer = entry.value;
+      final isLoading = _loadingTargetIndices.contains(index);
 
       return Padding(
-        padding: EdgeInsets.only(bottom: index < goalAnswers.length - 1 ? 8 : 0),
+        padding:
+            EdgeInsets.only(bottom: index < goalAnswers.length - 1 ? 8 : 0),
         child: Align(
           child: GestureDetector(
-            onTap: () => toggleGoalSelection(index),
-            child: AppSelectedButton(
-              selectedItem: goalAnswer.achieved ?? false,
-              title:
-                  goalAnswer.text ?? '${widget.selectedTent} Target ${index + 1}',
+            onTap: isLoading ? null : () => toggleGoalSelection(index),
+            child: Stack(
+              children: [
+                AppSelectedButton(
+                  selectedItem: goalAnswer.achieved ?? false,
+                  title: goalAnswer.text ??
+                      '${widget.selectedTent} Target ${index + 1}',
+                ),
+                if (isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.black.withOpacity(0.3),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Center(
+                        child: SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor: AlwaysStoppedAnimation<Color>(
+                              Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
             ),
           ),
         ),
       );
     }).toList();
-  }
-
-  bool _shouldShowLoadingForButton(bool isPositive) {
-    final currentState = currentTrackingState;
-    return currentState == null || currentState == isPositive;
   }
 }

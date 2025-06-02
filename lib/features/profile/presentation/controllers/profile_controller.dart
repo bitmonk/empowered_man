@@ -13,6 +13,12 @@ class ProfileController extends GetxController {
 
   CancelToken? _cancelToken;
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
+  @override
+  void onInit() {
+    super.onInit();
+    getUserProfile();
+  }
+
   Future<bool?> uploadProfile() async {
     userProfileState.value = TheStates.loading;
     _cancelToken = CancelToken();
@@ -84,6 +90,7 @@ class ProfileController extends GetxController {
         if (userProfile.value.image != null) {
           selectedImage.value = null;
         }
+        print('User profile fetched: ${r.slug},${r.agoraUserToken}');
         return true;
       },
     );

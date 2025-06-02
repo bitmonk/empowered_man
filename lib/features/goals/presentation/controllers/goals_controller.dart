@@ -64,16 +64,14 @@ class GoalsController extends GetxController {
     final currentMonday = _getMonday(DateTime.now());
     final selectedMonday = _getMonday(fromDate.value);
 
-    // Debug prints to help diagnose the issue
-    print('Current Monday: ${DateFormat('yyyy-MM-dd').format(currentMonday)}');
-    print(
-        'Selected Monday: ${DateFormat('yyyy-MM-dd').format(selectedMonday)}',);
-    print('Are they same? ${currentMonday.isAtSameMomentAs(selectedMonday)}');
+    final currentDateOnly =
+        DateTime(currentMonday.year, currentMonday.month, currentMonday.day);
+    final selectedDateOnly =
+        DateTime(selectedMonday.year, selectedMonday.month, selectedMonday.day);
 
-    // Use date comparison instead of moment comparison to avoid time issues
-    return currentMonday.year == selectedMonday.year &&
-        currentMonday.month == selectedMonday.month &&
-        currentMonday.day == selectedMonday.day;
+    final isSameWeek = currentDateOnly.isAtSameMomentAs(selectedDateOnly);
+
+    return isSameWeek;
   }
 
   Future<void> getGoals() async {
@@ -484,8 +482,9 @@ class GoalsController extends GetxController {
   }) {
     if (!isCurrentWeek) {
       AppUtils.showErrorSnackbar(
-          message:
-              'You can only set targets for the current week, not for other weeks.',);
+        message:
+            'You can only set targets for the current week, not for other weeks.',
+      );
       return;
     }
     final navIds = getNavigationIds(timePeriod);

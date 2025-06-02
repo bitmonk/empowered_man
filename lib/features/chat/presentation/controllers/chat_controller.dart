@@ -38,44 +38,79 @@ class ChatController extends GetxController {
       Rxn<ChatConversationType>();
   final int messageQuantity = 10;
   final profileController = Get.find<ProfileController>();
-  @override
+ @override
   void onInit() {
     super.onInit();
     chatController = TextEditingController();
     chatScreenScrollController = ScrollController();
-    // Get.find<ProfileController>().userProfile.getUserProfile();
+    _initialize();
+  }
+
+  Future<void> _initialize() async {
+    print('ChatController: Initializing...');
+    await _waitForProfile();
     currentUserId.value = profileController.userProfile.value.slug;
     currentUserToken.value = profileController.userProfile.value.agoraUserToken;
-    initSDK();
+    print('ChatController: userId=${currentUserId.value}, token=${currentUserToken.value}');
+    await initSDK();
+  }
+
+  Future<void> _waitForProfile() async {
+    const maxRetries = 3;
+    var retries = 0;
+
+    while (profileController.userProfileState.value != TheStates.success && retries < maxRetries) {
+      print('ChatController: Waiting for profile (Attempt ${retries + 1})');
+      await profileController.getUserProfile();
+      if (profileController.userProfileState.value != TheStates.success) {
+        await Future.delayed(const Duration(seconds: 1));
+        retries++;
+      }
+    }
+
+    if (profileController.userProfileState.value != TheStates.success) {
+      print('ChatController: Failed to fetch profile after $maxRetries attempts');
+      initializingSdks.value = TheStates.error;
+      loginError.value = 'Failed to fetch user profile';
+    }
   }
 
   Rx<TheStates> initializingSdks = TheStates.initial.obs;
   RxnString loginError = RxnString();
+
+
   Future<void> initSDK() async {
-    print('a');
+    print('ChatController: Initializing Agora Chat SDK...');
     if (currentUserId.value == null || currentUserToken.value == null) {
       initializingSdks.value = TheStates.error;
-      loginError.value = '${currentUserId.value} Error while logging in';
+      loginError.value = 'User ID or token is missing: ID=${currentUserId.value}, Token=${currentUserToken.value}';
+      print('ChatController: $loginError.value');
       return;
     }
-    initializingSdks.value = TheStates.loading;
-    final options = ChatOptions(appKey: AgoraChatConfig.appKey);
-    await ChatClient.getInstance.init(options);
-    await ChatClient.getInstance.startCallback();
 
+    initializingSdks.value = TheStates.loading;
     try {
+      final options = ChatOptions(appKey: AgoraChatConfig.appKey);
+      await ChatClient.getInstance.init(options);
+      await ChatClient.getInstance.startCallback();
+
       final isLoggedIn = await ChatClient.getInstance.isLoginBefore();
       if (!isLoggedIn) {
         await ChatClient.getInstance.loginWithPassword(
           currentUserId.value!,
           currentUserToken.value!,
         );
+        print('ChatController: Logged in to Agora Chat SDK with user: ${currentUserId.value}');
+      } else {
+        print('ChatController: Already logged in to Agora Chat SDK');
       }
 
+      ChatClient.getInstance.chatManager.removeMessageEvent(chatListenerId);
+      ChatClient.getInstance.chatManager.removeEventHandler(chatListenerId);
       _addListeners();
+
       fetchConversations(isInitialLoad: true);
       chatScreenScrollController.addListener(() {
-        // When near the top (within 100 pixels)
         if (chatScreenScrollController.position.pixels <=
             chatScreenScrollController.position.minScrollExtent + 100) {
           loadPreviousMessages();
@@ -86,17 +121,18 @@ class ChatController extends GetxController {
       loginError.value = null;
     } on ChatError catch (e) {
       initializingSdks.value = TheStates.error;
-
-      // Ignore "already logged in" error
       if (e.code == 200) {
-        loginError.value = null;
         initializingSdks.value = TheStates.success;
+        loginError.value = null;
+        print('ChatController: Agora Chat SDK already logged in');
       } else {
-        loginError.value = '${e.code} - ${e.description}';
+        loginError.value = 'Agora SDK Error: ${e.code} - ${e.description}';
+        print('ChatController: $loginError.value');
       }
     } catch (e) {
       initializingSdks.value = TheStates.error;
-      loginError.value = e.toString();
+      loginError.value = 'Unexpected error: $e';
+      print('ChatController: $loginError.value');
     }
   }
 

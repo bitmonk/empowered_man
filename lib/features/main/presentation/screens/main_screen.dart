@@ -17,6 +17,7 @@ import 'package:empowered/features/main/presentation/controllers/main_controller
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/profile/presentation/controllers/logout_bindings.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/push_notification/presentation/controller/push_notification_bindings.dart';
 import 'package:empowered/features/tasks/presentation/controllers/tasks_bindings.dart';
 import 'package:empowered/features/tasks/presentation/screens/tasks_screen.dart';
@@ -58,6 +59,12 @@ class _MainScreenState extends State<MainScreen>
     ReflectionJournalChatInitializer.initialize();
     GoalsOverviewInitializer.initialize();
     PushNotificationInitializer.initialize();
+    initController();
+  }
+
+  Future<void> initController() async {
+    final profileController = Get.find<ProfileController>();
+    await profileController.getUserProfile();
   }
 
   @override

@@ -94,12 +94,12 @@ class _GoalsScreenState extends State<GoalsScreen> {
                   },
                   child: Obx(
                     () {
-                      // Show loading state
-                      if (controller.getGoalsState.value == TheStates.loading) {
-                        return const Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      }
+                      // // Show loading state
+                      // if (controller.getGoalsState.value == TheStates.loading) {
+                      //   return const Center(
+                      //     child: CircularProgressIndicator(),
+                      //   );
+                      // }
 
                       // Show error state
                       if (controller.getGoalsState.value == TheStates.error) {

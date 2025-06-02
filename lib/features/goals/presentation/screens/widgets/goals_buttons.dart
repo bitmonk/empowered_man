@@ -55,7 +55,7 @@ class GoalsButtons extends StatelessWidget {
                 //         'Goal Completed, You have already completed this goal.',
                 //   );
                 // }
-                if (!isCurrentWeek) {
+                if (isCurrentWeek) {
                   Get.to(
                     GoalsChatScreen(
                       title: selectedGoalTitle,

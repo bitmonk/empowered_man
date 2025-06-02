@@ -10,7 +10,7 @@ class GoalsChatInputField extends StatefulWidget {
     super.key,
     this.enabled = true,
     this.isEditMode = false,
-    this.onMessageSent,
+    this.onMessageSent,    this.isDisabled = false,
     this.onCancel,
   });
 
@@ -19,7 +19,8 @@ class GoalsChatInputField extends StatefulWidget {
   final bool enabled;
   final bool isEditMode;
   final VoidCallback? onMessageSent;
-  final VoidCallback? onCancel;
+  final VoidCallback? onCancel;  final bool isDisabled;
+
 
   @override
   State<GoalsChatInputField> createState() => _GoalsChatInputFieldState();
@@ -56,7 +57,12 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
       _initializeIfNeeded();
     });
   }
-
+ @override
+  void dispose() {
+    chatController.removeListener(_handleControllerChanges);
+    _quillController.dispose();
+    super.dispose();
+  }
   void _handleControllerChanges() {
     if (!mounted) return;
 
@@ -118,72 +124,70 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
     }
   }
 
-// Method to manually set text for editing
-  void setInitialEditText(String text) {
-    if (text.isNotEmpty) {
-      chatController.chatController.text = text;
+// // Method to manually set text for editing
+//   void setInitialEditText(String text) {
+//     if (text.isNotEmpty) {
+//       chatController.chatController.text = text;
 
-      if (_isInitialized) {
-        // If already initialized, update immediately
-        final delta = _convertHtmlToQuillDelta(text);
-        final newDocument = quill.Document.fromDelta(delta);
-        _quillController.document = newDocument;
+//       if (_isInitialized) {
+//         // If already initialized, update immediately
+//         final delta = _convertHtmlToQuillDelta(text);
+//         final newDocument = quill.Document.fromDelta(delta);
+//         _quillController.document = newDocument;
 
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (mounted) {
-            _quillController.moveCursorToEnd();
-            _focusNode.requestFocus();
-            setState(() {
-              _contentChanged = true;
-            });
-          }
-        });
-      }
-    }
-  }
+//         WidgetsBinding.instance.addPostFrameCallback((_) {
+//           if (mounted) {
+//             _quillController.moveCursorToEnd();
+//             _focusNode.requestFocus();
+//             setState(() {
+//               _contentChanged = true;
+//             });
+//           }
+//         });
+//       }
+//     }
+//   }
 
-  @override
-  void dispose() {
-    chatController.chatController.removeListener(_onTextChanged);
-    _quillController.removeListener(_onQuillTextChanged);
-    _quillController.dispose();
-    super.dispose();
-  }
+//   @override
+//   void dispose() {
+//     chatController.chatController.removeListener(_onTextChanged);
+//     _quillController.removeListener(_onQuillTextChanged);
+//     _quillController.dispose();
+//     super.dispose();
+//   }
 
-  void _onTextChanged() {
-    final text = chatController.chatController.text.trim();
-    final isComposing = text.isNotEmpty;
+//   void _onTextChanged() {
+//     final text = chatController.chatController.text.trim();
+//     final isComposing = text.isNotEmpty;
 
-    if (_isComposing != isComposing) {
-      setState(() {
-        _isComposing = isComposing;
-      });
-    }
-  }
+//     if (_isComposing != isComposing) {
+//       setState(() {
+//         _isComposing = isComposing;
+//       });
+//     }
+//   }
 
-  void _onQuillTextChanged() {
-    final text = _quillController.document.toPlainText().trim();
-    final isComposing = text.isNotEmpty;
+//   void _onQuillTextChanged() {
+//     final text = _quillController.document.toPlainText().trim();
+//     final isComposing = text.isNotEmpty;
 
-    if (_isComposing != isComposing) {
-      setState(() {
-        _isComposing = isComposing;
-      });
-    }
-  }
+//     if (_isComposing != isComposing) {
+//       setState(() {
+//         _isComposing = isComposing;
+//       });
+//     }
+//   }
 
-  // bool get showEditor => chatController.showRichTextEditor.value;
+//   // bool get showEditor => chatController.showRichTextEditor.value;
 
-  bool get isDisabled =>
-      !widget.enabled || chatController.isSendingMessage.value;
+//   bool get isDisabled =>
+//       !widget.enabled || chatController.isSendingMessage.value;
 
-  void _cleanupEditMode() {
-    chatController.chatController.clear();
-    _quillController.clear();
-  }
+
 
   Future<void> sendMessageWithFormatting() async {
-    if (isDisabled) return;
+   // if (isDisabled) return;
+   if (widget.isDisabled) return;
     final htmlContent = getFormattedHtml();
     if (htmlContent.trim().isEmpty) return;
 
@@ -242,6 +246,13 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
     //     }
     //   }
     // }
+  }
+
+  void _cleanupEditMode() {
+    _isInitialized = false;
+    _quillController.clear();
+    _contentChanged = false;
+    setState(() {});
   }
 
   quill.Delta _convertHtmlToQuillDelta(String html) {
@@ -399,7 +410,18 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
     }
     return html;
   }
+@override
+  void didUpdateWidget(GoalsChatInputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
 
+    if (widget.focusNode != oldWidget.focusNode) {
+      _focusNode = widget.focusNode;
+    }
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeIfNeeded();
+    });
+  }
   @override
   Widget build(BuildContext context) {
     return Obx(() {
@@ -548,7 +570,7 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
                   ),
                 const HorizontalSpacing(8),
                 InkWell(
-                  onTap: isDisabled ? null : sendMessageWithFormatting,
+                  onTap: widget.isDisabled ? null : sendMessageWithFormatting,
                   child:
                       Assets.images.sendMessageIcon.svg(width: 40, height: 40),
                 ),

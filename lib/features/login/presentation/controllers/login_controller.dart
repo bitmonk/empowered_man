@@ -3,6 +3,7 @@ import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/login/data/source/login_remote_source.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:flutter/foundation.dart';
 
 class LoginController extends GetxController {
@@ -44,7 +45,6 @@ class LoginController extends GetxController {
     logginInState.value = TheStates.loading;
     _cancelToken = CancelToken();
     final deviceidprint = await getUniqueDeviceId();
-    print('????????????????????????????$deviceidprint$deviceType');
     final result = await remoteSource.login(
       email: emailController.text,
       password: passwordController.text,
@@ -59,7 +59,7 @@ class LoginController extends GetxController {
         logginInState.value = TheStates.error;
         return false;
       },
-      (r) {
+      (r) async {
         AppWidgetKey.bottomBarController.jumpToTab(0);
         logginInState.value = TheStates.success;
         // AppUtils.showErrorSnackbar(message: r);
