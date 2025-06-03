@@ -2,9 +2,7 @@ import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/login/data/source/login_remote_source.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:flutter/foundation.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';import 'package:flutter/foundation.dart';
 
 class LoginController extends GetxController {
   LoginController({required this.remoteSource});

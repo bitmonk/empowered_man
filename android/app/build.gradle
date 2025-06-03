@@ -37,10 +37,10 @@ android {
     }
     signingConfigs {
         release {
-            keyAlias 'upload'
-            keyPassword '12345@#aA'
+            keyAlias 'empoweredman'
+            keyPassword 'Test@123'
             storeFile file('key.jks') 
-            storePassword '12345@#aA'
+            storePassword 'Test@123'
         }
     }
     buildTypes {

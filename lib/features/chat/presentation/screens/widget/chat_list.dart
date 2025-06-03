@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/data/model/chat_conversation_wrapper.dart';
 import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
@@ -6,9 +7,11 @@ import 'package:empowered/features/chat/presentation/screens/chat_coversation_sc
 
 class ChatList extends StatelessWidget {
   ChatList({required this.isSquad, required this.convo, super.key});
+
   final bool isSquad;
   final controller = Get.find<ChatController>();
   final ChatConversationWrapper convo;
+
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -80,11 +83,54 @@ class ChatList extends StatelessWidget {
           ],
         ),
         leading: ClipOval(
-          child: isSquad
-              ? Assets.images.squadProfile.image(height: 40, width: 40)
-              : Assets.images.chatUserPic.image(height: 40, width: 40),
+          child: _buildProfileImage(),
         ),
       ),
+    );
+  }
+
+  Widget _buildProfileImage() {
+    // For squad/group chats, use the static squad image
+    if (isSquad) {
+      return Assets.images.squadProfile.image(
+        height: 40,
+        width: 40,
+        fit: BoxFit.cover,
+      );
+    }
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${convo.avatarUrl}");
+
+    // For individual chats, try to load user's avatar
+    if (convo.avatarUrl != null && convo.avatarUrl!.isNotEmpty) {
+      return CachedNetworkImage(
+        imageUrl: convo.avatarUrl!,
+        height: 40,
+        width: 40,
+        fit: BoxFit.cover,
+        placeholder: (context, url) => Container(
+          height: 40,
+          width: 40,
+          color: Colors.grey[200],
+          child: const Center(
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+        errorWidget: (context, url, error) {
+          // Fallback to static image if network image fails
+          return Assets.images.chatUserPic.image(
+            height: 40,
+            width: 40,
+            fit: BoxFit.cover,
+          );
+        },
+      );
+    }
+
+    // Fallback to static image if no avatar URL
+    return Assets.images.chatUserPic.image(
+      height: 40,
+      width: 40,
+      fit: BoxFit.cover,
     );
   }
 }

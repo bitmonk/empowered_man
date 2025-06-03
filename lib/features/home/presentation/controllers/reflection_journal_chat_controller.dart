@@ -441,20 +441,18 @@ class ReflectionJournalChatController extends GetxController {
       );
 
       // await Future.delayed(const Duration(seconds: 1));
-      // pendingMessages.clear();
-
-      // var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      // await getReflectionWithQuestionAnswers(period);
-
-      // autoScrollEnabled.value = true;
-      // scrollToBottom();
+      //
+      _hideThinking();
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      await getReflectionWithQuestionAnswers(period);
+      pendingMessages.clear();
+      autoScrollEnabled.value = true;
+      _debouncedScrollToBottom(delay: 300);
     } catch (e) {
       print('Error in yes/no selection: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send response');
       // Clear pending messages on error
       pendingMessages.clear();
-    } finally {
-      _hideThinking();
     }
   }
 
@@ -529,13 +527,14 @@ class ReflectionJournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      await Future.delayed(const Duration(milliseconds: 1000));
+      pendingMessages.clear();
+      _hideThinking();
 
-      // var period = DateTime.now().hour < 12 ? 'am' : 'pm';
-      // await getReflectionWithQuestionAnswers(period);
+      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+      await getReflectionWithQuestionAnswers(period);
 
-      // autoScrollEnabled.value = true;
-      // scrollToBottom();
+      autoScrollEnabled.value = true;
+      _debouncedScrollToBottom(delay: 300);
     } catch (e) {
       print('Error sending message: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send message');
@@ -566,7 +565,6 @@ class ReflectionJournalChatController extends GetxController {
         text ?? chatController.text.trim(),
         followupQuestionId,
       );
-      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
       // await getReflectionWithQuestionAnswers(period);
       result.fold(
         (l) {
@@ -585,14 +583,10 @@ class ReflectionJournalChatController extends GetxController {
           //       type: MessageType.answer,
           //     ),
           //   );
-          pendingMessages.clear();
-          _hideThinking();
 
           // chatController.clear();
-          await getReflectionWithQuestionAnswers(period);
           // await Future.delayed(const Duration(milliseconds: 100));
           // scrollToBottom();
-          _debouncedScrollToBottom(delay: 300);
 
           sendMessageState.value = TheStates.success;
         },

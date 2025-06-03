@@ -38,7 +38,7 @@ class ChatController extends GetxController {
       Rxn<ChatConversationType>();
   final int messageQuantity = 10;
   final profileController = Get.find<ProfileController>();
- @override
+  @override
   void onInit() {
     super.onInit();
     chatController = TextEditingController();
@@ -51,7 +51,8 @@ class ChatController extends GetxController {
     await _waitForProfile();
     currentUserId.value = profileController.userProfile.value.slug;
     currentUserToken.value = profileController.userProfile.value.agoraUserToken;
-    print('ChatController: userId=${currentUserId.value}, token=${currentUserToken.value}');
+    print(
+        'ChatController: userId=${currentUserId.value}, token=${currentUserToken.value}');
     await initSDK();
   }
 
@@ -59,7 +60,8 @@ class ChatController extends GetxController {
     const maxRetries = 3;
     var retries = 0;
 
-    while (profileController.userProfileState.value != TheStates.success && retries < maxRetries) {
+    while (profileController.userProfileState.value != TheStates.success &&
+        retries < maxRetries) {
       print('ChatController: Waiting for profile (Attempt ${retries + 1})');
       await profileController.getUserProfile();
       if (profileController.userProfileState.value != TheStates.success) {
@@ -69,7 +71,8 @@ class ChatController extends GetxController {
     }
 
     if (profileController.userProfileState.value != TheStates.success) {
-      print('ChatController: Failed to fetch profile after $maxRetries attempts');
+      print(
+          'ChatController: Failed to fetch profile after $maxRetries attempts');
       initializingSdks.value = TheStates.error;
       loginError.value = 'Failed to fetch user profile';
     }
@@ -78,12 +81,12 @@ class ChatController extends GetxController {
   Rx<TheStates> initializingSdks = TheStates.initial.obs;
   RxnString loginError = RxnString();
 
-
   Future<void> initSDK() async {
     print('ChatController: Initializing Agora Chat SDK...');
     if (currentUserId.value == null || currentUserToken.value == null) {
       initializingSdks.value = TheStates.error;
-      loginError.value = 'User ID or token is missing: ID=${currentUserId.value}, Token=${currentUserToken.value}';
+      loginError.value =
+          'User ID or token is missing: ID=${currentUserId.value}, Token=${currentUserToken.value}';
       print('ChatController: $loginError.value');
       return;
     }
@@ -100,7 +103,8 @@ class ChatController extends GetxController {
           currentUserId.value!,
           currentUserToken.value!,
         );
-        print('ChatController: Logged in to Agora Chat SDK with user: ${currentUserId.value}');
+        print(
+            'ChatController: Logged in to Agora Chat SDK with user: ${currentUserId.value}');
       } else {
         print('ChatController: Already logged in to Agora Chat SDK');
       }
@@ -139,136 +143,162 @@ class ChatController extends GetxController {
   Rx<TheStates> fetchConversationState = TheStates.initial.obs;
   RxnString fetchCoversationError = RxnString();
 
-  Future<void> fetchConversations({
-    bool isInitialLoad = false,
-    String? query,
-  }) async {
-    try {
-      if (isInitialLoad) {
-        allConversations.clear();
-        fetchConversationState.value = TheStates.loading;
-        _nextConversationCursor = null; // Reset cursor on fresh load
-      } else {
-        fetchConversationState.value = TheStates.loadingMore;
-        if (_nextConversationCursor == null) {
-          return;
+
+Future<void> fetchConversations({
+  bool isInitialLoad = false,
+  String? query,
+}) async {
+  try {
+    if (isInitialLoad) {
+      allConversations.clear();
+      fetchConversationState.value = TheStates.loading;
+      _nextConversationCursor = null; // Reset cursor on fresh load
+    } else {
+      fetchConversationState.value = TheStates.loadingMore;
+      if (_nextConversationCursor == null) {
+        return;
+      }
+    }
+
+    final options = ConversationFetchOptions(
+      pageSize: 30,
+      cursor: !isInitialLoad ? _nextConversationCursor : null,
+    );
+
+    final result = await ChatClient.getInstance.chatManager
+        .fetchConversationsByOptions(options: options);
+
+    final userIds = result.data
+        .where((convo) => convo.type == ChatConversationType.Chat)
+        .map((convo) => convo.id)
+        .toList();
+
+    final userInfoMap = await ChatClient.getInstance.userInfoManager
+        .fetchUserInfoById(userIds);
+
+    final wrappedConversations = <ChatConversationWrapper>[];
+
+    for (final convo in result.data) {
+      ChatUserInfo? userInfo;
+      ChatMessage? lastMsg;
+      ChatGroup? group;
+      
+      try {
+        if (convo.type == ChatConversationType.GroupChat) {
+          group = await ChatClient.getInstance.groupManager
+              .fetchGroupInfoFromServer(convo.id);
+        } else {
+          userInfo = userInfoMap[convo.id];
+        }
+        lastMsg = await convo.latestMessage();
+      } catch (_) {
+        lastMsg = null;
+      }
+
+      String? latestMessage;
+      DateTime? lastTime;
+
+      if (lastMsg != null) {
+        final body = lastMsg.body;
+
+        // Text preview
+        if (body is ChatTextMessageBody) {
+          latestMessage = body.content;
+        } else if (body is ChatImageMessageBody) {
+          latestMessage = '[Image]';
+        } else if (body is ChatFileMessageBody) {
+          latestMessage = '[File]';
+        } else if (body is ChatVoiceMessageBody) {
+          latestMessage = '[Voice]';
+        } else {
+          latestMessage = '[${body.runtimeType}]';
+        }
+
+        lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
+      }
+      
+      var unreadFromOthers = 0;
+      final unreadCount = await convo.unreadCount();
+      if (unreadCount > 0) {
+        try {
+          final unreadMessages =
+              await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+            conversationId: convo.id,
+            pageSize: 2,
+          );
+
+          unreadFromOthers = unreadMessages.data
+              .where((msg) => msg.from != currentUserId.value)
+              .length;
+        } catch (e) {
+          print('Failed to fetch unread messages for convo ${convo.id}: $e');
         }
       }
 
-      final options = ConversationFetchOptions(
-        pageSize: 30,
-        cursor: !isInitialLoad ? _nextConversationCursor : null,
+      var userName = '';
+      if (convo.type == ChatConversationType.GroupChat) {
+        userName = group?.name ?? 'Unknown Group';
+      } else {
+        var nickName = userInfo?.nickName;
+        var userId = userInfo?.userId;
+        var conversationId = convo.id;
+        
+        if (nickName != null && nickName.trim().isNotEmpty) {
+          userName = nickName.trim();
+        } else if (userId != null && userId.trim().isNotEmpty) {
+          userName = userId.trim();
+        } else if (conversationId.trim().isNotEmpty) {
+          userName = conversationId.trim();
+        } else {
+          userName = 'Unknown User';
+        }
+      }
+
+      print(
+        'Debug: convo.id=${convo.id}, userName=$userName, '
+        'nickName=${userInfo?.nickName}, userId=${userInfo?.userId}',
       );
 
-      final result = await ChatClient.getInstance.chatManager
-          .fetchConversationsByOptions(options: options);
-
-      final userIds = result.data
-          .where((convo) => convo.type == ChatConversationType.Chat)
-          .map((convo) => convo.id)
-          .toList();
-
-      final userInfoMap = await ChatClient.getInstance.userInfoManager
-          .fetchUserInfoById(userIds);
-
-      final wrappedConversations = <ChatConversationWrapper>[];
-
-      for (final convo in result.data) {
-        // Await latest message
-        ChatUserInfo? userInfo;
-        ChatMessage? lastMsg;
-        ChatGroup? group;
-        try {
-          if (convo.type == ChatConversationType.GroupChat) {
-            group = await ChatClient.getInstance.groupManager
-                .fetchGroupInfoFromServer(
-              convo.id,
-            );
-          } else {
-            userInfo = userInfoMap[convo.id];
-          }
-          lastMsg = await convo.latestMessage();
-        } catch (_) {
-          lastMsg = null;
-        }
-
-        String? latestMessage;
-        DateTime? lastTime;
-
-        if (lastMsg != null) {
-          final body = lastMsg.body;
-
-          // Text preview
-          if (body is ChatTextMessageBody) {
-            latestMessage = body.content;
-          } else if (body is ChatImageMessageBody) {
-            latestMessage = '[Image]';
-          } else if (body is ChatFileMessageBody) {
-            latestMessage = '[File]';
-          } else if (body is ChatVoiceMessageBody) {
-            latestMessage = '[Voice]';
-          } else {
-            latestMessage = '[${body.runtimeType}]';
-          }
-
-          lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
-        }
-        var unreadFromOthers = 0;
-        final unreadCount = await convo.unreadCount();
-        if (unreadCount > 0) {
-          try {
-            final unreadMessages =
-                await ChatClient.getInstance.chatManager.fetchHistoryMessages(
-              conversationId: convo.id,
-              pageSize: 2,
-            );
-
-            unreadFromOthers = unreadMessages.data
-                .where((msg) => msg.from != currentUserId.value)
-                .length;
-          } catch (e) {
-            print('Failed to fetch unread messages for convo ${convo.id}: $e');
-          }
-        }
-        wrappedConversations.add(
-          ChatConversationWrapper(
-            id: convo.id,
-            conversation: convo,
-            userName:
-                group?.name ?? userInfo?.nickName ?? userInfo?.userId ?? '',
-            avatarUrl: userInfo?.avatarUrl,
-            isOnline: true,
-            latestMessage: latestMessage,
-            lastChattedTime: lastTime,
-            unreadCount: unreadFromOthers,
-          ),
-        );
-      }
-      final filteredConversations = query != null && query.isNotEmpty
-          ? wrappedConversations
-              .where(
-                (c) => c.userName
-                    .toString()
-                    .toLowerCase()
-                    .contains(query.toLowerCase()),
-              )
-              .toList()
-          : wrappedConversations;
-      if (!isInitialLoad) {
-        allConversations.addAll(filteredConversations);
-      } else {
-        allConversations.value = filteredConversations;
-      }
-
-      _nextConversationCursor = result.cursor;
-      fetchConversationState.value = TheStates.success;
-    } on ChatError catch (e) {
-      print(e);
-      fetchCoversationError.value =
-          'Failed to fetch conversations: ${e.code} - ${e.description}';
-      fetchConversationState.value = TheStates.error;
+      wrappedConversations.add(
+        ChatConversationWrapper(
+          id: convo.id,
+          conversation: convo,
+          userName: userName,
+          avatarUrl: userInfo?.avatarUrl,
+          isOnline: true,
+          latestMessage: latestMessage,
+          lastChattedTime: lastTime,
+          unreadCount: unreadFromOthers,
+        ),
+      );
     }
+    
+    final filteredConversations = query != null && query.isNotEmpty
+        ? wrappedConversations
+            .where(
+              (c) => c.userName
+                  .toString()
+                  .toLowerCase()
+                  .contains(query.toLowerCase()),
+            )
+            .toList()
+        : wrappedConversations;
+        
+    if (!isInitialLoad) {
+      allConversations.addAll(filteredConversations);
+    } else {
+      allConversations.value = filteredConversations;
+    }
+
+    _nextConversationCursor = result.cursor;
+    fetchConversationState.value = TheStates.success;
+  } on ChatError catch (e) {
+    print(e);
+    fetchCoversationError.value =
+        'Failed to fetch conversations: ${e.code} - ${e.description}';
+    fetchConversationState.value = TheStates.error;
   }
+}
 
   RxList<ChatConversationWrapper> groupList = <ChatConversationWrapper>[].obs;
   // String? _nextConversationCursor;

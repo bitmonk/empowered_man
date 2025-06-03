@@ -13,11 +13,11 @@ class ProfileController extends GetxController {
 
   CancelToken? _cancelToken;
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
-  @override
-  void onInit() {
-    super.onInit();
-    getUserProfile();
-  }
+  // @override
+  // void onInit() {
+  //   super.onInit();
+  //   getUserProfile();
+  // }
 
   Future<bool?> uploadProfile() async {
     userProfileState.value = TheStates.loading;

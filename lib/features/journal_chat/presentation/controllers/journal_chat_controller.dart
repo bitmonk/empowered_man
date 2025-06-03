@@ -435,20 +435,17 @@ class JournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      // await Future.delayed(const Duration(seconds: 1));
+      //  pendingMessages.clear();
+      _hideThinking();
 
-      // await getJournalWithQuestionsAndAnswers();
-
-      // pendingMessages.clear();
-
-      // autoScrollEnabled.value = true;
-      // scrollToBottom();
-    } catch (e) {
-      print('Error in yes/no selection: $e');
-      AppUtils.showErrorSnackbar(message: 'Failed to send response');
-      // Clear pending messages on error
+      await getJournalWithQuestionsAndAnswers();
       pendingMessages.clear();
-    } finally {
+
+      autoScrollEnabled.value = true;
+      _debouncedScrollToBottom(delay: 300);
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to send response');
+      pendingMessages.clear();
       _hideThinking();
     }
   }
@@ -523,21 +520,19 @@ class JournalChatController extends GetxController {
         followupQuestionId,
       );
 
-      // await Future.delayed(const Duration(milliseconds: 1000));
+      pendingMessages.clear();
+      _hideThinking();
 
-      // await getJournalWithQuestionsAndAnswers();
+      // Refresh conversation
+      await getJournalWithQuestionsAndAnswers();
 
-      // pendingMessages.clear();
-
-      // autoScrollEnabled.value = true;
-      // scrollToBottom();
+      autoScrollEnabled.value = true;
+      _debouncedScrollToBottom(delay: 300);
     } catch (e) {
       print('Error sending message: $e');
       AppUtils.showErrorSnackbar(message: 'Failed to send message');
       chatController.text = messageText;
       pendingMessages.clear();
-    } finally {
-      _hideThinking();
     }
   }
 
@@ -571,10 +566,10 @@ class JournalChatController extends GetxController {
           );
         },
         (r) async {
-          pendingMessages.clear();
-          _hideThinking();
-          await getJournalWithQuestionsAndAnswers();
-          _debouncedScrollToBottom(delay: 300);
+          // pendingMessages.clear();
+          // _hideThinking();
+          // await getJournalWithQuestionsAndAnswers();
+          // _debouncedScrollToBottom(delay: 300);
           sendMessageState.value = TheStates.success;
         },
       );
@@ -628,7 +623,7 @@ class JournalChatController extends GetxController {
           await getJournalWithQuestionsAndAnswers();
           // await Future.delayed(const Duration(milliseconds: 100));
           // scrollToBottom();
-                    _debouncedScrollToBottom(delay: 200);
+          _debouncedScrollToBottom(delay: 200);
 
           updateMessageState.value = TheStates.success;
           resetEditMode();
