@@ -23,49 +23,53 @@ class AudioPlayerInitializer {
 }
 
 class AudioPlayerController extends GetxController {
-  late AudioPlayer _audioPlayer;
+  late AudioPlayer audioPlayer;
   RxBool isPlaying = false.obs;
 
   RxnString selectedAudioId = RxnString();
   @override
   void onInit() {
     super.onInit();
-    _audioPlayer = AudioPlayer();
-    _audioPlayer.playerStateStream.listen((state) {
+    audioPlayer = AudioPlayer();
+    audioPlayer.playerStateStream.listen((state) {
       if (state.processingState == ProcessingState.completed) {
         isPlaying.value = false;
+        selectedAudioId.value = null;
       } else if (state.playing) {
         isPlaying.value = true;
+      } else {
+        isPlaying.value = false;
       }
     });
   }
 
-  Future<void> playVoiceMessage(String url) async {
+  Future<void> playVoiceMessage(String url, {String? audioId}) async {
     try {
-      await _audioPlayer.setUrl(
-          'https://actions.google.com/sounds/v1/alarms/digital_watch_alarm_long.ogg',);
-      await _audioPlayer.play();
+      if (isPlaying.value) {
+        await audioPlayer.stop();
+      }
+      selectedAudioId.value = audioId;
+      await audioPlayer.setUrl(url);
+      await audioPlayer.play();
     } catch (e) {
       debugPrint('Error playing audio: $e');
-      // ScaffoldMessenger.of(context).showSnackBar(
-      //   const SnackBar(content: Text('Failed to play audio message')),
-      // );
     }
   }
 
   Future<void> stopAudio() async {
     try {
-      await _audioPlayer.stop();
+      await audioPlayer.stop();
       isPlaying.value = false;
+      selectedAudioId.value = null;
     } catch (e) {
-      // Handle stop error
+      //
     }
   }
 
   Future<void> closeAudio() async {
     selectedAudioId.value = null;
     try {
-      await _audioPlayer.dispose(); // This automatically stops playback too
+      await audioPlayer.dispose(); // This automatically stops playback too
       isPlaying.value = false;
     } catch (e) {
       // Handle dispose error
@@ -74,7 +78,7 @@ class AudioPlayerController extends GetxController {
 
   @override
   void onClose() {
-    _audioPlayer.dispose();
+    audioPlayer.dispose();
     super.onClose();
   }
 }

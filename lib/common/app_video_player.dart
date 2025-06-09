@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 
@@ -37,8 +39,8 @@ class _AppVideoPlayerState extends State<AppVideoPlayer> {
         _errorMessage = null;
       });
       _videoController = widget.assets != null
-          ? VideoPlayerController.asset(
-              widget.assets!,
+          ? VideoPlayerController.file(
+              File(widget.assets!),
             )
           : VideoPlayerController.networkUrl(
               Uri.parse(widget.videoUrl!),

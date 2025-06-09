@@ -19,12 +19,12 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   //   'Balance Facts',
   //   'Wealth Facts',
   // ];
-  final List<String> targetCategories = [
-    'Body Targets',
-    'Mind Targets',
-    'Balance Targets',
-    'Wealth Targets',
-  ];
+  // final List<String> targetCategories = [
+  //   'Body Targets',
+  //   'Mind Targets',
+  //   'Balance Targets',
+  //   'Wealth Targets',
+  // ];
 
   // Selected values for Monthly Missions, Fact Assessments, and Yearly Targets
   Map<String, String> selectedMissionCategory = {};
@@ -178,49 +178,49 @@ class _GoalsOverviewState extends State<GoalsOverview> {
     );
   }
 
-  Widget _buildMonthlyMissions() {
-    final quarter = controller.currentQuarter.value;
-    final quarterlyGoals = controller.getMonthlyGoalsMap(quarter);
-    final categories = controller.getCategoriesForMonths();
+  // Widget _buildMonthlyMissions() {
+  //   final quarter = controller.currentQuarter.value;
+  //   final quarterlyGoals = controller.getMonthlyGoalsMap(quarter);
+  //   final categories = controller.getCategoriesForMonths();
 
-    return ThemedContainer(
-      color: AppColors.bgBorder,
-      padding: const EdgeInsets.all(20),
-      width: double.infinity,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: controller.months.map((month) {
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: Text(
-                  month,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              Wrap(
-                spacing: 9,
-                runSpacing: 9,
-                children: categories.map((category) {
-                  return _buildCategoryButton(
-                    category,
-                    quarterlyGoals[category] ?? false,
-                  );
-                }).toList(),
-              ),
-              const VerticalSpacing(24),
-            ],
-          );
-        }).toList(),
-      ),
-    );
-  }
+  //   return ThemedContainer(
+  //     color: AppColors.bgBorder,
+  //     padding: const EdgeInsets.all(20),
+  //     width: double.infinity,
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: controller.months.map((month) {
+  //         return Column(
+  //           crossAxisAlignment: CrossAxisAlignment.start,
+  //           children: [
+  //             Padding(
+  //               padding: const EdgeInsets.only(bottom: 20),
+  //               child: Text(
+  //                 month,
+  //                 style: const TextStyle(
+  //                   color: Colors.white,
+  //                   fontSize: 16,
+  //                   fontWeight: FontWeight.w600,
+  //                 ),
+  //               ),
+  //             ),
+  //             Wrap(
+  //               spacing: 9,
+  //               runSpacing: 9,
+  //               children: categories.map((category) {
+  //                 return _buildCategoryButton(
+  //                   category,
+  //                   quarterlyGoals[category] ?? false,
+  //                 );
+  //               }).toList(),
+  //             ),
+  //             const VerticalSpacing(24),
+  //           ],
+  //         );
+  //       }).toList(),
+  //     ),
+  //   );
+  // }
 
   Widget _buildFactsAndTargets() {
     final factCategories = controller.getCategoriesForQuarter();
@@ -228,6 +228,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
         controller.getQuarterlyGoalsMap(controller.currentQuarter.value);
     final yearlyGoals =
         controller.goalOverview.value?.data?.goalOverview?.yearlyGoals;
+        final targetCategories = controller.getCategoriesForYear();
     return Column(
       children: [
         _buildCategoryBox(
@@ -277,7 +278,54 @@ class _GoalsOverviewState extends State<GoalsOverview> {
       ),
     );
   }
+Widget _buildMonthlyMissions() {
+  final quarter = controller.currentQuarter.value;
+  final categories = controller.getCategoriesForMonths();
 
+  return ThemedContainer(
+    color: AppColors.bgBorder,
+    padding: const EdgeInsets.all(20),
+    width: double.infinity,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: controller.months.asMap().entries.map((entry) {
+        final monthIndex = entry.key;
+        final month = entry.value;
+        
+        // Get goals for this specific month
+        final monthGoals = controller.getMonthlyGoalsForSpecificMonth(quarter, monthIndex);
+        
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Text(
+                month,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+            Wrap(
+              spacing: 9,
+              runSpacing: 9,
+              children: categories.map((category) {
+                return _buildCategoryButton(
+                  category,
+                  monthGoals[category] ?? false,
+                );
+              }).toList(),
+            ),
+            const VerticalSpacing(24),
+          ],
+        );
+      }).toList(),
+    ),
+  );
+}
   Widget _buildCategoryButton(
     String text,
     bool isSelected,
@@ -289,7 +337,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
         margin: const EdgeInsets.only(right: 8),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.blue : Colors.transparent,
+        color: isSelected ? AppColors.primary500 : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: Colors.white24),
         ),
@@ -304,6 +352,7 @@ class _GoalsOverviewState extends State<GoalsOverview> {
   void _resetSelections() {
     final categories = controller.getCategoriesForMonths();
     final factCategories = controller.getCategoriesForQuarter();
+    final targetCategories = controller.getCategoriesForYear();
     // Add null safety checks
     if (controller.months.isEmpty || categories.isEmpty) return;
 

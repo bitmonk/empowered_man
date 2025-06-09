@@ -41,17 +41,17 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
             children: [
               HomeHeaderWidgets(
                 hideControls: true,
-                level: powerController.powerScoreResponse.value.currentLevel
-                    .toString(),
-                upcomingLevel: powerController
-                    .powerScoreResponse.value.upcomingLevel
-                    .toString(),
+                level:
+                    powerController.powerScoreResponse.value.currentLevel ?? '',
+                upcomingLevel:
+                    powerController.powerScoreResponse.value.upcomingLevel ??
+                        '',
                 userProgressbarPoints: powerController
-                    .powerScoreResponse.value.userProgressbarPoints
-                    .toString(),
+                        .powerScoreResponse.value.userProgressbarPoints ??
+                    '',
                 totalPointsProgressBar: powerController
-                    .powerScoreResponse.value.totalPointsProgressbar
-                    .toString(),
+                        .powerScoreResponse.value.totalPointsProgressbar ??
+                    '',
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,

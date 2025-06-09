@@ -161,14 +161,14 @@ class ChatScreen extends GetView<ChatController> {
                                       isInitialLoad: true,
                                     );
                                   },
-                                  child: ListView.separated(
+                                  child: ListView.builder(
                                     itemCount:
                                         controller.allConversations.length +
                                             (controller.canLoadMore
                                                 ? 1
                                                 : 0), // Extra for loading
-                                    separatorBuilder: (_, __) =>
-                                        const Divider(height: 1),
+                                    // separatorBuilder: (_, __) =>
+                                    //     const Divider(height: 1),
                                     itemBuilder: (context, index) {
                                       if (index <
                                           controller.allConversations.length) {
@@ -195,8 +195,12 @@ class ChatScreen extends GetView<ChatController> {
                                             vertical: 16,
                                           ),
                                           child: Center(
-                                            child:
-                                                Text('No more conversations'),
+                                            child: Text(
+                                              'No more conversations',
+                                              style: TextStyle(
+                                                color: AppColors.baseWhite,
+                                              ),
+                                            ),
                                           ),
                                         );
                                       }
@@ -232,13 +236,13 @@ class ChatScreen extends GetView<ChatController> {
                                       isInitialLoad: true,
                                     );
                                   },
-                                  child: ListView.separated(
+                                  child: ListView.builder(
                                     itemCount: controller.groupList.length +
                                         (controller.canLoadMore
                                             ? 1
                                             : 0), // Extra for loading
-                                    separatorBuilder: (_, __) =>
-                                        const Divider(height: 1),
+                                    // separatorBuilder: (_, __) =>
+                                    //     const Divider(height: 1),
                                     itemBuilder: (context, index) {
                                       if (index < controller.groupList.length) {
                                         final convo =
@@ -263,8 +267,12 @@ class ChatScreen extends GetView<ChatController> {
                                             vertical: 16,
                                           ),
                                           child: Center(
-                                            child:
-                                                Text('No more conversations'),
+                                            child: Text(
+                                              'No more conversations',
+                                              style: TextStyle(
+                                                color: AppColors.baseWhite,
+                                              ),
+                                            ),
                                           ),
                                         );
                                       }

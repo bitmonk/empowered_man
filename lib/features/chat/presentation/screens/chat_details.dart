@@ -31,6 +31,8 @@ class _ChatDetailsState extends State<ChatDetails> {
             selectedMembers = newMembers;
           });
         },
+        allMembers: [],
+        // allMembers: chatController.allPossibleMembers,
       ),
     );
   }
@@ -294,6 +296,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                     ),
                   ),
                 ),
+                const VerticalSpacing(40),
               ],
             ),
           ),

@@ -190,7 +190,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
             child: SizedBox(
               // margin: const EdgeInsets.only(bottom: 8),
               height: 100,
-              child: Image.file(selectedVideoFromCamera!, fit: BoxFit.cover),
+              child: AppVideoPlayer(
+                assets: selectedVideoFromCamera!.path,
+              ),
+              // child: Image.file(selectedVideoFromCamera!, fit: BoxFit.cover),
             ),
           ),
           Positioned(

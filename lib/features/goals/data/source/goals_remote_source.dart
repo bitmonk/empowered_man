@@ -17,7 +17,7 @@ class GoalsRemoteSource {
     try {
       final response = await _client.get(
         AppEndpoints.getGoalsUrl,
-        queryParameters: {'from_date': fromDate, 'to_date': toDate},
+        queryParameters: {'from': fromDate, 'to': toDate},
         cancelToken: cancelToken,
       );
 

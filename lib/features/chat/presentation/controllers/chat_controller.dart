@@ -143,162 +143,161 @@ class ChatController extends GetxController {
   Rx<TheStates> fetchConversationState = TheStates.initial.obs;
   RxnString fetchCoversationError = RxnString();
 
-
-Future<void> fetchConversations({
-  bool isInitialLoad = false,
-  String? query,
-}) async {
-  try {
-    if (isInitialLoad) {
-      allConversations.clear();
-      fetchConversationState.value = TheStates.loading;
-      _nextConversationCursor = null; // Reset cursor on fresh load
-    } else {
-      fetchConversationState.value = TheStates.loadingMore;
-      if (_nextConversationCursor == null) {
-        return;
-      }
-    }
-
-    final options = ConversationFetchOptions(
-      pageSize: 30,
-      cursor: !isInitialLoad ? _nextConversationCursor : null,
-    );
-
-    final result = await ChatClient.getInstance.chatManager
-        .fetchConversationsByOptions(options: options);
-
-    final userIds = result.data
-        .where((convo) => convo.type == ChatConversationType.Chat)
-        .map((convo) => convo.id)
-        .toList();
-
-    final userInfoMap = await ChatClient.getInstance.userInfoManager
-        .fetchUserInfoById(userIds);
-
-    final wrappedConversations = <ChatConversationWrapper>[];
-
-    for (final convo in result.data) {
-      ChatUserInfo? userInfo;
-      ChatMessage? lastMsg;
-      ChatGroup? group;
-      
-      try {
-        if (convo.type == ChatConversationType.GroupChat) {
-          group = await ChatClient.getInstance.groupManager
-              .fetchGroupInfoFromServer(convo.id);
-        } else {
-          userInfo = userInfoMap[convo.id];
-        }
-        lastMsg = await convo.latestMessage();
-      } catch (_) {
-        lastMsg = null;
-      }
-
-      String? latestMessage;
-      DateTime? lastTime;
-
-      if (lastMsg != null) {
-        final body = lastMsg.body;
-
-        // Text preview
-        if (body is ChatTextMessageBody) {
-          latestMessage = body.content;
-        } else if (body is ChatImageMessageBody) {
-          latestMessage = '[Image]';
-        } else if (body is ChatFileMessageBody) {
-          latestMessage = '[File]';
-        } else if (body is ChatVoiceMessageBody) {
-          latestMessage = '[Voice]';
-        } else {
-          latestMessage = '[${body.runtimeType}]';
-        }
-
-        lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
-      }
-      
-      var unreadFromOthers = 0;
-      final unreadCount = await convo.unreadCount();
-      if (unreadCount > 0) {
-        try {
-          final unreadMessages =
-              await ChatClient.getInstance.chatManager.fetchHistoryMessages(
-            conversationId: convo.id,
-            pageSize: 2,
-          );
-
-          unreadFromOthers = unreadMessages.data
-              .where((msg) => msg.from != currentUserId.value)
-              .length;
-        } catch (e) {
-          print('Failed to fetch unread messages for convo ${convo.id}: $e');
-        }
-      }
-
-      var userName = '';
-      if (convo.type == ChatConversationType.GroupChat) {
-        userName = group?.name ?? 'Unknown Group';
+  Future<void> fetchConversations({
+    bool isInitialLoad = false,
+    String? query,
+  }) async {
+    try {
+      if (isInitialLoad) {
+        allConversations.clear();
+        fetchConversationState.value = TheStates.loading;
+        _nextConversationCursor = null; // Reset cursor on fresh load
       } else {
-        var nickName = userInfo?.nickName;
-        var userId = userInfo?.userId;
-        var conversationId = convo.id;
-        
-        if (nickName != null && nickName.trim().isNotEmpty) {
-          userName = nickName.trim();
-        } else if (userId != null && userId.trim().isNotEmpty) {
-          userName = userId.trim();
-        } else if (conversationId.trim().isNotEmpty) {
-          userName = conversationId.trim();
-        } else {
-          userName = 'Unknown User';
+        fetchConversationState.value = TheStates.loadingMore;
+        if (_nextConversationCursor == null) {
+          return;
         }
       }
 
-      print(
-        'Debug: convo.id=${convo.id}, userName=$userName, '
-        'nickName=${userInfo?.nickName}, userId=${userInfo?.userId}',
+      final options = ConversationFetchOptions(
+        pageSize: 30,
+        cursor: !isInitialLoad ? _nextConversationCursor : null,
       );
 
-      wrappedConversations.add(
-        ChatConversationWrapper(
-          id: convo.id,
-          conversation: convo,
-          userName: userName,
-          avatarUrl: userInfo?.avatarUrl,
-          isOnline: true,
-          latestMessage: latestMessage,
-          lastChattedTime: lastTime,
-          unreadCount: unreadFromOthers,
-        ),
-      );
-    }
-    
-    final filteredConversations = query != null && query.isNotEmpty
-        ? wrappedConversations
-            .where(
-              (c) => c.userName
-                  .toString()
-                  .toLowerCase()
-                  .contains(query.toLowerCase()),
-            )
-            .toList()
-        : wrappedConversations;
-        
-    if (!isInitialLoad) {
-      allConversations.addAll(filteredConversations);
-    } else {
-      allConversations.value = filteredConversations;
-    }
+      final result = await ChatClient.getInstance.chatManager
+          .fetchConversationsByOptions(options: options);
 
-    _nextConversationCursor = result.cursor;
-    fetchConversationState.value = TheStates.success;
-  } on ChatError catch (e) {
-    print(e);
-    fetchCoversationError.value =
-        'Failed to fetch conversations: ${e.code} - ${e.description}';
-    fetchConversationState.value = TheStates.error;
+      final userIds = result.data
+          .where((convo) => convo.type == ChatConversationType.Chat)
+          .map((convo) => convo.id)
+          .toList();
+
+      final userInfoMap = await ChatClient.getInstance.userInfoManager
+          .fetchUserInfoById(userIds);
+
+      final wrappedConversations = <ChatConversationWrapper>[];
+
+      for (final convo in result.data) {
+        ChatUserInfo? userInfo;
+        ChatMessage? lastMsg;
+        ChatGroup? group;
+
+        try {
+          if (convo.type == ChatConversationType.GroupChat) {
+            group = await ChatClient.getInstance.groupManager
+                .fetchGroupInfoFromServer(convo.id);
+          } else {
+            userInfo = userInfoMap[convo.id];
+          }
+          lastMsg = await convo.latestMessage();
+        } catch (_) {
+          lastMsg = null;
+        }
+
+        String? latestMessage;
+        DateTime? lastTime;
+
+        if (lastMsg != null) {
+          final body = lastMsg.body;
+
+          // Text preview
+          if (body is ChatTextMessageBody) {
+            latestMessage = body.content;
+          } else if (body is ChatImageMessageBody) {
+            latestMessage = '[Image]';
+          } else if (body is ChatFileMessageBody) {
+            latestMessage = '[File]';
+          } else if (body is ChatVoiceMessageBody) {
+            latestMessage = '[Voice]';
+          } else {
+            latestMessage = '[${body.runtimeType}]';
+          }
+
+          lastTime = DateTime.fromMillisecondsSinceEpoch(lastMsg.serverTime);
+        }
+
+        var unreadFromOthers = 0;
+        final unreadCount = await convo.unreadCount();
+        if (unreadCount > 0) {
+          try {
+            final unreadMessages =
+                await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+              conversationId: convo.id,
+              pageSize: 2,
+            );
+
+            unreadFromOthers = unreadMessages.data
+                .where((msg) => msg.from != currentUserId.value)
+                .length;
+          } catch (e) {
+            print('Failed to fetch unread messages for convo ${convo.id}: $e');
+          }
+        }
+
+        var userName = '';
+        if (convo.type == ChatConversationType.GroupChat) {
+          userName = group?.name ?? 'Unknown Group';
+        } else {
+          var nickName = userInfo?.nickName;
+          var userId = userInfo?.userId;
+          var conversationId = convo.id;
+
+          if (nickName != null && nickName.trim().isNotEmpty) {
+            userName = nickName.trim();
+          } else if (userId != null && userId.trim().isNotEmpty) {
+            userName = userId.trim();
+          } else if (conversationId.trim().isNotEmpty) {
+            userName = conversationId.trim();
+          } else {
+            userName = 'Unknown User';
+          }
+        }
+
+        print(
+          'Debug: convo.id=${convo.id}, userName=$userName, '
+          'nickName=${userInfo?.nickName}, userId=${userInfo?.userId},avatarUrl = ${userInfo?.avatarUrl}',
+        );
+
+        wrappedConversations.add(
+          ChatConversationWrapper(
+            id: convo.id,
+            conversation: convo,
+            userName: userName,
+            avatarUrl: userInfo?.avatarUrl,
+            isOnline: true,
+            latestMessage: latestMessage,
+            lastChattedTime: lastTime,
+            unreadCount: unreadFromOthers,
+          ),
+        );
+      }
+
+      final filteredConversations = query != null && query.isNotEmpty
+          ? wrappedConversations
+              .where(
+                (c) => c.userName
+                    .toString()
+                    .toLowerCase()
+                    .contains(query.toLowerCase()),
+              )
+              .toList()
+          : wrappedConversations;
+
+      if (!isInitialLoad) {
+        allConversations.addAll(filteredConversations);
+      } else {
+        allConversations.value = filteredConversations;
+      }
+
+      _nextConversationCursor = result.cursor;
+      fetchConversationState.value = TheStates.success;
+    } on ChatError catch (e) {
+      print(e);
+      fetchCoversationError.value =
+          'Failed to fetch conversations: ${e.code} - ${e.description}';
+      fetchConversationState.value = TheStates.error;
+    }
   }
-}
 
   RxList<ChatConversationWrapper> groupList = <ChatConversationWrapper>[].obs;
   // String? _nextConversationCursor;
@@ -419,7 +418,8 @@ Future<void> fetchConversations({
         groupId,
         members ?? [],
       );
-
+      await getGroupInfo();
+      await fetchGroupChats(isInitialLoad: true);
       print('✅ Members added successfully');
     } on ChatError catch (e) {
       print('❌ Failed to add member: ${e.code} - ${e.description}');
@@ -434,7 +434,9 @@ Future<void> fetchConversations({
         members ?? [],
       );
 
-      print('✅ Members removed successfully');
+      await getGroupInfo();
+
+      await fetchGroupChats(isInitialLoad: true);
     } on ChatError catch (e) {
       print('❌ Failed to remove member: ${e.code} - ${e.description}');
     }
@@ -733,6 +735,11 @@ Future<void> fetchConversations({
     sendMessageError.value = null;
     try {
       if (filePath != null) {
+        if (!File(filePath).existsSync()) {
+          print('Video file does not exist at: $filePath');
+          AppUtils.showErrorSnackbar(message: 'Video file does not exist!');
+          return;
+        }
         final extension = filePath.split('.').last.toLowerCase();
         final isImage =
             ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp'].contains(extension);
@@ -751,6 +758,10 @@ Future<void> fetchConversations({
             body: imgBody,
           );
         } else if (isVideo) {
+          print('🎥 Creating video message');
+          print('Video filePath: $filePath');
+          print('File exists: ${File(filePath).existsSync()}');
+          print('File size: ${File(filePath).lengthSync()}');
           final vidBody = ChatVideoMessageBody(
             localPath: filePath,
             displayName: fileDisplayName ?? filePath.split('/').last,

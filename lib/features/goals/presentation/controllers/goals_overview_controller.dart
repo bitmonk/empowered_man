@@ -33,6 +33,39 @@ class GoalsOverviewController extends GetxController {
     getGoalsOverview();
   }
 
+  Map<String, bool> getMonthlyGoalsForSpecificMonth(
+      int quarter, int monthIndex) {
+    if (goalOverview.value == null) return {};
+
+    final quarterData = switch (quarter) {
+      1 => goalOverview.value!.data!.goalOverview!.q1,
+      2 => goalOverview.value!.data!.goalOverview!.q2,
+      3 => goalOverview.value!.data!.goalOverview!.q3,
+      4 => goalOverview.value!.data!.goalOverview!.q4,
+      _ => null,
+    };
+
+    if (quarterData?.months == null ||
+        quarterData!.months!.isEmpty ||
+        monthIndex >= quarterData.months!.length) {
+      return {};
+    }
+
+    return Map<String, bool>.from(quarterData.months![monthIndex]);
+  }
+
+// Add this method to get categories for yearly goals
+  List<String> getCategoriesForYear() {
+    if (goalOverview.value == null) return [];
+
+    final yearlyGoals = goalOverview.value!.data!.goalOverview!.yearlyGoals;
+
+    if (yearlyGoals != null) {
+      return yearlyGoals.keys.toList();
+    }
+    return [];
+  }
+
   int _getCurrentQuarter() {
     final now = DateTime.now();
     return ((now.month - 1) ~/ 3) + 1;

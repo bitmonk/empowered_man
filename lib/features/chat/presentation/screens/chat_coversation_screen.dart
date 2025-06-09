@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
@@ -6,7 +8,11 @@ import 'package:empowered/features/chat/presentation/screens/chat_details.dart';
 import 'package:empowered/features/chat/presentation/screens/customize_chat.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
+import 'package:empowered/features/chat/presentation/screens/widget/media_view_screens.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
+import 'package:just_audio/just_audio.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ChatCoversationScreen extends StatefulWidget {
   const ChatCoversationScreen({
@@ -54,9 +60,9 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
   @override
   void initState() {
     super.initState();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   controller.scrollToBottom();
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      controller.scrollToBottom();
+    });
     controller.chatScreenScrollController.addListener(() {
       if (controller.chatScreenScrollController.position.pixels <=
           controller.chatScreenScrollController.position.minScrollExtent +
@@ -75,6 +81,13 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(
+        //  statusBarColor: AppColors.transparent,
+        statusBarIconBrightness: Brightness.dark, // Others: dark icons
+        systemNavigationBarColor: AppColors.black,
+      ),
+    );
     return AppScaffold(
       appBar: CustomAppBar(
         // title: widget.isGroupChat ? 'Liam, Sam' : 'Liam',
@@ -172,6 +185,9 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                   isLiked: controller.reactionMap
                                       .containsKey(chat.msgId),
                                   onLike: () {
+                                    print(
+                                        '🐛 onLike callback triggered for message: ${chat.msgId}');
+
                                     if (controller.reactionMap
                                         .containsKey(chat.msgId)) {
                                       controller.removeReaction(
@@ -183,6 +199,9 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                     }
                                   },
                                   onEdit: () {
+                                    print(
+                                        '🐛 onEdit callback triggered for message: ${chat.msgId}');
+
                                     controller.messageToEdit.value = chat;
                                   },
                                 );
@@ -221,7 +240,81 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
           );
 
         case 'file':
-          wid = const Text('file');
+          final fileName = jsonMessage['displayName'] ?? 'File';
+          final remotePath = jsonMessage['remotePath'];
+          wid = (remotePath != null && remotePath.toString().isNotEmpty)
+              ? InkWell(
+                  onTap: () {
+                    launchUrl(Uri.parse(remotePath));
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.all(4),
+                    padding: const EdgeInsets.all(12),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.of(context).size.width * 0.65,
+                    ),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color:
+                            !isMine ? AppColors.bgBorder : Colors.transparent,
+                      ),
+                      color: isMine ? AppColors.primary500 : AppColors.bgMedium,
+                      borderRadius: BorderRadius.only(
+                        bottomRight: const Radius.circular(14),
+                        topLeft:
+                            !isMine ? Radius.zero : const Radius.circular(14),
+                        bottomLeft: const Radius.circular(14),
+                        topRight:
+                            isMine ? Radius.zero : const Radius.circular(14),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: isMine
+                          ? MainAxisAlignment.end
+                          : MainAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.insert_drive_file,
+                          color: isMine ? Colors.white : Colors.blue,
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            fileName,
+                            style: TextStyle(
+                              color: isMine ? Colors.white : Colors.blue,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                )
+              : Container(
+                  margin: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    border: Border.all(
+                      color: !isMine ? AppColors.bgBorder : Colors.transparent,
+                    ),
+                    color: isMine ? AppColors.primary500 : AppColors.bgMedium,
+                    borderRadius: BorderRadius.only(
+                      bottomRight: const Radius.circular(14),
+                      topLeft:
+                          !isMine ? Radius.zero : const Radius.circular(14),
+                      bottomLeft: const Radius.circular(14),
+                      topRight:
+                          isMine ? Radius.zero : const Radius.circular(14),
+                    ),
+                  ),
+                  child: Text(
+                    'Invalid file',
+                    style: TextStyle(
+                      color: isMine ? Colors.white : AppColors.textColor300,
+                    ),
+                  ),
+                );
 
         case 'img':
           final remotePath = jsonMessage['remotePath'];
@@ -243,7 +336,7 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                   id: messageId,
                   isMine: isMine,
                 )
-              : const Text('Invalid audio');
+              : const Text('Video too large. Please select a video under 10MB.');
 
         default:
           wid = const SizedBox.shrink();
@@ -272,93 +365,145 @@ class MessageTypeAudio extends StatefulWidget {
 
 class _MessageTypeAudioState extends State<MessageTypeAudio> {
   final controller = Get.find<AudioPlayerController>();
+  StreamSubscription<Duration>? _positionSub;
+  StreamSubscription<PlayerState>? _playerStateSub;
+  double _progress = 0;
+  Duration _position = Duration.zero;
+  Duration _duration = Duration.zero;
+  bool _isPlaying = false;
+
   @override
   void initState() {
     super.initState();
-    // controller.selectedAudioId.value=widget.
+    _initializeDuration();
+    _listenToAudio();
+  }
+
+  Future<void> _initializeDuration() async {
+    try {
+      await controller.audioPlayer.setUrl(widget.url);
+      final duration = await controller.audioPlayer.durationFuture;
+      if (mounted && duration != null) {
+        setState(() {
+          _duration = duration;
+        });
+      }
+      await controller.audioPlayer.stop();
+      await controller.audioPlayer.seek(Duration.zero);
+    } catch (e) {
+      print('🐛 Error initializing audio duration: $e');
+    }
+  }
+
+  void _listenToAudio() {
+    _positionSub = controller.audioPlayer.positionStream.listen((pos) {
+      if (mounted) {
+        setState(() {
+          _position = pos;
+          if (_duration.inMilliseconds > 0) {
+            _progress = pos.inMilliseconds / _duration.inMilliseconds;
+          }
+        });
+      }
+    });
+    _playerStateSub = controller.audioPlayer.playerStateStream.listen((state) {
+      if (mounted) {
+        setState(() {
+          _isPlaying = state.playing;
+          if (state.processingState == ProcessingState.completed) {
+            _position = Duration.zero;
+            _progress = 0;
+            _isPlaying = false;
+          }
+        });
+      }
+    });
+    controller.audioPlayer.durationStream.listen((dur) {
+      if (mounted && dur != null) {
+        setState(() {
+          _duration = dur;
+        });
+      }
+    });
   }
 
   @override
   void dispose() {
+    _positionSub?.cancel();
+    _playerStateSub?.cancel();
     super.dispose();
   }
 
-  Widget _buildControls() {
-    if (controller.isPlaying.value != true) {
-      return IconButton(
-        icon: const Icon(Icons.play_arrow, color: Colors.white),
-        onPressed: () async {
-          await controller.playVoiceMessage(widget.url);
-        },
-      );
-    } else {
-      return IconButton(
-        icon: const Icon(Icons.pause, color: Colors.white),
-        onPressed: controller.stopAudio,
-      );
-    }
+  String _formatDuration(Duration d) {
+    final ms = d.inMilliseconds;
+    if (ms < 0) return "0:00";
+    final m = d.inMinutes;
+    final s = d.inSeconds % 60;
+    return '$m:${s.toString().padLeft(2, '0')}';
   }
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => Container(
-        width: 300,
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: widget.isMine ? Colors.blue : Colors.grey[300],
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              children: [
-                _buildControls(),
-                const SizedBox(width: 8),
-                // Expanded(
-                //   child: ProgressBar(
-                //     progress: position,
-                //     total: duration,
-                //     onSeek: _audioPlayer.seek,
-                //     timeLabelLocation: TimeLabelLocation.none,
-                //     baseBarColor: Colors.grey[400],
-                //     progressBarColor: Colors.white,
-                //     thumbColor: Colors.white,
-                //     timeLabelTextStyle: const TextStyle(fontSize: 12),
-                //   ),
-                // ),
-                const SizedBox(width: 8),
-                const Text(
-                  '0',
-                  // "${_formatDuration(position)} / ${_formatDuration(duration)}",
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
-            ),
+    final isCurrent = controller.selectedAudioId.value == widget.id;
 
-            // Optional Waveform UI
-            // FutureBuilder<WaveformData>(
-            //   future: WaveformData.fromAudioFile(widget.url),
-            //   builder: (context, snapshot) {
-            //     if (!snapshot.hasData) return const SizedBox.shrink();
-            //     return Waveform(
-            //       waveformData: snapshot.data!,
-            //       width: double.infinity,
-            //       height: 40,
-            //       activeColor: Colors.white,
-            //       inactiveColor: Colors.grey[400],
-            //       duration: duration,
-            //       currentPosition: position,
-            //       onSeek: _audioPlayer.seek,
-            //     );
-            //   },
-            // ),
-          ],
-        ),
+    return Container(
+      width: MediaQuery.of(context).size.width * 0.65,
+      // margin: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.only(top: 6, right: 10, bottom: 6),
+      decoration: BoxDecoration(
+        color: widget.isMine
+            ? (isCurrent && _isPlaying ? Colors.blue[700] : Colors.blue)
+            : (isCurrent && _isPlaying ? Colors.grey[400] : Colors.grey[300]),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: Icon(
+              isCurrent && _isPlaying ? Icons.pause : Icons.play_arrow,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              if (isCurrent && _isPlaying) {
+                await controller.stopAudio();
+              } else {
+                await controller.playVoiceMessage(widget.url,
+                    audioId: widget.id);
+              }
+            },
+          ),
+          // const SizedBox(width: 8),
+          Expanded(
+            child: GestureDetector(
+              onHorizontalDragUpdate: (details) async {
+                if (_duration.inMilliseconds > 0) {
+                  final box = context.findRenderObject() as RenderBox;
+                  final tapPos =
+                      details.localPosition.dx.clamp(0.0, box.size.width);
+                  final percent = tapPos / box.size.width;
+                  final seekTo = _duration * percent;
+                  await controller.audioPlayer.seek(seekTo);
+                }
+              },
+              child: Container(
+                height: 20,
+                alignment: Alignment.centerLeft,
+                child: LinearProgressIndicator(
+                  value: isCurrent ? _progress : 0.0,
+                  backgroundColor: Colors.white.withOpacity(0.3),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
+                  minHeight: 4,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            "${_formatDuration(isCurrent ? _position : Duration.zero)} / ${_formatDuration(_duration)}",
+            style: const TextStyle(fontSize: 12, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

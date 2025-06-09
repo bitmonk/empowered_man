@@ -56,22 +56,33 @@ class _CustomizeChatState extends State<CustomizeChat> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddMember(
-        selectedMembers: members,
+        selectedMembers: chatController.groupMembers,
         onMembersUpdated: (updatedMembers) {
           setState(() {
             members = updatedMembers;
           });
         },
+        allMembers: chatController.agoraUserList
+            .map((user) => user.username ?? user.nickname ?? '')
+            .toList(),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
+    final keyboardHeight = mediaQuery.viewInsets.bottom;
+    final isKeyboardVisible = keyboardHeight > 0;
+
+    final bottomPadding = isKeyboardVisible
+        ? keyboardHeight
+        : keyboardHeight + mediaQuery.viewPadding.bottom;
+    print(
+        '??????????????????????????????????????????????${chatController.agoraUserList}');
     return Obx(
       () => Padding(
-        padding:
-            EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+        padding: EdgeInsets.only(bottom: bottomPadding),
         child: Container(
           padding: const EdgeInsets.all(20),
           decoration: const BoxDecoration(
@@ -79,22 +90,19 @@ class _CustomizeChatState extends State<CustomizeChat> {
             borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           ),
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Add this line!
             children: [
               const VerticalSpacing(12),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const SizedBox(
-                    width: 24,
-                  ),
+                  const SizedBox(width: 24),
                   const Text(
                     'Customize Chat',
                     style: AppTextStyles.textHeadingH3,
                   ),
                   InkWell(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
+                    onTap: () => Navigator.pop(context),
                     child: const Icon(
                       Icons.close,
                       color: AppColors.textColor100,
@@ -106,137 +114,131 @@ class _CustomizeChatState extends State<CustomizeChat> {
               const VerticalSpacing(12),
               const GreyDivider(),
               const VerticalSpacing(24),
-              // Input Fields
-              AppTextFormField(
-                labelText: 'Title',
-                controller: titleController,
-                hintText: 'Enter Title',
-              ),
-              const VerticalSpacing(16),
-              AppTextFormField(
-                labelText: 'Description',
-                hintText: 'Enter Description',
-                controller: descriptionController,
-                minLines: 3,
-                maxLines: 5,
-                textInputAction: TextInputAction.newline,
-                textInputType: TextInputType.multiline,
-              ),
-              const VerticalSpacing(20),
-              Align(
-                alignment: Alignment.centerLeft,
-                child: InkWell(
-                  onTap: openAddMember,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30),
-                      border: Border.all(
-                        color: AppColors.primary500,
+
+              // Everything else wrapped in Flexible + SingleChildScrollView for scrolling
+              Flexible(
+                child: SingleChildScrollView(
+                  controller: scrollController,
+                  child: Column(
+                    children: [
+                      AppTextFormField(
+                        labelText: 'Title',
+                        controller: titleController,
+                        hintText: 'Enter Title',
                       ),
-                    ),
-                    padding:
-                        const EdgeInsets.symmetric(vertical: 4, horizontal: 30),
-                    child: Text(
-                      'Add Member',
-                      style: AppTextStyles.textBodyB2
-                          .copyWith(color: AppColors.primary500),
-                    ),
-                  ),
-                ),
-              ),
-
-              // Selected Members Display
-              chatController.getMemberListState.value.showWidget(
-                loading: () => const LoadingWidget(),
-                error: () => CustomErrorWidget(
-                  error: chatController.getMemberListError.value,
-                ),
-                success: () => Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: ListView.builder(
-                      controller: scrollController,
-                      itemCount: chatController.groupMembers.length +
-                          (chatController.hasMoreGroupMembers ? 1 : 0),
-                      itemBuilder: (context, i) {
-                        if (i == chatController.groupMembers.length) {
-                          return const Padding(
-                            padding: EdgeInsets.all(16),
-                            child: Center(
-                              child: CircularProgressIndicator(),
+                      const VerticalSpacing(16),
+                      AppTextFormField(
+                        labelText: 'Description',
+                        hintText: 'Enter Description',
+                        controller: descriptionController,
+                        minLines: 3,
+                        maxLines: 5,
+                        textInputAction: TextInputAction.newline,
+                        textInputType: TextInputType.multiline,
+                      ),
+                      const VerticalSpacing(20),
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: InkWell(
+                          onTap: openAddMember,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(
+                                color: AppColors.primary500,
+                              ),
                             ),
-                          );
-                        }
-
-                        final memberId = chatController.groupMembers[i];
-                        return ListTile(
-                          contentPadding: const EdgeInsets.symmetric(),
-                          leading: ClipOval(
-                            child: Assets.images.profilePic.image(
-                              width: 30,
-                              height: 30,
-                              fit: BoxFit.cover,
+                            padding: const EdgeInsets.symmetric(
+                                vertical: 4, horizontal: 30),
+                            child: Text(
+                              'Add Member',
+                              style: AppTextStyles.textBodyB2
+                                  .copyWith(color: AppColors.primary500),
                             ),
                           ),
-                          title: Text(
-                            memberId,
-                            style: AppTextStyles.textBodyB3,
-                          ),
-                          trailing: (Get.find<ProfileController>()
-                                  .userProfile
-                                  .value
-                                  .isCoach!)
-                              ? IconButton(
-                                  onPressed: () {
-                                    chatController.removeMemberFromGroup(
-                                      members: [memberId],
-                                    );
-                                  },
-                                  icon: const Icon(
-                                    Icons.remove,
-                                    size: 20,
-                                    color: AppColors.appRed,
+                        ),
+                      ),
+                      chatController.getMemberListState.value.showWidget(
+                        loading: () => const LoadingWidget(),
+                        error: () => CustomErrorWidget(
+                          error: chatController.getMemberListError.value,
+                        ),
+                        success: () => Padding(
+                          padding: const EdgeInsets.only(top: 20),
+                          child: ListView.builder(
+                            // Remove controller: scrollController,
+                            shrinkWrap: true,
+                            physics: NeverScrollableScrollPhysics(),
+                            itemCount: chatController.groupMembers.length +
+                                (chatController.hasMoreGroupMembers ? 1 : 0),
+                            itemBuilder: (context, i) {
+                              if (i == chatController.groupMembers.length) {
+                                return const Padding(
+                                  padding: EdgeInsets.all(16),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
                                   ),
-                                )
-                              : null,
-                        );
-                      },
-                    ),
+                                );
+                              }
+                              final memberId = chatController.groupMembers[i];
+                              return ListTile(
+                                contentPadding: const EdgeInsets.symmetric(),
+                                leading: ClipOval(
+                                  child: Assets.images.profilePic.image(
+                                    width: 30,
+                                    height: 30,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                title: Text(
+                                  memberId,
+                                  style: AppTextStyles.textBodyB3,
+                                ),
+                                trailing: (Get.find<ProfileController>()
+                                        .userProfile
+                                        .value
+                                        .isCoach!)
+                                    ? IconButton(
+                                        onPressed: () {
+                                          chatController.removeMemberFromGroup(
+                                            members: [memberId],
+                                          );
+                                        },
+                                        icon: const Icon(
+                                          Icons.remove,
+                                          size: 20,
+                                          color: AppColors.appRed,
+                                        ),
+                                      )
+                                    : null,
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                      const VerticalSpacing(20),
+                      // Save & Cancel Buttons always visible at bottom
+                      AppOutlinedButton(
+                        text: 'Save',
+                        onPressed: () {
+                          chatController.updateGroupInfo(
+                            newName: titleController.text,
+                            newDescription: descriptionController.text,
+                          );
+                          Navigator.pop(context);
+                        },
+                      ),
+                      const VerticalSpacing(16),
+                      AppOutlinedButton.orange(
+                        text: 'Cancel',
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
+                    ],
                   ),
                 ),
               ),
-              const VerticalSpacing(20),
-
-              // Add Member Button
-
-              // Save & Cancel Buttons
-              AppOutlinedButton(
-                text: 'Save',
-                onPressed: () {
-                  chatController.updateGroupInfo(
-                    newName: titleController.text,
-                    newDescription: descriptionController.text,
-                  );
-                  Navigator.pop(context);
-                },
-              ),
-              const VerticalSpacing(16),
-              AppOutlinedButton.orange(
-                text: 'Cancel',
-                onPressed: () {
-                  Navigator.pop(context);
-                },
-              ),
-
-              // Flexible(
-              //   child: Align(
-              //     alignment: Alignment.bottomCenter,
-              //     child: Padding(
-              //       padding: const EdgeInsets.only(bottom: 20),
-              //       child: ChatInputField(),
-              //     ),
-              //   ),
-              // ),
             ],
           ),
         ),

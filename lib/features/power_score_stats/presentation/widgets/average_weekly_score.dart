@@ -8,6 +8,12 @@ class AverageWeeklyScore extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (weeklyStatus == null) {
+      return const Center(
+        child: CircularProgressIndicator(),
+      );
+    }
+
     return ThemedContainer(
       width: double.infinity,
       padding: const EdgeInsets.all(22),
@@ -96,7 +102,6 @@ class AverageWeeklyScore extends StatelessWidget {
               ),
             ),
           ),
-          // Overlay for displaying values inside bars
           _buildValueOverlay(),
         ],
       ),
@@ -111,23 +116,22 @@ class AverageWeeklyScore extends StatelessWidget {
   }
 
   List<List<double>> _getWeeklyData() {
-    // Helper to safely parse a dynamic value into a double
-    double parseValue(dynamic val) {
-      if (val == null) return 0;
-      if (val is num) return val.toDouble();
-      return double.tryParse(val.toString()) ?? 0.0;
-    }
-
     final days = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
 
     return days.map((day) {
       return [
-        parseValue(weeklyStatus?.journal?.toJson()[day]),
-        parseValue(weeklyStatus?.habits?.toJson()[day]),
-        parseValue(weeklyStatus?.tasks?.toJson()[day]),
-        parseValue(weeklyStatus?.goals?.toJson()[day]),
+        _parseValue(weeklyStatus?.journal?.toJson()[day]),
+        _parseValue(weeklyStatus?.habits?.toJson()[day]),
+        _parseValue(weeklyStatus?.tasks?.toJson()[day]),
+        _parseValue(weeklyStatus?.goals?.toJson()[day]),
       ];
     }).toList();
+  }
+
+  double _parseValue(dynamic val) {
+    if (val == null) return 0;
+    if (val is num) return val.toDouble();
+    return double.tryParse(val.toString()) ?? 0.0;
   }
 
   List<BarChartGroupData> _getBarGroups() {
@@ -166,96 +170,98 @@ class AverageWeeklyScore extends StatelessWidget {
 }
 
 class BarValuePainter extends CustomPainter {
-
   BarValuePainter(this.weeklyData);
   final List<List<double>> weeklyData;
 
   @override
-void paint(Canvas canvas, Size size) {
-  final paint = Paint()
-    ..color = Colors.white
-    ..style = PaintingStyle.fill;
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = Colors.white
+      ..style = PaintingStyle.fill;
 
-  // Calculate chart dimensions (excluding bottom title space)
-  final chartHeight = size.height - 40; // Reserve space for day labels
-  final chartWidth = size.width;
-  const barWidth = 30.0;
-  final numberOfBars = weeklyData.length;
-  final spaceBetweenBars = (chartWidth - (numberOfBars * barWidth)) / (numberOfBars + 1);
+    // Calculate chart dimensions (excluding bottom title space)
+    final chartHeight = size.height - 40; // Reserve space for day labels
+    final chartWidth = size.width;
+    const barWidth = 30.0;
+    final numberOfBars = weeklyData.length;
+    final spaceBetweenBars =
+        (chartWidth - (numberOfBars * barWidth)) / (numberOfBars + 1);
 
-  // Find the maximum total value for scaling
-  double maxTotal = 0;
-  for (final day in weeklyData) {
-    var total = day.fold<double>(0, (sum, value) => sum + value);
-    if (total > maxTotal) maxTotal = total;
-  }
+    // Find the maximum total value for scaling
+    double maxTotal = 0;
+    for (final day in weeklyData) {
+      var total = day.fold<double>(0, (sum, value) => sum + value);
+      if (total > maxTotal) maxTotal = total;
+    }
 
-  for (var dayIndex = 0; dayIndex < weeklyData.length; dayIndex++) {
-    final dayData = weeklyData[dayIndex];
-    final barX = spaceBetweenBars + (dayIndex * (barWidth + spaceBetweenBars));
-    
-    double yOffset = 0;
-    var totalHeight = dayData.fold<double>(0, (sum, value) => sum + value);
-    
-    for (var valueIndex = 0; valueIndex < dayData.length; valueIndex++) {
-      final value = dayData[valueIndex];
-      
-      // Skip if value is 0 or very small
-      if (value < 0.01) {
-        continue;
+    for (var dayIndex = 0; dayIndex < weeklyData.length; dayIndex++) {
+      final dayData = weeklyData[dayIndex];
+      final barX =
+          spaceBetweenBars + (dayIndex * (barWidth + spaceBetweenBars));
+
+      double yOffset = 0;
+      var totalHeight = dayData.fold<double>(0, (sum, value) => sum + value);
+
+      for (var valueIndex = 0; valueIndex < dayData.length; valueIndex++) {
+        final value = dayData[valueIndex];
+
+        // Skip if value is 0 or very small
+        if (value < 0.01) {
+          continue;
+        }
+
+        // Calculate the height of this segment in pixels
+        final segmentHeight = (value / maxTotal) * chartHeight;
+        final segmentY =
+            chartHeight - ((yOffset + value) / maxTotal) * chartHeight;
+
+        // Only draw text if the segment is tall enough
+        if (segmentHeight > 20) {
+          final textSpan = TextSpan(
+            text: value.toStringAsFixed(1),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+            ),
+          );
+
+          final textPainter = TextPainter(
+            text: textSpan,
+            textDirection: TextDirection.ltr,
+          );
+
+          textPainter.layout();
+
+          // Center the text horizontally and vertically within the segment
+          final textX = barX + (barWidth - textPainter.width) / 2;
+          final textY = segmentY + (segmentHeight - textPainter.height) / 2;
+
+          // Draw a small background rectangle for better text visibility
+          final backgroundRect = RRect.fromRectAndRadius(
+            Rect.fromLTWH(
+              textX - 2,
+              textY - 1,
+              textPainter.width + 4,
+              textPainter.height + 2,
+            ),
+            const Radius.circular(2),
+          );
+
+          canvas.drawRRect(
+            backgroundRect,
+            Paint()
+              ..color = Colors.black.withOpacity(0.3)
+              ..style = PaintingStyle.fill,
+          );
+
+          textPainter.paint(canvas, Offset(textX, textY));
+        }
+
+        yOffset += value;
       }
-      
-      // Calculate the height of this segment in pixels
-      final segmentHeight = (value / maxTotal) * chartHeight;
-      final segmentY = chartHeight - ((yOffset + value) / maxTotal) * chartHeight;
-      
-      // Only draw text if the segment is tall enough
-      if (segmentHeight > 20) {
-        final textSpan = TextSpan(
-          text: value.toStringAsFixed(1),
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 10,
-            fontWeight: FontWeight.bold,
-          ),
-        );
-        
-        final textPainter = TextPainter(
-          text: textSpan,
-          textDirection: TextDirection.ltr,
-        );
-        
-        textPainter.layout();
-        
-        // Center the text horizontally and vertically within the segment
-        final textX = barX + (barWidth - textPainter.width) / 2;
-        final textY = segmentY + (segmentHeight - textPainter.height) / 2;
-        
-        // Draw a small background rectangle for better text visibility
-        final backgroundRect = RRect.fromRectAndRadius(
-          Rect.fromLTWH(
-            textX - 2,
-            textY - 1,
-            textPainter.width + 4,
-            textPainter.height + 2,
-          ),
-          const Radius.circular(2),
-        );
-        
-        canvas.drawRRect(
-          backgroundRect,
-          Paint()
-            ..color = Colors.black.withOpacity(0.3)
-            ..style = PaintingStyle.fill,
-        );
-        
-        textPainter.paint(canvas, Offset(textX, textY));
-      }
-      
-      yOffset += value;
     }
   }
-}
 
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {

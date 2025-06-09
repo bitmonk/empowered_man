@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/push_notification/firebase_notification_service.dart';
+import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_bindings.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_screen.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_bindings.dart';
@@ -59,6 +60,8 @@ class _MainScreenState extends State<MainScreen>
     ReflectionJournalChatInitializer.initialize();
     GoalsOverviewInitializer.initialize();
     PushNotificationInitializer.initialize();
+    AudioPlayerInitializer.initialize();
+
     initController();
   }
 
@@ -79,6 +82,7 @@ class _MainScreenState extends State<MainScreen>
     ReflectionJournalChatInitializer.destroy();
     GoalsOverviewInitializer.destroy();
     PushNotificationInitializer.destroy();
+    AudioPlayerInitializer.destroy();
 
     super.dispose();
   }

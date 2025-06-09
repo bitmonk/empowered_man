@@ -118,8 +118,7 @@ class HomeHeaderWidgets extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           minHeight: 8,
           color: AppColors.colorF5CA41,
-          value: int.parse(userProgressbarPoints) /
-              int.parse(totalPointsProgressBar),
+          value: _calculateProgressValue(),
         ),
         const VerticalSpacing(4),
         Row(
@@ -138,5 +137,13 @@ class HomeHeaderWidgets extends StatelessWidget {
         const VerticalSpacing(16),
       ],
     );
+  }
+
+  double _calculateProgressValue() {
+    final points = int.tryParse(userProgressbarPoints) ?? 0;
+    final total = int.tryParse(totalPointsProgressBar) ?? 100;
+    
+    if (total == 0) return 0;
+    return points / total;
   }
 }
