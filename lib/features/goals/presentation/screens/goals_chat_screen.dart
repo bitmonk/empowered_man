@@ -1,9 +1,9 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_chat_controller.dart';
+import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_bubble_container.dart';
 import 'package:empowered/features/goals/presentation/screens/widgets/goals_chat_input_field.dart';
 import 'package:empowered/features/journal_chat/data/model/message_item.dart';
-import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
 import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
 
 class GoalsChatScreen extends StatefulWidget {
@@ -68,6 +68,10 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
       backgroundColor: Theme.of(context).scaffoldBackgroundColor,
       appBar: CustomAppBar(
         title: widget.title ?? controller.title.value,
+        onTap: () {
+          Get.back();
+          Get.find<GoalsController>().getGoals();
+        },
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -140,7 +144,7 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
                                           ScrollViewKeyboardDismissBehavior
                                               .onDrag,
                                       padding: const EdgeInsets.symmetric(
-                                          horizontal: 16),
+                                          horizontal: 16,),
                                       itemCount: items.length,
                                       itemBuilder: (context, index) {
                                         final chat = items[index];
@@ -254,7 +258,6 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
                           controller.goalsChatModel.value.data?.userGoal;
                       final isChatCompleted = _isChatCompleted();
 
-
                       if (controller.isEditMode.value ||
                           (!isChatCompleted &&
                               !controller.showBeginJournallButton.value)) {
@@ -276,10 +279,9 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
                               ? () => controller.resetEditMode()
                               : null,
                         );
-                      }
-                      else if (!_isChatCompleted())
+                      } else if (!_isChatCompleted()) {
                         return const SizedBox.shrink();
-                      else 
+                      } else {
                         return Padding(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 40,
@@ -316,9 +318,10 @@ class _GoalsChatScreenState extends State<GoalsChatScreen>
                             ),
                           ),
                         );
+                      }
 
                       // Don't show anything if chat is completed and not in edit mode
-                     // return const SizedBox.shrink();
+                      // return const SizedBox.shrink();
                     }),
                   ],
                 ),

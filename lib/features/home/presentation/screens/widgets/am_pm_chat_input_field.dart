@@ -74,15 +74,11 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     final wasEditing = _isInitialized && chatController.isEditMode.value;
     final isNowEditing = chatController.isEditMode.value;
 
-    print(
-      'Controller change - wasEditing: $wasEditing, isNowEditing: $isNowEditing',
-    );
+  
 
     if (isNowEditing && !_isInitialized) {
-      print('Entering edit mode - initializing...');
       _initializeEditMode();
     } else if (!isNowEditing && _isInitialized) {
-      print('Exiting edit mode - cleaning up...');
       _cleanupEditMode();
     }
 
@@ -100,26 +96,19 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
     if (_isInitialized) return;
 
     final textToEdit = chatController.chatController.text;
-    print('Initializing edit mode with text: "$textToEdit"');
 
     if (textToEdit.isNotEmpty) {
-      // Convert HTML/text to QuillDelta
       final delta = _convertHtmlToQuillDelta(textToEdit);
 
-      // Create new document with the delta
       final newDocument = quill.Document.fromDelta(delta);
 
-      // Update controller
       _controller.document = newDocument;
 
-      // Move cursor to end after a short delay
       Future.delayed(const Duration(milliseconds: 100), () {
         if (mounted && _isInitialized) {
           _controller.moveCursorToEnd();
           _focusNode.requestFocus();
-          print(
-            'Cursor moved to end, text: "${_controller.document.toPlainText()}"',
-          );
+         
         }
       });
     }
@@ -137,7 +126,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   }
 
   quill.Delta _convertHtmlToQuillDelta(String html) {
-    print('Converting HTML to Delta: "$html"');
 
     final delta = quill.Delta();
 
@@ -153,7 +141,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       if (!html.endsWith('\n')) {
         delta.insert('\n');
       }
-      print('Plain text delta created');
       return delta;
     }
 
@@ -250,7 +237,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
       delta.insert('\n');
     }
 
-    print('HTML delta created with ${delta.operations.length} operations');
     return delta;
   }
 
@@ -293,7 +279,6 @@ class _AmPmChatInputFieldState extends State<AmPmChatInputField> {
   }
 
   void sendMessageWithFormatting() {
-    print('Sending message - isDisabled: ${widget.isDisabled}');
     if (widget.isDisabled) return;
 
     final htmlContent = getFormattedHtml();

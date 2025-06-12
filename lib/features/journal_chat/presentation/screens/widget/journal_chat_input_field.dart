@@ -93,7 +93,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
     if (_isInitialized) return;
 
     final textToEdit = chatController.chatController.text;
-    print('Initializing edit mode with text: "$textToEdit"');
 
     if (textToEdit.isNotEmpty) {
       // Convert HTML/text to QuillDelta
@@ -110,9 +109,7 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
         if (mounted && _isInitialized) {
           _controller.moveCursorToEnd();
           _focusNode.requestFocus();
-          print(
-            'Cursor moved to end, text: "${_controller.document.toPlainText()}"',
-          );
+       
         }
       });
     }
@@ -130,7 +127,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
   }
 
   quill.Delta _convertHtmlToQuillDelta(String html) {
-    print('Converting HTML to Delta: "$html"');
 
     final delta = quill.Delta();
 
@@ -146,7 +142,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
       if (!html.endsWith('\n')) {
         delta.insert('\n');
       }
-      print('Plain text delta created');
       return delta;
     }
 
@@ -243,7 +238,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
       delta.insert('\n');
     }
 
-    print('HTML delta created with ${delta.operations.length} operations');
     return delta;
   }
 
@@ -286,7 +280,6 @@ class _JournalChatInputFieldState extends State<JournalChatInputField> {
   }
 
   void sendMessageWithFormatting() {
-    print('Sending message - isDisabled: ${widget.isDisabled}');
     if (widget.isDisabled) return;
 
     final htmlContent = getFormattedHtml();

@@ -167,14 +167,22 @@ class AppOutlinedButton extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           if (leading != null) leading!,
-                          Text(
-                            text,
-                            style: textStyle ??
-                                TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
-                                  color: textColor,
-                                ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Text(
+                                text,
+                                style: textStyle ??
+                                    TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                      color: textColor,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.center,
+                              ),
+                            ),
                           ),
                         ],
                       ),

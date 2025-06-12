@@ -4,9 +4,9 @@ import 'package:pdf/widgets.dart' as pw;
 
 class JournalPdf {
   pw.Document buildPdf(List<SeeUserJournal> userJournals) {
-    final pdf = pw.Document();
+    final pdf = pw.Document()
 
-    pdf.addPage(
+    ..addPage(
       pw.Page(
         build: (pw.Context context) => pw.Column(
           mainAxisAlignment: pw.MainAxisAlignment.center,

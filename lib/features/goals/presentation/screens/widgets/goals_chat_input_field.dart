@@ -32,7 +32,6 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
   late quill.QuillController _quillController;
   bool showEditor = true;
   bool _contentChanged = false;
-  bool _isComposing = false;
   bool _isInitialized = false;
 
   @override
@@ -256,7 +255,6 @@ class _GoalsChatInputFieldState extends State<GoalsChatInputField> {
   }
 
   quill.Delta _convertHtmlToQuillDelta(String html) {
-    print('Converting HTML to Delta: "$html"');
 
     final delta = quill.Delta();
 

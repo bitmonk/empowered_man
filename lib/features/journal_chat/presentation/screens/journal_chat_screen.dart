@@ -39,8 +39,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
   void _initializeController() {
     controller.chatController.clear();
-    controller.resetEditMode();
-    controller.getJournalWithQuestionsAndAnswers();
+    controller..resetEditMode()
+    ..getJournalWithQuestionsAndAnswers();
   }
 
   void _onFocusChange() {

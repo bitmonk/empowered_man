@@ -16,9 +16,7 @@ class _JournalSummaryDialogState extends State<JournalSummaryDialog> {
   @override
   void initState() {
     super.initState();
-    print(
-      'Journal Summary Dialog initialized with user journal: >>>>>>>>>>>>${widget.userJournal}',
-    );
+   
   }
 
   final PageController _pageController = PageController();

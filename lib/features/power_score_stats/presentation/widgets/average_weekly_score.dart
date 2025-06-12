@@ -229,9 +229,9 @@ class BarValuePainter extends CustomPainter {
           final textPainter = TextPainter(
             text: textSpan,
             textDirection: TextDirection.ltr,
-          );
+          )
 
-          textPainter.layout();
+          ..layout();
 
           // Center the text horizontally and vertically within the segment
           final textX = barX + (barWidth - textPainter.width) / 2;

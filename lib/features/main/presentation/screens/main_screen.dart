@@ -308,17 +308,17 @@ class ChatIconClipper extends CustomClipper<Path> {
     var width = size.width;
     var height = size.height;
 
-    path.moveTo(0, height); // Start at bottom-left
+    path..moveTo(0, height) // Start at bottom-left
 
     // Create an outward semi-circle curve
-    path.quadraticBezierTo(
+    ..quadraticBezierTo(
       width * 0.5,
       -height * 0.5, // Control point (higher up for outward effect)
       width, height, // End at bottom-right
-    );
+    )
 
-    path.lineTo(width, height); // Close the path
-    path.lineTo(0, height); // Close the path
+    ..lineTo(width, height) // Close the path
+    ..lineTo(0, height); // Close the path
 
     return path;
   }

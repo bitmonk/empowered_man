@@ -29,22 +29,39 @@ class ChatList extends StatelessWidget {
         contentPadding: const EdgeInsets.symmetric(vertical: 5, horizontal: 16),
         title: Row(
           children: [
-            Text(
-              convo.userName == '' ? 'N/A' : convo.userName ?? '',
-              style: AppTextStyles.textBodyB1.copyWith(),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(5),
-              child: Container(
-                decoration: BoxDecoration(
-                  color: convo.isOnline ? AppColors.appGreen : null,
-                  borderRadius: BorderRadius.circular(50),
-                ),
-                height: 5,
-                width: 5,
+            Expanded(
+              child: Row(
+                children: [
+                  Flexible(
+                    flex: 3,
+                    child: Text(
+                      convo.userName == '' ? 'N/A' : convo.userName ?? '',
+                      style: AppTextStyles.textBodyB1.copyWith(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  if (convo.isOnline)
+                    Padding(
+                      padding: const EdgeInsets.all(5),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: convo.isOnline && !isSquad
+                              ? AppColors.appGreen
+                              : null,
+                          borderRadius: BorderRadius.circular(50),
+                        ),
+                        height: 5,
+                        width: 5,
+                      ),
+                    ),
+                ],
               ),
             ),
-            if (convo.lastChattedTime != null) const Spacer(),
+            const SizedBox(
+              width: 2,
+            ),
+            //  if (convo.lastChattedTime != null) const Spacer(),
             if (convo.lastChattedTime != null)
               Text(
                 convo.lastChattedTime!.timeAgo(),
@@ -98,7 +115,6 @@ class ChatList extends StatelessWidget {
         fit: BoxFit.cover,
       );
     }
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${convo.avatarUrl}");
 
     // For individual chats, try to load user's avatar
     if (convo.avatarUrl != null && convo.avatarUrl!.isNotEmpty) {

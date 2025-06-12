@@ -42,8 +42,9 @@ class _CustomizeChatState extends State<CustomizeChat> {
 
   @override
   void dispose() {
-    scrollController.removeListener(_onScroll);
-    scrollController.dispose();
+    scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
     titleController.dispose();
     descriptionController.dispose();
     super.dispose();
@@ -78,8 +79,7 @@ class _CustomizeChatState extends State<CustomizeChat> {
     final bottomPadding = isKeyboardVisible
         ? keyboardHeight
         : keyboardHeight + mediaQuery.viewPadding.bottom;
-    print(
-        '??????????????????????????????????????????????${chatController.agoraUserList}');
+
     return Obx(
       () => Padding(
         padding: EdgeInsets.only(bottom: bottomPadding),
@@ -113,7 +113,7 @@ class _CustomizeChatState extends State<CustomizeChat> {
               ),
               const VerticalSpacing(12),
               const GreyDivider(),
-              const VerticalSpacing(24),
+              const VerticalSpacing(12),
 
               // Everything else wrapped in Flexible + SingleChildScrollView for scrolling
               Flexible(
@@ -121,6 +121,8 @@ class _CustomizeChatState extends State<CustomizeChat> {
                   controller: scrollController,
                   child: Column(
                     children: [
+                      const VerticalSpacing(12),
+
                       AppTextFormField(
                         labelText: 'Title',
                         controller: titleController,
@@ -168,7 +170,7 @@ class _CustomizeChatState extends State<CustomizeChat> {
                           child: ListView.builder(
                             // Remove controller: scrollController,
                             shrinkWrap: true,
-                            physics: NeverScrollableScrollPhysics(),
+                            physics: const NeverScrollableScrollPhysics(),
                             itemCount: chatController.groupMembers.length +
                                 (chatController.hasMoreGroupMembers ? 1 : 0),
                             itemBuilder: (context, i) {

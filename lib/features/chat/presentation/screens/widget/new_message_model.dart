@@ -17,6 +17,9 @@ class _NewMessageModalState extends State<NewMessageModal> {
   TextEditingController groupDescpCont = TextEditingController();
   TextEditingController searchUserController = TextEditingController();
 
+  bool showChatInput = false;
+  bool showGroupForm = false;
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -129,10 +132,15 @@ class _NewMessageModalState extends State<NewMessageModal> {
                                         } else {
                                           controller.selectedUsers.add(user);
                                         }
+                                        // Reset the UI state when user selection changes
+                                        setState(() {
+                                          showChatInput = false;
+                                          showGroupForm = false;
+                                        });
                                       },
                                       contentPadding:
                                           const EdgeInsets.symmetric(
-                                              vertical: 8),
+                                              vertical: 8,),
                                       leading: ClipOval(
                                         child: Assets.images.profilePic.image(
                                           width: 40,
@@ -166,6 +174,11 @@ class _NewMessageModalState extends State<NewMessageModal> {
                                           } else {
                                             controller.selectedUsers.add(user);
                                           }
+                                          // Reset the UI state when user selection changes
+                                          setState(() {
+                                            showChatInput = false;
+                                            showGroupForm = false;
+                                          });
                                         },
                                         side: const BorderSide(
                                           color: AppColors.textColor50,
@@ -176,16 +189,78 @@ class _NewMessageModalState extends State<NewMessageModal> {
                                   },
                                 ),
                               ),
-                            if (controller.selectedUsers.isNotEmpty)
-                              const ChatInputField(isNewMessage: true),
-                            if (controller.selectedUsers.length > 1 &&
-                                (Get.find<ProfileController>()
-                                        .userProfile
-                                        .value
-                                        .isCoach ??
-                                    false))
+
+                            // Show buttons when users are selected but no option is chosen
+                            if (controller.selectedUsers.isNotEmpty &&
+                                !showChatInput &&
+                                !showGroupForm)
                               Column(
                                 children: [
+                                  const VerticalSpacing(20),
+                                  // Send Separately Button
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: AppOutlinedButton(
+                                      text: 'Send Separately',
+                                      onPressed: () {
+                                        setState(() {
+                                          showChatInput = true;
+                                          showGroupForm = false;
+                                        });
+                                      },
+                                    ),
+                                  ),
+                                  const VerticalSpacing(10),
+                                  // Create Group Button (only show if multiple users selected and user is coach)
+                                  if (controller.selectedUsers.length > 1 &&
+                                      (Get.find<ProfileController>()
+                                              .userProfile
+                                              .value
+                                              .isCoach ??
+                                          false))
+                                    SizedBox(
+                                      width: double.infinity,
+                                      child: AppOutlinedButton(
+                                        text: 'Create Group',
+                                        onPressed: () {
+                                          setState(() {
+                                            showChatInput = false;
+                                            showGroupForm = true;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                ],
+                              ),
+
+                            // Show Chat Input Field when "Send Separately" is selected
+                            if (showChatInput)
+                              Column(
+                                children: [
+                                  const VerticalSpacing(10),
+                                  const ChatInputField(isNewMessage: true),
+                                  const VerticalSpacing(10),
+                                  // Back button to return to button selection
+                                  TextButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        showChatInput = false;
+                                      });
+                                    },
+                                    child: const Text(
+                                      'Back to options',
+                                      style: TextStyle(
+                                          color: AppColors.primary500,),
+                                    ),
+                                  ),
+                                ],
+                              ),
+
+                            // Show Group Form when "Create Group" is selected
+                            if (showGroupForm)
+                              Column(
+                                children: [
+                                  const VerticalSpacing(20),
                                   AppTextFormField(
                                     controller: groupNameCont,
                                     hintText: 'Enter Group Name',
@@ -195,28 +270,63 @@ class _NewMessageModalState extends State<NewMessageModal> {
                                     controller: groupDescpCont,
                                     hintText: 'Group Description',
                                   ),
-                                  const VerticalSpacing(10),
-                                  AppOutlinedButton(
-                                    text: 'Create Group',
-                                    onPressed: () async {
-                                      await Get.find<ChatController>()
-                                          .createGroupAndChat(
-                                        groupName: groupNameCont.text,
-                                        desc: groupDescpCont.text,
-                                        members: controller.selectedUsers
-                                            .map((e) => e.username!)
-                                            .toList(),
-                                      );
-                                      Get.to(
-                                        () => const ChatCoversationScreen(
-                                          isGroupChat: true,
-                                          isSoloChat: false,
+                                  const VerticalSpacing(20),
+                                  Row(
+                                    children: [
+                                      // Back button
+                                      Expanded(
+                                        child: AppOutlinedButton(
+                                          text: 'Back',
+                                          onPressed: () {
+                                            setState(() {
+                                              showGroupForm = false;
+                                            });
+                                          },
                                         ),
-                                      );
-                                    },
+                                      ),
+                                      const HorizontalSpacing(10),
+                                      // Create Group button
+                                      Expanded(
+                                        child: AppOutlinedButton(
+                                          isLoading:
+                                              controller.isCreatingGroup.value,
+                                          text: 'Create Group',
+                                          onPressed: () async {
+                                            await Get.find<ChatController>()
+                                                .createGroupAndChat(
+                                              groupName: groupNameCont.text,
+                                              desc: groupDescpCont.text,
+                                              members: controller.selectedUsers
+                                                  .map((e) => e.username!)
+                                                  .toList(),
+                                            );
+                                            await controller.fetchConversations(
+                                              isInitialLoad: true,
+                                            );
+                                            await controller.fetchGroupChats(
+                                              isInitialLoad: true,
+                                            );
+                                            Navigator.pop(context);
+
+                                            Get.to(
+                                              () => const ChatCoversationScreen(
+                                                isGroupChat: true,
+                                                isSoloChat: false,
+                                              ),
+                                            );
+                                            groupNameCont.clear();
+                                            groupDescpCont.clear();
+                                            controller.selectedUsers.clear();
+                                          },
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ],
                               ),
+                            const VerticalSpacing(
+                              20,
+                            ),
                           ],
                         ),
                       ),

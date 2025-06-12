@@ -12,11 +12,14 @@ class ChatDetails extends StatefulWidget {
 
 class _ChatDetailsState extends State<ChatDetails> {
   bool isExpanded = false; // Track the "See More" state
-  List<String> selectedMembers = [
-    'Liam Cooper',
-    'Emma Johnson',
-    'Sophia Jones',
-  ]; // Initially selected members
+  final controller = Get.find<ChatController>();
+  List<String> members = [];
+  @override
+  void initState() {
+    super.initState();
+    // Fetch the latest member list when the screen opens
+    controller.getMemberList(isInitialLoad: true);
+  }
 
   void openAddMember() {
     showModalBottomSheet(
@@ -25,10 +28,11 @@ class _ChatDetailsState extends State<ChatDetails> {
       useSafeArea: true,
       backgroundColor: Colors.transparent,
       builder: (context) => AddMember(
-        selectedMembers: selectedMembers,
+        selectedMembers: controller.groupMembers,
         onMembersUpdated: (newMembers) {
           setState(() {
-            selectedMembers = newMembers;
+            members = newMembers;
+            // controller.fetchGroupInfo();
           });
         },
         allMembers: [],
@@ -37,7 +41,7 @@ class _ChatDetailsState extends State<ChatDetails> {
     );
   }
 
-  final controller = Get.find<ChatController>();
+  
 
   @override
   Widget build(BuildContext context) {

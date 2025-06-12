@@ -25,7 +25,7 @@ class ProgressGoalWidget extends StatefulWidget {
 
 class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
   late GoalsController goalsController;
-  
+
   bool _isTrackButtonLoading = false;
   bool _isWonButtonLoading = false;
   Set<int> _loadingTargetIndices = <int>{};
@@ -302,40 +302,40 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
           // Progress section - wrap only this section in Obx for progress updates
           Obx(() => Row(
-            children: [
-              const Text(
-                'Targets',
-                style: TextStyle(
-                  fontSize: 28,
-                  color: AppColors.textColor50,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const Spacer(),
-              SizedBox(
-                width: 120.w,
-                child: LinearProgressIndicator(
-                  borderRadius: BorderRadius.circular(20),
-                  minHeight: 8,
-                  color: AppColors.colorF5CA41,
-                  value: _getProgressValue(),
-                ),
-              ),
-              const HorizontalSpacing(8),
-              Text(
-                _getProgressString(),
-                style: AppTextStyles.textBodyB3,
-              ),
-            ],
-          )),
+                children: [
+                  const Text(
+                    'Targets',
+                    style: TextStyle(
+                      fontSize: 28,
+                      color: AppColors.textColor50,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const Spacer(),
+                  SizedBox(
+                    width: 120.w,
+                    child: LinearProgressIndicator(
+                      borderRadius: BorderRadius.circular(20),
+                      minHeight: 8,
+                      color: AppColors.colorF5CA41,
+                      value: _getProgressValue(),
+                    ),
+                  ),
+                  const HorizontalSpacing(8),
+                  Text(
+                    _getProgressString(),
+                    style: AppTextStyles.textBodyB3,
+                  ),
+                ],
+              )),
 
           VerticalSpacing(showButtons ? 8 : 4),
 
           // Goals list section - wrap only this in Obx for target updates
           Obx(() => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: _buildUserGoalsList(),
-          )),
+                mainAxisSize: MainAxisSize.min,
+                children: _buildUserGoalsList(),
+              )),
 
           if (showButtons) const VerticalSpacing(16),
 
@@ -349,8 +349,8 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   Expanded(
                     child: _buildActionButton(
                       onTap: () => selectTrack(true),
-                      isLoading: shouldShowWonQuestion 
-                          ? _isWonButtonLoading 
+                      isLoading: shouldShowWonQuestion
+                          ? _isWonButtonLoading
                           : _isTrackButtonLoading,
                       icon: Icons.check,
                       text: shouldShowWonQuestion ? 'Won' : 'On Track',
@@ -376,25 +376,25 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
           // Error messages - wrap in Obx only for error updates
           Obx(() => Column(
-            children: [
-              if (goalsController.markOnTrackError.value != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    goalsController.markOnTrackError.value!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-              if (goalsController.completeGoalError.value != null)
-                Padding(
-                  padding: const EdgeInsets.only(top: 8),
-                  child: Text(
-                    goalsController.completeGoalError.value!,
-                    style: const TextStyle(color: Colors.red),
-                  ),
-                ),
-            ],
-          )),
+                children: [
+                  if (goalsController.markOnTrackError.value != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        goalsController.markOnTrackError.value!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                  if (goalsController.completeGoalError.value != null)
+                    Padding(
+                      padding: const EdgeInsets.only(top: 8),
+                      child: Text(
+                        goalsController.completeGoalError.value!,
+                        style: const TextStyle(color: Colors.red),
+                      ),
+                    ),
+                ],
+              )),
         ],
       ),
     );
@@ -474,6 +474,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                   selectedItem: goalAnswer.achieved ?? false,
                   title: goalAnswer.text ??
                       '${widget.selectedTent} Target ${index + 1}',
+                  textAlign: TextAlign.start,
                 ),
                 if (isLoading)
                   Positioned.fill(

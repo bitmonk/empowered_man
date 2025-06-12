@@ -155,7 +155,7 @@ class _GoalsScreenState extends State<GoalsScreen> {
                                 timePeriod,
                               );
 
-                              if ( isCompleted) {
+                              if (isCompleted) {
                                 return ProgressGoalWidget(
                                   selectedTent: controller.selectedGoalTitle,
                                   title: '${timePeriod.capitalizeFirst!} Tasks',

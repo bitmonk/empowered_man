@@ -34,7 +34,7 @@ class GoalsOverviewController extends GetxController {
   }
 
   Map<String, bool> getMonthlyGoalsForSpecificMonth(
-      int quarter, int monthIndex) {
+      int quarter, int monthIndex,) {
     if (goalOverview.value == null) return {};
 
     final quarterData = switch (quarter) {

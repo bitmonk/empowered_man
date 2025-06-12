@@ -27,8 +27,8 @@ class _AmPmJournalScreenState extends State<AmPmJournalScreen> {
     focusNode = FocusNode();
     super.initState();
     controller.chatController.clear();
-    controller.resetEditMode();
-    controller.getReflectionWithQuestionAnswers(widget.reflectionType ?? '');
+    controller..resetEditMode()
+    ..getReflectionWithQuestionAnswers(widget.reflectionType ?? '');
     focusNode.addListener(_onFocusChange);
     ReflectionEmotionNameInitializer.destroy();
     ReflectionEmotionNameInitializer.initialize();

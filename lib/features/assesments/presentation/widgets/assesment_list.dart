@@ -114,8 +114,8 @@ class _AssessmentListScreenState extends State<AssessmentListScreen> {
 
                   // Growth section
                   if (!isGrowthEmpty) {
-                    listItems.add(_buildSectionTitle('The Growth Assessments'));
-                    listItems.addAll(
+                    listItems..add(_buildSectionTitle('The Growth Assessments'))
+                    ..addAll(
                       model.data!.assessments!.growth!.map(
                         (growth) => AssessmentCard(
                           title: growth.name ?? 'Untitled',
@@ -129,14 +129,14 @@ class _AssessmentListScreenState extends State<AssessmentListScreen> {
                           totalScore: growth.totalScore.toString(),
                         ),
                       ),
-                    );
-                    listItems.add(const SizedBox(height: 16));
+                    )
+                    ..add(const SizedBox(height: 16));
                   }
 
                   // Wealth section
                   if (!isWealthEmpty) {
-                    listItems.add(_buildSectionTitle('The Wealth Assessments'));
-                    listItems.addAll(
+                    listItems..add(_buildSectionTitle('The Wealth Assessments'))
+                    ..addAll(
                       model.data!.assessments!.wealth!.map(
                         (wealth) => AssessmentCard(
                           title: wealth.name ?? 'Untitled',

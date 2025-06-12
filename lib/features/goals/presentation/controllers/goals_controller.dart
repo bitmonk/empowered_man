@@ -46,7 +46,7 @@ class GoalsController extends GetxController {
   void resetValue() {
     fromDate.value = _getMonday(DateTime.now());
     toDate = fromDate.value.add(const Duration(days: 6)).obs;
-    selectedGoalIndex.value = 0;
+   // selectedGoalIndex.value = 0;
     getGoals();
   }
 
@@ -415,7 +415,7 @@ class GoalsController extends GetxController {
   }
 
   void changeWeek(int weekOffset) {
-    print('>>>>>>>>>>>>>>>>>>>>>>>>');
+   
     fromDate.value = fromDate.value.add(Duration(days: 7 * weekOffset));
     toDate.value = fromDate.value.add(const Duration(days: 6));
     getGoalsError.value = null;

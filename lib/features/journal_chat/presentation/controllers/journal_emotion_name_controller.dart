@@ -236,7 +236,6 @@ class JournalEmotionNameController extends GetxController {
       },
       (r) {
         userJournalResponse.value = r;
-        print('????????????????????????????$userJournalResponse');
         seeBulkJournalState.value = TheStates.success;
 
         // Access emotions like this:

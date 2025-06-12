@@ -2,9 +2,10 @@ import 'package:empowered/core/extension/extensions.dart';
 
 class AppSelectedButton extends StatelessWidget {
   const AppSelectedButton(
-      {required this.selectedItem, required this.title, super.key,});
+      {required this.selectedItem, required this.title,this.textAlign, super.key,});
   final bool selectedItem;
   final String title;
+  final TextAlign? textAlign;
 
   @override
   Widget build(BuildContext context) {
@@ -44,11 +45,16 @@ class AppSelectedButton extends StatelessWidget {
                 ),
               ),
             const HorizontalSpacing(14),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                color: AppColors.textColor200,
+            Expanded(
+              child: Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 16,
+                  color: AppColors.textColor200,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: textAlign ?? TextAlign.center,
               ),
             ),
           ],

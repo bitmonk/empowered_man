@@ -16,22 +16,24 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
 
     return WillPopScope(
       onWillPop: () async {
-        if (showDone) {
-          Get.offAllNamed(AppRoutes.gettingStartedScreen);
-        } else {
-          Navigator.pop(context);
-        }
+        // if (showDone) {
+        //   Get.offAllNamed(AppRoutes.gettingStartedScreen);
+        // } else {
+        //   Navigator.pop(context);
+        // }
+        Navigator.pop(context);
         return true;
       },
       child: AppScaffold(
         appBar: CustomAppBar(
           title: 'Notification',
           onTap: () {
-            if (showDone) {
-              Get.offAllNamed(AppRoutes.gettingStartedScreen);
-            } else {
-              Navigator.pop(context);
-            }
+            // if (showDone) {
+            //   Get.offAllNamed(AppRoutes.gettingStartedScreen);
+            // } else {
+            //   Navigator.pop(context);
+            // }
+            Navigator.pop(context);
           },
         ),
         body: Obx(
@@ -58,12 +60,13 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
                       [];
 
                   if (notifications.isEmpty) {
-                    return const Center(
+                    return  Center(
                       child: Padding(
-                        padding: EdgeInsets.all(24),
+                        padding: const EdgeInsets.all(24),
                         child: Text(
                           'No notifications yet',
-                          style: AppTextStyles.bodyLGMedium,
+                          style: AppTextStyles.bodyLGMedium.copyWith(
+                            color: AppColors.colorWhite,),
                         ),
                       ),
                     );

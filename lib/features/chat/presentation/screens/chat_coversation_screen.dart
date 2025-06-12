@@ -161,6 +161,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                     ? const Center(
                                         child: Text(
                                           'Loading more messages...',
+                                          style: TextStyle(
+                                              color: AppColors.baseWhite),
                                         ),
                                       )
                                     : const SizedBox.shrink(),
@@ -186,7 +188,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                       .containsKey(chat.msgId),
                                   onLike: () {
                                     print(
-                                        '🐛 onLike callback triggered for message: ${chat.msgId}');
+                                      '🐛 onLike callback triggered for message: ${chat.msgId}',
+                                    );
 
                                     if (controller.reactionMap
                                         .containsKey(chat.msgId)) {
@@ -200,7 +203,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                   },
                                   onEdit: () {
                                     print(
-                                        '🐛 onEdit callback triggered for message: ${chat.msgId}');
+                                      '🐛 onEdit callback triggered for message: ${chat.msgId}',
+                                    );
 
                                     controller.messageToEdit.value = chat;
                                   },
@@ -336,7 +340,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                   id: messageId,
                   isMine: isMine,
                 )
-              : const Text('Video too large. Please select a video under 10MB.');
+              : const Text(
+                  'Video too large. Please select a video under 10MB.');
 
         default:
           wid = const SizedBox.shrink();
@@ -436,7 +441,7 @@ class _MessageTypeAudioState extends State<MessageTypeAudio> {
 
   String _formatDuration(Duration d) {
     final ms = d.inMilliseconds;
-    if (ms < 0) return "0:00";
+    if (ms < 0) return '0:00';
     final m = d.inMinutes;
     final s = d.inSeconds % 60;
     return '$m:${s.toString().padLeft(2, '0')}';
@@ -468,8 +473,10 @@ class _MessageTypeAudioState extends State<MessageTypeAudio> {
               if (isCurrent && _isPlaying) {
                 await controller.stopAudio();
               } else {
-                await controller.playVoiceMessage(widget.url,
-                    audioId: widget.id);
+                await controller.playVoiceMessage(
+                  widget.url,
+                  audioId: widget.id,
+                );
               }
             },
           ),
@@ -500,7 +507,7 @@ class _MessageTypeAudioState extends State<MessageTypeAudio> {
           ),
           const SizedBox(width: 8),
           Text(
-            "${_formatDuration(isCurrent ? _position : Duration.zero)} / ${_formatDuration(_duration)}",
+            '${_formatDuration(isCurrent ? _position : Duration.zero)} / ${_formatDuration(_duration)}',
             style: const TextStyle(fontSize: 12, color: Colors.white),
           ),
         ],
@@ -630,6 +637,7 @@ class MessaageTypeText extends StatefulWidget {
 }
 
 class _MessaageTypeTextState extends State<MessaageTypeText> {
+  String get htmlText => widget.text.replaceAll('\n', '<br>');
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -652,7 +660,7 @@ class _MessaageTypeTextState extends State<MessaageTypeText> {
         children: [
           HtmlWidget(
             //  shrinkWrap: true,
-            widget.text,
+            htmlText,
             textStyle: AppTextStyles.textBodyB2,
           ),
         ],

@@ -20,22 +20,53 @@ class _AddMemberState extends State<AddMember> {
   final chatController = Get.find<ChatController>();
   late List<String> selectedMembers;
   late List<String> newMembersToAdd;
-  
+  TextEditingController searchUserController = TextEditingController();
+
   @override
   void initState() {
     super.initState();
     selectedMembers = List.from(widget.selectedMembers);
     newMembersToAdd = [];
+
+    // Clear previous search results and controller
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      searchUserController.clear();
+      // Clear existing results first
+      chatController.agoraUserList.clear();
+      chatController.searchUserAndChat(query: '');
+    });
   }
 
-  void toggleMember(String member) {
+  @override
+  void dispose() {
+    // Clear search when leaving the screen
+    searchUserController.dispose();
+    super.dispose();
+  }
+
+  void toggleMember(dynamic user) {
     setState(() {
-      if (newMembersToAdd.contains(member)) {
-        newMembersToAdd.remove(member);
+      // Check if user is already in newMembersToAdd by username
+      final username = user.username ?? user.toString();
+      final existingIndex =
+          newMembersToAdd.indexWhere((member) => member == username);
+
+      if (existingIndex != -1) {
+        newMembersToAdd.removeAt(existingIndex);
       } else {
-        newMembersToAdd.add(member);
+        newMembersToAdd.add(username);
       }
     });
+  }
+
+  bool isUserSelected(dynamic user) {
+    final username = user.username ?? user.toString();
+    return newMembersToAdd.contains(username);
+  }
+
+  bool isUserAlreadyInGroup(dynamic user) {
+    final username = user.username ?? user.toString();
+    return selectedMembers.contains(username);
   }
 
   Future<void> addMembersToGroup() async {
@@ -47,16 +78,16 @@ class _AddMemberState extends State<AddMember> {
     try {
       // Use Agora's addUsersToGroup method
       await chatController.addMembersToGroup(members: newMembersToAdd);
-      
+
       // Update the local state
       final updatedMembers = [...selectedMembers, ...newMembersToAdd];
       widget.onMembersUpdated(updatedMembers);
-      
+
       // Refresh the member list in the parent
       await chatController.getMemberList(isInitialLoad: true);
-      
+
       Navigator.pop(context);
-      
+
       AppUtils.showSnackbar(
         message: '${newMembersToAdd.length} member(s) added successfully!',
       );
@@ -69,11 +100,6 @@ class _AddMemberState extends State<AddMember> {
 
   @override
   Widget build(BuildContext context) {
-    // Filter out members who are already in the group
-    final availableMembers = widget.allMembers
-        .where((member) => !selectedMembers.contains(member))
-        .toList();
-
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: const BoxDecoration(
@@ -150,168 +176,159 @@ class _AddMemberState extends State<AddMember> {
             const VerticalSpacing(12),
           ],
 
-          // Add new members section
-          if (availableMembers.isNotEmpty) ...[
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Add New Members',
-                style: AppTextStyles.textBodyB3,
-              ),
-            ),
-            const VerticalSpacing(16),
+          Expanded(
+            child: SingleChildScrollView(
+              controller: chatController.chatScreenScrollController,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  AppTextFormField(
+                    controller: searchUserController,
+                    hintText: 'Enter name to search...',
+                    onChanged: (v) {
+                      chatController.searchUserAndChat(query: v);
+                    },
+                  ),
+                  const VerticalSpacing(10),
+                  const Divider(color: Color(0xff1B3144)),
 
-            // Show selected members to add
-            if (newMembersToAdd.isNotEmpty) ...[
-              Container(
-                padding: const EdgeInsets.all(12),
-                decoration: BoxDecoration(
-                  color: AppColors.primary500.withOpacity(0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: AppColors.primary500.withOpacity(0.3)),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Selected to Add (${newMembersToAdd.length})',
-                      style: AppTextStyles.textBodyB3.copyWith(
-                        color: AppColors.primary500,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                    const VerticalSpacing(8),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 4,
-                      children: newMembersToAdd.map((member) {
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary500,
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Text(
-                                member,
-                                style: AppTextStyles.textBodyB3.copyWith(
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const HorizontalSpacing(4),
-                              GestureDetector(
-                                onTap: () => toggleMember(member),
-                                child: const Icon(
-                                  Icons.close,
-                                  size: 16,
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
-                ),
-              ),
-              const VerticalSpacing(16),
-            ],
-
-            // List of available members to add
-            Expanded(
-              child: ListView.builder(
-                itemCount: availableMembers.length,
-                itemBuilder: (context, index) {
-                  final member = availableMembers[index];
-                  final isSelected = newMembersToAdd.contains(member);
-                  
-                  return ListTile(
-                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                    leading: ClipOval(
-                      child: Assets.images.profilePic.image(
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
-                    ),
-                    title: Row(
-                      children: [
-                        Text(
-                          member,
-                          style: AppTextStyles.textBodyB1,
+                  // To: @SelectedUsers - Only show if there are selected users
+                  if (newMembersToAdd.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: RichText(
+                        text: TextSpan(
+                          style: AppTextStyles.textBodyB3
+                              .copyWith(color: Colors.white),
+                          children: [
+                            const TextSpan(text: 'To: @ '),
+                            TextSpan(
+                              text: newMembersToAdd.join(', '),
+                              style: AppTextStyles.textBodyB3.copyWith(),
+                            ),
+                          ],
                         ),
-                        const HorizontalSpacing(4),
-                        if (index < 2) // Show online indicator for first 2 members
-                          const CircleAvatar(
-                            radius: 2.5,
-                            backgroundColor: AppColors.color5CE0A0,
-                          ),
-                      ],
+                      ),
                     ),
-                    trailing: Checkbox(
-                      value: isSelected,
-                      onChanged: (_) => toggleMember(member),
-                      side: const BorderSide(color: AppColors.textColor50),
-                      activeColor: AppColors.primary500,
-                    ),
-                    onTap: () => toggleMember(member),
-                  );
-                },
-              ),
-            ),
-          ] else ...[
-            // No available members to add
-            const Expanded(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.group_add,
-                      size: 64,
-                      color: AppColors.textColor50,
-                    ),
-                    VerticalSpacing(16),
-                    Text(
-                      'No new members available to add',
-                      style: AppTextStyles.textBodyB2,
-                      textAlign: TextAlign.center,
-                    ),
+                    const Divider(color: Color(0xff1B3144)),
                   ],
-                ),
+
+                  // User List
+                  Obx(() {
+                    if (chatController.agoraUserList.isEmpty)
+                      return const CustomErrorWidget(error: 'No user found');
+
+                    return chatController.searchUserState.value.showWidget(
+                      error: () => CustomErrorWidget(
+                        error: chatController.searchUserError.value,
+                      ),
+                      loading: () => const LoadingWidget(),
+                      success: () {
+                        final availableUsers = chatController.agoraUserList
+                            .where((user) => !isUserAlreadyInGroup(user))
+                            .toList();
+                        if (availableUsers.isEmpty) {
+                          return const Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.group_add,
+                                  size: 64,
+                                  color: AppColors.textColor50,
+                                ),
+                                VerticalSpacing(16),
+                                Text(
+                                  'No new members available to add',
+                                  style: AppTextStyles.textBodyB2,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          );
+                        }
+                        return ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: availableUsers.length,
+                          itemBuilder: (context, index) {
+                            final user = availableUsers[index];
+                            final isSelected = isUserSelected(user);
+                            return ListTile(
+                              contentPadding: const EdgeInsets.symmetric(
+                                vertical: 8,
+                              ),
+                              leading: ClipOval(
+                                child: Assets.images.profilePic.image(
+                                  width: 40,
+                                  height: 40,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              title: Row(
+                                children: [
+                                  Text(
+                                    user.nickname ?? user.username ?? '',
+                                    style: AppTextStyles.textBodyB1,
+                                  ),
+                                  const HorizontalSpacing(4),
+                                  if (index < 2)
+                                    const CircleAvatar(
+                                      radius: 2.5,
+                                      backgroundColor: AppColors.color5CE0A0,
+                                    ),
+                                ],
+                              ),
+                              trailing: Checkbox(
+                                value: isSelected,
+                                onChanged: (_) => toggleMember(user),
+                                side: const BorderSide(
+                                    color: AppColors.textColor50),
+                                activeColor: AppColors.primary500,
+                              ),
+                              // Removed onTap to prevent unwanted navigation
+                              onTap: () => toggleMember(user),
+                            );
+                          },
+                        );
+                      },
+                    );
+                  }),
+                  // Action buttons
+
+                  const VerticalSpacing(20),
+                ],
               ),
             ),
-          ],
-
-          // Action buttons
-          if (availableMembers.isNotEmpty) ...[
-            const VerticalSpacing(20),
-            Row(
-              children: [
-                Expanded(
-                  child: AppOutlinedButton.orange(
-                    text: 'Cancel',
-                    onPressed: () => Navigator.pop(context),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              const VerticalSpacing(20),
+              Row(
+                children: [
+                  // Cancel button
+                  Expanded(
+                    child: AppOutlinedButton(
+                      text: 'Cancel',
+                      onPressed: () => Navigator.pop(context),
+                    ),
                   ),
-                ),
-                const HorizontalSpacing(12),
-                Expanded(
-                  child: AppOutlinedButton(
-                    text: newMembersToAdd.isEmpty 
-                        ? 'Done' 
-                        : 'Add ${newMembersToAdd.length} Member${newMembersToAdd.length > 1 ? 's' : ''}',
-                    onPressed: addMembersToGroup,
+                  const HorizontalSpacing(10),
+                  // Add Members button
+                  Expanded(
+                    child: AppOutlinedButton(
+                      text: newMembersToAdd.isEmpty
+                          ? 'Done'
+                          : 'Add ${newMembersToAdd.length} Member${newMembersToAdd.length > 1 ? 's' : ''}',
+                      onPressed: addMembersToGroup,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
+          VerticalSpacing(40),
         ],
       ),
     );

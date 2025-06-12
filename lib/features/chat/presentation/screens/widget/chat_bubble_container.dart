@@ -1,12 +1,8 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
-import 'package:chewie/chewie.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:intl/intl.dart';
-import 'package:photo_view/photo_view.dart';
-import 'package:photo_view/photo_view_gallery.dart';
-import 'package:video_player/video_player.dart';
 
 class ChatBubbleContainer extends StatefulWidget {
   const ChatBubbleContainer({
@@ -43,6 +39,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   @override
   void initState() {
     super.initState();
+
     _setUp();
     isLiked = widget.isLiked;
   }
@@ -108,13 +105,25 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
           GestureDetector(
             onLongPress: _handleLongPress,
             child: Column(
-              crossAxisAlignment:
-                  widget.isMine ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+              crossAxisAlignment: widget.isMine
+                  ? CrossAxisAlignment.end
+                  : CrossAxisAlignment.start,
               children: [
                 // Action Row
+                // Replace your Action Row section with this:
+
+// Action Row
                 if (showActions)
                   Padding(
-                    padding: const EdgeInsets.only(bottom: 4),
+                    padding: EdgeInsets.only(
+                      bottom: 4,
+                      left: widget.isMine
+                          ? 0
+                          : 33, // 25 (avatar width) + 8 (padding) = 33
+                      right: widget.isMine
+                          ? 33
+                          : 0, // 25 (avatar width) + 8 (padding) = 33
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: widget.isMine
@@ -132,26 +141,28 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                             color: isLiked ? Colors.blue : null,
                           ),
                         ),
-                        
                         if (widget.isMine) ...[
-                          const HorizontalSpacing(16),
-                          InkWell(
-                            onTap: () {
-                              controller.chatController.text = _messageText!;
-                              setState(() => showActions = false);
-                              widget.onEdit?.call();
-                            },
-                            child: Assets.images.chatEdit.svg(width: 20),
-                          ),
+                          if (widget.message.body is ChatTextMessageBody) ...[
+                            const HorizontalSpacing(16),
+                            InkWell(
+                              onTap: () {
+                                controller.chatController.text = _messageText!;
+                                setState(() => showActions = false);
+                                widget.onEdit?.call();
+                              },
+                              child: Assets.images.chatEdit.svg(width: 20),
+                            ),
+                          ],
                           const HorizontalSpacing(16),
                           InkWell(
                             onTap: () async {
-                              controller.messageIdToDelete.value = widget.messageId;
+                              controller.messageIdToDelete.value =
+                                  widget.messageId;
                               await controller.deleteMessage();
                               setState(() => showActions = false);
                             },
                             child: Assets.images.deletePop
-                                .image(width: 20, color: AppColors.white),
+                                .image(width: 20, color: AppColors.appRed),
                           ),
                         ],
                       ],
@@ -169,7 +180,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                         padding: const EdgeInsets.only(right: 8),
                         child: ClipOval(
                           child: widget.isMine
-                              ? Assets.images.appIcon.image(height: 25, width: 25)
+                              ? Assets.images.appIcon
+                                  .image(height: 25, width: 25)
                               : Assets.images.chatUserPicTwo
                                   .image(height: 25, width: 25),
                         ),
@@ -197,7 +209,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                               bottom: 20,
                               right: widget.isMine ? 4 : null,
                               left: widget.isMine ? null : 4,
-                              child: Assets.images.chatBubbleLike.image(width: 32),
+                              child:
+                                  Assets.images.chatBubbleLike.image(width: 32),
                             ),
                         ],
                       ),

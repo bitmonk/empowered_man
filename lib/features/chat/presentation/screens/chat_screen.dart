@@ -174,6 +174,7 @@ class ChatScreen extends GetView<ChatController> {
                                           controller.allConversations.length) {
                                         final convo =
                                             controller.allConversations[index];
+
                                         return ChatList(
                                           isSquad: convo.conversation.type ==
                                               ChatConversationType.GroupChat,

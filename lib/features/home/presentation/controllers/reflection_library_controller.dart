@@ -266,7 +266,6 @@ class ReflectionLibraryController extends GetxController {
       },
       (r) {
         userReflectionResponse.value = r;
-        print('????????????????????????????$userReflectionResponse');
         seeBulkReflectionState.value = TheStates.success;
 
         // Access emotions like this:

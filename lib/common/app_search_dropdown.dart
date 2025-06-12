@@ -13,7 +13,7 @@ class AppSearchDropdown extends StatefulWidget {
   final String title;
 
   @override
-  _AppSearchDropdownState createState() => _AppSearchDropdownState();
+  State<AppSearchDropdown> createState() => _AppSearchDropdownState();
 }
 
 class _AppSearchDropdownState extends State<AppSearchDropdown> {

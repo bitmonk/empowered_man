@@ -88,9 +88,17 @@ class GoalsButtons extends StatelessWidget {
                       ),
                       const HorizontalSpacing(4),
                     ],
-                    Text(
-                      '$selectedGoalTitle Tent',
-                      style: AppTextStyles.textBodyB3,
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Text(
+                          '$selectedGoalTitle Tent',
+                          style: AppTextStyles.textBodyB3,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
                     ),
                   ],
                 ),

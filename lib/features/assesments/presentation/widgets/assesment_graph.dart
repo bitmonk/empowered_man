@@ -20,19 +20,15 @@ class AssessmentGraph extends StatelessWidget {
     for (final entry in scoreHistory) {
       if (entry.w1 != null) {
         weekValues[0] = entry.w1!.toDouble();
-        print('Found W1 value: ${entry.w1}');
       }
       if (entry.w2 != null) {
         weekValues[1] = entry.w2!.toDouble();
-        print('Found W2 value: ${entry.w2}');
       }
       if (entry.w3 != null) {
         weekValues[2] = entry.w3!.toDouble();
-        print('Found W3 value: ${entry.w3}');
       }
       if (entry.w4 != null) {
         weekValues[3] = entry.w4!.toDouble();
-        print('Found W4 value: ${entry.w4}');
       }
     }
 

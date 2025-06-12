@@ -223,8 +223,8 @@ class GoalsChatController extends GetxController {
     //   return false;
     // }
 
-    getGoalsChatState.value = TheStates.loading;
-    // showBeginJournallButton.value = false;
+    // getGoalsChatState.value = TheStates.loading;
+     showBeginJournallButton.value = false;
 
     try {
       final result = await remoteSource.getGoalsChat(
