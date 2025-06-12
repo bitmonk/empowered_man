@@ -600,7 +600,7 @@ class ChatController extends GetxController {
       final wrappedGroups = <ChatConversationWrapper>[];
 
       for (final group in joinedGroups) {
-        print(group);
+        print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>${group.toJson()}');
         final conversation =
             await ChatClient.getInstance.chatManager.getConversation(
           group.groupId,
@@ -1195,96 +1195,6 @@ class ChatController extends GetxController {
     }
   }
 
-  // void _addListeners() {
-  //   ChatClient.getInstance.chatManager.addMessageEvent(
-  //     chatListenerId,
-  //     ChatMessageEvent(
-  //       onSuccess: (msgId, msg) {
-  //         final index = messages.indexWhere((m) => m.msgId == msgId);
-  //         if (index != -1) {
-  //           messages[index] = msg;
-  //         } else {
-  //           // If message not found, add it (for sent messages)
-  //           messages.add(msg);
-  //         }
-  //         messages.sort((a, b) => a.serverTime.compareTo(b.serverTime));
-  //         messages.refresh();
-
-  //         fetchConversations(isInitialLoad: true);
-
-  //         WidgetsBinding.instance.addPostFrameCallback((_) {
-  //           scrollToBottom();
-  //         });
-  //       },
-  //       onProgress: (msgId, progress) => print(r'Sending progress: $progress'),
-  //       onError: (msgId, msg, error) =>
-  //           print(r'Message failed: ${error.description}'),
-  //     ),
-  //   );
-
-  //   ChatClient.getInstance.chatManager.addEventHandler(
-  //     chatListenerId,
-  //     ChatEventHandler(
-  //       onMessagesReceived: (msgs) {
-  //         final groupMessages = messages
-  //             .where(
-  //               (msg) =>
-  //                   msg.chatType == ChatType.GroupChat &&
-  //                   msg.to == selectedConversation.value?.id,
-  //             ) // Make sure you're viewing the same group
-  //             .toList();
-
-  //         if (groupMessages.isNotEmpty) {
-  //           messages
-  //             ..addAll(groupMessages)
-  //             ..sort((a, b) => a.serverTime.compareTo(b.serverTime))
-  //             ..refresh();
-  //           WidgetsBinding.instance.addPostFrameCallback((_) {
-  //             scrollToBottom();
-  //           });
-  //         }
-  //         for (final msg in messages) {
-  //           print(
-  //             'Received message from: ${msg.from}, to: ${msg.to}, type: ${msg.chatType}',
-  //           );
-  //         }
-  //       },
-  //     ),
-  //   );
-  //   ChatClient.getInstance.chatManager.addEventHandler(
-  //     chatListenerId,
-  //     ChatEventHandler(
-  //       onMessagesReceived: (msgs) {
-  //         final relevantMessages = msgs.where((msg) {
-  //           return (msg.chatType == ChatType.Chat &&
-  //                   (msg.to == selectedConversation.value?.id ||
-  //                       msg.from == selectedConversation.value?.id)) ||
-  //               (msg.chatType == ChatType.GroupChat &&
-  //                   msg.to == selectedConversation.value?.id);
-  //         }).toList();
-
-  //         if (relevantMessages.isNotEmpty) {
-  //           messages
-  //             ..addAll(relevantMessages)
-  //             ..sort((a, b) => a.serverTime.compareTo(b.serverTime));
-  //           WidgetsBinding.instance.addPostFrameCallback((_) {
-  //             scrollToBottom();
-  //           });
-  //         }
-  //         messages.refresh();
-  //         // Update conversations list when new messages arrive
-  //         fetchConversations(isInitialLoad: true);
-  //       },
-  //       // onConnectionStateChanged: (state) {
-  //       //   print('Connection state changed: $state');
-  //       //   if (state == ConnectionState.Connected) {
-  //       //     // Refresh presence when reconnected
-  //       //     _updatePresenceForAllUsers();
-  //       //   }
-  //       // },
-  //     ),
-  //   );
-  // }
   void _addListeners() {
     // Add message event listener for sent messages
     ChatClient.getInstance.chatManager.addMessageEvent(
@@ -1362,111 +1272,112 @@ class ChatController extends GetxController {
       ),
     );
   }
+
   Future<void> _updateConversationWithMessage(ChatMessage msg) async {
-  try {
-    final convoId = msg.chatType == ChatType.Chat
-        ? (msg.from == currentUserId.value ? msg.to : msg.from)
-        : msg.to;
-    final convoType = msg.chatType == ChatType.Chat
-        ? ChatConversationType.Chat
-        : ChatConversationType.GroupChat;
+    try {
+      final convoId = msg.chatType == ChatType.Chat
+          ? (msg.from == currentUserId.value ? msg.to : msg.from)
+          : msg.to;
+      final convoType = msg.chatType == ChatType.Chat
+          ? ChatConversationType.Chat
+          : ChatConversationType.GroupChat;
 
-    // Get or create conversation
-    var convo = await ChatClient.getInstance.chatManager.getConversation(
-      convoId!,
-      type: convoType,
-    );
-
-    if (convo == null) {
-      print('Conversation not found for $convoId, creating new');
-      convo = await ChatClient.getInstance.chatManager.getConversation(
-        convoId,
+      // Get or create conversation
+      var convo = await ChatClient.getInstance.chatManager.getConversation(
+        convoId!,
         type: convoType,
-        createIfNeed: true,
       );
+
+      if (convo == null) {
+        print('Conversation not found for $convoId, creating new');
+        convo = await ChatClient.getInstance.chatManager.getConversation(
+          convoId,
+          type: convoType,
+          createIfNeed: true,
+        );
+      }
+
+      // Get user or group info
+      ChatUserInfo? userInfo;
+      ChatGroup? group;
+      if (convoType == ChatConversationType.Chat) {
+        final userInfoMap = await ChatClient.getInstance.userInfoManager
+            .fetchUserInfoById([convoId]);
+        userInfo = userInfoMap[convoId];
+      } else {
+        group = await ChatClient.getInstance.groupManager
+            .fetchGroupInfoFromServer(convoId);
+      }
+
+      // Get latest message preview
+      String? latestMessage;
+      final body = msg.body;
+      if (body is ChatTextMessageBody) {
+        latestMessage = body.content;
+      } else if (body is ChatImageMessageBody) {
+        latestMessage = '[Image]';
+      } else if (body is ChatFileMessageBody) {
+        latestMessage = '[File]';
+      } else if (body is ChatVoiceMessageBody) {
+        latestMessage = '[Voice]';
+      } else {
+        latestMessage = '[${body.runtimeType}]';
+      }
+
+      // Get unread count
+      int unreadCount = await convo!.unreadCount();
+      if (msg.from != currentUserId.value) {
+        unreadCount++;
+      }
+
+      // Determine username
+      String userName = '';
+      if (convoType == ChatConversationType.GroupChat) {
+        userName = group?.name ?? 'Unknown Group';
+      } else {
+        userName = userInfo?.nickName?.trim().isNotEmpty == true
+            ? userInfo!.nickName!
+            : userInfo?.userId.trim().isNotEmpty == true
+                ? userInfo!.userId
+                : convoId;
+      }
+
+      // Update or add conversation
+      final existingIndex = allConversations.indexWhere((c) => c.id == convoId);
+      final isOnline = convoType == ChatConversationType.Chat
+          ? userOnlineStatus[convoId] ?? false
+          : true;
+
+      final updatedConvo = ChatConversationWrapper(
+        id: convoId,
+        conversation: convo,
+        userName: userName,
+        avatarUrl: userInfo?.avatarUrl,
+        isOnline: isOnline,
+        latestMessage: latestMessage,
+        lastChattedTime: DateTime.fromMillisecondsSinceEpoch(msg.serverTime),
+        unreadCount: unreadCount,
+      );
+
+      if (existingIndex != -1) {
+        allConversations[existingIndex] = updatedConvo;
+      } else {
+        allConversations.add(updatedConvo);
+      }
+
+      // Sort conversations by last message time
+      allConversations.sort((a, b) {
+        final aTime = a.lastChattedTime?.millisecondsSinceEpoch ?? 0;
+        final bTime = b.lastChattedTime?.millisecondsSinceEpoch ?? 0;
+        return bTime.compareTo(aTime);
+      });
+
+      allConversations.refresh();
+      print('Updated conversation list for $convoId');
+    } catch (e) {
+      print('Error updating conversation: $e');
     }
-
-    // Get user or group info
-    ChatUserInfo? userInfo;
-    ChatGroup? group;
-    if (convoType == ChatConversationType.Chat) {
-      final userInfoMap = await ChatClient.getInstance.userInfoManager
-          .fetchUserInfoById([convoId]);
-      userInfo = userInfoMap[convoId];
-    } else {
-      group = await ChatClient.getInstance.groupManager
-          .fetchGroupInfoFromServer(convoId);
-    }
-
-    // Get latest message preview
-    String? latestMessage;
-    final body = msg.body;
-    if (body is ChatTextMessageBody) {
-      latestMessage = body.content;
-    } else if (body is ChatImageMessageBody) {
-      latestMessage = '[Image]';
-    } else if (body is ChatFileMessageBody) {
-      latestMessage = '[File]';
-    } else if (body is ChatVoiceMessageBody) {
-      latestMessage = '[Voice]';
-    } else {
-      latestMessage = '[${body.runtimeType}]';
-    }
-
-    // Get unread count
-    int unreadCount = await convo!.unreadCount();
-    if (msg.from != currentUserId.value) {
-      unreadCount++;
-    }
-
-    // Determine username
-    String userName = '';
-    if (convoType == ChatConversationType.GroupChat) {
-      userName = group?.name ?? 'Unknown Group';
-    } else {
-      userName = userInfo?.nickName?.trim().isNotEmpty == true
-          ? userInfo!.nickName!
-          : userInfo?.userId.trim().isNotEmpty == true
-              ? userInfo!.userId
-              : convoId;
-    }
-
-    // Update or add conversation
-    final existingIndex = allConversations.indexWhere((c) => c.id == convoId);
-    final isOnline = convoType == ChatConversationType.Chat
-        ? userOnlineStatus[convoId] ?? false
-        : true;
-
-    final updatedConvo = ChatConversationWrapper(
-      id: convoId,
-      conversation: convo,
-      userName: userName,
-      avatarUrl: userInfo?.avatarUrl,
-      isOnline: isOnline,
-      latestMessage: latestMessage,
-      lastChattedTime: DateTime.fromMillisecondsSinceEpoch(msg.serverTime),
-      unreadCount: unreadCount,
-    );
-
-    if (existingIndex != -1) {
-      allConversations[existingIndex] = updatedConvo;
-    } else {
-      allConversations.add(updatedConvo);
-    }
-
-    // Sort conversations by last message time
-    allConversations.sort((a, b) {
-      final aTime = a.lastChattedTime?.millisecondsSinceEpoch ?? 0;
-      final bTime = b.lastChattedTime?.millisecondsSinceEpoch ?? 0;
-      return bTime.compareTo(aTime);
-    });
-
-    allConversations.refresh();
-    print('Updated conversation list for $convoId');
-  } catch (e) {
-    print('Error updating conversation: $e');
   }
-}
 
   Future<void> selectConversation(ChatConversationWrapper convo) async {
     selectedConversation.value = convo;
@@ -1560,43 +1471,5 @@ class ChatController extends GetxController {
   String getCurrentTime() {
     final now = DateTime.now();
     return "${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}";
-  }
-
-  // Add these properties to your ChatController class
-  RxList<String> allAgoraContacts = <String>[].obs;
-  Rx<TheStates> fetchContactsState = TheStates.initial.obs;
-  RxnString fetchContactsError = RxnString();
-
-// Method to fetch all contacts from Agora Chat
-  Future<void> fetchAgoraContacts() async {
-    try {
-      fetchContactsState.value = TheStates.loading;
-
-      // Get all contacts from Agora Chat
-      final contacts =
-          await ChatClient.getInstance.contactManager.fetchAllContactIds();
-
-      allAgoraContacts.assignAll(contacts);
-      fetchContactsState.value = TheStates.success;
-      fetchContactsError.value = null;
-
-      print('✅ Fetched ${contacts.length} contacts from Agora');
-    } on ChatError catch (e) {
-      fetchContactsState.value = TheStates.error;
-      fetchContactsError.value =
-          'Failed to fetch contacts: ${e.code} - ${e.description}';
-      print('❌ Failed to fetch contacts: ${e.code} - ${e.description}');
-    }
-  }
-
-// Method to get available members for adding to group (excluding current group members)
-  List<String> getAvailableMembersForGroup(List<String> currentGroupMembers) {
-    return allAgoraContacts
-        .where(
-          (contact) =>
-              !currentGroupMembers.contains(contact) &&
-              contact != currentUserId.value,
-        )
-        .toList();
   }
 }

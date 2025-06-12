@@ -11,6 +11,7 @@ class ChatConversationWrapper {
     this.latestMessage,
     this.lastChattedTime,
     this.unreadCount = 0,
+    this.createdAt,
   });
   final ChatConversation conversation;
   final String id;
@@ -21,4 +22,5 @@ class ChatConversationWrapper {
   final String? description;
   final DateTime? lastChattedTime;
   final int unreadCount;
+  final DateTime? createdAt;
 }
