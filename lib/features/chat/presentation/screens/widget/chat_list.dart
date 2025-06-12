@@ -11,7 +11,20 @@ class ChatList extends StatelessWidget {
   final bool isSquad;
   final controller = Get.find<ChatController>();
   final ChatConversationWrapper convo;
-
+  final List<Color> _lightColors = [
+    const Color(0xFFE3F2FD), // Light Blue
+    const Color(0xFFF3E5F5), // Light Purple
+    const Color(0xFFE8F5E8), // Light Green
+    const Color(0xFFFFF3E0), // Light Orange
+    const Color(0xFFFCE4EC), // Light Pink
+    const Color(0xFFE0F2F1), // Light Teal
+    const Color(0xFFF1F8E9), // Light Lime
+    const Color(0xFFEDE7F6), // Light Deep Purple
+    const Color(0xFFE8EAF6), // Light Indigo
+    const Color(0xFFE1F5FE), // Light Cyan
+    const Color(0xFFF9FBE7), // Light Yellow Green
+    const Color(0xFFFFF8E1), // Light Amber
+  ];
   @override
   Widget build(BuildContext context) {
     return InkWell(
@@ -109,11 +122,7 @@ class ChatList extends StatelessWidget {
   Widget _buildProfileImage() {
     // For squad/group chats, use the static squad image
     if (isSquad) {
-      return Assets.images.squadProfile.image(
-        height: 40,
-        width: 40,
-        fit: BoxFit.cover,
-      );
+      return _buildInitialAvatar();
     }
 
     // For individual chats, try to load user's avatar
@@ -148,5 +157,62 @@ class ChatList extends StatelessWidget {
       width: 40,
       fit: BoxFit.cover,
     );
+  }
+
+  Widget _buildInitialAvatar() {
+    String initials = _getInitials(convo.userName ?? 'N/A');
+    Color backgroundColor = _getRandomLightColor(convo.userName ?? 'N/A');
+
+    return Container(
+      height: 40,
+      width: 40,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+      ),
+      child: Center(
+        child: Text(
+          initials,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: _getTextColor(backgroundColor),
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _getInitials(String name) {
+    if (name.isEmpty || name == 'N/A') {
+      return 'NA';
+    }
+
+    // Remove extra spaces and split by space
+    List<String> words = name.trim().split(RegExp(r'\s+'));
+
+    if (words.length >= 2) {
+      // If multiple words, take first letter of first two words
+      return (words[0][0] + words[1][0]).toUpperCase();
+    } else if (words[0].length >= 2) {
+      // If single word with 2+ characters, take first two letters
+      return words[0].substring(0, 2).toUpperCase();
+    } else {
+      // If single character, duplicate it
+      return (words[0][0] + words[0][0]).toUpperCase();
+    }
+  }
+
+  Color _getRandomLightColor(String seed) {
+    // Use the name as seed for consistent color per conversation
+    int hash = seed.hashCode;
+    int index = hash.abs() % _lightColors.length;
+    return _lightColors[index];
+  }
+
+  Color _getTextColor(Color backgroundColor) {
+    // Calculate luminance to determine if text should be dark or light
+    double luminance = backgroundColor.computeLuminance();
+    return luminance > 0.5 ? Colors.black87 : Colors.white;
   }
 }

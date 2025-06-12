@@ -230,7 +230,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       );
     } else if (selectedFile != null) {
       return ListTile(
-        title: Text(selectedFile!.path.split('/').last),
+        title: Text(
+          selectedFile!.path.split('/').last,
+          style: const TextStyle(color: Colors.white),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.close),
           onPressed: clearSelection,
@@ -238,7 +241,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
       );
     } else if (selectedAudioPath != null) {
       return ListTile(
-        title: Text('Audio Recorded ${audioDuration?.inSeconds ?? 0} sec'),
+        title: Text(
+          'Audio Recorded ${audioDuration?.inSeconds ?? 0} sec',
+          style: const TextStyle(color: Colors.white),
+        ),
         trailing: IconButton(
           icon: const Icon(Icons.close),
           onPressed: clearSelection,
