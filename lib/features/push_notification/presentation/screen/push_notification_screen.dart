@@ -81,7 +81,7 @@ class PushNotificationScreen extends GetView<PushNotificationController> {
                         title: notification.data?.title ?? '',
                         body: notification.data?.body ?? '',
                         createdAt: formatDate(
-                            notification.createdAt ?? DateTime.now()),
+                            notification.createdAt ?? DateTime.now(),),
                         // notification: notification,
                         // onTap: () {
                         //   // Handle notification tap

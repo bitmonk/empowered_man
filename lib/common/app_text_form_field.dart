@@ -42,7 +42,9 @@ class AppTextFormField extends StatelessWidget {
     ),
     this.focusNode,
     this.initialValue,
+    this.floatingLabelBehavior = FloatingLabelBehavior.auto,
   });
+
   final FocusNode? focusNode;
   final String? Function(String?)? validator;
   final Widget? prefixIcon;
@@ -77,6 +79,7 @@ class AppTextFormField extends StatelessWidget {
   final bool alignLabelWithHint;
   final void Function(String)? onChanged;
   final String? initialValue;
+  final FloatingLabelBehavior? floatingLabelBehavior;
   @override
   Widget build(BuildContext context) {
     return TextFormField(
@@ -122,7 +125,8 @@ class AppTextFormField extends StatelessWidget {
       decoration: InputDecoration(
         counterText: '',
         // suffixIcon: suffixIcon,
-        floatingLabelBehavior: FloatingLabelBehavior.auto,
+        floatingLabelBehavior:
+            floatingLabelBehavior ?? FloatingLabelBehavior.auto,
         labelText: labelText,
         labelStyle: AppTextStyles.titleSm.copyWith(
           color: AppColors.textColor100,

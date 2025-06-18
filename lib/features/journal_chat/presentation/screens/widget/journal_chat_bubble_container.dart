@@ -603,7 +603,6 @@ class _JournalChatBubbleContainerState extends State<JournalChatBubbleContainer>
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: AppColors.bgBorder,
-                                            width: 1,
                                           ),
                                         ),
                                         child: Assets.images.chatEdit.svg(

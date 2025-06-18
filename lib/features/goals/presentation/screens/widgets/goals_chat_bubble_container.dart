@@ -342,7 +342,6 @@ class _GoalsChatBubbleContainerState extends State<GoalsChatBubbleContainer>
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: AppColors.bgBorder,
-                                            width: 1,
                                           ),
                                         ),
                                         child: Assets.images.chatEdit.svg(

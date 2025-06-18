@@ -3,6 +3,19 @@
 <plist version="1.0">
   <dict>
     <key>LSSupportsOpeningDocumentsInPlace</key>
+    <key>CFBundleURLTypes</key>
+  <array>
+    <dict>
+      <key>CFBundleTypeRole</key>
+      <string>Editor</string>
+      <key>CFBundleURLSchemes</key>
+      <array>
+      <string>https</string>
+      </array>
+      <key>CFBundleURLName</key>
+      <string>yourapp.com</string>
+    </dict>
+  </array>
     <true/>
     <key>UIFileSharingEnabled</key>
     <true/>

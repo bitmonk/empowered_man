@@ -17,6 +17,9 @@ import 'package:empowered/features/profile/presentation/controllers/logout_bindi
 import 'package:empowered/features/profile/presentation/controllers/logout_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
+import 'package:empowered/features/tribe/presentation/controller/feed_page_binding.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_binding.dart';
+import 'package:empowered/features/tribe/presentation/screen/tribe_screen.dart';
 
 class MainDrawer extends GetView<MainController> {
   const MainDrawer({super.key});
@@ -220,6 +223,22 @@ class MainDrawer extends GetView<MainController> {
                       image: Assets.images.setting.path,
                       isSelected: controller.selectedDrawerItem.value ==
                           DrawerItemEnum.settings,
+                    ),
+                    DrawerTile(
+                      onTap: () {
+                        FeedPageInitializer.destroy();
+                        FeedPageInitializer.initialize();
+                        TribeGroupInitializer.destroy();
+                        TribeGroupInitializer.initialize();
+                        // final deepLinkService = DeepLinkService();
+                        // deepLinkService.init();
+                        Navigator.pop(context);
+                        Get.to(() => const TribeScreen());
+                      },
+                      title: 'Tribe',
+                      image: Assets.images.tribe.path,
+                      isSelected: controller.selectedDrawerItem.value ==
+                          DrawerItemEnum.tribe,
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),

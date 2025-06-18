@@ -27,6 +27,7 @@ class AppColors {
   static const captionC2Color = Color(0xFFA0AEC0);
   static const bgBorder = Color(0xFF1B2C3A);
   static const bgContainer = Color(0xFF1D2834);
+  static const feedContainer = Color(0xFF1C2A37);
   static const color9FAAB3 = Color(0xFF9FAAB3);
   static const color008CFF = Color(0xFF008CFF);
   static const colorE6F4FF = Color(0xFFE6F4FF);

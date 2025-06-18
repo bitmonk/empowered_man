@@ -583,7 +583,7 @@ class _ReflectionChatBubbleContainerState
                                             textStyle: widget.isMine
                                                 ? AppTextStyles.textBodyB2
                                                     .copyWith(
-                                                        color: Colors.white)
+                                                        color: Colors.white,)
                                                 : AppTextStyles.textBodyB2,
                                           ),
                                       ],
@@ -610,7 +610,6 @@ class _ReflectionChatBubbleContainerState
                                           shape: BoxShape.circle,
                                           border: Border.all(
                                             color: AppColors.bgBorder,
-                                            width: 1,
                                           ),
                                         ),
                                         child: Assets.images.chatEdit.svg(

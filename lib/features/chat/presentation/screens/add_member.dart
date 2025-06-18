@@ -162,7 +162,7 @@ class _AddMemberState extends State<AddMember> {
                       member,
                       style: AppTextStyles.textBodyB3,
                     ),
-                    trailing: Icon(
+                    trailing: const Icon(
                       Icons.group,
                       color: AppColors.primary500,
                       size: 20,
@@ -215,8 +215,9 @@ class _AddMemberState extends State<AddMember> {
 
                   // User List
                   Obx(() {
-                    if (chatController.agoraUserList.isEmpty)
+                    if (chatController.agoraUserList.isEmpty) {
                       return const CustomErrorWidget(error: 'No user found');
+                    }
 
                     return chatController.searchUserState.value.showWidget(
                       error: () => CustomErrorWidget(
@@ -283,7 +284,7 @@ class _AddMemberState extends State<AddMember> {
                                 value: isSelected,
                                 onChanged: (_) => toggleMember(user),
                                 side: const BorderSide(
-                                    color: AppColors.textColor50),
+                                    color: AppColors.textColor50,),
                                 activeColor: AppColors.primary500,
                               ),
                               // Removed onTap to prevent unwanted navigation
@@ -328,7 +329,7 @@ class _AddMemberState extends State<AddMember> {
               ),
             ],
           ),
-          VerticalSpacing(40),
+          const VerticalSpacing(40),
         ],
       ),
     );

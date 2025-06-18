@@ -35,7 +35,7 @@ class _ChatDetailsState extends State<ChatDetails> {
             // controller.fetchGroupInfo();
           });
         },
-        allMembers: [],
+        allMembers: const [],
         // allMembers: chatController.allPossibleMembers,
       ),
     );

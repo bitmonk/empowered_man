@@ -277,6 +277,44 @@ class _ChatInputFieldState extends State<ChatInputField> {
       ),
       child: Column(
         children: [
+          Obx(() {
+            final replyMsg = controller.replyToMessage.value;
+            if (replyMsg == null) return const SizedBox.shrink();
+            final preview = (replyMsg.body is ChatTextMessageBody)
+                ? (replyMsg.body as ChatTextMessageBody).content
+                : "[${replyMsg.body.runtimeType}]";
+            return Container(
+              margin: const EdgeInsets.only(bottom: 8),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.grey[800],
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.reply, color: Colors.blue),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      preview,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                          color: Colors.white70, fontStyle: FontStyle.italic),
+                    ),
+                  ),
+                  IconButton(
+                    icon: const Icon(Icons.close,
+                        color: Colors.white54, size: 20),
+                    onPressed: controller.clearReply,
+                    padding: EdgeInsets.zero,
+                    constraints: const BoxConstraints(),
+                    splashRadius: 16,
+                  ),
+                ],
+              ),
+            );
+          }),
           if (selectedFile != null ||
               selectedVideoFromCamera != null ||
               selectedImageFromCamera != null ||

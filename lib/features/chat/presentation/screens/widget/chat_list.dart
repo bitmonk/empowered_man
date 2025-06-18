@@ -160,8 +160,8 @@ class ChatList extends StatelessWidget {
   }
 
   Widget _buildInitialAvatar() {
-    String initials = _getInitials(convo.userName ?? 'N/A');
-    Color backgroundColor = _getRandomLightColor(convo.userName ?? 'N/A');
+    var initials = _getInitials(convo.userName ?? 'N/A');
+    var backgroundColor = _getRandomLightColor(convo.userName ?? 'N/A');
 
     return Container(
       height: 40,
@@ -189,7 +189,7 @@ class ChatList extends StatelessWidget {
     }
 
     // Remove extra spaces and split by space
-    List<String> words = name.trim().split(RegExp(r'\s+'));
+    var words = name.trim().split(RegExp(r'\s+'));
 
     if (words.length >= 2) {
       // If multiple words, take first letter of first two words
@@ -205,14 +205,14 @@ class ChatList extends StatelessWidget {
 
   Color _getRandomLightColor(String seed) {
     // Use the name as seed for consistent color per conversation
-    int hash = seed.hashCode;
-    int index = hash.abs() % _lightColors.length;
+    var hash = seed.hashCode;
+    var index = hash.abs() % _lightColors.length;
     return _lightColors[index];
   }
 
   Color _getTextColor(Color backgroundColor) {
     // Calculate luminance to determine if text should be dark or light
-    double luminance = backgroundColor.computeLuminance();
+    var luminance = backgroundColor.computeLuminance();
     return luminance > 0.5 ? Colors.black87 : Colors.white;
   }
 }

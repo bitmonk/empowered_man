@@ -8,7 +8,7 @@ class PushNotificationController extends GetxController {
   final PushNotificationRemoteSource remoteSource;
 
   Rx<TheStates> getPushNotificationState = TheStates.initial.obs;
-  Rx<PushNotificationModel> pushNotificationModel = PushNotificationModel().obs;
+  Rx<PushNotificationModel> pushNotificationModel = const PushNotificationModel().obs;
 
   CancelToken? _cancelToken;
 

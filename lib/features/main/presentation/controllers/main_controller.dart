@@ -16,6 +16,7 @@ enum DrawerItemEnum {
   powerScoreStats,
   assessment,
   settings,
+  tribe,
 }
 
 class MainController extends GetxController {

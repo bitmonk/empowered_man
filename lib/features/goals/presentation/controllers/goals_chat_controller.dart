@@ -317,7 +317,7 @@ class GoalsChatController extends GetxController {
 
     final lastQuestionId = questions.last.id?.toString();
     print(
-        'All questions answered, returning last question ID: $lastQuestionId');
+        'All questions answered, returning last question ID: $lastQuestionId',);
     return lastQuestionId;
   }
 

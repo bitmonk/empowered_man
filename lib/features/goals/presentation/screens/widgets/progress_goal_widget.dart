@@ -28,7 +28,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
 
   bool _isTrackButtonLoading = false;
   bool _isWonButtonLoading = false;
-  Set<int> _loadingTargetIndices = <int>{};
+  final Set<int> _loadingTargetIndices = <int>{};
 
   @override
   void initState() {
@@ -327,7 +327,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                     style: AppTextStyles.textBodyB3,
                   ),
                 ],
-              )),
+              ),),
 
           VerticalSpacing(showButtons ? 8 : 4),
 
@@ -335,7 +335,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
           Obx(() => Column(
                 mainAxisSize: MainAxisSize.min,
                 children: _buildUserGoalsList(),
-              )),
+              ),),
 
           if (showButtons) const VerticalSpacing(16),
 
@@ -394,7 +394,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
                       ),
                     ),
                 ],
-              )),
+              ),),
         ],
       ),
     );

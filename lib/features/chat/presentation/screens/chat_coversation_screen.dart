@@ -81,7 +81,7 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setSystemUIOverlayStyle(
-      SystemUiOverlayStyle(
+      const SystemUiOverlayStyle(
         //  statusBarColor: AppColors.transparent,
         statusBarIconBrightness: Brightness.dark, // Others: dark icons
         systemNavigationBarColor: AppColors.black,
@@ -161,7 +161,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                         child: Text(
                                           'Loading more messages...',
                                           style: TextStyle(
-                                              color: AppColors.baseWhite),
+                                            color: AppColors.baseWhite,
+                                          ),
                                         ),
                                       )
                                     : const SizedBox.shrink(),
@@ -183,19 +184,21 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                       DateTime.fromMillisecondsSinceEpoch(
                                     chat.serverTime,
                                   ).toLocal().toString(),
-                                  isLiked: controller.reactionMap
-                                      .containsKey(chat.msgId),
+                                  // isLiked: controller.reactionMap
+                                  //     .containsKey(chat.msgId),
                                   onLike: () {
                                     print(
-                                      '🐛 onLike callback triggered for message: ${chat.msgId}',
-                                    );
-
-                                    if (controller.reactionMap
-                                        .containsKey(chat.msgId)) {
+                                        '🐛 onLike callback triggered for message: ${chat.msgId}');
+                                    final reactions =
+                                        controller.reactionMap[chat.msgId] ??
+                                            [];
+                                    final isLiked = reactions.any((r) =>
+                                        r.reaction == '👍' &&
+                                        r.userList.contains(
+                                            controller.currentUserId.value));
+                                    if (isLiked) {
                                       controller.removeReaction(
-                                        chat.msgId,
-                                        '👍',
-                                      );
+                                          chat.msgId, '👍');
                                     } else {
                                       controller.addReaction(chat.msgId, '👍');
                                     }
@@ -237,7 +240,7 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
       Widget wid;
       switch (messageWidgetType) {
         case 'txt':
-          wid = MessaageTypeText(
+          wid = MessageTypeText(
             text: jsonMessage['content'] ?? '',
             isMine: isMine,
           );
@@ -340,7 +343,8 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                   isMine: isMine,
                 )
               : const Text(
-                  'Video too large. Please select a video under 10MB.');
+                  'Video too large. Please select a video under 10MB.',
+                );
 
         default:
           wid = const SizedBox.shrink();
@@ -484,7 +488,7 @@ class _MessageTypeAudioState extends State<MessageTypeAudio> {
             child: GestureDetector(
               onHorizontalDragUpdate: (details) async {
                 if (_duration.inMilliseconds > 0) {
-                  final box = context.findRenderObject() as RenderBox;
+                  final box = context.findRenderObject()! as RenderBox;
                   final tapPos =
                       details.localPosition.dx.clamp(0.0, box.size.width);
                   final percent = tapPos / box.size.width;
@@ -626,22 +630,40 @@ class _MessaageTypeVideoState extends State<MessaageTypeVideo> {
   }
 }
 
-class MessaageTypeText extends StatefulWidget {
-  const MessaageTypeText({required this.text, required this.isMine, super.key});
+class MessageTypeText extends StatefulWidget {
+  const MessageTypeText({
+    required this.text,
+    required this.isMine,
+    super.key,
+  });
   final String text;
   final bool isMine;
 
   @override
-  State<MessaageTypeText> createState() => _MessaageTypeTextState();
+  State<MessageTypeText> createState() => _MessageTypeTextState();
 }
 
-class _MessaageTypeTextState extends State<MessaageTypeText> {
-  String get htmlText => widget.text.replaceAll('\n', '<br>');
+class _MessageTypeTextState extends State<MessageTypeText> {
+  String get htmlText => widget.text
+      .replaceAll(RegExp(r'<p>\s*</p>'), '') // Remove empty p tags
+      .replaceAll(RegExp(r'<p>'), '') // Remove opening p tags
+      .replaceAll(RegExp(r'</p>'), '<br>') // Replace closing p tags with br
+      .replaceAll(
+          RegExp(r'\n+'), '<br>') // Replace multiple newlines with single br
+      .replaceAll(RegExp(r'(<br>\s*){2,}'),
+          '<br>') // Replace multiple br tags with single br
+      .replaceAll(RegExp(r'^\s*<br>\s*|<br>\s*$'),
+          '') // Remove leading/trailing br tags
+      .trim(); // Remove any remaining leading/trailing whitespace
+
   @override
   Widget build(BuildContext context) {
     return Container(
       margin: const EdgeInsets.all(4),
       padding: const EdgeInsets.all(10),
+      constraints: BoxConstraints(
+        maxWidth: MediaQuery.of(context).size.width * 0.7, // Limit max width
+      ),
       decoration: BoxDecoration(
         border: Border.all(
           color: !widget.isMine ? AppColors.bgBorder : Colors.transparent,
@@ -656,9 +678,9 @@ class _MessaageTypeTextState extends State<MessaageTypeText> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min, // Prevent unnecessary vertical space
         children: [
           HtmlWidget(
-            //  shrinkWrap: true,
             htmlText,
             textStyle: AppTextStyles.textBodyB2,
           ),

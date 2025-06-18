@@ -151,7 +151,7 @@ class _CustomizeChatState extends State<CustomizeChat> {
                               ),
                             ),
                             padding: const EdgeInsets.symmetric(
-                                vertical: 4, horizontal: 30),
+                                vertical: 4, horizontal: 30,),
                             child: Text(
                               'Add Member',
                               style: AppTextStyles.textBodyB2

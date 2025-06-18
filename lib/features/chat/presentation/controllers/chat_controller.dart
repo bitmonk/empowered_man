@@ -44,6 +44,7 @@ class ChatController extends GetxController {
   RxMap<String, bool> userOnlineStatus = <String, bool>{}.obs;
   RxMap<String, ChatPresence> userPresenceMap = <String, ChatPresence>{}.obs;
   RxMap<String, DateTime> lastSeenMap = <String, DateTime>{}.obs;
+  Rxn<ChatMessage> replyToMessage = Rxn<ChatMessage>();
 
   // Timer for periodic presence updates
   Timer? _presenceTimer;
@@ -205,7 +206,6 @@ class ChatController extends GetxController {
       presenceListenerId,
       ChatPresenceEventHandler(
         onPresenceStatusChanged: (presences) {
-          print('👥 Presence status changed for ${presences.length} users');
           _updatePresenceStatus(presences);
         },
       ),
@@ -248,14 +248,10 @@ class ChatController extends GetxController {
             DateTime.fromMillisecondsSinceEpoch(presence.lastTime);
       }
 
-      print(
-        '🔄 Updated presence for $userId: ${isOnline ? 'Online' : 'Offline'} (LastTime: ${presence.lastTime})',
-      );
-
       // Debug: Print all status details
-      if (presence.statusDetails != null) {
-        print('📊 Status details for $userId: ${presence.statusDetails}');
-      }
+      // if (presence.statusDetails != null) {
+      //   print('📊 Status details for $userId: ${presence.statusDetails}');
+      // }
     }
 
     _refreshConversationsWithPresence();
@@ -315,8 +311,6 @@ class ChatController extends GetxController {
       if (presences.isNotEmpty) {
         _updatePresenceStatus(presences);
       }
-
-      print('🔄 Updated presence for ${userIds.length} users');
     } catch (e) {
       print('❌ Failed to update presence: $e');
     }
@@ -897,30 +891,31 @@ class ChatController extends GetxController {
       fetchConversationState.value != TheStates.loadingMore;
   RxMap<String, List<ChatMessageReaction>> reactionMap =
       <String, List<ChatMessageReaction>>{}.obs;
-  Future<void> fetchReactionsForMessages(List<ChatMessage> msgs) async {
-    if (msgs.isNotEmpty) return;
-    try {
-      final messageIds = msgs.map((e) => e.msgId).toList();
-
-      final reactionsResult =
-          await ChatClient.getInstance.chatManager.fetchReactionList(
-        messageIds: messageIds,
-        chatType: ChatType.Chat,
-      );
-
-      for (final entry in reactionsResult.entries) {
-        final msgId = entry.key;
-        final reactions = entry.value;
-        if (reactions.isNotEmpty) {
-          reactionMap[msgId] = reactions;
-        }
-      }
-
-      print('✅ Reaction map updated');
-    } catch (e) {
-      print('❌ Failed to fetch reactions: $e');
+ Future<void> fetchReactionsForMessages(List<ChatMessage> msgs) async {
+  if (msgs.isEmpty) return;
+  try {
+    final messageIds = msgs.map((e) => e.msgId).toList();
+    final chatType = selectedConversationType.value == ChatConversationType.GroupChat
+        ? ChatType.GroupChat
+        : ChatType.Chat;
+    print('Fetching reactions for ${messageIds.length} messages, chatType: $chatType');
+    final reactionsResult = await ChatClient.getInstance.chatManager.fetchReactionList(
+      messageIds: messageIds,
+      chatType: chatType,
+    );
+    for (final entry in reactionsResult.entries) {
+      final msgId = entry.key;
+      final reactions = entry.value;
+      reactionMap[msgId] = reactions;
+      print('Updated reactionMap for msgId $msgId: $reactions');
     }
+    reactionMap.refresh();
+    print('✅ Reaction map updated for ${messageIds.length} messages');
+  } catch (e) {
+    print('❌ Failed to fetch reactions: $e');
+    AppUtils.showErrorSnackbar(message: 'Failed to load reactions: $e');
   }
+}
 
   Rx<TheStates> loadingMessageState = TheStates.initial.obs;
   RxnString loadingMessageError = RxnString();
@@ -940,9 +935,9 @@ class ChatController extends GetxController {
       print(
         'Loaded ${loadedMessages.length} messages for conversation ${selectedConversation.value!.id}',
       );
+
       // Optional: Fetch reactions for messages
       await fetchReactionsForMessages(loadedMessages);
-
       messages.value = loadedMessages;
       WidgetsBinding.instance.addPostFrameCallback((_) {
         scrollToBottom();
@@ -1003,6 +998,14 @@ class ChatController extends GetxController {
 
   Rx<TheStates> sendingMessageState = TheStates.initial.obs;
   RxnString sendMessageError = RxnString();
+  void selectReply(ChatMessage msg) {
+    replyToMessage.value = msg;
+  }
+
+  void clearReply() {
+    replyToMessage.value = null;
+  }
+
   Future<void> sendMessage({
     String? targetID,
     String? text,
@@ -1096,7 +1099,17 @@ class ChatController extends GetxController {
           chatType: chatType,
         );
       }
-
+      if (message != null && replyToMessage.value != null) {
+        message.attributes ??= {};
+        message.attributes!['replyTo'] = replyToMessage.value!.msgId;
+        message.attributes!['replyPreview'] =
+            (replyToMessage.value!.body is ChatTextMessageBody)
+                ? (replyToMessage.value!.body as ChatTextMessageBody).content
+                : "[${replyToMessage.value!.body.runtimeType}]";
+        message.attributes!['replyToSender'] =
+            replyToMessage.value!.from ?? 'Unknown';
+        clearReply();
+      }
       if (message != null) {
         await ChatClient.getInstance.chatManager.sendMessage(message);
         messages.add(message);
@@ -1176,6 +1189,9 @@ class ChatController extends GetxController {
         messageId: msgId,
         reaction: reaction,
       );
+      // Always refresh
+      await fetchReactionsForMessages(
+          [messages.firstWhere((m) => m.msgId == msgId)]);
       print('Reaction added');
     } catch (e) {
       print('Failed to add reaction: $e');
@@ -1188,7 +1204,9 @@ class ChatController extends GetxController {
         messageId: msgId,
         reaction: reaction,
       );
-      reactionMap.remove(msgId);
+      // Always refresh
+      await fetchReactionsForMessages(
+          [messages.firstWhere((m) => m.msgId == msgId)]);
       print('Reaction removed');
     } catch (e) {
       print('Failed to remove reaction: $e');
@@ -1208,8 +1226,9 @@ class ChatController extends GetxController {
           } else {
             messages.add(msg);
           }
-          messages.sort((a, b) => a.serverTime.compareTo(b.serverTime));
-          messages.refresh();
+          messages
+            ..sort((a, b) => a.serverTime.compareTo(b.serverTime))
+            ..refresh();
           // Update conversation list
           _updateConversationWithMessage(msg);
           WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -1220,7 +1239,8 @@ class ChatController extends GetxController {
         onError: (msgId, msg, error) {
           print('Message failed: ${error.description}');
           AppUtils.showErrorSnackbar(
-              message: 'Failed to send message: ${error.description}');
+            message: 'Failed to send message: ${error.description}',
+          );
         },
       ),
     );
@@ -1246,28 +1266,40 @@ class ChatController extends GetxController {
             // Add to messages if in the current conversation
             if (selectedConversation.value != null) {
               final currentConvoId = selectedConversation.value!.id;
-              final convoMessages = relevantMessages.where((msg) =>
-                  (msg.chatType == ChatType.Chat &&
-                      (msg.to == currentConvoId ||
-                          msg.from == currentConvoId)) ||
-                  (msg.chatType == ChatType.GroupChat &&
-                      msg.to == currentConvoId));
-              for (var msg in convoMessages) {
+              final convoMessages = relevantMessages.where(
+                (msg) =>
+                    (msg.chatType == ChatType.Chat &&
+                        (msg.to == currentConvoId ||
+                            msg.from == currentConvoId)) ||
+                    (msg.chatType == ChatType.GroupChat &&
+                        msg.to == currentConvoId),
+              );
+              for (final msg in convoMessages) {
                 if (!messages.any((m) => m.msgId == msg.msgId)) {
                   messages.add(msg);
                 }
               }
-              messages.sort((a, b) => a.serverTime.compareTo(b.serverTime));
-              messages.refresh();
+              messages
+                ..sort((a, b) => a.serverTime.compareTo(b.serverTime))
+                ..refresh();
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 scrollToBottom();
               });
             }
             // Update conversation list for all relevant messages
-            for (var msg in relevantMessages) {
+            for (final msg in relevantMessages) {
               _updateConversationWithMessage(msg);
             }
           }
+        },
+        onMessageReactionDidChange: (reactions) {
+          print('Reaction changed: ${reactions.length} reactions');
+          for (final reaction in reactions) {
+            final msgId = reaction.messageId;
+            final reactionList = reaction.reactions ?? [];
+            reactionMap[msgId] = reactionList;
+          }
+          reactionMap.refresh();
         },
       ),
     );
@@ -1293,7 +1325,6 @@ class ChatController extends GetxController {
         convo = await ChatClient.getInstance.chatManager.getConversation(
           convoId,
           type: convoType,
-          createIfNeed: true,
         );
       }
 
@@ -1325,13 +1356,13 @@ class ChatController extends GetxController {
       }
 
       // Get unread count
-      int unreadCount = await convo!.unreadCount();
+      var unreadCount = await convo!.unreadCount();
       if (msg.from != currentUserId.value) {
         unreadCount++;
       }
 
       // Determine username
-      String userName = '';
+      var userName = '';
       if (convoType == ChatConversationType.GroupChat) {
         userName = group?.name ?? 'Unknown Group';
       } else {
@@ -1366,13 +1397,13 @@ class ChatController extends GetxController {
       }
 
       // Sort conversations by last message time
-      allConversations.sort((a, b) {
-        final aTime = a.lastChattedTime?.millisecondsSinceEpoch ?? 0;
-        final bTime = b.lastChattedTime?.millisecondsSinceEpoch ?? 0;
-        return bTime.compareTo(aTime);
-      });
-
-      allConversations.refresh();
+      allConversations
+        ..sort((a, b) {
+          final aTime = a.lastChattedTime?.millisecondsSinceEpoch ?? 0;
+          final bTime = b.lastChattedTime?.millisecondsSinceEpoch ?? 0;
+          return bTime.compareTo(aTime);
+        })
+        ..refresh();
       print('Updated conversation list for $convoId');
     } catch (e) {
       print('Error updating conversation: $e');
@@ -1458,6 +1489,18 @@ class ChatController extends GetxController {
         );
       }
     });
+  }
+
+  void scrollToMessage(String msgId) {
+    final index = messages.indexWhere((m) => m.msgId == msgId);
+    if (index != -1) {
+      final offset = index * 60.0;
+      chatScreenScrollController.animateTo(
+        offset,
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeInOut,
+      );
+    }
   }
 
   @override

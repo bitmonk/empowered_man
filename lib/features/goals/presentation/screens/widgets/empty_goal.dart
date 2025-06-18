@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/goals/presentation/controllers/goals_controller.dart';
-import 'package:get/get.dart';
 
 class EmptyGoal extends StatefulWidget {
   const EmptyGoal({

@@ -819,6 +819,12 @@ class $AssetsImagesGen {
   AssetGenImage get sharePop =>
       const AssetGenImage('assets/images/share_pop.png');
 
+  /// File path: assets/images/comment.svg
+  SvgGenImage get comment => const SvgGenImage('assets/images/comment.svg');
+  
+/// File path: assets/images/save_post.svg
+  SvgGenImage get savePost => const SvgGenImage('assets/images/save_post.svg');
+
   /// File path: assets/images/sinner_icon.png
   AssetGenImage get sinnerIcon =>
       const AssetGenImage('assets/images/sinner_icon.png');

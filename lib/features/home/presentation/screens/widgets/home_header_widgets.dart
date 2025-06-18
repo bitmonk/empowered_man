@@ -83,7 +83,7 @@ class HomeHeaderWidgets extends StatelessWidget {
                 const HorizontalSpacing(8),
                 InkWell(
                   onTap: () {
-                    Get.to(PushNotificationScreen(true));
+                    Get.to(const PushNotificationScreen(true));
                   },
                   child: Assets.images.notification.svg(width: 40),
                 ),
