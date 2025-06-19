@@ -1,6 +1,8 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
+import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
+import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_list.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/new_message_model.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
@@ -33,9 +35,7 @@ class ChatScreen extends GetView<ChatController> {
                   ),
                   const VerticalSpacing(24),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: AppTextFormField(
                       onChanged: (v) {
                         if (v.length > 2) {
@@ -59,9 +59,7 @@ class ChatScreen extends GetView<ChatController> {
                   ),
                   const VerticalSpacing(24),
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Row(
                       children: [
                         Expanded(
@@ -72,7 +70,6 @@ class ChatScreen extends GetView<ChatController> {
                               itemCount: controller.filterList.length,
                               itemBuilder: (context, index) {
                                 var filterList = controller.filterList[index];
-
                                 return InkWell(
                                   splashColor: Colors.transparent,
                                   onTap: () {
@@ -86,8 +83,7 @@ class ChatScreen extends GetView<ChatController> {
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
+                                        horizontal: 8),
                                     child: Obx(() {
                                       var isSelectedFilter = controller
                                               .selectedFilterindex.value ==
@@ -164,17 +160,12 @@ class ChatScreen extends GetView<ChatController> {
                                   child: ListView.builder(
                                     itemCount:
                                         controller.allConversations.length +
-                                            (controller.canLoadMore
-                                                ? 1
-                                                : 0), // Extra for loading
-                                    // separatorBuilder: (_, __) =>
-                                    //     const Divider(height: 1),
+                                            (controller.canLoadMore ? 1 : 0),
                                     itemBuilder: (context, index) {
                                       if (index <
                                           controller.allConversations.length) {
                                         final convo =
                                             controller.allConversations[index];
-
                                         return ChatList(
                                           isSquad: convo.conversation.type ==
                                               ChatConversationType.GroupChat,
@@ -193,14 +184,93 @@ class ChatScreen extends GetView<ChatController> {
                                       } else {
                                         return const Padding(
                                           padding: EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
+                                              vertical: 16),
                                           child: Center(
                                             child: Text(
                                               'No more conversations',
                                               style: TextStyle(
-                                                color: AppColors.baseWhite,
-                                              ),
+                                                  color: AppColors.baseWhite),
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    },
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ),
+                  // Replace the filter index == 1 section in your ChatScreen with this:
+
+                  if (controller.selectedFilterindex.value == 1)
+                    Flexible(
+                      child: Obx(
+                        () =>
+                            controller.fetchConversationState.value.showWidget(
+                          loading: () => const LoadingWidget(),
+                          error: () => CustomErrorWidget(
+                            error: controller.fetchCoversationError.value,
+                            onPressed: () {
+                              controller.fetchConversations(
+                                  isInitialLoad: true);
+                            },
+                          ),
+                          orElse: () => controller.allConversations.isEmpty
+                              ? CustomErrorWidget(
+                                  error: 'No conversations found.',
+                                  onPressed: () {
+                                    controller.fetchConversations(
+                                        isInitialLoad: true);
+                                  },
+                                )
+                              : RefreshIndicator(
+                                  onRefresh: () async {
+                                    controller.fetchConversations(
+                                        isInitialLoad: true);
+                                  },
+                                  child: ListView.builder(
+                                    itemCount:
+                                        controller.allConversations.length +
+                                            (controller.canLoadMore ? 1 : 0),
+                                    itemBuilder: (context, index) {
+                                      if (index <
+                                          controller.allConversations.length) {
+                                        final convo =
+                                            controller.allConversations[index];
+                                        controller
+                                            .fetchLastMessagesForConversation(
+                                          convo.id,
+                                          convo.conversation.type,
+                                        );
+
+                                        return ChatList(
+                                          isSquad: convo.conversation.type ==
+                                              ChatConversationType.GroupChat,
+                                          convo: convo,
+                                          showLastMessage: false,
+                                          showShortcutContainer:
+                                              true, // Enable unified container
+                                        );
+                                      }
+
+                                      if (controller
+                                              .fetchConversationState.value ==
+                                          TheStates.loadingMore) {
+                                        return const Padding(
+                                          padding: EdgeInsets.all(16),
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
+                                        );
+                                      } else {
+                                        return const Padding(
+                                          padding: EdgeInsets.symmetric(
+                                              vertical: 16),
+                                          child: Center(
+                                            child: Text(
+                                              'No more conversations',
+                                              style: TextStyle(
+                                                  color: AppColors.baseWhite),
                                             ),
                                           ),
                                         );
@@ -239,11 +309,7 @@ class ChatScreen extends GetView<ChatController> {
                                   },
                                   child: ListView.builder(
                                     itemCount: controller.groupList.length +
-                                        (controller.canLoadMore
-                                            ? 1
-                                            : 0), // Extra for loading
-                                    // separatorBuilder: (_, __) =>
-                                    //     const Divider(height: 1),
+                                        (controller.canLoadMore ? 1 : 0),
                                     itemBuilder: (context, index) {
                                       if (index < controller.groupList.length) {
                                         final convo =
@@ -265,14 +331,12 @@ class ChatScreen extends GetView<ChatController> {
                                       } else {
                                         return const Padding(
                                           padding: EdgeInsets.symmetric(
-                                            vertical: 16,
-                                          ),
+                                              vertical: 16),
                                           child: Center(
                                             child: Text(
                                               'No more conversations',
                                               style: TextStyle(
-                                                color: AppColors.baseWhite,
-                                              ),
+                                                  color: AppColors.baseWhite),
                                             ),
                                           ),
                                         );

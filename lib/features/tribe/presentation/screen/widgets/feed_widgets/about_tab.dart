@@ -1,8 +1,18 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart'; // For AppColors
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/add_tribe_member.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart'; // For AppColors
 
-class AboutTab extends StatelessWidget {
+class AboutTab extends StatefulWidget {
   const AboutTab({super.key});
+
+  @override
+  State<AboutTab> createState() => _AboutTabState();
+}
+
+class _AboutTabState extends State<AboutTab> {
+  List<String> members = [];
+
   bool get isUserCoach {
     return Get.find<ProfileController>().userProfile.value.isCoach ?? false;
   }
@@ -35,7 +45,17 @@ class AboutTab extends StatelessWidget {
                   ),
                   if (isUserCoach)
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) => const CustomiseGroup(
+                          groupId: '1',
+                          groupName: 'Group 1',
+                          groupDescription:
+                              'This is placeholder text only, intended for visual demonstration purposes only. The content here is not meant to represent real information.',
+                        ),
+                      ),
                       child: const Text(
                         'Edit',
                         style: TextStyle(
@@ -91,7 +111,20 @@ class AboutTab extends StatelessWidget {
                   if (isUserCoach)
                     GestureDetector(
                       onTap: () {
-                        // TODO: Open add member modal
+                        showModalBottomSheet(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (context) => AddTribeMember(
+                            selectedMembers: const [],
+                            onMembersUpdated: (newMembers) {
+                              setState(() {
+                                members = newMembers;
+                                // controller.fetchGroupInfo();
+                              });
+                            },
+                          ),
+                        );
                       },
                       child: const Text(
                         '+ Add Member',
@@ -120,7 +153,9 @@ class AboutTab extends StatelessWidget {
                       ? Text(
                           isUserCoach ? 'Coach' : 'Admin',
                           style: const TextStyle(
-                              color: Colors.white70, fontSize: 12,),
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
                         )
                       : isUserCoach
                           ? GestureDetector(
@@ -130,7 +165,9 @@ class AboutTab extends StatelessWidget {
                               child: const Text(
                                 'Remove',
                                 style: TextStyle(
-                                    color: Colors.redAccent, fontSize: 12,),
+                                  color: Colors.redAccent,
+                                  fontSize: 12,
+                                ),
                               ),
                             )
                           : null,

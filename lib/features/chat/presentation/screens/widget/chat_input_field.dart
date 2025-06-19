@@ -17,9 +17,13 @@ class ChatInputField extends StatefulWidget {
     super.key,
     this.isNewMessage = false,
     this.isSquad = false,
+    this.controller,
+    this.onSend,
   });
   final bool isNewMessage;
   final bool isSquad;
+  final TextEditingController? controller;
+  final Function(String)? onSend;
 
   @override
   State<ChatInputField> createState() => _ChatInputFieldState();
@@ -27,6 +31,7 @@ class ChatInputField extends StatefulWidget {
 
 class _ChatInputFieldState extends State<ChatInputField> {
   final controller = Get.find<ChatController>();
+  late TextEditingController _textController;
   bool showOptions = false;
   File? selectedFile;
   File? selectedImageFromGallery;
@@ -36,15 +41,30 @@ class _ChatInputFieldState extends State<ChatInputField> {
   bool _isRecording = false;
   String? selectedAudioPath;
   Duration? audioDuration;
+
   void toggleOptions() {
     setState(() {
       showOptions = !showOptions;
     });
   }
 
+  @override
+  void initState() {
+    super.initState();
+    _textController = widget.controller ?? TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    if (widget.controller == null) {
+      _textController.dispose();
+    }
+    _audioRecorder.dispose();
+    super.dispose();
+  }
+
   Future<void> getAudioDuration() async {
     final player = AudioPlayer();
-    print(selectedAudioPath);
     try {
       await player.setFilePath(selectedAudioPath!);
       setState(() {
@@ -93,7 +113,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
     final picker = ImagePicker();
     final picked = await picker.pickVideo(
       source: ImageSource.camera,
-      maxDuration: const Duration(seconds: 10),
+      maxDuration: const Duration(seconds: 20),
     );
     if (picked != null) {
       setState(() {
@@ -121,7 +141,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
     if (_isRecording) {
       final path = await _audioRecorder.stop();
-
       if (path != null) {
         setState(() {
           _isRecording = false;
@@ -141,12 +160,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
 
       final path =
           '$tempDir/recording_${DateTime.now().millisecondsSinceEpoch}.m4a';
-      var config = const RecordConfig(
-          // encoder: AudioEncoder.aacLc, // or .wav if needed
-          // bitRate: 128000,
-          // sampleRate: 44100,
-          // androidConfig: AndroidRecordConfig(audioSource: AndroidAudioSource.)
-          );
+      var config = const RecordConfig();
       await _audioRecorder.start(
         config,
         path: path,
@@ -167,7 +181,6 @@ class _ChatInputFieldState extends State<ChatInputField> {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: SizedBox(
-              // margin: const EdgeInsets.only(bottom: 8),
               height: 100,
               child: Image.file(selectedImageFromCamera!, fit: BoxFit.cover),
             ),
@@ -188,12 +201,10 @@ class _ChatInputFieldState extends State<ChatInputField> {
           ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: SizedBox(
-              // margin: const EdgeInsets.only(bottom: 8),
               height: 100,
               child: AppVideoPlayer(
                 assets: selectedVideoFromCamera!.path,
               ),
-              // child: Image.file(selectedVideoFromCamera!, fit: BoxFit.cover),
             ),
           ),
           Positioned(
@@ -215,7 +226,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             child: isVideoFile(selectedImageFromGallery!)
                 ? AppVideoPlayer(
                     assets: selectedImageFromGallery!.path,
-                  ) // Custom widget
+                  )
                 : Image.file(selectedImageFromGallery!, fit: BoxFit.cover),
           ),
           Positioned(
@@ -315,12 +326,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               ),
             );
           }),
-          if (selectedFile != null ||
-              selectedVideoFromCamera != null ||
-              selectedImageFromCamera != null ||
-              selectedImageFromGallery != null ||
-              selectedAudioPath != null)
-            buildSelectedAttachment(),
+          if (isAnyMediaSelected) buildSelectedAttachment(),
           if (showOptions && !isAnyMediaSelected && !_isRecording)
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -361,11 +367,9 @@ class _ChatInputFieldState extends State<ChatInputField> {
             ),
           Row(
             children: [
-              if (!_isRecording)
+              if (!_isRecording )
                 GestureDetector(
-                  onTap: () {
-                    toggleOptions();
-                  },
+                  onTap: toggleOptions,
                   child: Padding(
                     padding: const EdgeInsets.only(right: 16),
                     child: Transform.rotate(
@@ -393,7 +397,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
                           );
                           controller.scrollToBottom();
                         },
-                        controller: controller.chatController,
+                        controller: _textController, // Use correct controller
                         decoration: InputDecoration(
                           hintText: 'Message...',
                           hintStyle: AppTextStyles.textBodyB2
@@ -405,9 +409,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
               ),
               if (_isRecording)
                 InkWell(
-                  onTap: () {
-                    recordAudio();
-                  },
+                  onTap: recordAudio,
                   child: Padding(
                     padding: const EdgeInsets.all(8).copyWith(right: 10),
                     child: const Icon(
@@ -419,44 +421,55 @@ class _ChatInputFieldState extends State<ChatInputField> {
                 ),
               InkWell(
                 onTap: () {
-                  if (widget.isNewMessage) {
-                    Navigator.pop(context);
-                    AudioPlayerInitializer.initialize();
-
-                    if (!widget.isSquad) {
-                      controller.selectedConversationType.value =
-                          ChatConversationType.Chat;
-                      for (final e in controller.selectedUsers) {
-                        controller.sendMessage(
-                          targetID: e.username,
-                          text: controller.chatController.text,
-                          filePath: getSelectedFilePath(),
-                          audioPath: selectedAudioPath,
-                          audioDuration: audioDuration?.inSeconds,
-                        );
-                      }
-
+                  final text = _textController.text.trim();
+                  if (text.isNotEmpty || isAnyMediaSelected) {
+                    if (widget.onSend != null && text.isNotEmpty) {
+                      // Thread view: Use onSend for text only
+                      widget.onSend!(text);
+                      _textController.clear();
                       clearSelection();
-                      controller.fetchConversations(isInitialLoad: true);
-                    }
-                  } else {
-                    if (controller.messageToEdit.value != null) {
-                      controller
-                          .updateMessaage(
-                        content: controller.chatController.text,
-                      )
-                          .then((_) {
-                        clearSelection();
-                      });
-                    } else {
-                      controller
-                          .sendMessage(
-                            text: controller.chatController.text,
+                    } else if (widget.isNewMessage) {
+                      // New message modal
+                      Navigator.pop(context);
+                      AudioPlayerInitializer.initialize();
+                      if (!widget.isSquad) {
+                        controller.selectedConversationType.value =
+                            ChatConversationType.Chat;
+                        for (final e in controller.selectedUsers) {
+                          controller.sendMessage(
+                            targetID: e.username,
+                            chatType: ChatConversationType.Chat,
+                            text: text,
                             filePath: getSelectedFilePath(),
                             audioPath: selectedAudioPath,
                             audioDuration: audioDuration?.inSeconds,
-                          )
-                          .then((_) => clearSelection());
+                            inputController: _textController,
+                          );
+                        }
+                        clearSelection();
+                        controller.fetchConversations(isInitialLoad: true);
+                      }
+                    } else {
+                      // ChatCoversationScreen
+                      if (controller.messageToEdit.value != null) {
+                        controller
+                            .updateMessaage(content: text)
+                            .then((_) => clearSelection());
+                      } else {
+                        controller
+                            .sendMessage(
+                              targetID:
+                                  controller.selectedConversation.value?.id,
+                              chatType:
+                                  controller.selectedConversationType.value,
+                              text: text,
+                              filePath: getSelectedFilePath(),
+                              audioPath: selectedAudioPath,
+                              audioDuration: audioDuration?.inSeconds,
+                              inputController: _textController,
+                            )
+                            .then((_) => clearSelection());
+                      }
                     }
                   }
                 },

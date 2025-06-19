@@ -155,30 +155,29 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     return isLiked;
   }
 
-  Future<void> _handleLike() async {
-    final isCurrentlyLiked = _isLiked();
-
-    try {
-      if (isCurrentlyLiked) {
-        // Remove the reaction
-        await controller.removeReaction(widget.messageId, '👍');
-      } else {
-        // Add the reaction
-        await controller.addReaction(widget.messageId, '👍');
-      }
-
-      // Call the onLike callback if provided
-      widget.onLike?.call();
-    } catch (e) {
-      print('Error handling like: $e');
-      // Show error message
-      Get.snackbar(
-        'Error',
-        'Failed to ${isCurrentlyLiked ? 'remove' : 'add'} reaction',
-        snackPosition: SnackPosition.BOTTOM,
-      );
-    }
+ Future<void> _handleLike() async {
+  final userId = controller.currentUserId.value;
+  if (userId == null) {
+    print('Error: currentUserId is null in _handleLike');
+    Get.snackbar('Error', 'User not logged in', snackPosition: SnackPosition.BOTTOM);
+    return;
   }
+  final isCurrentlyLiked = _isLiked();
+  try {
+    if (isCurrentlyLiked) {
+      await controller.removeReaction(widget.messageId, '👍');
+    } else {
+      await controller.addReaction(widget.messageId, '👍');
+    }
+  } catch (e) {
+    print('Error handling like: $e');
+    Get.snackbar(
+      'Error',
+      'Failed to ${isCurrentlyLiked ? 'remove' : 'add'} reaction',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+}
 
   @override
   Widget build(BuildContext context) {

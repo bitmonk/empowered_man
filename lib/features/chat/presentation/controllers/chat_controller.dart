@@ -39,6 +39,7 @@ class ChatController extends GetxController {
   final Rxn<ChatConversationType> selectedConversationType =
       Rxn<ChatConversationType>();
   final int messageQuantity = 10;
+  final int threadMessageQuantity = 3;
   final profileController = Get.find<ProfileController>();
 // online status
   RxMap<String, bool> userOnlineStatus = <String, bool>{}.obs;
@@ -49,6 +50,13 @@ class ChatController extends GetxController {
   // Timer for periodic presence updates
   Timer? _presenceTimer;
   final Duration _presenceUpdateInterval = const Duration(minutes: 2);
+  // Store messages for shortcut chat display
+  RxMap<String, List<ChatMessage>> shortcutMessages =
+      <String, List<ChatMessage>>{}.obs;
+  // Store TextEditingControllers for each conversation's shortcut input field
+  RxMap<String, TextEditingController> shortcutInputControllers =
+      <String, TextEditingController>{}.obs;
+
   @override
   void onInit() {
     super.onInit();
@@ -891,31 +899,69 @@ class ChatController extends GetxController {
       fetchConversationState.value != TheStates.loadingMore;
   RxMap<String, List<ChatMessageReaction>> reactionMap =
       <String, List<ChatMessageReaction>>{}.obs;
- Future<void> fetchReactionsForMessages(List<ChatMessage> msgs) async {
-  if (msgs.isEmpty) return;
-  try {
-    final messageIds = msgs.map((e) => e.msgId).toList();
-    final chatType = selectedConversationType.value == ChatConversationType.GroupChat
-        ? ChatType.GroupChat
-        : ChatType.Chat;
-    print('Fetching reactions for ${messageIds.length} messages, chatType: $chatType');
-    final reactionsResult = await ChatClient.getInstance.chatManager.fetchReactionList(
-      messageIds: messageIds,
-      chatType: chatType,
-    );
-    for (final entry in reactionsResult.entries) {
-      final msgId = entry.key;
-      final reactions = entry.value;
-      reactionMap[msgId] = reactions;
-      print('Updated reactionMap for msgId $msgId: $reactions');
+  Future<void> fetchReactionsForMessages(List<ChatMessage> msgs) async {
+    if (msgs.isEmpty) return;
+    try {
+      final messageIds = msgs.map((e) => e.msgId).toList();
+
+      final chatType =
+          selectedConversationType.value == ChatConversationType.GroupChat
+              ? ChatType.GroupChat
+              : ChatType.Chat;
+      print(
+          'Fetching reactions for ${messageIds.length} messages, chatType: $chatType');
+      final groupId = chatType == ChatType.GroupChat
+          ? selectedConversation.value?.id
+          : null;
+      final reactionsResult =
+          await ChatClient.getInstance.chatManager.fetchReactionList(
+        messageIds: messageIds,
+        chatType: chatType,
+        groupId: groupId,
+      );
+      for (final entry in reactionsResult.entries) {
+        final msgId = entry.key;
+        final reactions = entry.value;
+        reactionMap[msgId] = reactions;
+        print('Updated reactionMap for msgId $msgId: $reactions');
+      }
+      reactionMap.refresh();
+      print('✅ Reaction map updated for ${messageIds.length} messages');
+    } catch (e) {
+      print('❌ Failed to fetch reactions: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to load reactions: $e');
     }
-    reactionMap.refresh();
-    print('✅ Reaction map updated for ${messageIds.length} messages');
-  } catch (e) {
-    print('❌ Failed to fetch reactions: $e');
-    AppUtils.showErrorSnackbar(message: 'Failed to load reactions: $e');
   }
-}
+
+  Future<void> fetchLastMessagesForConversation(
+      String convoId, ChatConversationType type) async {
+    try {
+      final result =
+          await ChatClient.getInstance.chatManager.fetchHistoryMessages(
+        conversationId: convoId,
+        type: type,
+        pageSize: threadMessageQuantity, // Fetch up to 10 messages
+      );
+
+      final loadedMessages = result.data;
+      print(
+          'Fetched ${loadedMessages.length} messages for shortcut chat in conversation $convoId');
+      shortcutMessages[convoId] =
+          loadedMessages.take(threadMessageQuantity).toList(); // Limit to 5
+      shortcutMessages.refresh();
+
+      // Initialize TextEditingController for this conversation if not already present
+      if (shortcutInputControllers[convoId] == null) {
+        shortcutInputControllers[convoId] = TextEditingController();
+      }
+
+      // Fetch reactions for the loaded messages
+      await fetchReactionsForMessages(loadedMessages);
+    } on ChatError catch (e) {
+      print(
+          'Error fetching shortcut messages for $convoId: ${e.code} - ${e.description}');
+    }
+  }
 
   Rx<TheStates> loadingMessageState = TheStates.initial.obs;
   RxnString loadingMessageError = RxnString();
@@ -1008,22 +1054,32 @@ class ChatController extends GetxController {
 
   Future<void> sendMessage({
     String? targetID,
+    ChatConversationType? chatType,
     String? text,
     String? filePath,
     String? audioPath,
     int? audioDuration,
     String? fileDisplayName,
+    TextEditingController? inputController,
   }) async {
     if ((text == null || text.trim().isEmpty) &&
         filePath == null &&
         audioPath == null) {
+      print('ChatController: No message content to send');
       return;
     }
-    final chatType =
-        selectedConversationType.value == ChatConversationType.GroupChat
-            ? ChatType.GroupChat
-            : ChatType.Chat;
-    var targetId = targetID ?? selectedConversation.value!.id;
+    if (targetID == null || chatType == null) {
+      print(
+          'ChatController: Invalid targetID ($targetID) or chatType ($chatType)');
+      sendMessageError.value = 'Invalid target or chat type';
+      sendingMessageState.value = TheStates.error;
+      return;
+    }
+
+    final chatTypeValue = chatType == ChatConversationType.GroupChat
+        ? ChatType.GroupChat
+        : ChatType.Chat;
+    var targetId = targetID;
 
     ChatMessage? message;
 
@@ -1032,8 +1088,10 @@ class ChatController extends GetxController {
     try {
       if (filePath != null) {
         if (!File(filePath).existsSync()) {
-          print('Video file does not exist at: $filePath');
-          AppUtils.showErrorSnackbar(message: 'Video file does not exist!');
+          print('ChatController: File does not exist at: $filePath');
+          AppUtils.showErrorSnackbar(message: 'File does not exist!');
+          sendMessageError.value = 'File does not exist';
+          sendingMessageState.value = TheStates.error;
           return;
         }
         final extension = filePath.split('.').last.toLowerCase();
@@ -1049,21 +1107,18 @@ class ChatController extends GetxController {
             displayName: fileDisplayName ?? filePath.split('/').last,
           );
           message = ChatMessage.createSendMessage(
-            chatType: chatType,
+            chatType: chatTypeValue,
             to: targetId,
             body: imgBody,
           );
         } else if (isVideo) {
-          print('🎥 Creating video message');
-          print('Video filePath: $filePath');
-          print('File exists: ${File(filePath).existsSync()}');
-          print('File size: ${File(filePath).lengthSync()}');
+          print('ChatController: Creating video message for $filePath');
           final vidBody = ChatVideoMessageBody(
             localPath: filePath,
             displayName: fileDisplayName ?? filePath.split('/').last,
           );
           message = ChatMessage.createSendMessage(
-            chatType: chatType,
+            chatType: chatTypeValue,
             to: targetId,
             body: vidBody,
           );
@@ -1073,7 +1128,7 @@ class ChatController extends GetxController {
             displayName: fileDisplayName ?? filePath.split('/').last,
           );
           message = ChatMessage.createSendMessage(
-            chatType: chatType,
+            chatType: chatTypeValue,
             to: targetId,
             body: fileBody,
           );
@@ -1088,7 +1143,7 @@ class ChatController extends GetxController {
           duration: audioDuration!,
         );
         message = ChatMessage.createSendMessage(
-          chatType: chatType,
+          chatType: chatTypeValue,
           to: targetId,
           body: voiceBody,
         );
@@ -1096,7 +1151,7 @@ class ChatController extends GetxController {
         message = ChatMessage.createTxtSendMessage(
           targetId: targetId,
           content: text.trim(),
-          chatType: chatType,
+          chatType: chatTypeValue,
         );
       }
       if (message != null && replyToMessage.value != null) {
@@ -1111,17 +1166,32 @@ class ChatController extends GetxController {
         clearReply();
       }
       if (message != null) {
+        print(
+            'ChatController: Sending message to $targetId, type: $chatTypeValue, text: $text');
         await ChatClient.getInstance.chatManager.sendMessage(message);
+        print('ChatController: Message sent, msgId: ${message.msgId}');
         messages.add(message);
-        chatController.clear();
+        shortcutMessages[targetId] = (shortcutMessages[targetId] ?? [])
+          ..add(message);
+        if (shortcutMessages[targetId]!.length > threadMessageQuantity) {
+          shortcutMessages[targetId] =
+              shortcutMessages[targetId]!.take(threadMessageQuantity).toList();
+        }
+        shortcutMessages.refresh();
+        (inputController ??
+                shortcutInputControllers[targetId] ??
+                chatController)
+            .clear();
         WidgetsBinding.instance.addPostFrameCallback((_) {
           scrollToBottom();
         });
+        sendingMessageState.value = TheStates.success;
       }
-      sendingMessageState.value = TheStates.success;
     } catch (e) {
+      print('ChatController: Error sending message: $e');
       sendMessageError.value = e.toString();
       sendingMessageState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to send message: $e');
     }
   }
 
@@ -1297,9 +1367,11 @@ class ChatController extends GetxController {
           for (final reaction in reactions) {
             final msgId = reaction.messageId;
             final reactionList = reaction.reactions ?? [];
+            print('Updating reactionMap for msgId $msgId: $reactionList');
             reactionMap[msgId] = reactionList;
           }
           reactionMap.refresh();
+          print('✅ reactionMap refreshed');
         },
       ),
     );
@@ -1507,6 +1579,7 @@ class ChatController extends GetxController {
   void onClose() {
     chatController.dispose();
     chatScreenScrollController.dispose();
+    shortcutInputControllers.forEach((_, controller) => controller.dispose());
     ChatClient.getInstance.chatManager.removeMessageEvent(chatListenerId);
     ChatClient.getInstance.chatManager.removeEventHandler(chatListenerId);
   }
