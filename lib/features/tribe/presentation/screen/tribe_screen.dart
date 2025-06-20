@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/create_tribe_group.dart';
 
@@ -50,9 +51,14 @@ class _TribeScreenState extends State<TribeScreen> {
   @override
   Widget build(BuildContext context) {
     return Obx(
-      () => AppScaffold(
+      () => Scaffold(
         key: _scaffoldKey,
         backgroundColor: const Color(0xFF0F172A),
+        drawer: Container(
+          width: MediaQuery.of(context).size.width * 0.90,
+          color: AppColors.bgMedium,
+          child: const MainDrawer(),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: ListView(
@@ -74,7 +80,8 @@ class _TribeScreenState extends State<TribeScreen> {
                     ),
                     InkWell(
                       onTap: () {
-                        AppWidgetKey.mainScaffold.currentState!.openDrawer();
+                        _scaffoldKey.currentState?.openDrawer();
+                        // AppWidgetKey.mainScaffold.currentState!.openDrawer();
                       },
                       child: Assets.images.menu.svg(width: 32),
                     ),
@@ -115,7 +122,7 @@ class _TribeScreenState extends State<TribeScreen> {
                       width: 40,
                       height: 40,
                       margin: const EdgeInsets.only(left: 8),
-                      decoration: BoxDecoration(
+                      decoration: const BoxDecoration(
                         shape: BoxShape.circle,
                         color: AppColors.primary500,
                       ),
