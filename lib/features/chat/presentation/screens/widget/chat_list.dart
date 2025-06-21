@@ -49,7 +49,7 @@ class ChatList extends StatelessWidget {
   Widget _buildUnifiedContainer() {
     return Container(
       margin: const EdgeInsets.symmetric(
-        horizontal: 16,
+        horizontal: 8,
         vertical: 4,
       ),
       decoration: BoxDecoration(
@@ -77,7 +77,7 @@ class ChatList extends StatelessWidget {
             _buildChatListContent(),
             Container(
               height: 1,
-              margin: const EdgeInsets.symmetric(horizontal: 16),
+              margin: const EdgeInsets.symmetric(horizontal: 8),
               color: AppColors.bgDark.withOpacity(0.3),
             ),
             _buildShortcutMessagesSection(),
@@ -225,7 +225,7 @@ class ChatList extends StatelessWidget {
                   message.from == ChatClient.getInstance.currentUserId;
               return Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 child: Row(
                   mainAxisAlignment:
                       isMine ? MainAxisAlignment.end : MainAxisAlignment.start,
@@ -259,7 +259,7 @@ class ChatList extends StatelessWidget {
                               ],
                               // Use MessageUtils to get the appropriate widget
                               _buildShortcutMessageContent(message, isMine, context),
-                              HorizontalSpacing(8),
+                              const HorizontalSpacing(8),
                               if (isMine) ...[
                                 _buildMessageAvatar(message),
                               ],
@@ -350,7 +350,6 @@ class ChatList extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         );
-        break;
 
       case 'img':
         final remotePath = jsonMessage['remotePath'];
@@ -388,7 +387,6 @@ class ChatList extends StatelessWidget {
                   size: 30,
                 ),
         );
-        break;
 
       case 'video':
         content = Container(
@@ -404,7 +402,6 @@ class ChatList extends StatelessWidget {
             size: 30,
           ),
         );
-        break;
 
       case 'audio':
         content = Container(
@@ -431,7 +428,6 @@ class ChatList extends StatelessWidget {
             ],
           ),
         );
-        break;
 
       case 'file':
         final fileName = jsonMessage['displayName'] ?? 'File';
@@ -466,7 +462,6 @@ class ChatList extends StatelessWidget {
             ],
           ),
         );
-        break;
 
       default:
         content = Container(

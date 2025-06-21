@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/about_tab.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/create_post_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_tab.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
@@ -213,7 +214,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _createPostInput() {
     return GestureDetector(
-      onTap: () => _showCreatePostDialog(),
+      onTap: () => Get.to(() => const CreatePostScreen()),
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -239,40 +240,6 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
             const Icon(Icons.photo, color: Colors.white54),
           ],
         ),
-      ),
-    );
-  }
-
-  void _showCreatePostDialog() {
-    final textController = TextEditingController();
-    final controller = Get.find<FeedPageController>();
-
-    Get.dialog(
-      AlertDialog(
-        title: const Text('Create Post'),
-        content: TextField(
-          controller: textController,
-          maxLines: 4,
-          decoration: const InputDecoration(
-            hintText: "What's on your mind?",
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Get.back(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              if (textController.text.trim().isNotEmpty) {
-                controller.createPost(textController.text.trim(), []);
-                Get.back();
-              }
-            },
-            child: const Text('Post'),
-          ),
-        ],
       ),
     );
   }

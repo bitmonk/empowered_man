@@ -11,6 +11,7 @@ environment:
 dependencies:
   agora_chat_sdk: ^1.3.2
   animated_bottom_navigation_bar: ^1.3.3
+  app_links: ^6.4.0
   archive: ^4.0.7
   audio_video_progress_bar: ^2.0.3
   auto_size_text: ^3.0.0
@@ -73,7 +74,6 @@ dependencies:
   shared_preferences: ^2.5.2
   smooth_page_indicator: ^1.2.0+3
   table_calendar: ^3.1.2
-  uni_links5: ^0.5.4
   url_launcher: ^6.3.0
   vector_graphics: any
   video_player: ^2.9.5

@@ -1,3 +1,6 @@
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 
 void main() {
@@ -47,15 +50,20 @@ class PostBody extends StatelessWidget {
         children: [
           Row(
             children: [
-              const CircleAvatar(
-                radius: 20,
-                backgroundImage: AssetImage('assets/user.jpg'), // Replace with actual image
+              ClipOval(
+                child: Assets.images.leaderProfile.image(
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                ),
               ),
               const SizedBox(width: 12),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Upasana Khatiwada', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  const Text('Upasana Khatiwada',
+                      style: TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold)),
                   const SizedBox(height: 4),
                   Wrap(
                     spacing: 4,
@@ -63,8 +71,6 @@ class PostBody extends StatelessWidget {
                       _chip('Friends'),
                       _chip('+ Album'),
                       _chip('Off'),
-                      _chip('Off'),
-                      _chip('+ AI label off'),
                     ],
                   ),
                 ],
@@ -72,7 +78,8 @@ class PostBody extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          const Text("What's on your mind?", style: TextStyle(color: Colors.grey, fontSize: 18)),
+          const Text("What's on your mind?",
+              style: TextStyle(color: Colors.grey, fontSize: 18)),
         ],
       ),
     );
@@ -85,28 +92,33 @@ class PostBody extends StatelessWidget {
         color: const Color(0xFF3A3B3C),
         borderRadius: BorderRadius.circular(20),
       ),
-      child: Text(label, style: const TextStyle(color: Colors.white, fontSize: 12)),
+      child: Text(label,
+          style: const TextStyle(color: Colors.white, fontSize: 12)),
     );
   }
 }
 
-class PostOptionsSheet extends StatelessWidget {
+class PostOptionsSheet extends StatefulWidget {
   const PostOptionsSheet({super.key});
+
+  @override
+  State<PostOptionsSheet> createState() => _PostOptionsSheetState();
+}
+
+class _PostOptionsSheetState extends State<PostOptionsSheet> {
+  bool _isUploading = false;
+  final controller = Get.find<FeedPageController>();
 
   @override
   Widget build(BuildContext context) {
     final options = [
       _Option(icon: Icons.photo, label: 'Photo/video', color: Colors.green),
-      _Option(icon: Icons.person_add, label: 'Tag people', color: Colors.blue),
-      _Option(icon: Icons.emoji_emotions, label: 'Feeling/activity', color: Colors.yellow),
-      _Option(icon: Icons.location_on, label: 'Check in', color: Colors.red),
-      _Option(icon: Icons.videocam, label: 'Live video', color: Colors.pink),
-      _Option(icon: Icons.text_fields, label: 'Background color', color: Colors.teal),
+      _Option(
+          icon: Icons.emoji_emotions,
+          label: 'Feeling/activity',
+          color: Colors.yellow),
       _Option(icon: Icons.camera_alt, label: 'Camera', color: Colors.blue),
       _Option(icon: Icons.gif_box, label: 'GIF', color: Colors.teal),
-      _Option(icon: Icons.flag, label: 'Life event', color: Colors.blue),
-      _Option(icon: Icons.music_note, label: 'Music', color: Colors.orange),
-      _Option(icon: Icons.calendar_today, label: 'Tag event', color: Colors.redAccent),
     ];
 
     return Container(
@@ -122,17 +134,36 @@ class PostOptionsSheet extends StatelessWidget {
           final item = options[index];
           return ListTile(
             leading: Icon(item.icon, color: item.color),
-            title: Text(item.label, style: const TextStyle(color: Colors.white)),
+            title:
+                Text(item.label, style: const TextStyle(color: Colors.white)),
             onTap: () {},
           );
         },
       ),
     );
   }
+
+  // Future<void> _pickImage(BuildContext context) async {
+  //   // UiHelper.showloaderdialog(context);
+  //   try {
+  //     setState(() => _isUploading = true);
+  //     final pickedImage = await AppUtils.pickImage(context);
+  //     if (pickedImage != null) {
+  //       setState(() {
+  //         controller.selectedImage.value = pickedImage;
+  //       });
+  //       await controller.uploadMedia();
+  //     }
+  //   } catch (e) {
+  //     AppUtils.showErrorSnackbar(message: 'Failed to pick image');
+  //   } finally {
+  //     setState(() => _isUploading = false);
+  //     // Navigator.pop(Get.overlayContext!);
+  //   }
+  // }
 }
 
 class _Option {
-
   _Option({required this.icon, required this.label, required this.color});
   final IconData icon;
   final String label;
