@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/audio_player_controller.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
@@ -13,7 +12,6 @@ import 'package:empowered/features/chat/presentation/screens/widget/message_util
 import 'package:flutter/services.dart';
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 class ChatCoversationScreen extends StatefulWidget {
   const ChatCoversationScreen({
@@ -194,17 +192,17 @@ class _ChatCoversationScreenState extends State<ChatCoversationScreen> {
                                   //     .containsKey(chat.msgId),
                                   onLike: () {
                                     print(
-                                        '🐛 onLike callback triggered for message: ${chat.msgId}');
+                                        '🐛 onLike callback triggered for message: ${chat.msgId}',);
                                     final reactions =
                                         controller.reactionMap[chat.msgId] ??
                                             [];
                                     final isLiked = reactions.any((r) =>
                                         r.reaction == '👍' &&
                                         r.userList.contains(
-                                            controller.currentUserId.value));
+                                            controller.currentUserId.value,),);
                                     if (isLiked) {
                                       controller.removeReaction(
-                                          chat.msgId, '👍');
+                                          chat.msgId, '👍',);
                                     } else {
                                       controller.addReaction(chat.msgId, '👍');
                                     }
@@ -526,11 +524,11 @@ class _MessageTypeTextState extends State<MessageTypeText> {
       .replaceAll(RegExp(r'<p>'), '') // Remove opening p tags
       .replaceAll(RegExp(r'</p>'), '<br>') // Replace closing p tags with br
       .replaceAll(
-          RegExp(r'\n+'), '<br>') // Replace multiple newlines with single br
+          RegExp(r'\n+'), '<br>',) // Replace multiple newlines with single br
       .replaceAll(RegExp(r'(<br>\s*){2,}'),
-          '<br>') // Replace multiple br tags with single br
+          '<br>',) // Replace multiple br tags with single br
       .replaceAll(RegExp(r'^\s*<br>\s*|<br>\s*$'),
-          '') // Remove leading/trailing br tags
+          '',) // Remove leading/trailing br tags
       .trim(); // Remove any remaining leading/trailing whitespace
 
   @override

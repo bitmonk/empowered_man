@@ -1,16 +1,16 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
+import 'package:intl/intl.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
     required this.post,
-    required this.postIndex,
     super.key,
   });
 
-  final Map<String, dynamic> post;
-  final int postIndex;
+  final Post post;
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -26,9 +26,19 @@ class _FeedPostState extends State<FeedPost> {
     controller = Get.find<FeedPageController>();
   }
 
+  String formatDateTime(String? dateTimeStr) {
+    if (dateTimeStr == null) return 'N/A';
+    try {
+      final dateTime = DateTime.parse(dateTimeStr);
+      return DateFormat.yMd().format(dateTime.toLocal());
+    } catch (e) {
+      return 'N/A';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final content = widget.post['content'] ?? '';
+    final content = widget.post.text ?? '';
     final textToShow = _expanded || content.length < 100
         ? content
         : '${content.substring(0, 100)}...';
@@ -47,11 +57,24 @@ class _FeedPostState extends State<FeedPost> {
           Row(
             children: [
               ClipOval(
-                child: Assets.images.leaderProfile.image(
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                ),
+                child: widget.post.createdBy?.image != null
+                    ? Image.network(
+                        widget.post.createdBy!.image!,
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          height: 40,
+                          width: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -59,11 +82,11 @@ class _FeedPostState extends State<FeedPost> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      widget.post['userName'] ?? '',
+                      widget.post.createdBy?.fullName ?? 'Unknown',
                       style: const TextStyle(color: Colors.white),
                     ),
                     Text(
-                      widget.post['timeAgo'] ?? '',
+                      formatDateTime(widget.post.createdAt),
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
@@ -79,21 +102,19 @@ class _FeedPostState extends State<FeedPost> {
                   width: 20,
                   fit: BoxFit.cover,
                 ),
-                onSelected: (value) => _handleMenuAction(value),
+                onSelected: _handleMenuAction,
                 itemBuilder: (context) => [
                   PopupMenuItem(
                     value: 'save',
                     child: Row(
                       children: [
-                        Icon(
-                          widget.post['isSaved'] == true
-                              ? Icons.bookmark
-                              : Icons.bookmark_outline,
-                          color: Colors.white,
-                        ),
+                        if (widget.post.isBookmarked ?? false)
+                          Assets.images.savedPost.svg(width: 28, height: 28)
+                        else
+                          Assets.images.savePost.svg(width: 28, height: 28),
                         const SizedBox(width: 8),
                         Text(
-                          widget.post['isSaved'] == true
+                          widget.post.isBookmarked ?? false
                               ? 'Unsave Post'
                               : 'Save Post',
                           style: const TextStyle(color: Colors.white),
@@ -105,28 +126,11 @@ class _FeedPostState extends State<FeedPost> {
                     value: 'hide',
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.visibility_off_outlined,
-                          color: Colors.white,
-                        ),
+                        Icon(Icons.visibility_off_outlined,
+                            color: Colors.white),
                         SizedBox(width: 8),
                         Text(
                           'Hide Post',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const PopupMenuItem(
-                    value: 'report',
-                    child: Row(
-                      children: [
-                        Icon(Icons.report_outlined, color: Colors.white),
-                        SizedBox(width: 8),
-                        Text(
-                          'Report Post',
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -140,25 +144,22 @@ class _FeedPostState extends State<FeedPost> {
           const GreyDivider(),
           const VerticalSpacing(12),
 
+          // Images
+          if (widget.post.media != null && widget.post.media!.isNotEmpty)
+            const SizedBox(height: 8),
+          _buildImages(widget.post.media ?? []),
+          const VerticalSpacing(12),
+
           // Content
           Text(textToShow, style: const TextStyle(color: Colors.white)),
           if (content.length > 100)
             TextButton(
-              onPressed: () {
-                setState(() => _expanded = !_expanded);
-              },
+              onPressed: () => setState(() => _expanded = !_expanded),
               child: Text(
                 _expanded ? 'See Less' : 'See More',
                 style: const TextStyle(color: Colors.blue),
               ),
             ),
-
-          // Images
-          if (widget.post['imageUrls'] != null &&
-              (widget.post['imageUrls'] as List).isNotEmpty)
-            const SizedBox(height: 8),
-          _buildImages(List<String>.from(widget.post['imageUrls'] ?? [])),
-
           const VerticalSpacing(12),
           const GreyDivider(),
           const VerticalSpacing(12),
@@ -168,37 +169,34 @@ class _FeedPostState extends State<FeedPost> {
             children: [
               // Like button
               GestureDetector(
-                onTap: () => controller.toggleLike(widget.postIndex),
+                onTap: () =>
+                    controller.toggleLike(widget.post.id?.toString() ?? ''),
                 child: Icon(
-                  widget.post['isLiked'] == true
+                  widget.post.isLiked ?? false
                       ? Icons.favorite
                       : Icons.favorite_border,
-                  color: widget.post['isLiked'] == true
-                      ? Colors.red
-                      : Colors.white,
+                  color:
+                      widget.post.isLiked ?? false ? Colors.red : Colors.white,
                   size: 20,
                 ),
               ),
               const SizedBox(width: 4),
               Text(
-                _formatCount(widget.post['likesCount'] ?? 0),
+                _formatCount(widget.post.likesCount ?? 0),
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(width: 16),
 
               // Comment button
               GestureDetector(
-                onTap: () => _navigateToComments(),
+                onTap: _navigateToComments,
                 child: Row(
                   children: [
-                    Assets.images.comment.svg(
-                      height: 20,
-                      width: 20,
-                      fit: BoxFit.cover,
-                    ),
+                    Assets.images.comment
+                        .svg(height: 20, width: 20, fit: BoxFit.cover),
                     const SizedBox(width: 4),
                     Text(
-                      _formatCount(widget.post['commentsCount'] ?? 0),
+                      _formatCount(widget.post.commentsCount ?? 0),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ],
@@ -235,16 +233,11 @@ class _FeedPostState extends State<FeedPost> {
 
               // Save button
               GestureDetector(
-                onTap: () => controller.toggleSave(widget.postIndex),
-                child: Icon(
-                  widget.post['isSaved'] == true
-                      ? Icons.bookmark
-                      : Icons.bookmark_outline,
-                  color: widget.post['isSaved'] == true
-                      ? Colors.orange
-                      : Colors.white,
-                  size: 20,
-                ),
+                onTap: () =>
+                    controller.toggleSave(widget.post.id?.toString() ?? ''),
+                child: widget.post.isBookmarked ?? false
+                    ? Assets.images.savedPost.svg(width: 22, height: 22)
+                    : Assets.images.savePost.svg(width: 22, height: 22),
               ),
             ],
           ),
@@ -259,10 +252,33 @@ class _FeedPostState extends State<FeedPost> {
     if (urls.length == 1) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.asset(
+        child: Image.network(
           urls.first,
+          width: double.infinity,
+          height: 200,
           fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
         ),
+      );
+    } else if (urls.length == 2) {
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: urls
+            .map(
+              (url) => ClipRRect(
+                borderRadius: BorderRadius.circular(8),
+                child: Image.network(
+                  url,
+                  width: MediaQuery.of(context).size.width / 2 - 35,
+                  height: 200,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
+                ),
+              ),
+            )
+            .toList(),
       );
     } else {
       return Wrap(
@@ -272,11 +288,13 @@ class _FeedPostState extends State<FeedPost> {
             .map(
               (url) => ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
+                child: Image.network(
                   url,
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
                 ),
               ),
             )
@@ -298,12 +316,9 @@ class _FeedPostState extends State<FeedPost> {
   void _handleMenuAction(String action) {
     switch (action) {
       case 'save':
-        controller.toggleSave(widget.postIndex);
+        controller.toggleSave(widget.post.id?.toString() ?? '');
       case 'hide':
         _showHideConfirmation();
-
-      case 'report':
-        controller.reportPost(widget.post['id'] ?? '');
     }
   }
 
@@ -320,7 +335,7 @@ class _FeedPostState extends State<FeedPost> {
           TextButton(
             onPressed: () {
               Get.back();
-              controller.hidePost(widget.post['id'] ?? '');
+              controller.hidePost(widget.post.id?.toString() ?? '');
             },
             child: const Text('Hide'),
           ),
@@ -332,11 +347,12 @@ class _FeedPostState extends State<FeedPost> {
   void _navigateToComments() {
     Get.to(
       () => CommentScreen(
-        userName: widget.post['userName'] ?? '',
-        timeAgo: widget.post['timeAgo'] ?? '',
-        content: widget.post['content'] ?? '',
-        imageUrls: List<String>.from(widget.post['imageUrls'] ?? []),
-        isLiked: widget.post['isLiked'] ?? false,
+        userName: widget.post.createdBy?.fullName ?? 'Unknown',
+        timeAgo: widget.post.createdAt ?? '',
+        content: widget.post.text ?? '',
+        imageUrls: widget.post.media ?? [],
+        isLiked: widget.post.isLiked ?? false,
+        postId: widget.post.id?.toString() ?? '',
       ),
     );
   }

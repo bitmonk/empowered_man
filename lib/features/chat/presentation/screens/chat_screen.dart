@@ -1,8 +1,6 @@
 import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
-import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_list.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/new_message_model.dart';
 import 'package:empowered/features/group/presentation/screens/widgets/colored_padded_cotainer.dart';
@@ -83,7 +81,7 @@ class ChatScreen extends GetView<ChatController> {
                                   },
                                   child: Padding(
                                     padding: const EdgeInsets.symmetric(
-                                        horizontal: 8),
+                                        horizontal: 8,),
                                     child: Obx(() {
                                       var isSelectedFilter = controller
                                               .selectedFilterindex.value ==
@@ -184,12 +182,12 @@ class ChatScreen extends GetView<ChatController> {
                                       } else {
                                         return const Padding(
                                           padding: EdgeInsets.symmetric(
-                                              vertical: 16),
+                                              vertical: 16,),
                                           child: Center(
                                             child: Text(
                                               'No more conversations',
                                               style: TextStyle(
-                                                  color: AppColors.baseWhite),
+                                                  color: AppColors.baseWhite,),
                                             ),
                                           ),
                                         );
@@ -212,7 +210,7 @@ class ChatScreen extends GetView<ChatController> {
                             error: controller.fetchCoversationError.value,
                             onPressed: () {
                               controller.fetchConversations(
-                                  isInitialLoad: true);
+                                  isInitialLoad: true,);
                             },
                           ),
                           orElse: () => controller.allConversations.isEmpty
@@ -220,13 +218,13 @@ class ChatScreen extends GetView<ChatController> {
                                   error: 'No conversations found.',
                                   onPressed: () {
                                     controller.fetchConversations(
-                                        isInitialLoad: true);
+                                        isInitialLoad: true,);
                                   },
                                 )
                               : RefreshIndicator(
                                   onRefresh: () async {
                                     controller.fetchConversations(
-                                        isInitialLoad: true);
+                                        isInitialLoad: true,);
                                   },
                                   child: ListView.builder(
                                     itemCount:
@@ -265,12 +263,12 @@ class ChatScreen extends GetView<ChatController> {
                                       } else {
                                         return const Padding(
                                           padding: EdgeInsets.symmetric(
-                                              vertical: 16),
+                                              vertical: 16,),
                                           child: Center(
                                             child: Text(
                                               'No more conversations',
                                               style: TextStyle(
-                                                  color: AppColors.baseWhite),
+                                                  color: AppColors.baseWhite,),
                                             ),
                                           ),
                                         );
@@ -331,12 +329,12 @@ class ChatScreen extends GetView<ChatController> {
                                       } else {
                                         return const Padding(
                                           padding: EdgeInsets.symmetric(
-                                              vertical: 16),
+                                              vertical: 16,),
                                           child: Center(
                                             child: Text(
                                               'No more conversations',
                                               style: TextStyle(
-                                                  color: AppColors.baseWhite),
+                                                  color: AppColors.baseWhite,),
                                             ),
                                           ),
                                         );

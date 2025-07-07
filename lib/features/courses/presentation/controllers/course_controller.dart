@@ -197,13 +197,10 @@ class CourseController extends GetxController {
     return result.fold(
       (l) {
         changeCourseStatusState.value = TheStates.error;
-        // AppUtils.showErrorSnackbar(message: l.message);
         return false;
       },
       (r) async {
         getChapters();
-        // Get.back();
-        // AppUtils.showSnackbar(message: r);
         changeCourseStatusState.value = TheStates.success;
         return true;
       },

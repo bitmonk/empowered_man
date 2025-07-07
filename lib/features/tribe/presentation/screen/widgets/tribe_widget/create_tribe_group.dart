@@ -15,6 +15,19 @@ class CreateTribeGroup extends StatefulWidget {
 
 class _CreateTribeGroupState extends State<CreateTribeGroup> {
   List<String> members = [];
+  final tribeController = Get.find<TribeGroupController>();
+
+  @override
+  void initState() {
+    super.initState();
+    tribeController.groupNameController = TextEditingController();
+    tribeController.groupDescriptionController = TextEditingController();
+    tribeController.accessTypeController = TextEditingController();
+
+    tribeController.groupImagePath = '';
+
+    //tribeController.groupNameController = TextEditingController();
+  }
 
   Future<void> _pickImageFromGallery(
     TribeGroupController tribeController,
@@ -37,10 +50,29 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
     }
   }
 
+  bool _validateForm(TribeGroupController controller) {
+    final nameError = controller.groupNameController.text.isNotEmpty;
+    final descError = controller.groupDescriptionController.text.isNotEmpty;
+    final accessType = controller.accessTypeController.text.isNotEmpty;
+
+    if (!nameError) {
+      AppUtils.showErrorSnackbar(message: 'Group Name is required');
+      return false;
+    }
+    if (!descError) {
+      AppUtils.showErrorSnackbar(message: 'Group Description is required');
+      return false;
+    }
+    if (!accessType) {
+      AppUtils.showErrorSnackbar(message: 'Access type is required');
+      return false;
+    }
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final tribeController = Get.find<TribeGroupController>();
 
     return DraggableScrollableSheet(
       expand: false,
@@ -57,15 +89,18 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               // Header
-              const Row(
+              Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Icon(Icons.arrow_back, color: Colors.white),
-                  Text(
+                  IconButton(
+                    icon: const Icon(Icons.arrow_back, color: Colors.white),
+                    onPressed: () => Get.back(),
+                  ),
+                  const Text(
                     'Create Group',
                     style: TextStyle(fontSize: 18, color: Colors.white),
                   ),
-                  Icon(Icons.menu, color: Colors.white),
+                  const Icon(Icons.menu, color: Colors.white),
                 ],
               ),
               const SizedBox(height: 24),
@@ -75,16 +110,33 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 textInputType: TextInputType.emailAddress,
                 hintText: 'Enter Group Name',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Group name is required';
+                  }
+                  if (value.length < 3) {
+                    return 'Group name must be at least 3 characters';
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 16),
               AppTextFormField(
                 labelText: 'About',
                 controller: tribeController.groupDescriptionController,
-                textInputType: TextInputType.emailAddress,
                 maxLines: 4,
                 hintText: 'Enter About Group',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Group description is required';
+                  }
+                  if (value.length < 10) {
+                    return 'Group description must be at least 10 characters';
+                  }
+                  return null;
+                },
               ),
 
               const VerticalSpacing(16),
@@ -132,61 +184,64 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               const VerticalSpacing(12),
-              // Add Group Photo with Obx for reactive updates
-              Obx(
-                () => GestureDetector(
-                  onTap: () => _pickImageFromGallery(tribeController),
-                  child: DottedBorder(
-                    borderType: BorderType.RRect,
-                    radius: const Radius.circular(12),
-                    dashPattern: const [10, 5],
-                    color: Colors.white30,
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.white30,
-                          style: BorderStyle.none,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
+              // Obx(
+              //   () => ,
+              // ),
+              GestureDetector(
+                onTap: () => _pickImageFromGallery(tribeController),
+                child: DottedBorder(
+                  borderType: BorderType.RRect,
+                  radius: const Radius.circular(12),
+                  dashPattern: const [10, 5],
+                  color: Colors.white30,
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(24),
+                    decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white30,
+                        style: BorderStyle.none,
                       ),
-                      child: tribeController.groupImagePath.value.isEmpty
-                          ? const Column(
-                              children: [
-                                Icon(
-                                  Icons.cloud_upload,
-                                  color: Colors.white54,
-                                  size: 40,
-                                ),
-                                SizedBox(height: 8),
-                                Text(
-                                  'Upload from library',
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 14),
-                                ),
-                              ],
-                            )
-                          : Column(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image.file(
-                                    File(tribeController.groupImagePath.value),
-                                    height: 120,
-                                    width: double.infinity,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Tap to change image',
-                                  style: TextStyle(
-                                      color: Colors.blue, fontSize: 14),
-                                ),
-                              ],
-                            ),
+                      borderRadius: BorderRadius.circular(12),
                     ),
+                    child: tribeController.groupImagePath.isEmpty
+                        ? Column(
+                            children: [
+                              Assets.images.uploadFromLibrary.svg(
+                                height: 80,
+                                width: 80,
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Upload from library',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          )
+                        : Column(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8),
+                                child: Image.file(
+                                  File(tribeController.groupImagePath),
+                                  height: 120,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              const Text(
+                                'Tap to change image',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
                   ),
                 ),
               ),
@@ -198,20 +253,62 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 controller: tribeController.accessTypeController,
                 textInputType: TextInputType.emailAddress,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Access type is required';
+                  }
+                  return null;
+                },
               ),
 
               const SizedBox(height: 24),
 
               // Buttons
-              Row(
-                children: [
-                  Expanded(
-                    child: AppOutlinedButton(
-                      text: 'Create',
-                      onPressed: () {},
+              Obx(
+                () => Row(
+                  children: [
+                    Expanded(
+                      child: AppOutlinedButton(
+                        text: tribeController.createGroupState.value ==
+                                TheStates.loading
+                            ? 'Creating...'
+                            : 'Create',
+                        onPressed: tribeController.createGroupState.value ==
+                                TheStates.loading
+                            ? null // Disable button during loading
+                            : () async {
+                                if (_validateForm(tribeController)) {
+                                  await tribeController.createGroup(
+                                    groupName: tribeController
+                                        .groupNameController.text,
+                                    about: tribeController
+                                        .groupDescriptionController.text,
+                                    accessType: tribeController
+                                        .accessTypeController.text,
+                                    imagePath:
+                                        tribeController.groupImagePath.isEmpty
+                                            ? null
+                                            : tribeController.groupImagePath,
+                                    membersId: ['1', '2'],
+                                  );
+                                  // Handle success state
+                                  if (tribeController.createGroupState.value ==
+                                      TheStates.success) {
+                                    tribeController
+                                      ..clearGroupForm()
+                                      ..clearGroupImage();
+                                    await tribeController
+                                        .refreshGroups(); // Refresh group list
+                                    Navigator.pop(
+                                      context,
+                                    ); // Close bottom sheet
+                                  }
+                                }
+                              },
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
               Row(

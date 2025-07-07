@@ -83,6 +83,25 @@ class AppEndpoints {
 
   //Chat
   static const String searchUser = '/agora/users/search';
+
+  //tribe 
+  static const String createGroup = '/user/tribe-group';
+  static const String pinUnpinGroup = '/user/pin-group';
+  static const String addMembers ='/user/add-members';
+  static const String removeMembers ='/user/remove-member';
+  static const String editGroups = '/user/tribe-group';
+  static const String getGroupDetailsById = '/user/tribe-group/';
+
+  //feed post
+  static const String getFeedPosts = '/user/posts';
+  static const String createPost = '/user/create-post';
+  static const String likePost = '/user/post/like';
+  static const String commentPost = '/user/post/comment';
+  static const String likeComment = '/user/comment/like';
+  static const String replyComment = '/user/comment/reply';
+  static const String savePost = '/user/post/save';
+  static const String hidePost = '/user/post/hide';
+
 }
 
 class ExternalEndpoints {}

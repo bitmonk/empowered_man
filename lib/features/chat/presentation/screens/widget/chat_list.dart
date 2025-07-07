@@ -274,7 +274,7 @@ class ChatList extends StatelessWidget {
                             children: [
                               Text(
                                 DateTime.fromMillisecondsSinceEpoch(
-                                        message.serverTime)
+                                        message.serverTime,)
                                     .toString()
                                     .substring(11, 16),
                                 style: AppTextStyles.textCaptionC2.copyWith(

@@ -909,7 +909,7 @@ class ChatController extends GetxController {
               ? ChatType.GroupChat
               : ChatType.Chat;
       print(
-          'Fetching reactions for ${messageIds.length} messages, chatType: $chatType');
+          'Fetching reactions for ${messageIds.length} messages, chatType: $chatType',);
       final groupId = chatType == ChatType.GroupChat
           ? selectedConversation.value?.id
           : null;
@@ -934,7 +934,7 @@ class ChatController extends GetxController {
   }
 
   Future<void> fetchLastMessagesForConversation(
-      String convoId, ChatConversationType type) async {
+      String convoId, ChatConversationType type,) async {
     try {
       final result =
           await ChatClient.getInstance.chatManager.fetchHistoryMessages(
@@ -945,7 +945,7 @@ class ChatController extends GetxController {
 
       final loadedMessages = result.data;
       print(
-          'Fetched ${loadedMessages.length} messages for shortcut chat in conversation $convoId');
+          'Fetched ${loadedMessages.length} messages for shortcut chat in conversation $convoId',);
       shortcutMessages[convoId] =
           loadedMessages.take(threadMessageQuantity).toList(); // Limit to 5
       shortcutMessages.refresh();
@@ -959,7 +959,7 @@ class ChatController extends GetxController {
       await fetchReactionsForMessages(loadedMessages);
     } on ChatError catch (e) {
       print(
-          'Error fetching shortcut messages for $convoId: ${e.code} - ${e.description}');
+          'Error fetching shortcut messages for $convoId: ${e.code} - ${e.description}',);
     }
   }
 
@@ -1070,7 +1070,7 @@ class ChatController extends GetxController {
     }
     if (targetID == null || chatType == null) {
       print(
-          'ChatController: Invalid targetID ($targetID) or chatType ($chatType)');
+          'ChatController: Invalid targetID ($targetID) or chatType ($chatType)',);
       sendMessageError.value = 'Invalid target or chat type';
       sendingMessageState.value = TheStates.error;
       return;
@@ -1167,7 +1167,7 @@ class ChatController extends GetxController {
       }
       if (message != null) {
         print(
-            'ChatController: Sending message to $targetId, type: $chatTypeValue, text: $text');
+            'ChatController: Sending message to $targetId, type: $chatTypeValue, text: $text',);
         await ChatClient.getInstance.chatManager.sendMessage(message);
         print('ChatController: Message sent, msgId: ${message.msgId}');
         messages.add(message);
@@ -1261,7 +1261,7 @@ class ChatController extends GetxController {
       );
       // Always refresh
       await fetchReactionsForMessages(
-          [messages.firstWhere((m) => m.msgId == msgId)]);
+          [messages.firstWhere((m) => m.msgId == msgId)],);
       print('Reaction added');
     } catch (e) {
       print('Failed to add reaction: $e');
@@ -1276,7 +1276,7 @@ class ChatController extends GetxController {
       );
       // Always refresh
       await fetchReactionsForMessages(
-          [messages.firstWhere((m) => m.msgId == msgId)]);
+          [messages.firstWhere((m) => m.msgId == msgId)],);
       print('Reaction removed');
     } catch (e) {
       print('Failed to remove reaction: $e');

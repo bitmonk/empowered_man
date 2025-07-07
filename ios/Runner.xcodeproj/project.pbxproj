@@ -567,7 +567,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-api";
@@ -635,10 +639,12 @@
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -749,7 +755,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-di";
@@ -758,7 +768,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 323404CABB16041368404E54 /* apiDebug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-api";
@@ -767,7 +781,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-di";
@@ -1036,10 +1054,12 @@
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1060,10 +1080,12 @@
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = Runner/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1221,7 +1243,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-api";
@@ -1230,7 +1256,11 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
+				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
+				MARKETING_VERSION = 1.1;
+				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-di";

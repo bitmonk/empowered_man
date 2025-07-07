@@ -120,6 +120,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/Logout.svg
   SvgGenImage get logout => const SvgGenImage('assets/images/Logout.svg');
 
+  /// File path: assets/images/Pin.svg
+  SvgGenImage get pin => const SvgGenImage('assets/images/Pin.svg');
+
   /// File path: assets/images/Search.svg
   SvgGenImage get search => const SvgGenImage('assets/images/Search.svg');
 
@@ -319,6 +322,9 @@ class $AssetsImagesGen {
   AssetGenImage get classImage =>
       const AssetGenImage('assets/images/class_image.png');
 
+  /// File path: assets/images/comment.svg
+  SvgGenImage get comment => const SvgGenImage('assets/images/comment.svg');
+
   /// File path: assets/images/completed.svg
   SvgGenImage get completed => const SvgGenImage('assets/images/completed.svg');
 
@@ -332,6 +338,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/course_thumbnail.jpeg
   AssetGenImage get courseThumbnail =>
       const AssetGenImage('assets/images/course_thumbnail.jpeg');
+
+  /// File path: assets/images/create_group.svg
+  SvgGenImage get createGroup =>
+      const SvgGenImage('assets/images/create_group.svg');
 
   /// File path: assets/images/dashboard.svg
   SvgGenImage get dashboard => const SvgGenImage('assets/images/dashboard.svg');
@@ -429,6 +439,33 @@ class $AssetsImagesGen {
   /// File path: assets/images/featured_class_detail.png
   AssetGenImage get featuredClassDetail =>
       const AssetGenImage('assets/images/featured_class_detail.png');
+
+  /// File path: assets/images/feed_post_image1.jpg
+  AssetGenImage get feedPostImage1 =>
+      const AssetGenImage('assets/images/feed_post_image1.jpg');
+
+  /// File path: assets/images/feed_post_image2.jpg
+  AssetGenImage get feedPostImage2 =>
+      const AssetGenImage('assets/images/feed_post_image2.jpg');
+
+  /// File path: assets/images/feed_post_image3.jpg
+  AssetGenImage get feedPostImage3 =>
+      const AssetGenImage('assets/images/feed_post_image3.jpg');
+
+  /// File path: assets/images/feed_post_image4.jpg
+  AssetGenImage get feedPostImage4 =>
+      const AssetGenImage('assets/images/feed_post_image4.jpg');
+
+  /// File path: assets/images/feed_post_image5.jpg
+  AssetGenImage get feedPostImage5 =>
+      const AssetGenImage('assets/images/feed_post_image5.jpg');
+
+  /// File path: assets/images/feed_post_image6.jpg
+  AssetGenImage get feedPostImage6 =>
+      const AssetGenImage('assets/images/feed_post_image6.jpg');
+
+  /// File path: assets/images/file.svg
+  SvgGenImage get file => const SvgGenImage('assets/images/file.svg');
 
   /// File path: assets/images/game.svg
   SvgGenImage get game => const SvgGenImage('assets/images/game.svg');
@@ -596,6 +633,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/location.svg
   SvgGenImage get location => const SvgGenImage('assets/images/location.svg');
 
+  /// File path: assets/images/lock.svg
+  SvgGenImage get lock => const SvgGenImage('assets/images/lock.svg');
+
   /// File path: assets/images/map.png
   AssetGenImage get map => const AssetGenImage('assets/images/map.png');
 
@@ -697,6 +737,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/one.png
   AssetGenImage get one => const AssetGenImage('assets/images/one.png');
 
+  /// File path: assets/images/people.png
+  AssetGenImage get people => const AssetGenImage('assets/images/people.png');
+
   /// File path: assets/images/physio.png
   AssetGenImage get physio => const AssetGenImage('assets/images/physio.png');
 
@@ -709,6 +752,10 @@ class $AssetsImagesGen {
 
   /// File path: assets/images/point.svg
   SvgGenImage get point => const SvgGenImage('assets/images/point.svg');
+
+  /// File path: assets/images/post_image.svg
+  SvgGenImage get postImage =>
+      const SvgGenImage('assets/images/post_image.svg');
 
   /// File path: assets/images/power_journal.svg
   SvgGenImage get powerJournal =>
@@ -804,6 +851,13 @@ class $AssetsImagesGen {
   SvgGenImage get rotateRight =>
       const SvgGenImage('assets/images/rotate-right.svg');
 
+  /// File path: assets/images/save_post.svg
+  SvgGenImage get savePost => const SvgGenImage('assets/images/save_post.svg');
+
+  /// File path: assets/images/saved_post.svg
+  SvgGenImage get savedPost =>
+      const SvgGenImage('assets/images/saved_post.svg');
+
   /// File path: assets/images/search_small.svg
   SvgGenImage get searchSmall =>
       const SvgGenImage('assets/images/search_small.svg');
@@ -818,12 +872,6 @@ class $AssetsImagesGen {
   /// File path: assets/images/share_pop.png
   AssetGenImage get sharePop =>
       const AssetGenImage('assets/images/share_pop.png');
-
-  /// File path: assets/images/comment.svg
-  SvgGenImage get comment => const SvgGenImage('assets/images/comment.svg');
-  
-/// File path: assets/images/save_post.svg
-  SvgGenImage get savePost => const SvgGenImage('assets/images/save_post.svg');
 
   /// File path: assets/images/sinner_icon.png
   AssetGenImage get sinnerIcon =>
@@ -891,6 +939,10 @@ class $AssetsImagesGen {
   /// File path: assets/images/two.png
   AssetGenImage get two => const AssetGenImage('assets/images/two.png');
 
+  /// File path: assets/images/uploadFromLibrary.svg
+  SvgGenImage get uploadFromLibrary =>
+      const SvgGenImage('assets/images/uploadFromLibrary.svg');
+
   /// File path: assets/images/upload_image.png
   AssetGenImage get uploadImage =>
       const AssetGenImage('assets/images/upload_image.png');
@@ -926,6 +978,7 @@ class $AssetsImagesGen {
         journalSvg,
         journalPng,
         logout,
+        pin,
         search,
         setting,
         statistic,
@@ -979,10 +1032,12 @@ class $AssetsImagesGen {
         cirlceArrowBack,
         cirlceThreeDot,
         classImage,
+        comment,
         completed,
         congrats,
         copy,
         courseThumbnail,
+        createGroup,
         dashboard,
         deletePop,
         deposit,
@@ -1009,6 +1064,13 @@ class $AssetsImagesGen {
         eyeClose,
         eyeOpen,
         featuredClassDetail,
+        feedPostImage1,
+        feedPostImage2,
+        feedPostImage3,
+        feedPostImage4,
+        feedPostImage5,
+        feedPostImage6,
+        file,
         game,
         gameUnselected,
         games,
@@ -1055,6 +1117,7 @@ class $AssetsImagesGen {
         lineupPlayer3,
         lineupPlayer4,
         location,
+        lock,
         map,
         massage,
         mastercard,
@@ -1082,10 +1145,12 @@ class $AssetsImagesGen {
         notificationProfile,
         nutrition,
         one,
+        people,
         physio,
         pie,
         pieChart,
         point,
+        postImage,
         powerJournal,
         powerLine,
         powerStatsImage,
@@ -1111,6 +1176,8 @@ class $AssetsImagesGen {
         reps,
         right,
         rotateRight,
+        savePost,
+        savedPost,
         searchSmall,
         sendMessageIcon,
         share,
@@ -1134,6 +1201,7 @@ class $AssetsImagesGen {
         time,
         tribe,
         two,
+        uploadFromLibrary,
         uploadImage,
         user,
         userActive,

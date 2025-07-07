@@ -1,6 +1,6 @@
 import 'package:empowered/common/app_spacing.dart';
+import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -100,13 +100,12 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
               ],
             ),
           ),
-
           // Scrollable Content Section
           Expanded(
             child: Obx(() {
               final pinnedGroups = controller.pinnedGroups;
               final unpinnedGroups = controller.unpinnedGroups;
-
+              
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -127,7 +126,6 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
                       ),
                       const SizedBox(height: 16),
                     ],
-
                     // Groups Section
                     if (unpinnedGroups.isNotEmpty) ...[
                       const Text(
@@ -142,7 +140,6 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
                         (group) => _buildGroupTile(group),
                       ),
                     ],
-
                     // Empty state
                     if (pinnedGroups.isEmpty && unpinnedGroups.isEmpty)
                       const Center(
@@ -175,102 +172,111 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
                           ),
                         ),
                       ),
-
                     // Bottom padding to ensure content doesn't get hidden behind buttons
                     const SizedBox(height: 100),
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: const BoxDecoration(
-                        color: Color(0xFF0F172A),
-                        // border: Border(
-                        //   top: BorderSide(color: Color(0xFF1E293B), width: 1),
-                        // ),
-                      ),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: _saveChanges,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Save',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: ElevatedButton(
-                              onPressed: () => Navigator.pop(context),
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
-                              ),
-                              child: const Text(
-                                'Cancel',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const VerticalSpacing(40),
                   ],
                 ),
               );
             }),
           ),
+          // Fixed bottom buttons
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: const BoxDecoration(
+              color: Color(0xFF0F172A),
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: _saveChanges,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Save',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.red,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    child: const Text(
+                      'Cancel',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const VerticalSpacing(40),
         ],
       ),
     );
   }
 
-  Widget _buildGroupTile(Map<String, dynamic> group, {bool pinned = false}) {
+  Widget _buildGroupTile(GroupModel group, {bool pinned = false}) {
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       child: ListTile(
         contentPadding: EdgeInsets.zero,
         leading: ClipOval(
-          child: Image.asset(
-            Assets.images.chatUserPic.path,
-            width: 40,
-            height: 40,
-            fit: BoxFit.cover,
-            errorBuilder: (context, error, stackTrace) {
-              return Container(
-                width: 40,
-                height: 40,
-                decoration: const BoxDecoration(
-                  color: Color(0xFF1E293B),
-                  shape: BoxShape.circle,
+          child: group.image != null && group.image!.isNotEmpty
+              ? Image.network(
+                  group.image!,
+                  width: 40,
+                  height: 40,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      width: 40,
+                      height: 40,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF1E293B),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.group,
+                        color: Colors.white54,
+                        size: 20,
+                      ),
+                    );
+                  },
+                )
+              : Container(
+                  width: 40,
+                  height: 40,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFF1E293B),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.group,
+                    color: Colors.white54,
+                    size: 20,
+                  ),
                 ),
-                child: const Icon(
-                  Icons.group,
-                  color: Colors.white54,
-                  size: 20,
-                ),
-              );
-            },
-          ),
         ),
         title: Text(
-          group['name'],
+          group.name ?? 'Unknown Group',
           style: const TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.w500,
@@ -279,24 +285,26 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
         subtitle: Padding(
           padding: const EdgeInsets.only(top: 2),
           child: Text(
-            "Members: ${group['memberCount']}",
+            'Members: ${group.memberCount ?? 0}',
             style: const TextStyle(
               color: Colors.white54,
               fontSize: 12,
             ),
           ),
         ),
-        trailing: TextButton.icon(
-          onPressed: () => controller.toggleGroupPin(group['id']),
+        trailing: Obx(() => TextButton.icon(
+          onPressed: controller.isPinUnpinLoading.value 
+              ? null 
+              : () => controller.toggleGroupPin(group.id.toString()),
           icon: Icon(
             pinned ? Icons.push_pin : Icons.push_pin_outlined,
             size: 16,
-            color: Colors.blue,
+            color: controller.isPinUnpinLoading.value ? Colors.grey : Colors.blue,
           ),
           label: Text(
             pinned ? 'Unpin Group' : 'Pin Group',
-            style: const TextStyle(
-              color: Colors.blue,
+            style: TextStyle(
+              color: controller.isPinUnpinLoading.value ? Colors.grey : Colors.blue,
               fontSize: 13,
             ),
           ),
@@ -305,7 +313,7 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
             minimumSize: Size.zero,
             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
           ),
-        ),
+        ),),
       ),
     );
   }

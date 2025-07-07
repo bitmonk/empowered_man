@@ -32,8 +32,6 @@ import 'package:empowered/features/signup/presentation/screens/getting_started_s
 import 'package:empowered/features/signup/presentation/screens/signup_screen.dart';
 import 'package:empowered/features/splash/splash_screen.dart';
 import 'package:empowered/features/tasks/presentation/screens/add_new_task_screen.dart';
-import 'package:empowered/features/tribe/presentation/controller/feed_page_binding.dart';
-import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/post_detail_screen.dart';
 import 'package:get/get.dart';
 
 class AppRoutes {
@@ -120,11 +118,7 @@ class AppRoutes {
       page: () => const ForgotPasswordScreen(),
       binding: ForgotPasswordBindings(),
     ),
-    GetPage(
-      name: postDetail,
-      page: () => const PostDetailScreen(),
-      binding: FeedPageBindings(),
-    ),
+ 
     GetPage(
       name: resetPassword,
       page: () => const ResetPasswordScreen(),

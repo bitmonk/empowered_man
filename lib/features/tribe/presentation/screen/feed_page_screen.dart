@@ -1,5 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/about_tab.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/create_post_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
@@ -7,17 +8,26 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
 
 class FeedPageScreen extends StatefulWidget {
-  const FeedPageScreen({super.key});
+  const FeedPageScreen({required this.groupId, super.key});
+  final String groupId;
 
   @override
   State<FeedPageScreen> createState() => _FeedPageScreenState();
 }
 
 class _FeedPageScreenState extends State<FeedPageScreen> {
+  final FeedPageController controller = Get.find<FeedPageController>();
+  final TribeGroupController tribeController = Get.find<TribeGroupController>();
+
+  @override
+  void initState() {
+    super.initState();
+    controller.initializeWithGroupId(widget.groupId);
+    tribeController.loadGroupDetails(widget.groupId);
+  }
+
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<FeedPageController>();
-
     return Scaffold(
       backgroundColor: AppColors.bgMedium,
       appBar: PreferredSize(
@@ -31,72 +41,73 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           ),
           title: Padding(
             padding: const EdgeInsets.only(top: 16),
-            child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 18,
-                  backgroundImage: Assets.images.chatUserPicOne.provider(),
-                ),
-                const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Group 1',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 16,
-                      ),
-                    ),
-                    Text(
-                      'Open Discussion Group',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
-                ),
-                const Spacer(),
-                PopupMenuButton<String>(
-                  color: const Color(0xFF1E293B),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+            child: Obx(() {
+              final groupDetails = tribeController
+                  .groupDetailsModel.value.data?.groupDetails?.about;
+              return Row(
+                children: [
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundImage: groupDetails?.image != null
+                        ? NetworkImage(groupDetails!.image!)
+                        : Assets.images.chatUserPicOne.provider(),
+                    onBackgroundImageError: groupDetails?.image != null
+                        ? (_, __) => Assets.images.chatUserPicOne.provider()
+                        : null,
                   ),
-                  icon: const Icon(Icons.settings, color: Colors.white),
-                  // icon: Assets.images.more.svg(
-                  //   height: 20,
-                  //   width: 20,
-                  //   fit: BoxFit.cover,
-                  // ),
-                  onSelected: (value) => showModalBottomSheet(
-                    context: context,
-                    isScrollControlled: true,
-                    backgroundColor: Colors.transparent,
-                    builder: (context) => const CustomiseGroup(
-                      groupId: '1',
-                      groupName: 'Group 1',
-                      groupDescription:
-                          'This is placeholder text only, intended for visual demonstration purposes only. The content here is not meant to represent real information.',
-                    ),
+                  const SizedBox(width: 12),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        groupDetails?.name ?? 'Group',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                      Text(
+                        groupDetails?.accessType ?? 'Open Discussion Group',
+                        style: const TextStyle(
+                          color: Colors.white54,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
                   ),
-                  itemBuilder: (context) => [
-                    const PopupMenuItem(
-                      value: 'Customize Group',
-                      child: Row(
-                        children: [
-                          Text(
-                            'Customize Group',
-                            style: TextStyle(color: Colors.white),
+                  const Spacer(),
+                  if (controller.isUserCoach)
+                    PopupMenuButton<String>(
+                      color: const Color(0xFF1E293B),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      icon: const Icon(Icons.settings, color: Colors.white),
+                      onSelected: (value) => showModalBottomSheet(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (context) =>
+                            CustomiseGroup(groupId: widget.groupId),
+                      ),
+                      itemBuilder: (context) => [
+                        const PopupMenuItem(
+                          value: 'Customize Group',
+                          child: Row(
+                            children: [
+                              Text(
+                                'Customize Group',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
+                ],
+              );
+            }),
           ),
           centerTitle: false,
         ),
@@ -107,9 +118,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           _buildTabs(controller),
           const SizedBox(height: 12),
           Expanded(child: _buildTabContent(controller)),
-          VerticalSpacing(
-            MediaQuery.of(context).viewPadding.bottom + 16,
-          ),
+          VerticalSpacing(MediaQuery.of(context).viewPadding.bottom + 16),
         ],
       ),
     );
@@ -158,7 +167,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         case 0:
           return _buildPostTab(controller);
         case 1:
-          return const AboutTab();
+          return AboutTab(groupId: widget.groupId);
         case 2:
           return const MediaTab();
         case 3:
@@ -176,7 +185,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _buildPostTab(FeedPageController controller) {
     return Obx(() {
-      if (controller.isLoading.value && controller.posts.isEmpty) {
+      if (controller.feedState.value == TheStates.loading &&
+          controller.posts.isEmpty) {
         return const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -184,11 +194,40 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
+      if (controller.feedState.value == TheStates.error) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Failed to load posts',
+                style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: controller.loadFeedPosts,
+                child:
+                    const Text('Retry', style: TextStyle(color: Colors.blue)),
+              ),
+            ],
+          ),
+        );
+      }
+
+      if (controller.posts.isEmpty) {
+        return const Center(
+          child: Text(
+            'No posts yet',
+            style: TextStyle(color: Colors.white70),
+          ),
+        );
+      }
+
       return RefreshIndicator(
-        onRefresh: () => controller.fetchPosts(),
+        onRefresh: controller.loadFeedPosts,
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: controller.posts.length + 1, // +1 for create post input
+          itemCount: controller.posts.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Column(
@@ -204,7 +243,6 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
             return FeedPost(
               post: post,
-              postIndex: postIndex,
             );
           },
         ),
@@ -214,7 +252,13 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _createPostInput() {
     return GestureDetector(
-      onTap: () => Get.to(() => const CreatePostScreen()),
+      onTap: () {
+        Get.to(
+          () => CreatePostScreen(
+            groupId: widget.groupId,
+          ),
+        );
+      },
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
@@ -224,11 +268,24 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         child: Row(
           children: [
             ClipOval(
-              child: Assets.images.chatUserPicOne.image(
-                height: 40,
-                width: 40,
-                fit: BoxFit.cover,
-              ),
+              child: controller.userProfile != null
+                  ? Image.network(
+                      controller.userProfile ,
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Assets.images.leaderProfile.image(
+                        height: 40,
+                        width: 40,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Assets.images.leaderProfile.image(
+                      height: 40,
+                      width: 40,
+                      fit: BoxFit.cover,
+                    ),
             ),
             const SizedBox(width: 12),
             const Expanded(
@@ -237,7 +294,10 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                 style: TextStyle(color: Colors.white54),
               ),
             ),
-            const Icon(Icons.photo, color: Colors.white54),
+            Assets.images.postImage.svg(
+              width: 20,
+              height: 20,
+            ),
           ],
         ),
       ),
@@ -249,17 +309,13 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       final savedPosts = controller.savedPosts;
 
       if (savedPosts.isEmpty) {
-        return const Center(
+        return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.bookmark_outline,
-                size: 64,
-                color: Colors.white54,
-              ),
-              SizedBox(height: 16),
-              Text(
+              Assets.images.savePost.svg(width: 24, height: 24),
+              const SizedBox(height: 16),
+              const Text(
                 'No saved posts yet',
                 style: TextStyle(
                   color: Colors.white54,
@@ -267,8 +323,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                   fontWeight: FontWeight.w500,
                 ),
               ),
-              SizedBox(height: 8),
-              Text(
+              const SizedBox(height: 8),
+              const Text(
                 'Save posts to view them here',
                 style: TextStyle(
                   color: Colors.white38,
@@ -285,11 +341,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         itemCount: savedPosts.length,
         itemBuilder: (context, index) {
           final post = savedPosts[index];
-          final originalIndex = controller.posts.indexOf(post);
 
           return FeedPost(
             post: post,
-            postIndex: originalIndex,
           );
         },
       );

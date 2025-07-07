@@ -311,12 +311,12 @@ class _ChatInputFieldState extends State<ChatInputField> {
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
-                          color: Colors.white70, fontStyle: FontStyle.italic),
+                          color: Colors.white70, fontStyle: FontStyle.italic,),
                     ),
                   ),
                   IconButton(
                     icon: const Icon(Icons.close,
-                        color: Colors.white54, size: 20),
+                        color: Colors.white54, size: 20,),
                     onPressed: controller.clearReply,
                     padding: EdgeInsets.zero,
                     constraints: const BoxConstraints(),

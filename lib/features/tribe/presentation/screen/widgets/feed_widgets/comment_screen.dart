@@ -1,14 +1,16 @@
 import 'package:empowered/core/extension/extensions.dart';
 
 import 'package:empowered/features/tribe/data/model/comment_section_model.dart';
+import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 
 class CommentScreen extends StatefulWidget {
-  const CommentScreen({
+  const CommentScreen({ 
     required this.userName,
     required this.timeAgo,
     required this.content,
     required this.imageUrls,
     required this.isLiked,
+    required this.postId,
     super.key,
   });
 
@@ -17,12 +19,14 @@ class CommentScreen extends StatefulWidget {
   final String content;
   final List<String> imageUrls;
   final bool isLiked;
+  final String postId; 
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
 }
 
 class _CommentScreenState extends State<CommentScreen> {
+    final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   late bool isPostLiked;
@@ -122,49 +126,67 @@ class _CommentScreenState extends State<CommentScreen> {
     _inputFocusNode.unfocus();
   }
 
+  // void _sendMessage() {
+  //   if (_inputController.text.trim().isEmpty) return;
+
+  //   if (replyingToCommentId != null) {
+  //     // Send reply
+  //     final newReply = Reply(
+  //       id: '$replyingToCommentId-${DateTime.now().millisecondsSinceEpoch}',
+  //       userName: 'You', // Replace with actual user name
+  //       timeAgo: 'now',
+  //       content: _inputController.text.trim(),
+  //       isLiked: false,
+  //       likeCount: 0,
+  //     );
+
+  //     setState(() {
+  //       final commentIndex =
+  //           comments.indexWhere((c) => c.id == replyingToCommentId);
+  //       if (commentIndex != -1) {
+  //         comments[commentIndex].replies.add(newReply);
+  //       }
+  //     });
+
+  //     _cancelReply();
+  //   } else {
+  //     // Send comment
+  //     final newComment = Comment(
+  //       id: DateTime.now().millisecondsSinceEpoch.toString(),
+  //       userName: 'You', // Replace with actual user name
+  //       timeAgo: 'now',
+  //       content: _inputController.text.trim(),
+  //       isLiked: false,
+  //       likeCount: 0,
+  //       replies: [],
+  //     );
+
+  //     setState(() {
+  //       comments.add(newComment);
+  //     });
+
+  //     _inputController.clear();
+  //   }
+  // }
   void _sendMessage() {
     if (_inputController.text.trim().isEmpty) return;
 
     if (replyingToCommentId != null) {
-      // Send reply
-      final newReply = Reply(
-        id: '$replyingToCommentId-${DateTime.now().millisecondsSinceEpoch}',
-        userName: 'You', // Replace with actual user name
-        timeAgo: 'now',
-        content: _inputController.text.trim(),
-        isLiked: false,
-        likeCount: 0,
+      // Send reply via controller
+      controller.replyToComment(
+        replyingToCommentId!,
+        customReply: _inputController.text.trim(),
       );
-
-      setState(() {
-        final commentIndex =
-            comments.indexWhere((c) => c.id == replyingToCommentId);
-        if (commentIndex != -1) {
-          comments[commentIndex].replies.add(newReply);
-        }
-      });
-
       _cancelReply();
     } else {
-      // Send comment
-      final newComment = Comment(
-        id: DateTime.now().millisecondsSinceEpoch.toString(),
-        userName: 'You', // Replace with actual user name
-        timeAgo: 'now',
-        content: _inputController.text.trim(),
-        isLiked: false,
-        likeCount: 0,
-        replies: [],
+      // Send comment via controller
+      controller.commentOnPost(
+        widget.postId,
+        customComment: _inputController.text.trim(),
       );
-
-      setState(() {
-        comments.add(newComment);
-      });
-
       _inputController.clear();
     }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -353,7 +375,7 @@ class _CommentScreenState extends State<CommentScreen> {
     if (urls.length == 1) {
       return ClipRRect(
         borderRadius: BorderRadius.circular(8),
-        child: Image.asset(
+        child: Image.network(
           urls.first,
         ),
       );
@@ -365,7 +387,7 @@ class _CommentScreenState extends State<CommentScreen> {
             .map(
               (url) => ClipRRect(
                 borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
+                child: Image.network(
                   url,
                   width: 100,
                   height: 100,

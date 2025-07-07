@@ -2,8 +2,6 @@ import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class ChatBubbleContainer extends StatefulWidget {
@@ -91,7 +89,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
   void _showActionsOverlay(BuildContext context) {
     _removeOverlay();
 
-    final RenderBox renderBox = context.findRenderObject() as RenderBox;
+    final renderBox = context.findRenderObject()! as RenderBox;
     final position = renderBox.localToGlobal(Offset.zero);
     final size = renderBox.size;
 
@@ -105,8 +103,8 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
           _removeOverlay();
         },
         onReply: () {
-          controller.selectReply(widget.message);
-          controller.scrollToBottom();
+          controller..selectReply(widget.message)
+          ..scrollToBottom();
           _removeOverlay();
         },
         onEdit: widget.isMine && widget.message.body is ChatTextMessageBody
@@ -144,14 +142,14 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
     final userId = controller.currentUserId.value;
     if (userId == null) {
       print(
-          'Error: currentUserId is null in _isLiked for msgId ${widget.messageId}');
+          'Error: currentUserId is null in _isLiked for msgId ${widget.messageId}',);
       return false;
     }
     final reactions = controller.reactionMap[widget.messageId] ?? [];
     final isLiked =
         reactions.any((r) => r.reaction == '👍' && r.userList.contains(userId));
     print(
-        'Checking if liked for msgId ${widget.messageId}: $isLiked, reactions: $reactions');
+        'Checking if liked for msgId ${widget.messageId}: $isLiked, reactions: $reactions',);
     return isLiked;
   }
 
@@ -246,7 +244,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                                   children: [
                                     Text(
                                       replyToSender,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: AppColors.primary500,
                                         fontWeight: FontWeight.bold,
                                         fontSize: 13,
@@ -255,7 +253,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                                     const SizedBox(height: 4),
                                     Text(
                                       replyPreview,
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: Colors.white60,
                                         fontSize: 13,
                                       ),
@@ -439,13 +437,13 @@ class _ActionOverlay extends StatelessWidget {
 }
 
 class _ActionButton extends StatelessWidget {
-  final VoidCallback onTap;
-  final Widget child;
 
   const _ActionButton({
     required this.onTap,
     required this.child,
   });
+  final VoidCallback onTap;
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
