@@ -26,7 +26,7 @@ class _AboutTabState extends State<AboutTab> {
     // Load group details when the widget is initialized
     tribeController.loadGroupDetails(widget.groupId).then((_) {
       setState(() {
-        members = tribeController.groupDetailsModel.value.data?.groupDetails?.about?.members
+        members = tribeController.groupDetailModel.value.data?.about?.members
                 ?.map((member) => member.user?.id.toString() ?? '')
                 .toList() ??
             [];
@@ -37,16 +37,20 @@ class _AboutTabState extends State<AboutTab> {
   @override
   Widget build(BuildContext context) {
     return Obx(() {
-      final groupDetails = tribeController.groupDetailsModel.value.data?.groupDetails?.about;
-      final isLoading = tribeController.groupDetailsState.value == TheStates.loading;
-      final hasError = tribeController.groupDetailsState.value == TheStates.error;
+      final groupDetails = tribeController.groupDetailModel.value.data?.about;
+      final isLoading =
+          tribeController.groupDetailsState.value == TheStates.loading;
+      final hasError =
+          tribeController.groupDetailsState.value == TheStates.error;
 
       if (isLoading) {
         return const Center(child: CircularProgressIndicator());
       }
 
       if (hasError || groupDetails == null) {
-        return const Center(child: Text('Failed to load group details', style: TextStyle(color: Colors.white)));
+        return const Center(
+            child: Text('Failed to load group details',
+                style: TextStyle(color: Colors.white)));
       }
 
       return ListView(
@@ -183,7 +187,8 @@ class _AboutTabState extends State<AboutTab> {
                               : Assets.images.chatUserPicOne.provider(),
                           radius: 20,
                           onBackgroundImageError: member.user?.image != null
-                              ? (_, __) => Assets.images.chatUserPicOne.provider()
+                              ? (_, __) =>
+                                  Assets.images.chatUserPicOne.provider()
                               : null,
                         ),
                         title: Text(
@@ -203,7 +208,8 @@ class _AboutTabState extends State<AboutTab> {
                                     onTap: () {
                                       tribeController.removeMember(
                                         groupId: widget.groupId,
-                                        memberId: member.user?.id.toString() ?? '',
+                                        memberId:
+                                            member.user?.id.toString() ?? '',
                                       );
                                     },
                                     child: const Text(

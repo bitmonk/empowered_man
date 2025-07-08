@@ -1,8 +1,11 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
+import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -10,7 +13,7 @@ class FeedPost extends StatefulWidget {
     super.key,
   });
 
-  final Post post;
+  final GroupPost post; // Post from group_post_model.dart
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -26,10 +29,9 @@ class _FeedPostState extends State<FeedPost> {
     controller = Get.find<FeedPageController>();
   }
 
-  String formatDateTime(String? dateTimeStr) {
-    if (dateTimeStr == null) return 'N/A';
+  String formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) return 'N/A';
     try {
-      final dateTime = DateTime.parse(dateTimeStr);
       return DateFormat.yMd().format(dateTime.toLocal());
     } catch (e) {
       return 'N/A';
@@ -172,11 +174,12 @@ class _FeedPostState extends State<FeedPost> {
                 onTap: () =>
                     controller.toggleLike(widget.post.id?.toString() ?? ''),
                 child: Icon(
-                  widget.post.isLiked ?? false
+                  widget.post.likedByCurrentUser ?? false
                       ? Icons.favorite
                       : Icons.favorite_border,
-                  color:
-                      widget.post.isLiked ?? false ? Colors.red : Colors.white,
+                  color: widget.post.likedByCurrentUser ?? false
+                      ? Colors.red
+                      : Colors.white,
                   size: 20,
                 ),
               ),
@@ -348,10 +351,11 @@ class _FeedPostState extends State<FeedPost> {
     Get.to(
       () => CommentScreen(
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
-        timeAgo: widget.post.createdAt ?? '',
+        timeAgo: formatDateTime(widget.post.createdAt),
         content: widget.post.text ?? '',
         imageUrls: widget.post.media ?? [],
-        isLiked: widget.post.isLiked ?? false,
+        isLiked: widget.post.likedByCurrentUser ??
+            false, // Updated to likedByCurrentUser
         postId: widget.post.id?.toString() ?? '',
       ),
     );

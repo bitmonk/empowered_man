@@ -16,7 +16,7 @@ _$GroupListModelImpl _$$GroupListModelImplFromJson(Map<String, dynamic> json) =>
     );
 
 Map<String, dynamic> _$$GroupListModelImplToJson(
-        _$GroupListModelImpl instance,) =>
+        _$GroupListModelImpl instance) =>
     <String, dynamic>{
       'status': instance.status,
       'message': instance.message,

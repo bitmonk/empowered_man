@@ -3,6 +3,7 @@ import 'package:app_links/app_links.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
+import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
@@ -98,8 +99,11 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> createPost(
-      {required String text, required List<String> media}) async {
+  Future<void> createPost({
+    required String text,
+    required List<String> media,
+    // required String groupId,
+  }) async {
     if (text.isEmpty && media.isEmpty) {
       AppUtils.showErrorSnackbar(message: 'Please add some content or media');
       return;
@@ -115,7 +119,7 @@ class FeedPageController extends GetxController {
       createPostError = null;
 
       final result = await remoteSource.createPost(
-        groupId: currentGroupId.value,
+        // groupId: '1',
         text: text.isNotEmpty ? text : null,
         media: media.isNotEmpty ? media : null,
       );
@@ -204,8 +208,6 @@ class FeedPageController extends GetxController {
       AppUtils.showErrorSnackbar(message: 'Failed to hide post: $e');
     }
   }
-
-
 
   Future<void> commentOnPost(String postId, {String? customComment}) async {
     final comment = customComment ?? commentController.text.trim();
@@ -364,7 +366,7 @@ class FeedPageController extends GetxController {
     currentTabIndex.value = index;
   }
 
-  Future<void> sharePost(Post post) async {
+  Future<void> sharePost(GroupPost post) async {
     try {
       isSharing.value = true;
       final postId = post.id?.toString();

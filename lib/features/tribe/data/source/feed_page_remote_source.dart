@@ -27,13 +27,13 @@ class FeedPageRemoteSource {
   }
 
   Future<Either<AppError, CreatePostResponseModel>> createPost({
-    required String groupId,
+    // required String groupId,
     String? text,
     List<String>? media,
   }) async {
     try {
       final formDataMap = FormData.fromMap({
-        'group_id': groupId,
+        'group_id': '1',
       });
       if (text != null && text.isNotEmpty) {
         formDataMap.files.add(
@@ -65,7 +65,10 @@ class FeedPageRemoteSource {
       }
       final response = await _client.post(
         AppEndpoints.createPost,
-        body: formDataMap,
+        body: {
+          'group_id': '1',
+          'text': 'hihihihihhih',
+        },
       );
       return right(CreatePostResponseModel.fromJson(response));
     } catch (e) {

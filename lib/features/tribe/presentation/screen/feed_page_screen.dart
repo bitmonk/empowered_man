@@ -6,6 +6,8 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_tab.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class FeedPageScreen extends StatefulWidget {
   const FeedPageScreen({required this.groupId, super.key});
@@ -22,8 +24,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
   @override
   void initState() {
     super.initState();
-    controller.initializeWithGroupId(widget.groupId);
-    tribeController.loadGroupDetails(widget.groupId);
+    tribeController
+      ..loadPostDetails(widget.groupId)
+      ..loadGroupDetails(widget.groupId);
   }
 
   @override
@@ -42,8 +45,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           title: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: Obx(() {
-              final groupDetails = tribeController
-                  .groupDetailsModel.value.data?.groupDetails?.about;
+              // Use GroupAboutModel for group details, fixed typo
+              final groupDetails =
+                  tribeController.groupDetailModel.value.data?.about;
               return Row(
                 children: [
                   CircleAvatar(
@@ -165,13 +169,13 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     return Obx(() {
       switch (controller.currentTabIndex.value) {
         case 0:
-          return _buildPostTab(controller);
+          return _buildPostTab();
         case 1:
           return AboutTab(groupId: widget.groupId);
         case 2:
           return const MediaTab();
         case 3:
-          return _buildSavedTab(controller);
+          return _buildSavedTab();
         default:
           return const Center(
             child: Text(
@@ -183,10 +187,12 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     });
   }
 
-  Widget _buildPostTab(FeedPageController controller) {
+  Widget _buildPostTab() {
     return Obx(() {
-      if (controller.feedState.value == TheStates.loading &&
-          controller.posts.isEmpty) {
+      final posts = tribeController.groupPostModel.value.data?.posts ?? [];
+      final state = tribeController.postDetailState.value;
+
+      if (state == TheStates.loading && posts.isEmpty) {
         return const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -194,7 +200,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      if (controller.feedState.value == TheStates.error) {
+      if (state == TheStates.error) {
         return Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -205,7 +211,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
               ),
               const SizedBox(height: 8),
               TextButton(
-                onPressed: controller.loadFeedPosts,
+                onPressed: () =>
+                    tribeController.loadPostDetails(widget.groupId),
                 child:
                     const Text('Retry', style: TextStyle(color: Colors.blue)),
               ),
@@ -214,7 +221,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      if (controller.posts.isEmpty) {
+      if (posts.isEmpty) {
         return const Center(
           child: Text(
             'No posts yet',
@@ -224,10 +231,10 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       }
 
       return RefreshIndicator(
-        onRefresh: controller.loadFeedPosts,
+        onRefresh: () => tribeController.loadPostDetails(widget.groupId),
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
-          itemCount: controller.posts.length + 1,
+          itemCount: posts.length + 1,
           itemBuilder: (context, index) {
             if (index == 0) {
               return Column(
@@ -239,7 +246,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
             }
 
             final postIndex = index - 1;
-            final post = controller.posts[postIndex];
+            final post = posts[postIndex];
 
             return FeedPost(
               post: post,
@@ -270,7 +277,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
             ClipOval(
               child: controller.userProfile != null
                   ? Image.network(
-                      controller.userProfile ,
+                      controller.userProfile,
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
@@ -304,9 +311,12 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     );
   }
 
-  Widget _buildSavedTab(FeedPageController controller) {
+  Widget _buildSavedTab() {
     return Obx(() {
-      final savedPosts = controller.savedPosts;
+      final savedPosts = tribeController.groupPostModel.value.data?.posts
+              ?.where((post) => post.isBookmarked == true)
+              .toList() ??
+          [];
 
       if (savedPosts.isEmpty) {
         return Center(

@@ -8,7 +8,8 @@ import 'package:image_picker/image_picker.dart';
 
 class CustomiseGroup extends StatefulWidget {
   const CustomiseGroup({
-    required this.groupId, super.key,
+    required this.groupId,
+    super.key,
   });
 
   final String groupId;
@@ -21,7 +22,8 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
   final tribeController = Get.find<TribeGroupController>();
   List<String> members = [];
 
-  Future<void> _pickImageFromGallery(TribeGroupController tribeController) async {
+  Future<void> _pickImageFromGallery(
+      TribeGroupController tribeController) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -47,14 +49,15 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
     tribeController.loadGroupDetails(widget.groupId).then((_) {
       setState(() {
         tribeController.groupNameController.text =
-            tribeController.groupDetailsModel.value.data?.groupDetails?.about?.name ?? '';
+            tribeController.groupDetailModel.value.data?.about?.name ?? '';
         tribeController.groupDescriptionController.text =
-            tribeController.groupDetailsModel.value.data?.groupDetails?.about?.about ?? '';
+            tribeController.groupDetailModel.value.data?.about?.about ?? '';
         tribeController.accessTypeController.text =
-            tribeController.groupDetailsModel.value.data?.groupDetails?.about?.accessType ?? '';
+            tribeController.groupDetailModel.value.data?.about?.accessType ??
+                '';
         tribeController.groupImagePath =
-            tribeController.groupDetailsModel.value.data?.groupDetails?.about?.image ?? '';
-        members = tribeController.groupDetailsModel.value.data?.groupDetails?.about?.members
+            tribeController.groupDetailModel.value.data?.about?.image ?? '';
+        members = tribeController.groupDetailModel.value.data?.about?.members
                 ?.map((member) => member.user?.id.toString() ?? '')
                 .toList() ??
             [];
@@ -77,257 +80,273 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
         ),
         child: SingleChildScrollView(
           controller: controller,
-          child: Obx(() => Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Header
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.arrow_back, color: Colors.white),
-                        onPressed: () => Get.back(),
-                      ),
-                      const Text(
-                        'Edit Group',
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                      const SizedBox(width: 48), // Placeholder for alignment
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-                  // Group Name
-                  AppTextFormField(
-                    labelText: 'Group Name',
-                    controller: tribeController.groupNameController,
-                    hintText: 'Enter Group Name',
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                  ),
-                  const SizedBox(height: 16),
-                  // Group Description
-                  AppTextFormField(
-                    labelText: 'About',
-                    controller: tribeController.groupDescriptionController,
-                    textInputType: TextInputType.multiline,
-                    maxLines: 4,
-                    hintText: 'Enter About Group',
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                  ),
-                  const VerticalSpacing(16),
-                  // Existing Members
-                  const Text(
-                    'Existing Members',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  const VerticalSpacing(20),
-                  Wrap(
-                    children: tribeController.groupDetailsModel.value.data?.groupDetails?.about?.members
-                            ?.map((member) => Padding(
-                                  padding: const EdgeInsets.all(8),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      ClipOval(
-                                        child: member.user?.image != null
-                                            ? Image.network(
-                                                member.user!.image!,
-                                                height: 32,
-                                                width: 32,
-                                                fit: BoxFit.cover,
-                                                errorBuilder: (_, __, ___) =>
-                                                    Assets.images.chatUserPic.image(
-                                                  height: 32,
-                                                  width: 32,
-                                                  fit: BoxFit.cover,
-                                                ),
-                                              )
-                                            : Assets.images.chatUserPic.image(
-                                                height: 32,
-                                                width: 32,
-                                                fit: BoxFit.cover,
-                                              ),
-                                      ),
-                                      const HorizontalSpacing(8),
-                                      Text(
-                                        member.user?.fullName ?? 'Unknown',
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 14,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),)
-                            .toList() ??
-                        [],
-                  ),
-                  const VerticalSpacing(16),
-                  // Add Members Button
-                  const Text(
-                    'Add More Members',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  const VerticalSpacing(20),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) => AddTribeMember(
-                          selectedMembers: members,
-                          onMembersUpdated: (newMembers) {
-                            setState(() {
-                              members = newMembers;
-                            });
-                          },
-                        ),
-                      );
-                    },
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.blue),
-                      foregroundColor: Colors.blue,
-                      shape: const StadiumBorder(),
+          child: Obx(
+            () => Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.arrow_back, color: Colors.white),
+                      onPressed: () => Get.back(),
                     ),
-                    icon: const Padding(
-                      padding: EdgeInsets.only(left: 20),
-                      child: Icon(Icons.add),
+                    const Text(
+                      'Edit Group',
+                      style: TextStyle(fontSize: 18, color: Colors.white),
                     ),
-                    label: const Padding(
-                      padding: EdgeInsets.only(right: 24, left: 8),
-                      child: Text('Add Member'),
-                    ),
-                  ),
-                  const VerticalSpacing(12),
-                  // Group Photo
-                  const Text(
-                    'Group Photo',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                  const VerticalSpacing(12),
-                  GestureDetector(
-                    onTap: () => _pickImageFromGallery(tribeController),
-                    child: DottedBorder(
-                      borderType: BorderType.RRect,
-                      radius: const Radius.circular(12),
-                      dashPattern: const [10, 5],
-                      color: Colors.white30,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.all(24),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.white30,
-                            style: BorderStyle.none,
-                          ),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: tribeController.groupImagePath.isEmpty
-                            ? Column(
+                    const SizedBox(width: 48), // Placeholder for alignment
+                  ],
+                ),
+                const SizedBox(height: 24),
+                // Group Name
+                AppTextFormField(
+                  labelText: 'Group Name',
+                  controller: tribeController.groupNameController,
+                  hintText: 'Enter Group Name',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const SizedBox(height: 16),
+                // Group Description
+                AppTextFormField(
+                  labelText: 'About',
+                  controller: tribeController.groupDescriptionController,
+                  textInputType: TextInputType.multiline,
+                  maxLines: 4,
+                  hintText: 'Enter About Group',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const VerticalSpacing(16),
+                // Existing Members
+                const Text(
+                  'Existing Members',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                const VerticalSpacing(20),
+                Wrap(
+                  children: tribeController
+                          .groupDetailModel.value.data?.about?.members
+                          ?.map(
+                            (member) => Padding(
+                              padding: const EdgeInsets.all(8),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
                                 children: [
-                                  Assets.images.uploadFromLibrary.svg(
-                                    height: 80,
-                                    width: 80,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Upload from library',
-                                    style: TextStyle(
-                                      color: Colors.blue,
-                                      fontSize: 14,
-                                    ),
-                                  ),
-                                ],
-                              )
-                            : Column(
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(8),
-                                    child: tribeController.groupImagePath.startsWith('http')
+                                  ClipOval(
+                                    child: member.user?.image != null
                                         ? Image.network(
-                                            tribeController.groupImagePath,
-                                            height: 120,
-                                            width: double.infinity,
+                                            member.user!.image!,
+                                            height: 32,
+                                            width: 32,
                                             fit: BoxFit.cover,
-                                            errorBuilder: (_, __, ___) => Assets.images.chatUserPic.image(
-                                              height: 120,
-                                              width: double.infinity,
+                                            errorBuilder: (_, __, ___) =>
+                                                Assets.images.chatUserPic.image(
+                                              height: 32,
+                                              width: 32,
                                               fit: BoxFit.cover,
                                             ),
                                           )
-                                        : Image.file(
-                                            File(tribeController.groupImagePath),
-                                            height: 120,
-                                            width: double.infinity,
+                                        : Assets.images.chatUserPic.image(
+                                            height: 32,
+                                            width: 32,
                                             fit: BoxFit.cover,
                                           ),
                                   ),
-                                  const SizedBox(height: 8),
-                                  const Text(
-                                    'Tap to change image',
-                                    style: TextStyle(
-                                      color: Colors.blue,
+                                  const HorizontalSpacing(8),
+                                  Text(
+                                    member.user?.fullName ?? 'Unknown',
+                                    style: const TextStyle(
+                                      color: Colors.white,
                                       fontSize: 14,
                                     ),
                                   ),
                                 ],
                               ),
+                            ),
+                          )
+                          .toList() ??
+                      [],
+                ),
+                const VerticalSpacing(16),
+                // Add Members Button
+                const Text(
+                  'Add More Members',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                const VerticalSpacing(20),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    showModalBottomSheet(
+                      context: context,
+                      isScrollControlled: true,
+                      backgroundColor: Colors.transparent,
+                      builder: (context) => AddTribeMember(
+                        selectedMembers: members,
+                        onMembersUpdated: (newMembers) {
+                          setState(() {
+                            members = newMembers;
+                          });
+                        },
                       ),
+                    );
+                  },
+                  style: OutlinedButton.styleFrom(
+                    side: const BorderSide(color: Colors.blue),
+                    foregroundColor: Colors.blue,
+                    shape: const StadiumBorder(),
+                  ),
+                  icon: const Padding(
+                    padding: EdgeInsets.only(left: 20),
+                    child: Icon(Icons.add),
+                  ),
+                  label: const Padding(
+                    padding: EdgeInsets.only(right: 24, left: 8),
+                    child: Text('Add Member'),
+                  ),
+                ),
+                const VerticalSpacing(12),
+                // Group Photo
+                const Text(
+                  'Group Photo',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                const VerticalSpacing(12),
+                GestureDetector(
+                  onTap: () => _pickImageFromGallery(tribeController),
+                  child: DottedBorder(
+                    borderType: BorderType.RRect,
+                    radius: const Radius.circular(12),
+                    dashPattern: const [10, 5],
+                    color: Colors.white30,
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: Colors.white30,
+                          style: BorderStyle.none,
+                        ),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: tribeController.groupImagePath.isEmpty
+                          ? Column(
+                              children: [
+                                Assets.images.uploadFromLibrary.svg(
+                                  height: 80,
+                                  width: 80,
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Upload from library',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            )
+                          : Column(
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: tribeController.groupImagePath
+                                          .startsWith('http')
+                                      ? Image.network(
+                                          tribeController.groupImagePath,
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                          errorBuilder: (_, __, ___) =>
+                                              Assets.images.chatUserPic.image(
+                                            height: 120,
+                                            width: double.infinity,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        )
+                                      : Image.file(
+                                          File(tribeController.groupImagePath),
+                                          height: 120,
+                                          width: double.infinity,
+                                          fit: BoxFit.cover,
+                                        ),
+                                ),
+                                const SizedBox(height: 8),
+                                const Text(
+                                  'Tap to change image',
+                                  style: TextStyle(
+                                    color: Colors.blue,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
                     ),
                   ),
-                  const SizedBox(height: 16),
-                  // Access Type
-                  AppTextFormField(
-                    labelText: 'Access Type',
-                    controller: tribeController.accessTypeController,
-                    hintText: 'Enter Access Type',
-                    floatingLabelBehavior: FloatingLabelBehavior.always,
-                  ),
-                  const SizedBox(height: 24),
-                  // Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppOutlinedButton(
-                          text: 'Save',
-                          onPressed: () {
-                            print(tribeController.accessTypeController.text);
-                            tribeController.editGroup(
-                              groupId: tribeController.groupDetailsModel.value.data?.groupDetails?.about?.id.toString(),
-                              groupName: tribeController.groupNameController.text,
-                              about: tribeController.groupDescriptionController.text,
-                              accessType: tribeController.accessTypeController.text,
-                              imagePath: tribeController.groupImagePath.isNotEmpty &&
-                                      !tribeController.groupImagePath.startsWith('http')
-                                  ? tribeController.groupImagePath
-                                  : null,
-                              membersId: members,
-                            ).then((_) {
-                              if (tribeController.editGroupState.value == TheStates.success) {
-                                Get.back(); // Close the sheet on success
-                              }
-                            });
-                          },
-                        ),
+                ),
+                const SizedBox(height: 16),
+                // Access Type
+                AppTextFormField(
+                  labelText: 'Access Type',
+                  controller: tribeController.accessTypeController,
+                  hintText: 'Enter Access Type',
+                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                ),
+                const SizedBox(height: 24),
+                // Buttons
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppOutlinedButton(
+                        text: 'Save',
+                        onPressed: () {
+                          print(tribeController.accessTypeController.text);
+                          tribeController
+                              .editGroup(
+                            groupId: tribeController
+                                .groupDetailModel.value.data?.about?.id
+                                .toString(),
+                            groupName: tribeController.groupNameController.text,
+                            about:
+                                tribeController.groupDescriptionController.text,
+                            accessType:
+                                tribeController.accessTypeController.text,
+                            imagePath:
+                                tribeController.groupImagePath.isNotEmpty &&
+                                        !tribeController.groupImagePath
+                                            .startsWith('http')
+                                    ? tribeController.groupImagePath
+                                    : null,
+                            membersId: members,
+                          )
+                              .then((_) {
+                            if (tribeController.editGroupState.value ==
+                                TheStates.success) {
+                              Get.back(); // Close the sheet on success
+                            }
+                          });
+                        },
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: AppOutlinedButton.orange(
-                          onPressed: () => Navigator.pop(context),
-                          text: 'Cancel',
-                        ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: AppOutlinedButton.orange(
+                        onPressed: () => Navigator.pop(context),
+                        text: 'Cancel',
                       ),
-                    ],
-                  ),
-                  VerticalSpacing(
-                    mediaQuery.viewPadding.bottom + 16,
-                  ),
-                ],
-              ),),
+                    ),
+                  ],
+                ),
+                VerticalSpacing(
+                  mediaQuery.viewPadding.bottom + 16,
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );

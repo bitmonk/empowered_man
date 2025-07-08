@@ -6,7 +6,8 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/tribe/data/model/create_group_response_model.dart';
-import 'package:empowered/features/tribe/data/model/group_details_model.dart';
+import 'package:empowered/features/tribe/data/model/group_about_model.dart';
+import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
@@ -50,7 +51,8 @@ class TribeGroupRemoteSource {
     if (imagePath != null) {
       final file = File(imagePath);
       if (!await file.exists()) {
-        return left(const InternalAppError(message: 'Image file does not exist'));
+        return left(
+            const InternalAppError(message: 'Image file does not exist'));
       }
       final fileName = imagePath.split('/').last;
       final mimeType =
@@ -58,12 +60,13 @@ class TribeGroupRemoteSource {
       final typeParts = mimeType.split('/');
 
       if (!mimeType.startsWith('image/')) {
-        return left(const InternalAppError(message: 'Selected file is not an image'));
+        return left(
+            const InternalAppError(message: 'Selected file is not an image'));
       }
 
       formDataMap.files.add(
         MapEntry(
-          'image', 
+          'image',
           await MultipartFile.fromFile(
             imagePath,
             filename: fileName,
@@ -202,14 +205,31 @@ class TribeGroupRemoteSource {
     }
   }
 
-  Future<Either<AppError, GroupDetailsModel>> getGroupById({
+  Future<Either<AppError, GroupPostModel>> getGroupPostById({
+    required String groupId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response =
+          await _client.get('${AppEndpoints.getGroupPosts}$groupId');
+      return right(GroupPostModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, GroupAboutModel>> getGroupDetailsById({
     required String groupId,
     CancelToken? cancelToken,
   }) async {
     try {
       final response =
           await _client.get('${AppEndpoints.getGroupDetailsById}$groupId');
-      return right(GroupDetailsModel.fromJson(response));
+      return right(GroupAboutModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

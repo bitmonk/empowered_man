@@ -1,7 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:empowered/features/tribe/data/model/group_details_model.dart';
+import 'package:empowered/features/tribe/data/model/group_about_model.dart';
+import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
@@ -17,13 +18,13 @@ class TribeGroupController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxBool isPinUnpinLoading = false.obs;
-  
+
   Map<String, List<GroupModel>> filteredGroups = {
     'all': [],
     'created_by_you': [],
     'admin_only': [],
   };
-  
+
   final Map<String, Rx<TheStates>> filterStates = {
     'all': TheStates.initial.obs,
     'created_by_you': TheStates.initial.obs,
@@ -35,8 +36,9 @@ class TribeGroupController extends GetxController {
     'created_by_you': null,
     'admin_only': null,
   };
-  
-  Rx<GroupDetailsModel> groupDetailsModel = const GroupDetailsModel().obs;
+
+  Rx<GroupPostModel> groupPostModel = const GroupPostModel().obs;
+  Rx<GroupAboutModel> groupDetailModel = const GroupAboutModel().obs;
   Rx<String?> queryText = Rx<String?>(null);
 
   final RxList<String> pinnedGroupIds = <String>[].obs;
@@ -95,11 +97,11 @@ class TribeGroupController extends GetxController {
     filterStates.putIfAbsent(currentFilter, () => TheStates.initial.obs);
     errorMessages.putIfAbsent(currentFilter, () => null);
     filteredGroups.putIfAbsent(currentFilter, () => []);
-    
+
     // Reset error message
     errorMessages[currentFilter] = null;
     filterStates[currentFilter]?.value = TheStates.loading;
-    
+
     _cancelToken = CancelToken();
 
     final result = await remoteSource.getGroups(
@@ -107,7 +109,7 @@ class TribeGroupController extends GetxController {
       showPost: currentFilter,
       cancelToken: _cancelToken,
     );
-    
+
     return result.fold(
       (l) {
         filterStates[currentFilter]?.value = TheStates.error;
@@ -116,11 +118,11 @@ class TribeGroupController extends GetxController {
       },
       (r) async {
         final groups = r.data?.groups ?? [];
-        
+
         filteredGroups[currentFilter] = groups;
-        
+
         _updatePinnedGroupIds(groups);
-        
+
         filterStates[currentFilter]?.value = TheStates.success;
       },
     );
@@ -140,15 +142,11 @@ class TribeGroupController extends GetxController {
   }
 
   List<GroupModel> get pinnedGroups {
-    return currentGroups
-        .where((group) => group.isPinned == true)
-        .toList();
+    return currentGroups.where((group) => group.isPinned == true).toList();
   }
 
   List<GroupModel> get unpinnedGroups {
-    return currentGroups
-        .where((group) => group.isPinned != true)
-        .toList();
+    return currentGroups.where((group) => group.isPinned != true).toList();
   }
 
   Future<void> createGroup({
@@ -253,10 +251,32 @@ class TribeGroupController extends GetxController {
     }
   }
 
+  Rx<TheStates> postDetailState = TheStates.initial.obs;
+  Future<void> loadPostDetails(String groupId) async {
+    try {
+      postDetailState.value = TheStates.loading;
+      final result = await remoteSource.getGroupPostById(groupId: groupId);
+
+      result.fold(
+        (error) {
+          postDetailState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          postDetailState.value = TheStates.success;
+          groupPostModel.value = r;
+        },
+      );
+    } catch (e) {
+      postDetailState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
+    }
+  }
+
   Future<void> loadGroupDetails(String groupId) async {
     try {
       groupDetailsState.value = TheStates.loading;
-      final result = await remoteSource.getGroupById(groupId: groupId);
+      final result = await remoteSource.getGroupDetailsById(groupId: groupId);
 
       result.fold(
         (error) {
@@ -265,7 +285,7 @@ class TribeGroupController extends GetxController {
         },
         (r) {
           groupDetailsState.value = TheStates.success;
-          groupDetailsModel.value = r;
+          groupDetailModel.value = r;
         },
       );
     } catch (e) {
@@ -331,7 +351,7 @@ class TribeGroupController extends GetxController {
         },
         (response) async {
           AppUtils.showSnackbar(message: response);
-          await loadGroupDetails(groupId);
+          await loadPostDetails(groupId);
         },
       );
     } catch (e) {
@@ -341,11 +361,11 @@ class TribeGroupController extends GetxController {
 
   Future<void> toggleGroupPin(String groupId) async {
     if (isPinUnpinLoading.value) return;
-    
+
     try {
       isPinUnpinLoading.value = true;
       final result = await remoteSource.pinUnpinGroup(groupId: groupId);
-      
+
       result.fold(
         (error) {
           AppUtils.showErrorSnackbar(message: error.message);
@@ -414,7 +434,6 @@ class TribeGroupController extends GetxController {
   String get userId {
     return Get.find<ProfileController>().userProfile.value.id.toString();
   }
-  
 
   TheStates get currentFilterState {
     final currentFilter = selectedFilters.value.toLowerCase();

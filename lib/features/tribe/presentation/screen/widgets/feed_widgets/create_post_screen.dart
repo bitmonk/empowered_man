@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/tribe/data/model/group_details_model.dart';
+import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -37,7 +37,11 @@ class CreatePostScreen extends StatelessWidget {
                               final text =
                                   controller.postTextController.text.trim();
                               final media = controller.selectedMedia.toList();
-                              controller.createPost(text: text, media: media);
+                              controller.createPost(
+                                // groupId: groupId,
+                                text: text,
+                                media: media,
+                              );
                             },
                   child: Text(
                     'Post',
