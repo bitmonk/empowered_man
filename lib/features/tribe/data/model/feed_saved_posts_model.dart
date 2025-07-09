@@ -1,25 +1,25 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'dart:convert';
 
-part 'feed_posts_model.freezed.dart';
-part 'feed_posts_model.g.dart';
+part 'feed_saved_posts_model.freezed.dart';
+part 'feed_saved_posts_model.g.dart';
 
 @freezed
-class FeedPostsModel with _$FeedPostsModel {
-  const factory FeedPostsModel({
+class FeedSavedPostsModel with _$FeedSavedPostsModel {
+  const factory FeedSavedPostsModel({
     @JsonKey(name: "status") bool? status,
     @JsonKey(name: "message") String? message,
     @JsonKey(name: "data") Data? data,
-  }) = _FeedPostsModel;
+  }) = _FeedSavedPostsModel;
 
-  factory FeedPostsModel.fromJson(Map<String, dynamic> json) =>
-      _$FeedPostsModelFromJson(json);
+  factory FeedSavedPostsModel.fromJson(Map<String, dynamic> json) =>
+      _$FeedSavedPostsModelFromJson(json);
 }
 
 @freezed
 class Data with _$Data {
   const factory Data({
-    @JsonKey(name: "posts") List<Post>? posts,
+    @JsonKey(name: "saved_posts") List<SavedPost>? savedPosts,
     @JsonKey(name: "meta") Meta? meta,
   }) = _Data;
 
@@ -39,8 +39,8 @@ class Meta with _$Meta {
 }
 
 @freezed
-class Post with _$Post {
-  const factory Post({
+class SavedPost with _$SavedPost {
+  const factory SavedPost({
     @JsonKey(name: "id") int? id,
     @JsonKey(name: "text") String? text,
     @JsonKey(name: "group_id") int? groupId,
@@ -53,9 +53,10 @@ class Post with _$Post {
     @JsonKey(name: "is_bookmarked") bool? isBookmarked,
     @JsonKey(name: "created_at") DateTime? createdAt,
     @JsonKey(name: "updated_at") DateTime? updatedAt,
-  }) = _Post;
+  }) = _SavedPost;
 
-  factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
+  factory SavedPost.fromJson(Map<String, dynamic> json) =>
+      _$SavedPostFromJson(json);
 }
 
 @freezed

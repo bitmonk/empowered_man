@@ -4,8 +4,7 @@ import 'package:empowered/features/tribe/presentation/controller/feed_page_contr
 import 'package:image_picker/image_picker.dart';
 
 class CreatePostScreen extends StatelessWidget {
-  const CreatePostScreen({required this.groupId, super.key});
-  final String groupId;
+  const CreatePostScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,11 +36,11 @@ class CreatePostScreen extends StatelessWidget {
                               final text =
                                   controller.postTextController.text.trim();
                               final media = controller.selectedMedia.toList();
-                              controller.createPost(
-                                groupId: groupId,
-                                text: text,
-                                media: media,
-                              );
+                              // controller.createPost(
+                              //   groupId: groupId,
+                              //   text: text,
+                              //   media: media,
+                              // );
                             },
                   child: Text(
                     'Post',
@@ -221,9 +220,9 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     final options = [
       _Option(icon: Icons.photo, label: 'Photo/video', color: Colors.green),
       _Option(
-        icon: Icons.file_present,
-        label: 'Attachment',
-        color: Colors.orangeAccent,
+        icon: Icons.emoji_emotions,
+        label: 'Feeling/activity',
+        color: Colors.yellow,
       ),
       _Option(icon: Icons.camera_alt, label: 'Camera', color: Colors.blue),
       _Option(icon: Icons.gif_box, label: 'GIF', color: Colors.teal),

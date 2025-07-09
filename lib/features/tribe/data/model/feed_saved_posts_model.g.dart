@@ -1,13 +1,14 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'feed_posts_model.dart';
+part of 'feed_saved_posts_model.dart';
 
 // **************************************************************************
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$FeedPostsModelImpl _$$FeedPostsModelImplFromJson(Map<String, dynamic> json) =>
-    _$FeedPostsModelImpl(
+_$FeedSavedPostsModelImpl _$$FeedSavedPostsModelImplFromJson(
+        Map<String, dynamic> json) =>
+    _$FeedSavedPostsModelImpl(
       status: json['status'] as bool?,
       message: json['message'] as String?,
       data: json['data'] == null
@@ -15,8 +16,8 @@ _$FeedPostsModelImpl _$$FeedPostsModelImplFromJson(Map<String, dynamic> json) =>
           : Data.fromJson(json['data'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$FeedPostsModelImplToJson(
-        _$FeedPostsModelImpl instance) =>
+Map<String, dynamic> _$$FeedSavedPostsModelImplToJson(
+        _$FeedSavedPostsModelImpl instance) =>
     <String, dynamic>{
       'status': instance.status,
       'message': instance.message,
@@ -24,8 +25,8 @@ Map<String, dynamic> _$$FeedPostsModelImplToJson(
     };
 
 _$DataImpl _$$DataImplFromJson(Map<String, dynamic> json) => _$DataImpl(
-      posts: (json['posts'] as List<dynamic>?)
-          ?.map((e) => Post.fromJson(e as Map<String, dynamic>))
+      savedPosts: (json['saved_posts'] as List<dynamic>?)
+          ?.map((e) => SavedPost.fromJson(e as Map<String, dynamic>))
           .toList(),
       meta: json['meta'] == null
           ? null
@@ -34,7 +35,7 @@ _$DataImpl _$$DataImplFromJson(Map<String, dynamic> json) => _$DataImpl(
 
 Map<String, dynamic> _$$DataImplToJson(_$DataImpl instance) =>
     <String, dynamic>{
-      'posts': instance.posts,
+      'saved_posts': instance.savedPosts,
       'meta': instance.meta,
     };
 
@@ -53,7 +54,8 @@ Map<String, dynamic> _$$MetaImplToJson(_$MetaImpl instance) =>
       'last_page': instance.lastPage,
     };
 
-_$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
+_$SavedPostImpl _$$SavedPostImplFromJson(Map<String, dynamic> json) =>
+    _$SavedPostImpl(
       id: (json['id'] as num?)?.toInt(),
       text: json['text'] as String?,
       groupId: (json['group_id'] as num?)?.toInt(),
@@ -75,7 +77,7 @@ _$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
           : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
+Map<String, dynamic> _$$SavedPostImplToJson(_$SavedPostImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'text': instance.text,

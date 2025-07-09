@@ -737,6 +737,9 @@ class $AssetsImagesGen {
   /// File path: assets/images/one.png
   AssetGenImage get one => const AssetGenImage('assets/images/one.png');
 
+  /// File path: assets/images/paperclip.svg
+  SvgGenImage get paperclip => const SvgGenImage('assets/images/paperclip.svg');
+
   /// File path: assets/images/people.png
   AssetGenImage get people => const AssetGenImage('assets/images/people.png');
 
@@ -1145,6 +1148,7 @@ class $AssetsImagesGen {
         notificationProfile,
         nutrition,
         one,
+        paperclip,
         people,
         physio,
         pie,

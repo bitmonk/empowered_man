@@ -20,11 +20,11 @@ FeedPostsModel _$FeedPostsModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FeedPostsModel {
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   bool? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   String? get message => throw _privateConstructorUsedError;
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   Data? get data => throw _privateConstructorUsedError;
 
   /// Serializes this FeedPostsModel to a JSON map.
@@ -44,9 +44,9 @@ abstract class $FeedPostsModelCopyWith<$Res> {
       _$FeedPostsModelCopyWithImpl<$Res, FeedPostsModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') bool? status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') Data? data});
+      {@JsonKey(name: "status") bool? status,
+      @JsonKey(name: "message") String? message,
+      @JsonKey(name: "data") Data? data});
 
   $DataCopyWith<$Res>? get data;
 }
@@ -110,9 +110,9 @@ abstract class _$$FeedPostsModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') bool? status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') Data? data});
+      {@JsonKey(name: "status") bool? status,
+      @JsonKey(name: "message") String? message,
+      @JsonKey(name: "data") Data? data});
 
   @override
   $DataCopyWith<$Res>? get data;
@@ -156,21 +156,21 @@ class __$$FeedPostsModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FeedPostsModelImpl implements _FeedPostsModel {
   const _$FeedPostsModelImpl(
-      {@JsonKey(name: 'status') this.status,
-      @JsonKey(name: 'message') this.message,
-      @JsonKey(name: 'data') this.data});
+      {@JsonKey(name: "status") this.status,
+      @JsonKey(name: "message") this.message,
+      @JsonKey(name: "data") this.data});
 
   factory _$FeedPostsModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$FeedPostsModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   final bool? status;
   @override
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   final String? message;
   @override
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   final Data? data;
 
   @override
@@ -211,21 +211,21 @@ class _$FeedPostsModelImpl implements _FeedPostsModel {
 
 abstract class _FeedPostsModel implements FeedPostsModel {
   const factory _FeedPostsModel(
-      {@JsonKey(name: 'status') final bool? status,
-      @JsonKey(name: 'message') final String? message,
-      @JsonKey(name: 'data') final Data? data}) = _$FeedPostsModelImpl;
+      {@JsonKey(name: "status") final bool? status,
+      @JsonKey(name: "message") final String? message,
+      @JsonKey(name: "data") final Data? data}) = _$FeedPostsModelImpl;
 
   factory _FeedPostsModel.fromJson(Map<String, dynamic> json) =
       _$FeedPostsModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   bool? get status;
   @override
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   String? get message;
   @override
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   Data? get data;
 
   /// Create a copy of FeedPostsModel
@@ -242,8 +242,10 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Data {
-  @JsonKey(name: 'Feed_posts')
-  FeedPosts? get feedPosts => throw _privateConstructorUsedError;
+  @JsonKey(name: "posts")
+  List<Post>? get posts => throw _privateConstructorUsedError;
+  @JsonKey(name: "meta")
+  Meta? get meta => throw _privateConstructorUsedError;
 
   /// Serializes this Data to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -259,9 +261,11 @@ abstract class $DataCopyWith<$Res> {
   factory $DataCopyWith(Data value, $Res Function(Data) then) =
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
-  $Res call({@JsonKey(name: 'Feed_posts') FeedPosts? feedPosts});
+  $Res call(
+      {@JsonKey(name: "posts") List<Post>? posts,
+      @JsonKey(name: "meta") Meta? meta});
 
-  $FeedPostsCopyWith<$Res>? get feedPosts;
+  $MetaCopyWith<$Res>? get meta;
 }
 
 /// @nodoc
@@ -279,13 +283,18 @@ class _$DataCopyWithImpl<$Res, $Val extends Data>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? feedPosts = freezed,
+    Object? posts = freezed,
+    Object? meta = freezed,
   }) {
     return _then(_value.copyWith(
-      feedPosts: freezed == feedPosts
-          ? _value.feedPosts
-          : feedPosts // ignore: cast_nullable_to_non_nullable
-              as FeedPosts?,
+      posts: freezed == posts
+          ? _value.posts
+          : posts // ignore: cast_nullable_to_non_nullable
+              as List<Post>?,
+      meta: freezed == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as Meta?,
     ) as $Val);
   }
 
@@ -293,13 +302,13 @@ class _$DataCopyWithImpl<$Res, $Val extends Data>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $FeedPostsCopyWith<$Res>? get feedPosts {
-    if (_value.feedPosts == null) {
+  $MetaCopyWith<$Res>? get meta {
+    if (_value.meta == null) {
       return null;
     }
 
-    return $FeedPostsCopyWith<$Res>(_value.feedPosts!, (value) {
-      return _then(_value.copyWith(feedPosts: value) as $Val);
+    return $MetaCopyWith<$Res>(_value.meta!, (value) {
+      return _then(_value.copyWith(meta: value) as $Val);
     });
   }
 }
@@ -311,10 +320,12 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
       __$$DataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'Feed_posts') FeedPosts? feedPosts});
+  $Res call(
+      {@JsonKey(name: "posts") List<Post>? posts,
+      @JsonKey(name: "meta") Meta? meta});
 
   @override
-  $FeedPostsCopyWith<$Res>? get feedPosts;
+  $MetaCopyWith<$Res>? get meta;
 }
 
 /// @nodoc
@@ -329,13 +340,18 @@ class __$$DataImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? feedPosts = freezed,
+    Object? posts = freezed,
+    Object? meta = freezed,
   }) {
     return _then(_$DataImpl(
-      feedPosts: freezed == feedPosts
-          ? _value.feedPosts
-          : feedPosts // ignore: cast_nullable_to_non_nullable
-              as FeedPosts?,
+      posts: freezed == posts
+          ? _value._posts
+          : posts // ignore: cast_nullable_to_non_nullable
+              as List<Post>?,
+      meta: freezed == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as Meta?,
     ));
   }
 }
@@ -343,18 +359,32 @@ class __$$DataImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$DataImpl implements _Data {
-  const _$DataImpl({@JsonKey(name: 'Feed_posts') this.feedPosts});
+  const _$DataImpl(
+      {@JsonKey(name: "posts") final List<Post>? posts,
+      @JsonKey(name: "meta") this.meta})
+      : _posts = posts;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DataImplFromJson(json);
 
+  final List<Post>? _posts;
   @override
-  @JsonKey(name: 'Feed_posts')
-  final FeedPosts? feedPosts;
+  @JsonKey(name: "posts")
+  List<Post>? get posts {
+    final value = _posts;
+    if (value == null) return null;
+    if (_posts is EqualUnmodifiableListView) return _posts;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
+  @JsonKey(name: "meta")
+  final Meta? meta;
 
   @override
   String toString() {
-    return 'Data(feedPosts: $feedPosts)';
+    return 'Data(posts: $posts, meta: $meta)';
   }
 
   @override
@@ -362,13 +392,14 @@ class _$DataImpl implements _Data {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DataImpl &&
-            (identical(other.feedPosts, feedPosts) ||
-                other.feedPosts == feedPosts));
+            const DeepCollectionEquality().equals(other._posts, _posts) &&
+            (identical(other.meta, meta) || other.meta == meta));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, feedPosts);
+  int get hashCode => Object.hash(
+      runtimeType, const DeepCollectionEquality().hash(_posts), meta);
 
   /// Create a copy of Data
   /// with the given fields replaced by the non-null parameter values.
@@ -388,13 +419,17 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: 'Feed_posts') final FeedPosts? feedPosts}) = _$DataImpl;
+      {@JsonKey(name: "posts") final List<Post>? posts,
+      @JsonKey(name: "meta") final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
-  @JsonKey(name: 'Feed_posts')
-  FeedPosts? get feedPosts;
+  @JsonKey(name: "posts")
+  List<Post>? get posts;
+  @override
+  @JsonKey(name: "meta")
+  Meta? get meta;
 
   /// Create a copy of Data
   /// with the given fields replaced by the non-null parameter values.
@@ -404,236 +439,226 @@ abstract class _Data implements Data {
       throw _privateConstructorUsedError;
 }
 
-FeedPosts _$FeedPostsFromJson(Map<String, dynamic> json) {
-  return _FeedPosts.fromJson(json);
+Meta _$MetaFromJson(Map<String, dynamic> json) {
+  return _Meta.fromJson(json);
 }
 
 /// @nodoc
-mixin _$FeedPosts {
-  @JsonKey(name: 'posts')
-  List<Post>? get posts => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media')
-  List<String>? get media => throw _privateConstructorUsedError;
-  @JsonKey(name: 'savedPosts')
-  List<Post>? get savedPosts => throw _privateConstructorUsedError;
+mixin _$Meta {
+  @JsonKey(name: "current_page")
+  int? get currentPage => throw _privateConstructorUsedError;
+  @JsonKey(name: "total")
+  int? get total => throw _privateConstructorUsedError;
+  @JsonKey(name: "per_page")
+  int? get perPage => throw _privateConstructorUsedError;
+  @JsonKey(name: "last_page")
+  int? get lastPage => throw _privateConstructorUsedError;
 
-  /// Serializes this FeedPosts to a JSON map.
+  /// Serializes this Meta to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of FeedPosts
+  /// Create a copy of Meta
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $FeedPostsCopyWith<FeedPosts> get copyWith =>
-      throw _privateConstructorUsedError;
+  $MetaCopyWith<Meta> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $FeedPostsCopyWith<$Res> {
-  factory $FeedPostsCopyWith(FeedPosts value, $Res Function(FeedPosts) then) =
-      _$FeedPostsCopyWithImpl<$Res, FeedPosts>;
+abstract class $MetaCopyWith<$Res> {
+  factory $MetaCopyWith(Meta value, $Res Function(Meta) then) =
+      _$MetaCopyWithImpl<$Res, Meta>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'posts') List<Post>? posts,
-      @JsonKey(name: 'media') List<String>? media,
-      @JsonKey(name: 'savedPosts') List<Post>? savedPosts});
+      {@JsonKey(name: "current_page") int? currentPage,
+      @JsonKey(name: "total") int? total,
+      @JsonKey(name: "per_page") int? perPage,
+      @JsonKey(name: "last_page") int? lastPage});
 }
 
 /// @nodoc
-class _$FeedPostsCopyWithImpl<$Res, $Val extends FeedPosts>
-    implements $FeedPostsCopyWith<$Res> {
-  _$FeedPostsCopyWithImpl(this._value, this._then);
+class _$MetaCopyWithImpl<$Res, $Val extends Meta>
+    implements $MetaCopyWith<$Res> {
+  _$MetaCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of FeedPosts
+  /// Create a copy of Meta
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? posts = freezed,
-    Object? media = freezed,
-    Object? savedPosts = freezed,
+    Object? currentPage = freezed,
+    Object? total = freezed,
+    Object? perPage = freezed,
+    Object? lastPage = freezed,
   }) {
     return _then(_value.copyWith(
-      posts: freezed == posts
-          ? _value.posts
-          : posts // ignore: cast_nullable_to_non_nullable
-              as List<Post>?,
-      media: freezed == media
-          ? _value.media
-          : media // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      savedPosts: freezed == savedPosts
-          ? _value.savedPosts
-          : savedPosts // ignore: cast_nullable_to_non_nullable
-              as List<Post>?,
+      currentPage: freezed == currentPage
+          ? _value.currentPage
+          : currentPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      total: freezed == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int?,
+      perPage: freezed == perPage
+          ? _value.perPage
+          : perPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPage: freezed == lastPage
+          ? _value.lastPage
+          : lastPage // ignore: cast_nullable_to_non_nullable
+              as int?,
     ) as $Val);
   }
 }
 
 /// @nodoc
-abstract class _$$FeedPostsImplCopyWith<$Res>
-    implements $FeedPostsCopyWith<$Res> {
-  factory _$$FeedPostsImplCopyWith(
-          _$FeedPostsImpl value, $Res Function(_$FeedPostsImpl) then) =
-      __$$FeedPostsImplCopyWithImpl<$Res>;
+abstract class _$$MetaImplCopyWith<$Res> implements $MetaCopyWith<$Res> {
+  factory _$$MetaImplCopyWith(
+          _$MetaImpl value, $Res Function(_$MetaImpl) then) =
+      __$$MetaImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'posts') List<Post>? posts,
-      @JsonKey(name: 'media') List<String>? media,
-      @JsonKey(name: 'savedPosts') List<Post>? savedPosts});
+      {@JsonKey(name: "current_page") int? currentPage,
+      @JsonKey(name: "total") int? total,
+      @JsonKey(name: "per_page") int? perPage,
+      @JsonKey(name: "last_page") int? lastPage});
 }
 
 /// @nodoc
-class __$$FeedPostsImplCopyWithImpl<$Res>
-    extends _$FeedPostsCopyWithImpl<$Res, _$FeedPostsImpl>
-    implements _$$FeedPostsImplCopyWith<$Res> {
-  __$$FeedPostsImplCopyWithImpl(
-      _$FeedPostsImpl _value, $Res Function(_$FeedPostsImpl) _then)
+class __$$MetaImplCopyWithImpl<$Res>
+    extends _$MetaCopyWithImpl<$Res, _$MetaImpl>
+    implements _$$MetaImplCopyWith<$Res> {
+  __$$MetaImplCopyWithImpl(_$MetaImpl _value, $Res Function(_$MetaImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of FeedPosts
+  /// Create a copy of Meta
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? posts = freezed,
-    Object? media = freezed,
-    Object? savedPosts = freezed,
+    Object? currentPage = freezed,
+    Object? total = freezed,
+    Object? perPage = freezed,
+    Object? lastPage = freezed,
   }) {
-    return _then(_$FeedPostsImpl(
-      posts: freezed == posts
-          ? _value._posts
-          : posts // ignore: cast_nullable_to_non_nullable
-              as List<Post>?,
-      media: freezed == media
-          ? _value._media
-          : media // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      savedPosts: freezed == savedPosts
-          ? _value._savedPosts
-          : savedPosts // ignore: cast_nullable_to_non_nullable
-              as List<Post>?,
+    return _then(_$MetaImpl(
+      currentPage: freezed == currentPage
+          ? _value.currentPage
+          : currentPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      total: freezed == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int?,
+      perPage: freezed == perPage
+          ? _value.perPage
+          : perPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPage: freezed == lastPage
+          ? _value.lastPage
+          : lastPage // ignore: cast_nullable_to_non_nullable
+              as int?,
     ));
   }
 }
 
 /// @nodoc
 @JsonSerializable()
-class _$FeedPostsImpl implements _FeedPosts {
-  const _$FeedPostsImpl(
-      {@JsonKey(name: 'posts') final List<Post>? posts,
-      @JsonKey(name: 'media') final List<String>? media,
-      @JsonKey(name: 'savedPosts') final List<Post>? savedPosts})
-      : _posts = posts,
-        _media = media,
-        _savedPosts = savedPosts;
+class _$MetaImpl implements _Meta {
+  const _$MetaImpl(
+      {@JsonKey(name: "current_page") this.currentPage,
+      @JsonKey(name: "total") this.total,
+      @JsonKey(name: "per_page") this.perPage,
+      @JsonKey(name: "last_page") this.lastPage});
 
-  factory _$FeedPostsImpl.fromJson(Map<String, dynamic> json) =>
-      _$$FeedPostsImplFromJson(json);
+  factory _$MetaImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MetaImplFromJson(json);
 
-  final List<Post>? _posts;
   @override
-  @JsonKey(name: 'posts')
-  List<Post>? get posts {
-    final value = _posts;
-    if (value == null) return null;
-    if (_posts is EqualUnmodifiableListView) return _posts;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  final List<String>? _media;
+  @JsonKey(name: "current_page")
+  final int? currentPage;
   @override
-  @JsonKey(name: 'media')
-  List<String>? get media {
-    final value = _media;
-    if (value == null) return null;
-    if (_media is EqualUnmodifiableListView) return _media;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  final List<Post>? _savedPosts;
+  @JsonKey(name: "total")
+  final int? total;
   @override
-  @JsonKey(name: 'savedPosts')
-  List<Post>? get savedPosts {
-    final value = _savedPosts;
-    if (value == null) return null;
-    if (_savedPosts is EqualUnmodifiableListView) return _savedPosts;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
+  @JsonKey(name: "per_page")
+  final int? perPage;
+  @override
+  @JsonKey(name: "last_page")
+  final int? lastPage;
 
   @override
   String toString() {
-    return 'FeedPosts(posts: $posts, media: $media, savedPosts: $savedPosts)';
+    return 'Meta(currentPage: $currentPage, total: $total, perPage: $perPage, lastPage: $lastPage)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$FeedPostsImpl &&
-            const DeepCollectionEquality().equals(other._posts, _posts) &&
-            const DeepCollectionEquality().equals(other._media, _media) &&
-            const DeepCollectionEquality()
-                .equals(other._savedPosts, _savedPosts));
+            other is _$MetaImpl &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.total, total) || other.total == total) &&
+            (identical(other.perPage, perPage) || other.perPage == perPage) &&
+            (identical(other.lastPage, lastPage) ||
+                other.lastPage == lastPage));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_posts),
-      const DeepCollectionEquality().hash(_media),
-      const DeepCollectionEquality().hash(_savedPosts));
+  int get hashCode =>
+      Object.hash(runtimeType, currentPage, total, perPage, lastPage);
 
-  /// Create a copy of FeedPosts
+  /// Create a copy of Meta
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$FeedPostsImplCopyWith<_$FeedPostsImpl> get copyWith =>
-      __$$FeedPostsImplCopyWithImpl<_$FeedPostsImpl>(this, _$identity);
+  _$$MetaImplCopyWith<_$MetaImpl> get copyWith =>
+      __$$MetaImplCopyWithImpl<_$MetaImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$FeedPostsImplToJson(
+    return _$$MetaImplToJson(
       this,
     );
   }
 }
 
-abstract class _FeedPosts implements FeedPosts {
-  const factory _FeedPosts(
-          {@JsonKey(name: 'posts') final List<Post>? posts,
-          @JsonKey(name: 'media') final List<String>? media,
-          @JsonKey(name: 'savedPosts') final List<Post>? savedPosts}) =
-      _$FeedPostsImpl;
+abstract class _Meta implements Meta {
+  const factory _Meta(
+      {@JsonKey(name: "current_page") final int? currentPage,
+      @JsonKey(name: "total") final int? total,
+      @JsonKey(name: "per_page") final int? perPage,
+      @JsonKey(name: "last_page") final int? lastPage}) = _$MetaImpl;
 
-  factory _FeedPosts.fromJson(Map<String, dynamic> json) =
-      _$FeedPostsImpl.fromJson;
+  factory _Meta.fromJson(Map<String, dynamic> json) = _$MetaImpl.fromJson;
 
   @override
-  @JsonKey(name: 'posts')
-  List<Post>? get posts;
+  @JsonKey(name: "current_page")
+  int? get currentPage;
   @override
-  @JsonKey(name: 'media')
-  List<String>? get media;
+  @JsonKey(name: "total")
+  int? get total;
   @override
-  @JsonKey(name: 'savedPosts')
-  List<Post>? get savedPosts;
+  @JsonKey(name: "per_page")
+  int? get perPage;
+  @override
+  @JsonKey(name: "last_page")
+  int? get lastPage;
 
-  /// Create a copy of FeedPosts
+  /// Create a copy of Meta
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$FeedPostsImplCopyWith<_$FeedPostsImpl> get copyWith =>
+  _$$MetaImplCopyWith<_$MetaImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -643,32 +668,30 @@ Post _$PostFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Post {
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'text')
+  @JsonKey(name: "text")
   String? get text => throw _privateConstructorUsedError;
-  @JsonKey(name: 'group_id')
+  @JsonKey(name: "group_id")
   int? get groupId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: "user_id")
   int? get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_by')
-  User? get createdBy => throw _privateConstructorUsedError;
-  @JsonKey(name: 'media')
+  @JsonKey(name: "created_by")
+  CreatedBy? get createdBy => throw _privateConstructorUsedError;
+  @JsonKey(name: "media")
   List<String>? get media => throw _privateConstructorUsedError;
-  @JsonKey(name: 'comments')
-  List<Comment>? get comments => throw _privateConstructorUsedError;
-  @JsonKey(name: 'likes_count')
+  @JsonKey(name: "liked_by_current_user")
+  bool? get likedByCurrentUser => throw _privateConstructorUsedError;
+  @JsonKey(name: "likes_count")
   int? get likesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'comments_count')
+  @JsonKey(name: "comments_count")
   int? get commentsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_liked')
-  bool? get isLiked => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_bookmarked')
+  @JsonKey(name: "is_bookmarked")
   bool? get isBookmarked => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  String? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Post to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -685,21 +708,20 @@ abstract class $PostCopyWith<$Res> {
       _$PostCopyWithImpl<$Res, Post>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'group_id') int? groupId,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'created_by') User? createdBy,
-      @JsonKey(name: 'media') List<String>? media,
-      @JsonKey(name: 'comments') List<Comment>? comments,
-      @JsonKey(name: 'likes_count') int? likesCount,
-      @JsonKey(name: 'comments_count') int? commentsCount,
-      @JsonKey(name: 'is_liked') bool? isLiked,
-      @JsonKey(name: 'is_bookmarked') bool? isBookmarked,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "text") String? text,
+      @JsonKey(name: "group_id") int? groupId,
+      @JsonKey(name: "user_id") int? userId,
+      @JsonKey(name: "created_by") CreatedBy? createdBy,
+      @JsonKey(name: "media") List<String>? media,
+      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
+      @JsonKey(name: "likes_count") int? likesCount,
+      @JsonKey(name: "comments_count") int? commentsCount,
+      @JsonKey(name: "is_bookmarked") bool? isBookmarked,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt});
 
-  $UserCopyWith<$Res>? get createdBy;
+  $CreatedByCopyWith<$Res>? get createdBy;
 }
 
 /// @nodoc
@@ -723,10 +745,9 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
     Object? userId = freezed,
     Object? createdBy = freezed,
     Object? media = freezed,
-    Object? comments = freezed,
+    Object? likedByCurrentUser = freezed,
     Object? likesCount = freezed,
     Object? commentsCount = freezed,
-    Object? isLiked = freezed,
     Object? isBookmarked = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -751,15 +772,15 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
       createdBy: freezed == createdBy
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
-              as User?,
+              as CreatedBy?,
       media: freezed == media
           ? _value.media
           : media // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      comments: freezed == comments
-          ? _value.comments
-          : comments // ignore: cast_nullable_to_non_nullable
-              as List<Comment>?,
+      likedByCurrentUser: freezed == likedByCurrentUser
+          ? _value.likedByCurrentUser
+          : likedByCurrentUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
       likesCount: freezed == likesCount
           ? _value.likesCount
           : likesCount // ignore: cast_nullable_to_non_nullable
@@ -768,10 +789,6 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
           ? _value.commentsCount
           : commentsCount // ignore: cast_nullable_to_non_nullable
               as int?,
-      isLiked: freezed == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
-              as bool?,
       isBookmarked: freezed == isBookmarked
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
@@ -779,11 +796,11 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
     ) as $Val);
   }
 
@@ -791,12 +808,12 @@ class _$PostCopyWithImpl<$Res, $Val extends Post>
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
-  $UserCopyWith<$Res>? get createdBy {
+  $CreatedByCopyWith<$Res>? get createdBy {
     if (_value.createdBy == null) {
       return null;
     }
 
-    return $UserCopyWith<$Res>(_value.createdBy!, (value) {
+    return $CreatedByCopyWith<$Res>(_value.createdBy!, (value) {
       return _then(_value.copyWith(createdBy: value) as $Val);
     });
   }
@@ -810,22 +827,21 @@ abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'group_id') int? groupId,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'created_by') User? createdBy,
-      @JsonKey(name: 'media') List<String>? media,
-      @JsonKey(name: 'comments') List<Comment>? comments,
-      @JsonKey(name: 'likes_count') int? likesCount,
-      @JsonKey(name: 'comments_count') int? commentsCount,
-      @JsonKey(name: 'is_liked') bool? isLiked,
-      @JsonKey(name: 'is_bookmarked') bool? isBookmarked,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "text") String? text,
+      @JsonKey(name: "group_id") int? groupId,
+      @JsonKey(name: "user_id") int? userId,
+      @JsonKey(name: "created_by") CreatedBy? createdBy,
+      @JsonKey(name: "media") List<String>? media,
+      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
+      @JsonKey(name: "likes_count") int? likesCount,
+      @JsonKey(name: "comments_count") int? commentsCount,
+      @JsonKey(name: "is_bookmarked") bool? isBookmarked,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt});
 
   @override
-  $UserCopyWith<$Res>? get createdBy;
+  $CreatedByCopyWith<$Res>? get createdBy;
 }
 
 /// @nodoc
@@ -846,10 +862,9 @@ class __$$PostImplCopyWithImpl<$Res>
     Object? userId = freezed,
     Object? createdBy = freezed,
     Object? media = freezed,
-    Object? comments = freezed,
+    Object? likedByCurrentUser = freezed,
     Object? likesCount = freezed,
     Object? commentsCount = freezed,
-    Object? isLiked = freezed,
     Object? isBookmarked = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
@@ -874,15 +889,15 @@ class __$$PostImplCopyWithImpl<$Res>
       createdBy: freezed == createdBy
           ? _value.createdBy
           : createdBy // ignore: cast_nullable_to_non_nullable
-              as User?,
+              as CreatedBy?,
       media: freezed == media
           ? _value._media
           : media // ignore: cast_nullable_to_non_nullable
               as List<String>?,
-      comments: freezed == comments
-          ? _value._comments
-          : comments // ignore: cast_nullable_to_non_nullable
-              as List<Comment>?,
+      likedByCurrentUser: freezed == likedByCurrentUser
+          ? _value.likedByCurrentUser
+          : likedByCurrentUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
       likesCount: freezed == likesCount
           ? _value.likesCount
           : likesCount // ignore: cast_nullable_to_non_nullable
@@ -891,10 +906,6 @@ class __$$PostImplCopyWithImpl<$Res>
           ? _value.commentsCount
           : commentsCount // ignore: cast_nullable_to_non_nullable
               as int?,
-      isLiked: freezed == isLiked
-          ? _value.isLiked
-          : isLiked // ignore: cast_nullable_to_non_nullable
-              as bool?,
       isBookmarked: freezed == isBookmarked
           ? _value.isBookmarked
           : isBookmarked // ignore: cast_nullable_to_non_nullable
@@ -902,11 +913,11 @@ class __$$PostImplCopyWithImpl<$Res>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
     ));
   }
 }
@@ -915,43 +926,41 @@ class __$$PostImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PostImpl implements _Post {
   const _$PostImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'text') this.text,
-      @JsonKey(name: 'group_id') this.groupId,
-      @JsonKey(name: 'user_id') this.userId,
-      @JsonKey(name: 'created_by') this.createdBy,
-      @JsonKey(name: 'media') final List<String>? media,
-      @JsonKey(name: 'comments') final List<Comment>? comments,
-      @JsonKey(name: 'likes_count') this.likesCount,
-      @JsonKey(name: 'comments_count') this.commentsCount,
-      @JsonKey(name: 'is_liked') this.isLiked,
-      @JsonKey(name: 'is_bookmarked') this.isBookmarked,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt})
-      : _media = media,
-        _comments = comments;
+      {@JsonKey(name: "id") this.id,
+      @JsonKey(name: "text") this.text,
+      @JsonKey(name: "group_id") this.groupId,
+      @JsonKey(name: "user_id") this.userId,
+      @JsonKey(name: "created_by") this.createdBy,
+      @JsonKey(name: "media") final List<String>? media,
+      @JsonKey(name: "liked_by_current_user") this.likedByCurrentUser,
+      @JsonKey(name: "likes_count") this.likesCount,
+      @JsonKey(name: "comments_count") this.commentsCount,
+      @JsonKey(name: "is_bookmarked") this.isBookmarked,
+      @JsonKey(name: "created_at") this.createdAt,
+      @JsonKey(name: "updated_at") this.updatedAt})
+      : _media = media;
 
   factory _$PostImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostImplFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final int? id;
   @override
-  @JsonKey(name: 'text')
+  @JsonKey(name: "text")
   final String? text;
   @override
-  @JsonKey(name: 'group_id')
+  @JsonKey(name: "group_id")
   final int? groupId;
   @override
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: "user_id")
   final int? userId;
   @override
-  @JsonKey(name: 'created_by')
-  final User? createdBy;
+  @JsonKey(name: "created_by")
+  final CreatedBy? createdBy;
   final List<String>? _media;
   @override
-  @JsonKey(name: 'media')
+  @JsonKey(name: "media")
   List<String>? get media {
     final value = _media;
     if (value == null) return null;
@@ -960,39 +969,28 @@ class _$PostImpl implements _Post {
     return EqualUnmodifiableListView(value);
   }
 
-  final List<Comment>? _comments;
   @override
-  @JsonKey(name: 'comments')
-  List<Comment>? get comments {
-    final value = _comments;
-    if (value == null) return null;
-    if (_comments is EqualUnmodifiableListView) return _comments;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
+  @JsonKey(name: "liked_by_current_user")
+  final bool? likedByCurrentUser;
   @override
-  @JsonKey(name: 'likes_count')
+  @JsonKey(name: "likes_count")
   final int? likesCount;
   @override
-  @JsonKey(name: 'comments_count')
+  @JsonKey(name: "comments_count")
   final int? commentsCount;
   @override
-  @JsonKey(name: 'is_liked')
-  final bool? isLiked;
-  @override
-  @JsonKey(name: 'is_bookmarked')
+  @JsonKey(name: "is_bookmarked")
   final bool? isBookmarked;
   @override
-  @JsonKey(name: 'created_at')
-  final String? createdAt;
+  @JsonKey(name: "created_at")
+  final DateTime? createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  final String? updatedAt;
+  @JsonKey(name: "updated_at")
+  final DateTime? updatedAt;
 
   @override
   String toString() {
-    return 'Post(id: $id, text: $text, groupId: $groupId, userId: $userId, createdBy: $createdBy, media: $media, comments: $comments, likesCount: $likesCount, commentsCount: $commentsCount, isLiked: $isLiked, isBookmarked: $isBookmarked, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Post(id: $id, text: $text, groupId: $groupId, userId: $userId, createdBy: $createdBy, media: $media, likedByCurrentUser: $likedByCurrentUser, likesCount: $likesCount, commentsCount: $commentsCount, isBookmarked: $isBookmarked, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -1007,12 +1005,12 @@ class _$PostImpl implements _Post {
             (identical(other.createdBy, createdBy) ||
                 other.createdBy == createdBy) &&
             const DeepCollectionEquality().equals(other._media, _media) &&
-            const DeepCollectionEquality().equals(other._comments, _comments) &&
+            (identical(other.likedByCurrentUser, likedByCurrentUser) ||
+                other.likedByCurrentUser == likedByCurrentUser) &&
             (identical(other.likesCount, likesCount) ||
                 other.likesCount == likesCount) &&
             (identical(other.commentsCount, commentsCount) ||
                 other.commentsCount == commentsCount) &&
-            (identical(other.isLiked, isLiked) || other.isLiked == isLiked) &&
             (identical(other.isBookmarked, isBookmarked) ||
                 other.isBookmarked == isBookmarked) &&
             (identical(other.createdAt, createdAt) ||
@@ -1031,10 +1029,9 @@ class _$PostImpl implements _Post {
       userId,
       createdBy,
       const DeepCollectionEquality().hash(_media),
-      const DeepCollectionEquality().hash(_comments),
+      likedByCurrentUser,
       likesCount,
       commentsCount,
-      isLiked,
       isBookmarked,
       createdAt,
       updatedAt);
@@ -1057,61 +1054,57 @@ class _$PostImpl implements _Post {
 
 abstract class _Post implements Post {
   const factory _Post(
-      {@JsonKey(name: 'id') final int? id,
-      @JsonKey(name: 'text') final String? text,
-      @JsonKey(name: 'group_id') final int? groupId,
-      @JsonKey(name: 'user_id') final int? userId,
-      @JsonKey(name: 'created_by') final User? createdBy,
-      @JsonKey(name: 'media') final List<String>? media,
-      @JsonKey(name: 'comments') final List<Comment>? comments,
-      @JsonKey(name: 'likes_count') final int? likesCount,
-      @JsonKey(name: 'comments_count') final int? commentsCount,
-      @JsonKey(name: 'is_liked') final bool? isLiked,
-      @JsonKey(name: 'is_bookmarked') final bool? isBookmarked,
-      @JsonKey(name: 'created_at') final String? createdAt,
-      @JsonKey(name: 'updated_at') final String? updatedAt}) = _$PostImpl;
+      {@JsonKey(name: "id") final int? id,
+      @JsonKey(name: "text") final String? text,
+      @JsonKey(name: "group_id") final int? groupId,
+      @JsonKey(name: "user_id") final int? userId,
+      @JsonKey(name: "created_by") final CreatedBy? createdBy,
+      @JsonKey(name: "media") final List<String>? media,
+      @JsonKey(name: "liked_by_current_user") final bool? likedByCurrentUser,
+      @JsonKey(name: "likes_count") final int? likesCount,
+      @JsonKey(name: "comments_count") final int? commentsCount,
+      @JsonKey(name: "is_bookmarked") final bool? isBookmarked,
+      @JsonKey(name: "created_at") final DateTime? createdAt,
+      @JsonKey(name: "updated_at") final DateTime? updatedAt}) = _$PostImpl;
 
   factory _Post.fromJson(Map<String, dynamic> json) = _$PostImpl.fromJson;
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id;
   @override
-  @JsonKey(name: 'text')
+  @JsonKey(name: "text")
   String? get text;
   @override
-  @JsonKey(name: 'group_id')
+  @JsonKey(name: "group_id")
   int? get groupId;
   @override
-  @JsonKey(name: 'user_id')
+  @JsonKey(name: "user_id")
   int? get userId;
   @override
-  @JsonKey(name: 'created_by')
-  User? get createdBy;
+  @JsonKey(name: "created_by")
+  CreatedBy? get createdBy;
   @override
-  @JsonKey(name: 'media')
+  @JsonKey(name: "media")
   List<String>? get media;
   @override
-  @JsonKey(name: 'comments')
-  List<Comment>? get comments;
+  @JsonKey(name: "liked_by_current_user")
+  bool? get likedByCurrentUser;
   @override
-  @JsonKey(name: 'likes_count')
+  @JsonKey(name: "likes_count")
   int? get likesCount;
   @override
-  @JsonKey(name: 'comments_count')
+  @JsonKey(name: "comments_count")
   int? get commentsCount;
   @override
-  @JsonKey(name: 'is_liked')
-  bool? get isLiked;
-  @override
-  @JsonKey(name: 'is_bookmarked')
+  @JsonKey(name: "is_bookmarked")
   bool? get isBookmarked;
   @override
-  @JsonKey(name: 'created_at')
-  String? get createdAt;
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt;
 
   /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
@@ -1121,77 +1114,78 @@ abstract class _Post implements Post {
       throw _privateConstructorUsedError;
 }
 
-User _$UserFromJson(Map<String, dynamic> json) {
-  return _User.fromJson(json);
+CreatedBy _$CreatedByFromJson(Map<String, dynamic> json) {
+  return _CreatedBy.fromJson(json);
 }
 
 /// @nodoc
-mixin _$User {
-  @JsonKey(name: 'id')
+mixin _$CreatedBy {
+  @JsonKey(name: "id")
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   String? get fullName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   String? get slug => throw _privateConstructorUsedError;
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   String? get email => throw _privateConstructorUsedError;
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   String? get phoneNumber => throw _privateConstructorUsedError;
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   String? get occupation => throw _privateConstructorUsedError;
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   String? get image => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "is_coach")
   bool? get isCoach => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  String? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "agora_chat_token")
   String? get agoraChatToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   String? get agoraUserToken => throw _privateConstructorUsedError;
 
-  /// Serializes this User to a JSON map.
+  /// Serializes this CreatedBy to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of User
+  /// Create a copy of CreatedBy
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $UserCopyWith<User> get copyWith => throw _privateConstructorUsedError;
+  $CreatedByCopyWith<CreatedBy> get copyWith =>
+      throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $UserCopyWith<$Res> {
-  factory $UserCopyWith(User value, $Res Function(User) then) =
-      _$UserCopyWithImpl<$Res, User>;
+abstract class $CreatedByCopyWith<$Res> {
+  factory $CreatedByCopyWith(CreatedBy value, $Res Function(CreatedBy) then) =
+      _$CreatedByCopyWithImpl<$Res, CreatedBy>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'slug') String? slug,
-      @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      @JsonKey(name: 'occupation') String? occupation,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'is_coach') bool? isCoach,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt,
-      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
-      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "full_name") String? fullName,
+      @JsonKey(name: "slug") String? slug,
+      @JsonKey(name: "email") String? email,
+      @JsonKey(name: "phone_number") String? phoneNumber,
+      @JsonKey(name: "occupation") String? occupation,
+      @JsonKey(name: "image") String? image,
+      @JsonKey(name: "is_coach") bool? isCoach,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt,
+      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
+      @JsonKey(name: "agora_user_token") String? agoraUserToken});
 }
 
 /// @nodoc
-class _$UserCopyWithImpl<$Res, $Val extends User>
-    implements $UserCopyWith<$Res> {
-  _$UserCopyWithImpl(this._value, this._then);
+class _$CreatedByCopyWithImpl<$Res, $Val extends CreatedBy>
+    implements $CreatedByCopyWith<$Res> {
+  _$CreatedByCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of User
+  /// Create a copy of CreatedBy
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -1245,11 +1239,11 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       agoraChatToken: freezed == agoraChatToken
           ? _value.agoraChatToken
           : agoraChatToken // ignore: cast_nullable_to_non_nullable
@@ -1263,35 +1257,37 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
 }
 
 /// @nodoc
-abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
-  factory _$$UserImplCopyWith(
-          _$UserImpl value, $Res Function(_$UserImpl) then) =
-      __$$UserImplCopyWithImpl<$Res>;
+abstract class _$$CreatedByImplCopyWith<$Res>
+    implements $CreatedByCopyWith<$Res> {
+  factory _$$CreatedByImplCopyWith(
+          _$CreatedByImpl value, $Res Function(_$CreatedByImpl) then) =
+      __$$CreatedByImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'slug') String? slug,
-      @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      @JsonKey(name: 'occupation') String? occupation,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'is_coach') bool? isCoach,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt,
-      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
-      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "full_name") String? fullName,
+      @JsonKey(name: "slug") String? slug,
+      @JsonKey(name: "email") String? email,
+      @JsonKey(name: "phone_number") String? phoneNumber,
+      @JsonKey(name: "occupation") String? occupation,
+      @JsonKey(name: "image") String? image,
+      @JsonKey(name: "is_coach") bool? isCoach,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt,
+      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
+      @JsonKey(name: "agora_user_token") String? agoraUserToken});
 }
 
 /// @nodoc
-class __$$UserImplCopyWithImpl<$Res>
-    extends _$UserCopyWithImpl<$Res, _$UserImpl>
-    implements _$$UserImplCopyWith<$Res> {
-  __$$UserImplCopyWithImpl(_$UserImpl _value, $Res Function(_$UserImpl) _then)
+class __$$CreatedByImplCopyWithImpl<$Res>
+    extends _$CreatedByCopyWithImpl<$Res, _$CreatedByImpl>
+    implements _$$CreatedByImplCopyWith<$Res> {
+  __$$CreatedByImplCopyWithImpl(
+      _$CreatedByImpl _value, $Res Function(_$CreatedByImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of User
+  /// Create a copy of CreatedBy
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -1309,7 +1305,7 @@ class __$$UserImplCopyWithImpl<$Res>
     Object? agoraChatToken = freezed,
     Object? agoraUserToken = freezed,
   }) {
-    return _then(_$UserImpl(
+    return _then(_$CreatedByImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -1345,11 +1341,11 @@ class __$$UserImplCopyWithImpl<$Res>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       agoraChatToken: freezed == agoraChatToken
           ? _value.agoraChatToken
           : agoraChatToken // ignore: cast_nullable_to_non_nullable
@@ -1364,71 +1360,71 @@ class __$$UserImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$UserImpl implements _User {
-  const _$UserImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'full_name') this.fullName,
-      @JsonKey(name: 'slug') this.slug,
-      @JsonKey(name: 'email') this.email,
-      @JsonKey(name: 'phone_number') this.phoneNumber,
-      @JsonKey(name: 'occupation') this.occupation,
-      @JsonKey(name: 'image') this.image,
-      @JsonKey(name: 'is_coach') this.isCoach,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt,
-      @JsonKey(name: 'agora_chat_token') this.agoraChatToken,
-      @JsonKey(name: 'agora_user_token') this.agoraUserToken});
+class _$CreatedByImpl implements _CreatedBy {
+  const _$CreatedByImpl(
+      {@JsonKey(name: "id") this.id,
+      @JsonKey(name: "full_name") this.fullName,
+      @JsonKey(name: "slug") this.slug,
+      @JsonKey(name: "email") this.email,
+      @JsonKey(name: "phone_number") this.phoneNumber,
+      @JsonKey(name: "occupation") this.occupation,
+      @JsonKey(name: "image") this.image,
+      @JsonKey(name: "is_coach") this.isCoach,
+      @JsonKey(name: "created_at") this.createdAt,
+      @JsonKey(name: "updated_at") this.updatedAt,
+      @JsonKey(name: "agora_chat_token") this.agoraChatToken,
+      @JsonKey(name: "agora_user_token") this.agoraUserToken});
 
-  factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UserImplFromJson(json);
+  factory _$CreatedByImpl.fromJson(Map<String, dynamic> json) =>
+      _$$CreatedByImplFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final int? id;
   @override
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   final String? fullName;
   @override
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   final String? slug;
   @override
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   final String? email;
   @override
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   final String? phoneNumber;
   @override
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   final String? occupation;
   @override
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   final String? image;
   @override
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "is_coach")
   final bool? isCoach;
   @override
-  @JsonKey(name: 'created_at')
-  final String? createdAt;
+  @JsonKey(name: "created_at")
+  final DateTime? createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  final String? updatedAt;
+  @JsonKey(name: "updated_at")
+  final DateTime? updatedAt;
   @override
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "agora_chat_token")
   final String? agoraChatToken;
   @override
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   final String? agoraUserToken;
 
   @override
   String toString() {
-    return 'User(id: $id, fullName: $fullName, slug: $slug, email: $email, phoneNumber: $phoneNumber, occupation: $occupation, image: $image, isCoach: $isCoach, createdAt: $createdAt, updatedAt: $updatedAt, agoraChatToken: $agoraChatToken, agoraUserToken: $agoraUserToken)';
+    return 'CreatedBy(id: $id, fullName: $fullName, slug: $slug, email: $email, phoneNumber: $phoneNumber, occupation: $occupation, image: $image, isCoach: $isCoach, createdAt: $createdAt, updatedAt: $updatedAt, agoraChatToken: $agoraChatToken, agoraUserToken: $agoraUserToken)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$UserImpl &&
+            other is _$CreatedByImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.fullName, fullName) ||
                 other.fullName == fullName) &&
@@ -1467,328 +1463,82 @@ class _$UserImpl implements _User {
       agoraChatToken,
       agoraUserToken);
 
-  /// Create a copy of User
+  /// Create a copy of CreatedBy
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$UserImplCopyWith<_$UserImpl> get copyWith =>
-      __$$UserImplCopyWithImpl<_$UserImpl>(this, _$identity);
+  _$$CreatedByImplCopyWith<_$CreatedByImpl> get copyWith =>
+      __$$CreatedByImplCopyWithImpl<_$CreatedByImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$UserImplToJson(
+    return _$$CreatedByImplToJson(
       this,
     );
   }
 }
 
-abstract class _User implements User {
-  const factory _User(
-          {@JsonKey(name: 'id') final int? id,
-          @JsonKey(name: 'full_name') final String? fullName,
-          @JsonKey(name: 'slug') final String? slug,
-          @JsonKey(name: 'email') final String? email,
-          @JsonKey(name: 'phone_number') final String? phoneNumber,
-          @JsonKey(name: 'occupation') final String? occupation,
-          @JsonKey(name: 'image') final String? image,
-          @JsonKey(name: 'is_coach') final bool? isCoach,
-          @JsonKey(name: 'created_at') final String? createdAt,
-          @JsonKey(name: 'updated_at') final String? updatedAt,
-          @JsonKey(name: 'agora_chat_token') final String? agoraChatToken,
-          @JsonKey(name: 'agora_user_token') final String? agoraUserToken}) =
-      _$UserImpl;
+abstract class _CreatedBy implements CreatedBy {
+  const factory _CreatedBy(
+          {@JsonKey(name: "id") final int? id,
+          @JsonKey(name: "full_name") final String? fullName,
+          @JsonKey(name: "slug") final String? slug,
+          @JsonKey(name: "email") final String? email,
+          @JsonKey(name: "phone_number") final String? phoneNumber,
+          @JsonKey(name: "occupation") final String? occupation,
+          @JsonKey(name: "image") final String? image,
+          @JsonKey(name: "is_coach") final bool? isCoach,
+          @JsonKey(name: "created_at") final DateTime? createdAt,
+          @JsonKey(name: "updated_at") final DateTime? updatedAt,
+          @JsonKey(name: "agora_chat_token") final String? agoraChatToken,
+          @JsonKey(name: "agora_user_token") final String? agoraUserToken}) =
+      _$CreatedByImpl;
 
-  factory _User.fromJson(Map<String, dynamic> json) = _$UserImpl.fromJson;
+  factory _CreatedBy.fromJson(Map<String, dynamic> json) =
+      _$CreatedByImpl.fromJson;
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id;
   @override
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   String? get fullName;
   @override
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   String? get slug;
   @override
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   String? get email;
   @override
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   String? get phoneNumber;
   @override
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   String? get occupation;
   @override
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   String? get image;
   @override
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "is_coach")
   bool? get isCoach;
   @override
-  @JsonKey(name: 'created_at')
-  String? get createdAt;
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt;
   @override
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "agora_chat_token")
   String? get agoraChatToken;
   @override
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   String? get agoraUserToken;
 
-  /// Create a copy of User
+  /// Create a copy of CreatedBy
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$UserImplCopyWith<_$UserImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-Comment _$CommentFromJson(Map<String, dynamic> json) {
-  return _Comment.fromJson(json);
-}
-
-/// @nodoc
-mixin _$Comment {
-  @JsonKey(name: 'id')
-  int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'text')
-  String? get text => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user_id')
-  int? get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  String? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt => throw _privateConstructorUsedError;
-
-  /// Serializes this Comment to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of Comment
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $CommentCopyWith<Comment> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $CommentCopyWith<$Res> {
-  factory $CommentCopyWith(Comment value, $Res Function(Comment) then) =
-      _$CommentCopyWithImpl<$Res, Comment>;
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt});
-}
-
-/// @nodoc
-class _$CommentCopyWithImpl<$Res, $Val extends Comment>
-    implements $CommentCopyWith<$Res> {
-  _$CommentCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Comment
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? text = freezed,
-    Object? userId = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int?,
-      text: freezed == text
-          ? _value.text
-          : text // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: freezed == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$CommentImplCopyWith<$Res> implements $CommentCopyWith<$Res> {
-  factory _$$CommentImplCopyWith(
-          _$CommentImpl value, $Res Function(_$CommentImpl) then) =
-      __$$CommentImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'text') String? text,
-      @JsonKey(name: 'user_id') int? userId,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt});
-}
-
-/// @nodoc
-class __$$CommentImplCopyWithImpl<$Res>
-    extends _$CommentCopyWithImpl<$Res, _$CommentImpl>
-    implements _$$CommentImplCopyWith<$Res> {
-  __$$CommentImplCopyWithImpl(
-      _$CommentImpl _value, $Res Function(_$CommentImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of Comment
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = freezed,
-    Object? text = freezed,
-    Object? userId = freezed,
-    Object? createdAt = freezed,
-    Object? updatedAt = freezed,
-  }) {
-    return _then(_$CommentImpl(
-      id: freezed == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int?,
-      text: freezed == text
-          ? _value.text
-          : text // ignore: cast_nullable_to_non_nullable
-              as String?,
-      userId: freezed == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int?,
-      createdAt: freezed == createdAt
-          ? _value.createdAt
-          : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
-      updatedAt: freezed == updatedAt
-          ? _value.updatedAt
-          : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$CommentImpl implements _Comment {
-  const _$CommentImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'text') this.text,
-      @JsonKey(name: 'user_id') this.userId,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt});
-
-  factory _$CommentImpl.fromJson(Map<String, dynamic> json) =>
-      _$$CommentImplFromJson(json);
-
-  @override
-  @JsonKey(name: 'id')
-  final int? id;
-  @override
-  @JsonKey(name: 'text')
-  final String? text;
-  @override
-  @JsonKey(name: 'user_id')
-  final int? userId;
-  @override
-  @JsonKey(name: 'created_at')
-  final String? createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  final String? updatedAt;
-
-  @override
-  String toString() {
-    return 'Comment(id: $id, text: $text, userId: $userId, createdAt: $createdAt, updatedAt: $updatedAt)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$CommentImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.text, text) || other.text == text) &&
-            (identical(other.userId, userId) || other.userId == userId) &&
-            (identical(other.createdAt, createdAt) ||
-                other.createdAt == createdAt) &&
-            (identical(other.updatedAt, updatedAt) ||
-                other.updatedAt == updatedAt));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, text, userId, createdAt, updatedAt);
-
-  /// Create a copy of Comment
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$CommentImplCopyWith<_$CommentImpl> get copyWith =>
-      __$$CommentImplCopyWithImpl<_$CommentImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$CommentImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _Comment implements Comment {
-  const factory _Comment(
-      {@JsonKey(name: 'id') final int? id,
-      @JsonKey(name: 'text') final String? text,
-      @JsonKey(name: 'user_id') final int? userId,
-      @JsonKey(name: 'created_at') final String? createdAt,
-      @JsonKey(name: 'updated_at') final String? updatedAt}) = _$CommentImpl;
-
-  factory _Comment.fromJson(Map<String, dynamic> json) = _$CommentImpl.fromJson;
-
-  @override
-  @JsonKey(name: 'id')
-  int? get id;
-  @override
-  @JsonKey(name: 'text')
-  String? get text;
-  @override
-  @JsonKey(name: 'user_id')
-  int? get userId;
-  @override
-  @JsonKey(name: 'created_at')
-  String? get createdAt;
-  @override
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt;
-
-  /// Create a copy of Comment
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$CommentImplCopyWith<_$CommentImpl> get copyWith =>
+  _$$CreatedByImplCopyWith<_$CreatedByImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

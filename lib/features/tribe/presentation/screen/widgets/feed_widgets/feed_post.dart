@@ -358,6 +358,7 @@ class _FeedPostState extends State<FeedPost> {
         imageUrls: widget.post.media ?? [],
         isLiked: widget.post.likedByCurrentUser ?? false,
         postId: widget.post.id?.toString() ?? '',
+        likesCount: widget.post.likesCount ?? 0,
       ),
     );
   }

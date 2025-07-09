@@ -92,7 +92,8 @@ class AppEndpoints {
   static const String editGroups = '/user/tribe-group';
 
   //feed post
-  static const String getFeedPosts = '/user/posts';
+  static const String getFeedPosts = '/user/post-feed/posts';
+  static const String getFeedMedia = '/user/post-feed/medias';
   static const String createPost = '/user/create-post';
   static const String likePost = '/user/post/like';
   static const String commentPost = '/user/post/comment';
@@ -100,6 +101,7 @@ class AppEndpoints {
   static const String replyComment = '/user/comment/reply';
   static const String savePost = '/user/post/save';
   static const String hidePost = '/user/post/hide';
+  static const String getFeedSavedPost = '/user/post-feed/saved-posts';
 
   //group section
   static const String getGroupDetailsById = '/user/group/about/';

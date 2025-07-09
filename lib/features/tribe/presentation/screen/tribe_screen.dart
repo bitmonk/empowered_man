@@ -1,6 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
+import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
+import 'package:empowered/features/tribe/presentation/screen/feed_posts_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/create_tribe_group.dart';
 
 class TribeScreen extends StatefulWidget {
@@ -65,7 +67,7 @@ class _TribeScreenState extends State<TribeScreen> {
     final accessType = group.accessType?.toLowerCase();
 
     // Check for admin-only access types
-    return accessType == 'admin_only' ;
+    return accessType == 'admin_only';
   }
 
   String _getCurrentFilter() {
@@ -205,15 +207,18 @@ class _TribeScreenState extends State<TribeScreen> {
                       ),
                     ),
                     const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Assets.images.file.svg(width: 30, height: 30),
-                        const SizedBox(width: 8),
-                        const Text(
-                          'Posts',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      ],
+                    GestureDetector(
+                      onTap: () => Get.to(() => FeedPostsScreen()),
+                      child: Row(
+                        children: [
+                          Assets.images.file.svg(width: 30, height: 30),
+                          const SizedBox(width: 8),
+                          const Text(
+                            'Posts',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
                     ),
                     const SizedBox(height: 24),
                     // Pinned Groups Section

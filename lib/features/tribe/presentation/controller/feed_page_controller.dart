@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:share_plus/share_plus.dart';
@@ -16,18 +16,19 @@ class FeedPageController extends GetxController {
 
   final RxInt currentTabIndex = 0.obs;
   final RxList<Post> posts = <Post>[].obs;
+  final RxList<Post> savedPosts = <Post>[].obs;
+  Rx<FeedMediaModel> feedMediaModel = const FeedMediaModel().obs;
   final RxBool isLoading = false.obs;
   final RxBool isSharing = false.obs;
   StreamSubscription? _linkSubscription;
   final Rx<TheStates> feedState = TheStates.initial.obs;
+  final Rx<TheStates> feedMediaState = TheStates.initial.obs;
   final Rx<TheStates> createPostState = TheStates.initial.obs;
 
   // Data
   final Rx<FeedPostsModel> feedPosts = const FeedPostsModel().obs;
   final RxList<String> selectedMedia = <String>[].obs;
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
-
-  final RxString currentGroupId = ''.obs;
 
   // Form controllers
   final TextEditingController postTextController = TextEditingController();
@@ -43,11 +44,12 @@ class FeedPageController extends GetxController {
 
   // Tab names
   final List<String> tabs = ['Post', 'About', 'Media', 'Saved'];
-
+  final RxString currentGroupId = ''.obs;
   @override
   void onInit() {
     super.onInit();
     _initializeDeepLinks();
+    loadFeedPosts(); // Load posts on initialization
   }
 
   @override
@@ -65,13 +67,6 @@ class FeedPageController extends GetxController {
   }
 
   Future<void> loadFeedPosts() async {
-    if (currentGroupId.value.isEmpty) {
-      feedState.value = TheStates.error;
-      feedError = 'Group ID is required';
-      AppUtils.showErrorSnackbar(message: feedError!);
-      return;
-    }
-
     try {
       feedState.value = TheStates.loading;
       feedError = null;
@@ -87,16 +82,111 @@ class FeedPageController extends GetxController {
         (postsModel) {
           feedState.value = TheStates.success;
           feedPosts.value = postsModel;
-          posts.value = postsModel.data?.feedPosts?.posts ?? [];
+          posts.value = postsModel.data?.posts ?? [];
           print('Fetched posts: ${posts.length}');
-          print(
-              'Fetched saved posts: ${postsModel.data?.feedPosts?.savedPosts?.length ?? 0}');
         },
       );
     } catch (e) {
       feedState.value = TheStates.error;
       feedError = 'Failed to load feed posts: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    }
+  }
+
+  Future<void> loadSavedPosts() async {
+    try {
+      feedState.value = TheStates.loading;
+      feedError = null;
+
+      final result = await remoteSource.getFeedPosts();
+
+      result.fold(
+        (error) {
+          feedState.value = TheStates.error;
+          feedError = error.message;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (postsModel) {
+          feedState.value = TheStates.success;
+          savedPosts.value = postsModel.data?.posts ?? [];
+          print('Fetched saved posts: ${savedPosts.length}');
+        },
+      );
+    } catch (e) {
+      feedState.value = TheStates.error;
+      feedError = 'Failed to load saved posts: $e';
+      AppUtils.showErrorSnackbar(message: feedError!);
+    }
+  }
+
+  Future<void> getFeedMedia() async {
+    try {
+      feedMediaState.value = TheStates.loading;
+      feedError = null;
+
+      final result = await remoteSource.getFeedMedia();
+
+      result.fold(
+        (l) {
+          feedMediaState.value = TheStates.error;
+
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          feedMediaState.value = TheStates.success;
+          feedMediaModel.value = r;
+          print('Fetched medias: ${savedPosts.length}');
+        },
+      );
+    } catch (e) {
+      feedMediaState.value = TheStates.error;
+      feedError = 'Failed to load saved posts: $e';
+      AppUtils.showErrorSnackbar(message: feedError!);
+    }
+  }
+
+  Future<void> createFeedsPost({
+    required String text,
+    required List<String> media,
+    required String groupId,
+  }) async {
+    if (text.isEmpty && media.isEmpty) {
+      AppUtils.showErrorSnackbar(message: 'Please add some content or media');
+      return;
+    }
+    try {
+      createPostState.value = TheStates.loading;
+      createPostError = null;
+
+      final result = await remoteSource.createPost(
+        groupId: groupId,
+        text: text.isNotEmpty ? text : null,
+        media: media.isNotEmpty ? media : null,
+      );
+
+      result.fold(
+        (error) {
+          createPostState.value = TheStates.error;
+          createPostError = error.message;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (response) {
+          createPostState.value = TheStates.success;
+          AppUtils.showSnackbar(
+            message: response.message ?? 'Post created successfully',
+          );
+          postTextController.clear();
+          selectedMedia.clear();
+          loadFeedPosts();
+          Get.back(); // Navigate back after successful post
+        },
+      );
+    } catch (e) {
+      createPostState.value = TheStates.error;
+      createPostError = 'Failed to create post: $e';
+      AppUtils.showErrorSnackbar(message: createPostError!);
+    } finally {
+      createPostState.value = TheStates.initial;
     }
   }
 
@@ -110,10 +200,10 @@ class FeedPageController extends GetxController {
       return;
     }
 
-    if (currentGroupId.value.isEmpty) {
-      AppUtils.showErrorSnackbar(message: 'Group ID is required');
-      return;
-    }
+    // if (currentGroupId.value.isEmpty) {
+    //   AppUtils.showErrorSnackbar(message: 'Group ID is required');
+    //   return;
+    // }
 
     try {
       createPostState.value = TheStates.loading;
@@ -164,6 +254,7 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
+          loadFeedPosts();
         },
       );
     } catch (e) {
@@ -183,7 +274,8 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          loadFeedPosts(); // Refresh to update savedPosts
+          loadFeedPosts();
+          loadSavedPosts();
         },
       );
     } catch (e) {
@@ -260,7 +352,7 @@ class FeedPageController extends GetxController {
           if (customComment == null) {
             commentController.clear();
           }
-          loadFeedPosts();
+          getPostComments(postId: postId);
         },
       );
     } catch (e) {
@@ -392,9 +484,14 @@ class FeedPageController extends GetxController {
 
   void changeTab(int index) {
     currentTabIndex.value = index;
+    if (index == 0) {
+      loadFeedPosts();
+    } else if (index == 3) {
+      loadSavedPosts();
+    }
   }
 
-  Future<void> sharePost(GroupPost post) async {
+  Future<void> sharePost(Post post) async {
     try {
       isSharing.value = true;
       final postId = post.id?.toString();
@@ -447,12 +544,6 @@ class FeedPageController extends GetxController {
       ..writeln('Download EmpoweredMan app for the best experience!');
 
     return buffer.toString();
-  }
-
-  List<Post> get savedPosts {
-    final savedPostsList = feedPosts.value.data?.feedPosts?.savedPosts;
-    print('Saved posts list: $savedPostsList'); // Debug log
-    return savedPostsList ?? [];
   }
 
   bool get isUserCoach {

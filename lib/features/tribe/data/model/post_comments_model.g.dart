@@ -49,7 +49,9 @@ _$CommentImpl _$$CommentImplFromJson(Map<String, dynamic> json) =>
           : User.fromJson(json['user'] as Map<String, dynamic>),
       likesCount: (json['likes_count'] as num?)?.toInt(),
       commentsCount: (json['comments_count'] as num?)?.toInt(),
-      replys: json['replys'] as List<dynamic>?,
+      replys: (json['replys'] as List<dynamic>?)
+          ?.map((e) => Comment.fromJson(e as Map<String, dynamic>))
+          .toList(),
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),

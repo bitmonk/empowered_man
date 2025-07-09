@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
 import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/group_post_model.dart';
@@ -43,6 +44,7 @@ class TribeGroupController extends GetxController {
   Rx<GroupPostModel> groupPostModel = const GroupPostModel().obs;
   Rx<GroupMediaModel> groupMediaModel = const GroupMediaModel().obs;
   Rx<SavedPostsModel> savedPostsModel = const SavedPostsModel().obs;
+  Rx<FeedSavedPostsModel> feedSavedPostsModel = const FeedSavedPostsModel().obs;
   Rx<GroupAboutModel> groupDetailModel = const GroupAboutModel().obs;
   Rx<String?> queryText = Rx<String?>(null);
 
@@ -323,6 +325,35 @@ class TribeGroupController extends GetxController {
       );
     } catch (e) {
       savedPostState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
+    }
+  }
+
+  Rx<TheStates> getFeedSavedPostState = TheStates.initial.obs;
+  Future<void> getFeedSavedPost({CancelToken? cancelToken}) async {
+    try {
+      getFeedSavedPostState.value = TheStates.loading;
+
+      // Cancel any ongoing request
+      _cancelToken?.cancel();
+      _cancelToken = cancelToken ?? CancelToken();
+
+      final result = await remoteSource.getFeedSavedPosts(
+        cancelToken: _cancelToken,
+      );
+
+      result.fold(
+        (error) {
+          getFeedSavedPostState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          getFeedSavedPostState.value = TheStates.success;
+          feedSavedPostsModel.value = r;
+        },
+      );
+    } catch (e) {
+      getFeedSavedPostState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
     }
   }

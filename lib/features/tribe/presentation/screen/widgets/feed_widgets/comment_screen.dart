@@ -1,7 +1,9 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
@@ -11,6 +13,7 @@ class CommentScreen extends StatefulWidget {
     required this.imageUrls,
     required this.isLiked,
     required this.postId,
+    required this.likesCount,
     super.key,
   });
 
@@ -20,6 +23,7 @@ class CommentScreen extends StatefulWidget {
   final List<String> imageUrls;
   final bool isLiked;
   final String postId;
+  final int likesCount;
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
@@ -30,14 +34,26 @@ class _CommentScreenState extends State<CommentScreen> {
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   late bool isPostLiked;
+  late int likesCount;
   String? replyingToCommentId;
   String? replyingToUserName;
   String? replyingToContent;
+
+  String _formatCount(int count) {
+    if (count >= 1000000) {
+      return '${(count / 1000000).toStringAsFixed(1)}M';
+    } else if (count >= 1000) {
+      return '${(count / 1000).toStringAsFixed(1)}K';
+    } else {
+      return count.toString();
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     isPostLiked = widget.isLiked;
+    likesCount = widget.likesCount;
     controller.getPostComments(postId: widget.postId);
   }
 
@@ -75,14 +91,15 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
+        // postId: widget.postId, // Pass postId to refresh comments
       );
       _cancelReply();
     } else {
-      controller.commentOnPost(
+      final success = controller.commentOnPost(
         widget.postId,
         customComment: _inputController.text.trim(),
       );
-      _inputController.clear();
+      if (success == true) _inputController.clear();
     }
   }
 
@@ -142,14 +159,18 @@ class _CommentScreenState extends State<CommentScreen> {
 
               final comments =
                   controller.commentsModel[widget.postId]?.data?.comments ?? [];
-              return ListView(
-                padding: const EdgeInsets.all(16),
-                children: [
-                  _buildOriginalPost(),
-                  const SizedBox(height: 16),
-                  ...comments
-                      .map((comment) => _buildCommentWithReplies(comment)),
-                ],
+              return RefreshIndicator(
+                onRefresh: () =>
+                    controller.getPostComments(postId: widget.postId),
+                child: ListView(
+                  padding: const EdgeInsets.all(16),
+                  children: [
+                    _buildOriginalPost(),
+                    const SizedBox(height: 16),
+                    ...comments
+                        .map((comment) => _buildCommentWithReplies(comment)),
+                  ],
+                ),
               );
             }),
           ),
@@ -189,10 +210,14 @@ class _CommentScreenState extends State<CommentScreen> {
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                     Text(
                       widget.timeAgo,
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -250,6 +275,8 @@ class _CommentScreenState extends State<CommentScreen> {
           Text(
             widget.content,
             style: const TextStyle(color: Colors.white),
+            maxLines: 10,
+            overflow: TextOverflow.ellipsis,
           ),
           if (widget.imageUrls.isNotEmpty) ...[
             const SizedBox(height: 12),
@@ -264,6 +291,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 onTap: () {
                   setState(() {
                     isPostLiked = !isPostLiked;
+                    likesCount = isPostLiked ? likesCount + 1 : likesCount - 1;
                   });
                   controller.toggleLike(widget.postId);
                 },
@@ -276,7 +304,10 @@ class _CommentScreenState extends State<CommentScreen> {
                       size: 20,
                     ),
                     const SizedBox(width: 4),
-                    const Text('7.5K', style: TextStyle(color: Colors.white)),
+                    Text(
+                      _formatCount(likesCount),
+                      style: const TextStyle(color: Colors.white),
+                    ),
                   ],
                 ),
               ),
@@ -292,9 +323,11 @@ class _CommentScreenState extends State<CommentScreen> {
                   const SizedBox(width: 4),
                   Obx(
                     () => Text(
-                      controller.commentsModel[widget.postId]?.data?.meta?.total
-                              .toString() ??
-                          '0',
+                      _formatCount(
+                        controller.commentsModel[widget.postId]?.data?.meta
+                                ?.total ??
+                            0,
+                      ),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ),
@@ -364,7 +397,7 @@ class _CommentScreenState extends State<CommentScreen> {
           if (comment.replys?.isNotEmpty ?? false) ...[
             const SizedBox(height: 8),
             ...comment.replys!.map((reply) => _buildReply(
-                  reply as Comment,
+                  reply, // Pass reply directly since it's already a Comment
                   comment.id.toString(),
                   comment.user?.fullName ?? 'Unknown',
                   comment.text ?? '',
@@ -372,6 +405,42 @@ class _CommentScreenState extends State<CommentScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  Comment _mapToComment(dynamic reply) {
+    print('Mapping reply: $reply'); // Debug log
+    if (reply is! Map<String, dynamic>) {
+      return Comment(
+        id: null,
+        text: null,
+        user: null,
+        createdAt: null,
+        likesCount: 0,
+        replys: null,
+      );
+    }
+    final profileController = Get.find<ProfileController>();
+    return Comment(
+      id: reply['id'] ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
+      text: reply['text'] as String? ?? '',
+      user: reply['user'] != null
+          ? User(
+              fullName: reply['user']['full_name'] as String? ??
+                  (profileController.userProfile.value.fullName ?? 'Unknown'),
+              image: reply['user']['image'] as String? ??
+                  profileController.userProfile.value.image,
+            )
+          : User(
+              fullName:
+                  profileController.userProfile.value.fullName ?? 'Unknown',
+              image: profileController.userProfile.value.image,
+            ),
+      createdAt: reply['created_at'] != null
+          ? DateTime.tryParse(reply['created_at'])
+          : null,
+      likesCount: reply['likes_count'] as int? ?? 0,
+      replys: reply['replys'] as List<Comment>?, // Correct key name
     );
   }
 
@@ -406,12 +475,16 @@ class _CommentScreenState extends State<CommentScreen> {
             children: [
               Row(
                 children: [
-                  Text(
-                    comment.user?.fullName ?? 'Unknown',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
+                  Expanded(
+                    child: Text(
+                      comment.user?.fullName ?? 'Unknown',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -421,6 +494,8 @@ class _CommentScreenState extends State<CommentScreen> {
                       color: Colors.grey,
                       fontSize: 12,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -431,6 +506,8 @@ class _CommentScreenState extends State<CommentScreen> {
                   color: Colors.white70,
                   fontSize: 14,
                 ),
+                maxLines: 5,
+                overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 8),
               Row(
@@ -442,21 +519,56 @@ class _CommentScreenState extends State<CommentScreen> {
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(
-                          (comment.likesCount ?? 0) > 0
-                              ? Icons.favorite
-                              : Icons.favorite_border,
-                          color: (comment.likesCount ?? 0) > 0
-                              ? Colors.red
-                              : Colors.white,
-                          size: 16,
+                        Obx(
+                          () => Icon(
+                            (controller.commentsModel[widget.postId]?.data
+                                            ?.comments
+                                            ?.firstWhere(
+                                              (c) =>
+                                                  c.id.toString() ==
+                                                  comment.id.toString(),
+                                              orElse: () => comment,
+                                            )
+                                            ?.likesCount ??
+                                        0) >
+                                    0
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: (controller.commentsModel[widget.postId]
+                                            ?.data?.comments
+                                            ?.firstWhere(
+                                              (c) =>
+                                                  c.id.toString() ==
+                                                  comment.id.toString(),
+                                              orElse: () => comment,
+                                            )
+                                            ?.likesCount ??
+                                        0) >
+                                    0
+                                ? Colors.red
+                                : Colors.white,
+                            size: 16,
+                          ),
                         ),
                         const SizedBox(width: 4),
-                        Text(
-                          '${comment.likesCount ?? 0}',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
+                        Obx(
+                          () => Text(
+                            _formatCount(
+                              controller.commentsModel[widget.postId]?.data
+                                      ?.comments
+                                      ?.firstWhere(
+                                        (c) =>
+                                            c.id.toString() ==
+                                            comment.id.toString(),
+                                        orElse: () => comment,
+                                      )
+                                      ?.likesCount ??
+                                  0,
+                            ),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],
@@ -531,12 +643,16 @@ class _CommentScreenState extends State<CommentScreen> {
               children: [
                 Row(
                   children: [
-                    Text(
-                      reply.user?.fullName ?? 'Unknown',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 13,
+                    Expanded(
+                      child: Text(
+                        reply.user?.fullName ?? 'Unknown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     const SizedBox(width: 8),
@@ -546,6 +662,8 @@ class _CommentScreenState extends State<CommentScreen> {
                         color: Colors.grey,
                         fontSize: 11,
                       ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ],
                 ),
@@ -556,6 +674,8 @@ class _CommentScreenState extends State<CommentScreen> {
                     color: Colors.white70,
                     fontSize: 13,
                   ),
+                  maxLines: 5,
+                  overflow: TextOverflow.ellipsis,
                 ),
                 const SizedBox(height: 6),
                 Row(
@@ -578,7 +698,7 @@ class _CommentScreenState extends State<CommentScreen> {
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${reply.likesCount ?? 0}',
+                            _formatCount(reply.likesCount ?? 0),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 11,
@@ -655,6 +775,8 @@ class _CommentScreenState extends State<CommentScreen> {
                             fontSize: 12,
                             fontWeight: FontWeight.w500,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
                         const SizedBox(height: 4),
                         Text(

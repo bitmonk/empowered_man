@@ -35,7 +35,7 @@ class Comment with _$Comment {
     @JsonKey(name: "user") User? user,
     @JsonKey(name: "likes_count") int? likesCount,
     @JsonKey(name: "comments_count") int? commentsCount,
-    @JsonKey(name: "replys") List<dynamic>? replys,
+    @JsonKey(name: "replys") List<Comment>? replys,
     @JsonKey(name: "created_at") DateTime? createdAt,
     @JsonKey(name: "updated_at") DateTime? updatedAt,
   }) = _Comment;
