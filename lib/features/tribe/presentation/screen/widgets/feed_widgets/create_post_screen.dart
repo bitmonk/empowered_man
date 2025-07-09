@@ -38,7 +38,7 @@ class CreatePostScreen extends StatelessWidget {
                                   controller.postTextController.text.trim();
                               final media = controller.selectedMedia.toList();
                               controller.createPost(
-                                // groupId: groupId,
+                                groupId: groupId,
                                 text: text,
                                 media: media,
                               );

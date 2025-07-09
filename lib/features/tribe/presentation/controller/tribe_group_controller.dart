@@ -2,11 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
+import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
+import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/manage_pin_group_sheet.dart';
+import 'package:get/get.dart';
 
 class TribeGroupController extends GetxController {
   TribeGroupController({required this.remoteSource});
@@ -38,6 +41,8 @@ class TribeGroupController extends GetxController {
   };
 
   Rx<GroupPostModel> groupPostModel = const GroupPostModel().obs;
+  Rx<GroupMediaModel> groupMediaModel = const GroupMediaModel().obs;
+  Rx<SavedPostsModel> savedPostsModel = const SavedPostsModel().obs;
   Rx<GroupAboutModel> groupDetailModel = const GroupAboutModel().obs;
   Rx<String?> queryText = Rx<String?>(null);
 
@@ -47,6 +52,7 @@ class TribeGroupController extends GetxController {
   final Rx<TheStates> editGroupState = TheStates.initial.obs;
   final Rx<TheStates> groupDetailsState = TheStates.initial.obs;
   Rx<TheStates> loadGroupState = TheStates.initial.obs;
+  Rx<TheStates> savedPostState = TheStates.initial.obs;
 
   late TextEditingController groupNameController;
   late TextEditingController groupDescriptionController;
@@ -70,6 +76,7 @@ class TribeGroupController extends GetxController {
     groupNameController.dispose();
     groupDescriptionController.dispose();
     accessTypeController.dispose();
+    _cancelToken?.cancel();
     super.onClose();
   }
 
@@ -93,15 +100,14 @@ class TribeGroupController extends GetxController {
   }) async {
     final currentFilter = showPost ?? selectedFilters.value.toLowerCase();
 
-    // Initialize filter states if not exist
     filterStates.putIfAbsent(currentFilter, () => TheStates.initial.obs);
     errorMessages.putIfAbsent(currentFilter, () => null);
     filteredGroups.putIfAbsent(currentFilter, () => []);
 
-    // Reset error message
     errorMessages[currentFilter] = null;
     filterStates[currentFilter]?.value = TheStates.loading;
 
+    _cancelToken?.cancel();
     _cancelToken = CancelToken();
 
     final result = await remoteSource.getGroups(
@@ -120,7 +126,6 @@ class TribeGroupController extends GetxController {
         final groups = r.data?.groups ?? [];
 
         filteredGroups[currentFilter] = groups;
-
         _updatePinnedGroupIds(groups);
 
         filterStates[currentFilter]?.value = TheStates.success;
@@ -156,7 +161,6 @@ class TribeGroupController extends GetxController {
     String? imagePath,
     List<String>? membersId,
   }) async {
-    // Validate inputs
     final nameError = validateGroupName(groupName);
     final descError = validateGroupDescription(about);
     final accessTypeError = validateAccessType(accessType);
@@ -207,7 +211,6 @@ class TribeGroupController extends GetxController {
     String? imagePath,
     List<String>? membersId,
   }) async {
-    // Validate inputs
     final nameError = validateGroupName(groupName);
     final descError = validateGroupDescription(about);
     final accessTypeError = validateAccessType(accessType);
@@ -272,6 +275,76 @@ class TribeGroupController extends GetxController {
       AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
     }
   }
+
+  Rx<TheStates> groupMediaState = TheStates.initial.obs;
+  Future<void> loadGroupMedia(String groupId) async {
+    try {
+      groupMediaState.value = TheStates.loading;
+      final result = await remoteSource.getGroupMedia(groupId: groupId);
+
+      result.fold(
+        (error) {
+          groupMediaState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          groupMediaState.value = TheStates.success;
+          groupMediaModel.value = r;
+        },
+      );
+    } catch (e) {
+      groupMediaState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
+    }
+  }
+
+  Future<void> getSavedPosts(String groupId, {CancelToken? cancelToken}) async {
+    try {
+      savedPostState.value = TheStates.loading;
+
+      // Cancel any ongoing request
+      _cancelToken?.cancel();
+      _cancelToken = cancelToken ?? CancelToken();
+
+      final result = await remoteSource.getSavedPosts(
+        groupId: groupId,
+        cancelToken: _cancelToken,
+      );
+
+      result.fold(
+        (error) {
+          savedPostState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          savedPostState.value = TheStates.success;
+          savedPostsModel.value = r ?? const SavedPostsModel();
+        },
+      );
+    } catch (e) {
+      savedPostState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
+    }
+  }
+
+  // Future<void> savePost(String postId, {String? groupId}) async {
+  //   try {
+  //     final result = await remoteSource.savePost(postId: postId);
+  //     result.fold(
+  //       (error) {
+  //         AppUtils.showErrorSnackbar(message: error.message);
+  //       },
+  //       (message) {
+  //         AppUtils.showSuccessSnackbar(message: message);
+  //         if (groupId != null) {
+  //           getSavedPosts(groupId); // Refresh saved posts
+  //         }
+  //       },
+  //     );
+  //   } catch (e) {
+  //     AppUtils.showErrorSnackbar(message: 'Failed to save post: $e');
+  //   }
+  // }
 
   Future<void> loadGroupDetails(String groupId) async {
     try {
@@ -351,7 +424,7 @@ class TribeGroupController extends GetxController {
         },
         (response) async {
           AppUtils.showSnackbar(message: response);
-          await loadPostDetails(groupId);
+          await loadGroupDetails(groupId); // Refresh group details
         },
       );
     } catch (e) {

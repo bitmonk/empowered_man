@@ -1,10 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
-
-import 'package:empowered/features/tribe/data/model/comment_section_model.dart';
+import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:intl/intl.dart';
 
 class CommentScreen extends StatefulWidget {
-  const CommentScreen({ 
+  const CommentScreen({
     required this.userName,
     required this.timeAgo,
     required this.content,
@@ -19,14 +19,14 @@ class CommentScreen extends StatefulWidget {
   final String content;
   final List<String> imageUrls;
   final bool isLiked;
-  final String postId; 
+  final String postId;
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
 }
 
 class _CommentScreenState extends State<CommentScreen> {
-    final FeedPageController controller = Get.find<FeedPageController>();
+  final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
   late bool isPostLiked;
@@ -34,69 +34,11 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToUserName;
   String? replyingToContent;
 
-  List<Comment> comments = [
-    Comment(
-      id: '1',
-      userName: 'Luke Willis',
-      timeAgo: '10:30 AM',
-      content:
-          'This is placeholder text only, intended for visual demonstration purposes only.',
-      isLiked: true,
-      likeCount: 10,
-      replies: [
-        Reply(
-          id: '1-1',
-          userName: 'Jane Doe',
-          timeAgo: '10:35 AM',
-          content: 'Great point! I totally agree with you.',
-          isLiked: false,
-          likeCount: 2,
-        ),
-      ],
-    ),
-    Comment(
-      id: '2',
-      userName: 'Luke Willis',
-      timeAgo: '10:30 AM',
-      content:
-          'This is placeholder text only, intended for visual demonstration purposes only.',
-      isLiked: false,
-      likeCount: 10,
-      replies: [],
-    ),
-    Comment(
-      id: '3',
-      userName: 'Luke Willis',
-      timeAgo: '9:30 AM',
-      content:
-          'This is placeholder text only, intended for visual demonstration purposes only.',
-      isLiked: false,
-      likeCount: 10,
-      replies: [
-        Reply(
-          id: '3-1',
-          userName: 'Alex Smith',
-          timeAgo: '9:35 AM',
-          content: 'Interesting perspective!',
-          isLiked: true,
-          likeCount: 5,
-        ),
-        Reply(
-          id: '3-2',
-          userName: 'Sarah Johnson',
-          timeAgo: '9:40 AM',
-          content: 'Thanks for sharing this!',
-          isLiked: false,
-          likeCount: 1,
-        ),
-      ],
-    ),
-  ];
-
   @override
   void initState() {
     super.initState();
     isPostLiked = widget.isLiked;
+    controller.getPostComments(postId: widget.postId);
   }
 
   @override
@@ -126,60 +68,16 @@ class _CommentScreenState extends State<CommentScreen> {
     _inputFocusNode.unfocus();
   }
 
-  // void _sendMessage() {
-  //   if (_inputController.text.trim().isEmpty) return;
-
-  //   if (replyingToCommentId != null) {
-  //     // Send reply
-  //     final newReply = Reply(
-  //       id: '$replyingToCommentId-${DateTime.now().millisecondsSinceEpoch}',
-  //       userName: 'You', // Replace with actual user name
-  //       timeAgo: 'now',
-  //       content: _inputController.text.trim(),
-  //       isLiked: false,
-  //       likeCount: 0,
-  //     );
-
-  //     setState(() {
-  //       final commentIndex =
-  //           comments.indexWhere((c) => c.id == replyingToCommentId);
-  //       if (commentIndex != -1) {
-  //         comments[commentIndex].replies.add(newReply);
-  //       }
-  //     });
-
-  //     _cancelReply();
-  //   } else {
-  //     // Send comment
-  //     final newComment = Comment(
-  //       id: DateTime.now().millisecondsSinceEpoch.toString(),
-  //       userName: 'You', // Replace with actual user name
-  //       timeAgo: 'now',
-  //       content: _inputController.text.trim(),
-  //       isLiked: false,
-  //       likeCount: 0,
-  //       replies: [],
-  //     );
-
-  //     setState(() {
-  //       comments.add(newComment);
-  //     });
-
-  //     _inputController.clear();
-  //   }
-  // }
   void _sendMessage() {
     if (_inputController.text.trim().isEmpty) return;
 
     if (replyingToCommentId != null) {
-      // Send reply via controller
       controller.replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
       );
       _cancelReply();
     } else {
-      // Send comment via controller
       controller.commentOnPost(
         widget.postId,
         customComment: _inputController.text.trim(),
@@ -187,6 +85,16 @@ class _CommentScreenState extends State<CommentScreen> {
       _inputController.clear();
     }
   }
+
+  String _formatDateTime(DateTime? dateTime) {
+    if (dateTime == null) return 'N/A';
+    try {
+      return DateFormat.yMd().add_jm().format(dateTime.toLocal());
+    } catch (e) {
+      return 'N/A';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -207,14 +115,43 @@ class _CommentScreenState extends State<CommentScreen> {
       body: Column(
         children: [
           Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: [
-                _buildOriginalPost(),
-                const SizedBox(height: 16),
-                ...comments.map((comment) => _buildCommentWithReplies(comment)),
-              ],
-            ),
+            child: Obx(() {
+              if (controller.commentState.value == TheStates.loading) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                );
+              } else if (controller.commentState.value == TheStates.error) {
+                return const Center(
+                  child: Text(
+                    'Error loading comments',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              } else if (controller
+                      .commentsModel[widget.postId]?.data?.comments?.isEmpty ??
+                  true) {
+                return const Center(
+                  child: Text(
+                    'No comments yet',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                );
+              }
+
+              final comments =
+                  controller.commentsModel[widget.postId]?.data?.comments ?? [];
+              return ListView(
+                padding: const EdgeInsets.all(16),
+                children: [
+                  _buildOriginalPost(),
+                  const SizedBox(height: 16),
+                  ...comments
+                      .map((comment) => _buildCommentWithReplies(comment)),
+                ],
+              );
+            }),
           ),
           _buildInputSection(),
         ],
@@ -232,7 +169,6 @@ class _CommentScreenState extends State<CommentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User info
           Row(
             children: [
               ClipOval(
@@ -281,8 +217,10 @@ class _CommentScreenState extends State<CommentScreen> {
                       children: [
                         Icon(Icons.bookmark_outline, color: Colors.white),
                         SizedBox(width: 8),
-                        Text('Save Post',
-                            style: TextStyle(color: Colors.white),),
+                        Text(
+                          'Save Post',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -290,11 +228,15 @@ class _CommentScreenState extends State<CommentScreen> {
                     value: 'hide',
                     child: Row(
                       children: [
-                        Icon(Icons.visibility_off_outlined,
-                            color: Colors.white,),
+                        Icon(
+                          Icons.visibility_off_outlined,
+                          color: Colors.white,
+                        ),
                         SizedBox(width: 8),
-                        Text('Hide Post',
-                            style: TextStyle(color: Colors.white),),
+                        Text(
+                          'Hide Post',
+                          style: TextStyle(color: Colors.white),
+                        ),
                       ],
                     ),
                   ),
@@ -316,7 +258,6 @@ class _CommentScreenState extends State<CommentScreen> {
           const SizedBox(height: 12),
           const GreyDivider(),
           const SizedBox(height: 12),
-          // Action bar
           Row(
             children: [
               GestureDetector(
@@ -324,6 +265,7 @@ class _CommentScreenState extends State<CommentScreen> {
                   setState(() {
                     isPostLiked = !isPostLiked;
                   });
+                  controller.toggleLike(widget.postId);
                 },
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
@@ -348,7 +290,14 @@ class _CommentScreenState extends State<CommentScreen> {
                     fit: BoxFit.cover,
                   ),
                   const SizedBox(width: 4),
-                  const Text('425', style: TextStyle(color: Colors.white)),
+                  Obx(
+                    () => Text(
+                      controller.commentsModel[widget.postId]?.data?.meta?.total
+                              .toString() ??
+                          '0',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
                 ],
               ),
               const SizedBox(width: 16),
@@ -377,6 +326,10 @@ class _CommentScreenState extends State<CommentScreen> {
         borderRadius: BorderRadius.circular(8),
         child: Image.network(
           urls.first,
+          width: double.infinity,
+          height: 200,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
         ),
       );
     } else {
@@ -392,6 +345,8 @@ class _CommentScreenState extends State<CommentScreen> {
                   width: 100,
                   height: 100,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      const SizedBox.shrink(),
                 ),
               ),
             )
@@ -406,10 +361,14 @@ class _CommentScreenState extends State<CommentScreen> {
       child: Column(
         children: [
           _buildComment(comment),
-          if (comment.replies.isNotEmpty) ...[
+          if (comment.replys?.isNotEmpty ?? false) ...[
             const SizedBox(height: 8),
-            ...comment.replies.map((reply) => _buildReply(
-                reply, comment.id, comment.userName, comment.content,),),
+            ...comment.replys!.map((reply) => _buildReply(
+                  reply as Comment,
+                  comment.id.toString(),
+                  comment.user?.fullName ?? 'Unknown',
+                  comment.text ?? '',
+                )),
           ],
         ],
       ),
@@ -421,11 +380,24 @@ class _CommentScreenState extends State<CommentScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         ClipOval(
-          child: Assets.images.leaderProfile.image(
-            height: 32,
-            width: 32,
-            fit: BoxFit.cover,
-          ),
+          child: comment.user?.image != null
+              ? Image.network(
+                  comment.user!.image!,
+                  height: 32,
+                  width: 32,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) =>
+                      Assets.images.leaderProfile.image(
+                    height: 32,
+                    width: 32,
+                    fit: BoxFit.cover,
+                  ),
+                )
+              : Assets.images.leaderProfile.image(
+                  height: 32,
+                  width: 32,
+                  fit: BoxFit.cover,
+                ),
         ),
         const SizedBox(width: 8),
         Expanded(
@@ -435,7 +407,7 @@ class _CommentScreenState extends State<CommentScreen> {
               Row(
                 children: [
                   Text(
-                    comment.userName,
+                    comment.user?.fullName ?? 'Unknown',
                     style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
@@ -444,7 +416,7 @@ class _CommentScreenState extends State<CommentScreen> {
                   ),
                   const SizedBox(width: 8),
                   Text(
-                    comment.timeAgo,
+                    _formatDateTime(comment.createdAt),
                     style: const TextStyle(
                       color: Colors.grey,
                       fontSize: 12,
@@ -454,7 +426,7 @@ class _CommentScreenState extends State<CommentScreen> {
               ),
               const SizedBox(height: 4),
               Text(
-                comment.content,
+                comment.text ?? '',
                 style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 14,
@@ -465,25 +437,27 @@ class _CommentScreenState extends State<CommentScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      setState(() {
-                        comment.isLiked = !comment.isLiked;
-                      });
+                      controller.toggleLike(comment.id.toString());
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
-                          comment.isLiked
+                          (comment.likesCount ?? 0) > 0
                               ? Icons.favorite
                               : Icons.favorite_border,
-                          color: comment.isLiked ? Colors.red : Colors.white,
+                          color: (comment.likesCount ?? 0) > 0
+                              ? Colors.red
+                              : Colors.white,
                           size: 16,
                         ),
                         const SizedBox(width: 4),
                         Text(
-                          '${comment.likeCount}',
+                          '${comment.likesCount ?? 0}',
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 12,),
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
                         ),
                       ],
                     ),
@@ -491,7 +465,10 @@ class _CommentScreenState extends State<CommentScreen> {
                   const SizedBox(width: 16),
                   GestureDetector(
                     onTap: () => _startReply(
-                        comment.id, comment.userName, comment.content,),
+                      comment.id.toString(),
+                      comment.user?.fullName ?? 'Unknown',
+                      comment.text ?? '',
+                    ),
                     child: const Text(
                       'Reply',
                       style: TextStyle(
@@ -501,10 +478,10 @@ class _CommentScreenState extends State<CommentScreen> {
                       ),
                     ),
                   ),
-                  if (comment.replies.isNotEmpty) ...[
+                  if (comment.replys?.isNotEmpty ?? false) ...[
                     const SizedBox(width: 16),
                     Text(
-                      '${comment.replies.length} ${comment.replies.length == 1 ? 'reply' : 'replies'}',
+                      '${comment.replys!.length} ${comment.replys!.length == 1 ? 'reply' : 'replies'}',
                       style: const TextStyle(
                         color: Colors.white54,
                         fontSize: 12,
@@ -520,19 +497,32 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  Widget _buildReply(Reply reply, String parentCommentId, String parentUserName,
-      String parentContent,) {
+  Widget _buildReply(Comment reply, String parentCommentId,
+      String parentUserName, String parentContent) {
     return Container(
       margin: const EdgeInsets.only(left: 40, bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipOval(
-            child: Assets.images.leaderProfile.image(
-              height: 28,
-              width: 28,
-              fit: BoxFit.cover,
-            ),
+            child: reply.user?.image != null
+                ? Image.network(
+                    reply.user!.image!,
+                    height: 28,
+                    width: 28,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Assets.images.leaderProfile.image(
+                      height: 28,
+                      width: 28,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Assets.images.leaderProfile.image(
+                    height: 28,
+                    width: 28,
+                    fit: BoxFit.cover,
+                  ),
           ),
           const SizedBox(width: 8),
           Expanded(
@@ -542,7 +532,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 Row(
                   children: [
                     Text(
-                      reply.userName,
+                      reply.user?.fullName ?? 'Unknown',
                       style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
@@ -551,7 +541,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      reply.timeAgo,
+                      _formatDateTime(reply.createdAt),
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 11,
@@ -561,7 +551,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  reply.content,
+                  reply.text ?? '',
                   style: const TextStyle(
                     color: Colors.white70,
                     fontSize: 13,
@@ -572,25 +562,27 @@ class _CommentScreenState extends State<CommentScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        setState(() {
-                          reply.isLiked = !reply.isLiked;
-                        });
+                        controller.toggleLike(reply.id.toString());
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            reply.isLiked
+                            (reply.likesCount ?? 0) > 0
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: reply.isLiked ? Colors.red : Colors.white,
+                            color: (reply.likesCount ?? 0) > 0
+                                ? Colors.red
+                                : Colors.white,
                             size: 14,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            '${reply.likeCount}',
+                            '${reply.likesCount ?? 0}',
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 11,),
+                              color: Colors.white,
+                              fontSize: 11,
+                            ),
                           ),
                         ],
                       ),
@@ -598,7 +590,10 @@ class _CommentScreenState extends State<CommentScreen> {
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () => _startReply(
-                          parentCommentId, reply.userName, reply.content,),
+                        parentCommentId,
+                        reply.user?.fullName ?? 'Unknown',
+                        reply.text ?? '',
+                      ),
                       child: const Text(
                         'Reply',
                         style: TextStyle(
@@ -633,7 +628,6 @@ class _CommentScreenState extends State<CommentScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Reply context (only show when replying)
           if (replyingToCommentId != null) ...[
             Container(
               padding: const EdgeInsets.all(12),
@@ -690,7 +684,6 @@ class _CommentScreenState extends State<CommentScreen> {
               ),
             ),
           ],
-          // Input field
           Row(
             children: [
               ClipOval(
@@ -748,4 +741,3 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 }
-

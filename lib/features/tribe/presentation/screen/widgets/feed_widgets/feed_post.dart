@@ -1,11 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -13,7 +9,7 @@ class FeedPost extends StatefulWidget {
     super.key,
   });
 
-  final GroupPost post; // Post from group_post_model.dart
+  final dynamic post; // Post from group_post_model.dart
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -191,18 +187,24 @@ class _FeedPostState extends State<FeedPost> {
               const SizedBox(width: 16),
 
               // Comment button
-              GestureDetector(
-                onTap: _navigateToComments,
-                child: Row(
-                  children: [
-                    Assets.images.comment
-                        .svg(height: 20, width: 20, fit: BoxFit.cover),
-                    const SizedBox(width: 4),
-                    Text(
-                      _formatCount(widget.post.commentsCount ?? 0),
-                      style: const TextStyle(color: Colors.white),
-                    ),
-                  ],
+              Obx(
+                () => GestureDetector(
+                  onTap: _navigateToComments,
+                  child: Row(
+                    children: [
+                      Assets.images.comment
+                          .svg(height: 20, width: 20, fit: BoxFit.cover),
+                      const SizedBox(width: 4),
+                      Text(
+                        _formatCount(
+                          controller.commentsModel[widget.post.id?.toString()]
+                                  ?.data?.comments?.length ??
+                              0,
+                        ),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(width: 16),
@@ -354,8 +356,7 @@ class _FeedPostState extends State<FeedPost> {
         timeAgo: formatDateTime(widget.post.createdAt),
         content: widget.post.text ?? '',
         imageUrls: widget.post.media ?? [],
-        isLiked: widget.post.likedByCurrentUser ??
-            false, // Updated to likedByCurrentUser
+        isLiked: widget.post.likedByCurrentUser ?? false,
         postId: widget.post.id?.toString() ?? '',
       ),
     );

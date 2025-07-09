@@ -90,7 +90,6 @@ class AppEndpoints {
   static const String addMembers = '/user/add-members';
   static const String removeMembers = '/user/remove-member';
   static const String editGroups = '/user/tribe-group';
-  static const String getGroupDetailsById = '/user/group/about/';
 
   //feed post
   static const String getFeedPosts = '/user/posts';
@@ -103,7 +102,11 @@ class AppEndpoints {
   static const String hidePost = '/user/post/hide';
 
   //group section
+  static const String getGroupDetailsById = '/user/group/about/';
   static const String getGroupPosts = '/user/group/posts/';
+  static const String getGroupMedia = '/user/group/medias/';
+  static const String getSavedPosts = '/user/group/saved-posts/';
+  static const String getPostComments = '/user/post/comments';
 }
 
 class ExternalEndpoints {}

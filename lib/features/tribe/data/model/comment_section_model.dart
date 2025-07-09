@@ -1,5 +1,4 @@
 class Comment {
-
   Comment({
     required this.id,
     required this.userName,
@@ -14,12 +13,11 @@ class Comment {
   final String timeAgo;
   final String content;
   bool isLiked;
-  final int likeCount;
+  int likeCount;
   final List<Reply> replies;
 }
 
 class Reply {
-
   Reply({
     required this.id,
     required this.userName,
@@ -33,5 +31,5 @@ class Reply {
   final String timeAgo;
   final String content;
   bool isLiked;
-  final int likeCount;
+  int likeCount;
 }

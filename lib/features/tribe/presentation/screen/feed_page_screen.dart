@@ -25,7 +25,13 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
   void initState() {
     super.initState();
     tribeController
-      ..loadPostDetails(widget.groupId)
+      ..loadPostDetails(widget.groupId).then((_) {
+        // Fetch comments for all posts after loading post details
+        final posts = tribeController.groupPostModel.value.data?.posts ?? [];
+        for (var post in posts) {
+          controller.getPostComments(postId: post.id?.toString() ?? '');
+        }
+      })
       ..loadGroupDetails(widget.groupId);
   }
 
@@ -45,7 +51,6 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           title: Padding(
             padding: const EdgeInsets.only(top: 16),
             child: Obx(() {
-              // Use GroupAboutModel for group details, fixed typo
               final groupDetails =
                   tribeController.groupDetailModel.value.data?.about;
               return Row(
@@ -134,7 +139,21 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(controller.tabs.length, (index) {
           return GestureDetector(
-            onTap: () => controller.changeTab(index),
+            onTap: () {
+              controller.changeTab(index);
+              // Fetch saved posts and their comments when Saved tab is pressed
+              if (index == 3) {
+                tribeController.getSavedPosts(widget.groupId).then((_) {
+                  final savedPosts =
+                      tribeController.savedPostsModel.value.data?.savedPosts ??
+                          [];
+                  for (var post in savedPosts) {
+                    controller.getPostComments(
+                        postId: post.id?.toString() ?? '');
+                  }
+                });
+              }
+            },
             child: _tabChip(
               controller.tabs[index],
               controller.currentTabIndex.value == index,
@@ -173,7 +192,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         case 1:
           return AboutTab(groupId: widget.groupId);
         case 2:
-          return const MediaTab();
+          return MediaTab(groupId: widget.groupId);
         case 3:
           return _buildSavedTab();
         default:
@@ -231,7 +250,13 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       }
 
       return RefreshIndicator(
-        onRefresh: () => tribeController.loadPostDetails(widget.groupId),
+        onRefresh: () async {
+          await tribeController.loadPostDetails(widget.groupId);
+          final posts = tribeController.groupPostModel.value.data?.posts ?? [];
+          for (var post in posts) {
+            await controller.getPostComments(postId: post.id?.toString() ?? '');
+          }
+        },
         child: ListView.builder(
           padding: const EdgeInsets.all(16),
           itemCount: posts.length + 1,
@@ -313,10 +338,56 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _buildSavedTab() {
     return Obx(() {
-      final savedPosts = tribeController.groupPostModel.value.data?.posts
-              ?.where((post) => post.isBookmarked == true)
-              .toList() ??
-          [];
+      final savedPosts =
+          tribeController.savedPostsModel.value.data?.savedPosts ?? [];
+      final state = tribeController.savedPostState.value;
+
+      if (state == TheStates.initial) {
+        return const Center(
+          child: Text(
+            'Tap to load saved posts',
+            style: TextStyle(
+              color: Colors.white70,
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        );
+      }
+
+      if (state == TheStates.loading && savedPosts.isEmpty) {
+        return const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+          ),
+        );
+      }
+
+      if (state == TheStates.error) {
+        return Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Text(
+                'Failed to load saved posts',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 8),
+              TextButton(
+                onPressed: () => tribeController.getSavedPosts(widget.groupId),
+                child: const Text(
+                  'Retry',
+                  style: TextStyle(color: Colors.blue),
+                ),
+              ),
+            ],
+          ),
+        );
+      }
 
       if (savedPosts.isEmpty) {
         return Center(
@@ -346,16 +417,25 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      return ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: savedPosts.length,
-        itemBuilder: (context, index) {
-          final post = savedPosts[index];
-
-          return FeedPost(
-            post: post,
-          );
+      return RefreshIndicator(
+        onRefresh: () async {
+          await tribeController.getSavedPosts(widget.groupId);
+          final savedPosts =
+              tribeController.savedPostsModel.value.data?.savedPosts ?? [];
+          for (var post in savedPosts) {
+            await controller.getPostComments(postId: post.id?.toString() ?? '');
+          }
         },
+        child: ListView.builder(
+          padding: const EdgeInsets.all(16),
+          itemCount: savedPosts.length,
+          itemBuilder: (context, index) {
+            final post = savedPosts[index];
+            return FeedPost(
+              post: post,
+            );
+          },
+        ),
       );
     });
   }

@@ -4,6 +4,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_post_model.dart';
+import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
@@ -102,7 +103,7 @@ class FeedPageController extends GetxController {
   Future<void> createPost({
     required String text,
     required List<String> media,
-    // required String groupId,
+    required String groupId,
   }) async {
     if (text.isEmpty && media.isEmpty) {
       AppUtils.showErrorSnackbar(message: 'Please add some content or media');
@@ -119,7 +120,7 @@ class FeedPageController extends GetxController {
       createPostError = null;
 
       final result = await remoteSource.createPost(
-        // groupId: '1',
+        groupId: groupId,
         text: text.isNotEmpty ? text : null,
         media: media.isNotEmpty ? media : null,
       );
@@ -206,6 +207,33 @@ class FeedPageController extends GetxController {
       );
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to hide post: $e');
+    }
+  }
+
+  final RxMap<String, PostCommentsModel> commentsModel =
+      <String, PostCommentsModel>{}.obs;
+  Rx<TheStates> commentState = TheStates.initial.obs;
+
+  Future<void> getPostComments({required String postId}) async {
+    try {
+      commentState.value = TheStates.loading;
+
+      final result = await remoteSource.getComments(postId: postId);
+
+      result.fold(
+        (l) {
+          commentState.value = TheStates.error;
+          feedError = l.message;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          commentState.value = TheStates.success;
+          commentsModel[postId] = r;
+        },
+      );
+    } catch (e) {
+      commentState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
     }
   }
 
