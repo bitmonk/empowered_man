@@ -1,7 +1,11 @@
+import 'dart:io';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CreatePostScreen extends StatelessWidget {
   const CreatePostScreen({required this.groupId, super.key});
@@ -20,7 +24,7 @@ class CreatePostScreen extends StatelessWidget {
         leading: IconButton(
           icon: const Icon(Icons.close, color: Colors.white),
           onPressed: () {
-            controller.selectedMedia.clear();
+            controller.clearPostForm();
             Get.back();
           },
         ),
@@ -96,14 +100,6 @@ class PostBody extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Wrap(
-                  //   spacing: 4,
-                  //   children: [
-                  //     _chip('Friends'),
-                  //     _chip('+ Album'),
-                  //     _chip('Off'),
-                  //   ],
-                  // ),
                 ],
               ),
             ],
@@ -129,6 +125,7 @@ class PostBody extends StatelessWidget {
                   controller.selectedMedia.asMap().entries.take(3).map((entry) {
                 final index = entry.key;
                 final url = entry.value;
+                final fileType = controller.selectedMediaTypes[url] ?? 'image';
                 final isLast =
                     index == 2 && controller.selectedMedia.length > 3;
                 final additionalCount = controller.selectedMedia.length - 3;
@@ -137,17 +134,12 @@ class PostBody extends StatelessWidget {
                   children: [
                     ClipRRect(
                       borderRadius: BorderRadius.circular(8),
-                      child: Image.asset(
+                      child: _buildMediaPreview(
+                        context,
                         url,
-                        width: MediaQuery.of(context).size.width / 3 - 15,
-                        height: 150,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            const Icon(
-                          Icons.broken_image,
-                          color: Colors.grey,
-                          size: 150,
-                        ),
+                        fileType,
+                        MediaQuery.of(context).size.width / 3 - 15,
+                        150,
                       ),
                     ),
                     if (isLast)
@@ -176,6 +168,7 @@ class PostBody extends StatelessWidget {
                         icon: const Icon(Icons.close, color: Colors.red),
                         onPressed: () {
                           controller.selectedMedia.remove(url);
+                          controller.selectedMediaTypes.remove(url);
                         },
                       ),
                     ),
@@ -187,6 +180,48 @@ class PostBody extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Widget _buildMediaPreview(BuildContext context, String url, String fileType,
+      double width, double height) {
+    switch (fileType) {
+      case 'pdf':
+        return Container(
+          width: width,
+          height: height,
+          color: Colors.grey[800],
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.picture_as_pdf, color: Colors.white, size: 50),
+              Text(
+                url.split('/').last,
+                style: TextStyle(color: Colors.white, fontSize: 12),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
+          ),
+        );
+      case 'gif':
+      case 'image':
+        return Image.file(
+          File(url),
+          width: width,
+          height: height,
+          fit: BoxFit.cover,
+          errorBuilder: (context, error, stackTrace) => const Icon(
+            Icons.broken_image,
+            color: Colors.grey,
+            size: 150,
+          ),
+        );
+      default:
+        return const Icon(
+          Icons.broken_image,
+          color: Colors.grey,
+          size: 150,
+        );
+    }
   }
 
   Widget _chip(String label) {
@@ -244,11 +279,23 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
             leading: Icon(item.icon, color: item.color),
             title:
                 Text(item.label, style: const TextStyle(color: Colors.white)),
-            onTap: item.label == 'Photo/video'
-                ? () => _pickMultipleImages(context)
-                : item.label == 'Camera'
-                    ? () => _takePicture(context)
-                    : () {},
+            onTap: () {
+              if (_isUploading) return;
+              switch (item.label) {
+                case 'Photo/video':
+                  _pickMultipleImages(context);
+                  break;
+                case 'Attachment':
+                  _pickPDF(context);
+                  break;
+                case 'Camera':
+                  _takePicture(context);
+                  break;
+                case 'GIF':
+                  _pickGIF(context);
+                  break;
+              }
+            },
           );
         },
       ),
@@ -261,7 +308,6 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     try {
       setState(() => _isUploading = true);
 
-      // Pick multiple images from gallery
       final pickedImages = await _picker.pickMultiImage(
         maxWidth: 1920,
         maxHeight: 1080,
@@ -269,13 +315,12 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
       );
 
       if (pickedImages.isNotEmpty) {
-        var imagePaths = pickedImages.map((image) => image.path).toList();
-
-        controller.selectedMedia.addAll(imagePaths);
-
-        // AppUtils.showSnackbar(
-        //   message: '${pickedImages.length} image(s) selected successfully',
-        // );
+        for (var image in pickedImages) {
+          controller.addMedia(image.path, 'image');
+        }
+        AppUtils.showSnackbar(
+          message: '${pickedImages.length} image(s) selected successfully',
+        );
       }
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to pick images: $e');
@@ -298,12 +343,75 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
       );
 
       if (pickedImage != null) {
-        controller.selectedMedia.add(pickedImage.path);
-
+        controller.addMedia(pickedImage.path, 'image');
         AppUtils.showSnackbar(message: 'Photo captured successfully');
       }
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to take picture: $e');
+    } finally {
+      setState(() => _isUploading = false);
+    }
+  }
+
+  Future<void> _pickPDF(BuildContext context) async {
+    if (_isUploading) return;
+
+    try {
+      setState(() => _isUploading = true);
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['pdf'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final pdfPath = result.files.single.path;
+        if (pdfPath != null) {
+          final file = File(pdfPath);
+          final fileSize = await file.length();
+          if (fileSize > 10 * 1024 * 1024) {
+            // 10MB limit
+            AppUtils.showErrorSnackbar(message: 'PDF exceeds 10MB limit');
+            return;
+          }
+          controller.addMedia(pdfPath, 'pdf');
+          AppUtils.showSnackbar(message: 'PDF selected successfully');
+        }
+      }
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to pick PDF: $e');
+    } finally {
+      setState(() => _isUploading = false);
+    }
+  }
+
+  Future<void> _pickGIF(BuildContext context) async {
+    if (_isUploading) return;
+
+    try {
+      setState(() => _isUploading = true);
+
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['gif'],
+      );
+
+      if (result != null && result.files.isNotEmpty) {
+        final gifPath = result.files.single.path;
+        if (gifPath != null) {
+          final file = File(gifPath);
+          final fileSize = await file.length();
+          if (fileSize > 5 * 1024 * 1024) {
+            // 5MB limit
+            AppUtils.showErrorSnackbar(message: 'GIF exceeds 5MB limit');
+            return;
+          }
+          controller.addMedia(gifPath, 'gif');
+          AppUtils.showSnackbar(message: 'GIF selected successfully');
+        }
+      }
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to pick GIF: $e');
     } finally {
       setState(() => _isUploading = false);
     }

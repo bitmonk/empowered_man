@@ -8,6 +8,7 @@ import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
+import 'package:image_picker/image_picker.dart';
 
 class FeedPageController extends GetxController {
   FeedPageController({required this.remoteSource});
@@ -28,6 +29,8 @@ class FeedPageController extends GetxController {
   // Data
   final Rx<FeedPostsModel> feedPosts = const FeedPostsModel().obs;
   final RxList<String> selectedMedia = <String>[].obs;
+  final RxMap<String, String> selectedMediaTypes =
+      <String, String>{}.obs; // Track file types
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
 
   // Form controllers
@@ -45,11 +48,12 @@ class FeedPageController extends GetxController {
   // Tab names
   final List<String> tabs = ['Post', 'About', 'Media', 'Saved'];
   final RxString currentGroupId = ''.obs;
+
   @override
   void onInit() {
     super.onInit();
     _initializeDeepLinks();
-    loadFeedPosts(); // Load posts on initialization
+    loadFeedPosts();
   }
 
   @override
@@ -64,6 +68,19 @@ class FeedPageController extends GetxController {
   void initializeWithGroupId(String groupId) {
     currentGroupId.value = groupId;
     loadFeedPosts();
+  }
+
+  // Add media with type
+  void addMedia(String path, String type) {
+    selectedMedia.add(path);
+    selectedMediaTypes[path] = type;
+  }
+
+  // Clear post form
+  void clearPostForm() {
+    postTextController.clear();
+    selectedMedia.clear();
+    selectedMediaTypes.clear();
   }
 
   Future<void> loadFeedPosts() async {
@@ -129,64 +146,18 @@ class FeedPageController extends GetxController {
       result.fold(
         (l) {
           feedMediaState.value = TheStates.error;
-
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
           feedMediaState.value = TheStates.success;
           feedMediaModel.value = r;
-          print('Fetched medias: ${savedPosts.length}');
+          // print('Fetched medias: ${feedMediaModel.value.data?.length ?? 0}');
         },
       );
     } catch (e) {
       feedMediaState.value = TheStates.error;
-      feedError = 'Failed to load saved posts: $e';
+      feedError = 'Failed to load feed media: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
-    }
-  }
-
-  Future<void> createFeedsPost({
-    required String text,
-    required List<String> media,
-    required String groupId,
-  }) async {
-    if (text.isEmpty && media.isEmpty) {
-      AppUtils.showErrorSnackbar(message: 'Please add some content or media');
-      return;
-    }
-    try {
-      createPostState.value = TheStates.loading;
-      createPostError = null;
-
-      final result = await remoteSource.createPost(
-        groupId: groupId,
-        text: text.isNotEmpty ? text : null,
-        media: media.isNotEmpty ? media : null,
-      );
-
-      result.fold(
-        (error) {
-          createPostState.value = TheStates.error;
-          createPostError = error.message;
-          AppUtils.showErrorSnackbar(message: error.message);
-        },
-        (response) {
-          createPostState.value = TheStates.success;
-          AppUtils.showSnackbar(
-            message: response.message ?? 'Post created successfully',
-          );
-          postTextController.clear();
-          selectedMedia.clear();
-          loadFeedPosts();
-          Get.back(); // Navigate back after successful post
-        },
-      );
-    } catch (e) {
-      createPostState.value = TheStates.error;
-      createPostError = 'Failed to create post: $e';
-      AppUtils.showErrorSnackbar(message: createPostError!);
-    } finally {
-      createPostState.value = TheStates.initial;
     }
   }
 
@@ -200,19 +171,22 @@ class FeedPageController extends GetxController {
       return;
     }
 
-    // if (currentGroupId.value.isEmpty) {
-    //   AppUtils.showErrorSnackbar(message: 'Group ID is required');
-    //   return;
-    // }
-
     try {
       createPostState.value = TheStates.loading;
       createPostError = null;
 
+      // Prepare media with types
+      final mediaWithTypes = media.map((path) {
+        return {
+          'path': path,
+          'type': selectedMediaTypes[path] ?? 'image',
+        };
+      }).toList();
+
       final result = await remoteSource.createPost(
         groupId: groupId,
         text: text.isNotEmpty ? text : null,
-        media: media.isNotEmpty ? media : null,
+        media: media.isNotEmpty ? mediaWithTypes : null,
       );
 
       result.fold(
@@ -226,10 +200,9 @@ class FeedPageController extends GetxController {
           AppUtils.showSnackbar(
             message: response.message ?? 'Post created successfully',
           );
-          postTextController.clear();
-          selectedMedia.clear();
+          clearPostForm();
           loadFeedPosts();
-          Get.back(); // Navigate back after successful post
+          Get.back();
         },
       );
     } catch (e) {
@@ -407,11 +380,6 @@ class FeedPageController extends GetxController {
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to reply: $e');
     }
-  }
-
-  void clearPostForm() {
-    postTextController.clear();
-    selectedMedia.clear();
   }
 
   void _initializeDeepLinks() {

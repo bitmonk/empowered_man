@@ -9,6 +9,7 @@ import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
+import 'dart:io';
 
 class FeedPageRemoteSource {
   const FeedPageRemoteSource(this._client);
@@ -20,7 +21,6 @@ class FeedPageRemoteSource {
       final response = await _client.get(
         AppEndpoints.getFeedPosts,
       );
-
       return right(FeedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -47,7 +47,7 @@ class FeedPageRemoteSource {
   Future<Either<AppError, CreatePostResponseModel>> createPost({
     required String groupId,
     String? text,
-    List<String>? media,
+    List<Map<String, String>>? media, // Updated to accept path and type
   }) async {
     try {
       final formDataMap = FormData.fromMap({
@@ -65,20 +65,23 @@ class FeedPageRemoteSource {
         );
       }
       if (media != null && media.isNotEmpty) {
-        for (final filePath in media) {
+        for (final item in media) {
+          final filePath = item['path']!;
+          final fileType = item['type']!;
           final fileName = filePath.split('/').last;
           final mimeType = mime(fileName) ?? 'application/octet-stream';
           final typeParts = mimeType.split('/');
           formDataMap.files.add(
             MapEntry(
               'media[]',
-              MultipartFile.fromFileSync(
+              await MultipartFile.fromFile(
                 filePath,
                 filename: fileName,
                 contentType: MediaType(typeParts[0], typeParts[1]),
               ),
             ),
           );
+          formDataMap.fields.add(MapEntry('media_types[]', fileType));
         }
       }
       final response = await _client.post(
