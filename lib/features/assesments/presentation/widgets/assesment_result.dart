@@ -41,6 +41,7 @@ class AssesmentResult extends StatelessWidget {
               controller.scoreQuestionModel.value.data?.scoreOverview,
           scoreOverviewList:
               controller.scoreQuestionModel.value.data?.scoreOverviewList,
+          questions: controller.scoreQuestionModel.value.data?.questions,
         );
 
         // Hide loading dialog

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:empowered/features/assesments/data/model/score_question_model.dart';
 import 'package:empowered/features/assesments/data/model/user_assessment_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -13,6 +14,7 @@ class AssessmentPdfService {
     required int totalScore,
     required String? scoreOverview,
     required List<String>? scoreOverviewList,
+    required List<Question>? questions, // This has the correct scores
   }) async {
     try {
       // Create PDF document
@@ -20,17 +22,19 @@ class AssessmentPdfService {
 
       // Get assessment data
       final assessment = userAssessmentModel.data?.userAssessment;
-      final questions = assessment?.questions ?? [];
+      
+      // Use the passed questions parameter instead of assessment questions
+      final questionsToUse = questions ?? [];
 
       // Limit questions to prevent too many pages (max 50 questions)
-      final limitedQuestions = questions.take(50).toList();
+      final limitedQuestions = questionsToUse.take(50).toList();
 
       // Add pages to PDF
       pdf.addPage(
         pw.MultiPage(
           pageFormat: PdfPageFormat.a4,
           margin: const pw.EdgeInsets.all(32),
-          maxPages: 100, // Set maximum pages limit
+          maxPages: 100,
           build: (pw.Context context) {
             return [
               // Header
@@ -46,7 +50,7 @@ class AssessmentPdfService {
               ),
               pw.SizedBox(height: 30),
 
-              // Questions and Answers
+              // Questions and Answers - Use the correct questions
               _buildQuestionsSection(limitedQuestions),
             ];
           },
@@ -191,7 +195,8 @@ class AssessmentPdfService {
     );
   }
 
-  static pw.Widget _buildQuestionsSection(List<AssessmentQuestion> questions) {
+  // Updated to use Question type instead of AssessmentQuestion
+  static pw.Widget _buildQuestionsSection(List<Question> questions) {
     return pw.Column(
       crossAxisAlignment: pw.CrossAxisAlignment.start,
       children: [
@@ -206,7 +211,7 @@ class AssessmentPdfService {
         pw.SizedBox(height: 20),
         if (questions.isEmpty)
           pw.Container(
-            padding: pw.EdgeInsets.all(20),
+            padding: const pw.EdgeInsets.all(20),
             decoration: pw.BoxDecoration(
               color: PdfColors.grey100,
               borderRadius: pw.BorderRadius.circular(10),
@@ -223,6 +228,7 @@ class AssessmentPdfService {
           ...questions.asMap().entries.map((entry) {
             final index = entry.key;
             final question = entry.value;
+            // This should now show the correct score
             final score = question.answer?.score ?? 0;
 
             return pw.Container(
@@ -311,7 +317,8 @@ class AssessmentPdfService {
       // Request storage permission
       final hasPermission = await _requestStoragePermission();
       if (!hasPermission) {
-        throw Exception('Storage permission denied. Please enable storage access in settings.');
+        throw Exception(
+            'Storage permission denied. Please enable storage access in settings.');
       }
 
       // Get the appropriate directory
@@ -353,10 +360,6 @@ class AssessmentPdfService {
       await file.writeAsBytes(await pdf.save());
 
       print('PDF saved successfully at: ${file.path}');
-      
-      // Optional: Show success message or return file path
-      // You can add a success callback here if needed
-      
     } catch (e) {
       print('Error saving PDF: $e');
       throw Exception('Failed to save PDF: $e');
@@ -374,11 +377,12 @@ class AssessmentPdfService {
         // Handle different Android versions
         if (sdkInt >= 30) {
           // Android 11+ (API 30+)
-          final managePermission = await Permission.manageExternalStorage.request();
+          final managePermission =
+              await Permission.manageExternalStorage.request();
           if (managePermission.isGranted) {
             return true;
           }
-          
+
           // If manage external storage is not granted, try photos permission
           final photosPermission = await Permission.photos.request();
           if (photosPermission.isGranted) {
@@ -398,14 +402,14 @@ class AssessmentPdfService {
         // Check if any permission is granted
         final storageStatus = await Permission.storage.status;
         final manageStatus = await Permission.manageExternalStorage.status;
-        
+
         return storageStatus.isGranted || manageStatus.isGranted;
       } catch (e) {
         print('Error checking permissions: $e');
         return false;
       }
     }
-    
+
     // For iOS, no special permissions needed for app documents directory
     return true;
   }
