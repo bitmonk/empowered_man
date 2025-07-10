@@ -19,11 +19,21 @@ class FeedMediaModel with _$FeedMediaModel {
 @freezed
 class Data with _$Data {
   const factory Data({
-    @JsonKey(name: "medias") List<String>? medias,
+    @JsonKey(name: "medias") List<Media>? medias,
     @JsonKey(name: "meta") Meta? meta,
   }) = _Data;
 
   factory Data.fromJson(Map<String, dynamic> json) => _$DataFromJson(json);
+}
+
+@freezed
+class Media with _$Media {
+  const factory Media({
+    @JsonKey(name: "type") String? type,
+    @JsonKey(name: "url") String? url,
+  }) = _Media;
+
+  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
 }
 
 @freezed

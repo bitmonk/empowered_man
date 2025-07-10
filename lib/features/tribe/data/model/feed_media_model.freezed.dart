@@ -243,7 +243,7 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Data {
   @JsonKey(name: "medias")
-  List<String>? get medias => throw _privateConstructorUsedError;
+  List<Media>? get medias => throw _privateConstructorUsedError;
   @JsonKey(name: "meta")
   Meta? get meta => throw _privateConstructorUsedError;
 
@@ -262,7 +262,7 @@ abstract class $DataCopyWith<$Res> {
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
   $Res call(
-      {@JsonKey(name: "medias") List<String>? medias,
+      {@JsonKey(name: "medias") List<Media>? medias,
       @JsonKey(name: "meta") Meta? meta});
 
   $MetaCopyWith<$Res>? get meta;
@@ -290,7 +290,7 @@ class _$DataCopyWithImpl<$Res, $Val extends Data>
       medias: freezed == medias
           ? _value.medias
           : medias // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<Media>?,
       meta: freezed == meta
           ? _value.meta
           : meta // ignore: cast_nullable_to_non_nullable
@@ -321,7 +321,7 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "medias") List<String>? medias,
+      {@JsonKey(name: "medias") List<Media>? medias,
       @JsonKey(name: "meta") Meta? meta});
 
   @override
@@ -347,7 +347,7 @@ class __$$DataImplCopyWithImpl<$Res>
       medias: freezed == medias
           ? _value._medias
           : medias // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
+              as List<Media>?,
       meta: freezed == meta
           ? _value.meta
           : meta // ignore: cast_nullable_to_non_nullable
@@ -360,17 +360,17 @@ class __$$DataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DataImpl implements _Data {
   const _$DataImpl(
-      {@JsonKey(name: "medias") final List<String>? medias,
+      {@JsonKey(name: "medias") final List<Media>? medias,
       @JsonKey(name: "meta") this.meta})
       : _medias = medias;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DataImplFromJson(json);
 
-  final List<String>? _medias;
+  final List<Media>? _medias;
   @override
   @JsonKey(name: "medias")
-  List<String>? get medias {
+  List<Media>? get medias {
     final value = _medias;
     if (value == null) return null;
     if (_medias is EqualUnmodifiableListView) return _medias;
@@ -419,14 +419,14 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: "medias") final List<String>? medias,
+      {@JsonKey(name: "medias") final List<Media>? medias,
       @JsonKey(name: "meta") final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
   @JsonKey(name: "medias")
-  List<String>? get medias;
+  List<Media>? get medias;
   @override
   @JsonKey(name: "meta")
   Meta? get meta;
@@ -436,6 +436,178 @@ abstract class _Data implements Data {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$DataImplCopyWith<_$DataImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+Media _$MediaFromJson(Map<String, dynamic> json) {
+  return _Media.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Media {
+  @JsonKey(name: "type")
+  String? get type => throw _privateConstructorUsedError;
+  @JsonKey(name: "url")
+  String? get url => throw _privateConstructorUsedError;
+
+  /// Serializes this Media to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of Media
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MediaCopyWith<Media> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MediaCopyWith<$Res> {
+  factory $MediaCopyWith(Media value, $Res Function(Media) then) =
+      _$MediaCopyWithImpl<$Res, Media>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: "type") String? type, @JsonKey(name: "url") String? url});
+}
+
+/// @nodoc
+class _$MediaCopyWithImpl<$Res, $Val extends Media>
+    implements $MediaCopyWith<$Res> {
+  _$MediaCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Media
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = freezed,
+    Object? url = freezed,
+  }) {
+    return _then(_value.copyWith(
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String?,
+      url: freezed == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$MediaImplCopyWith<$Res> implements $MediaCopyWith<$Res> {
+  factory _$$MediaImplCopyWith(
+          _$MediaImpl value, $Res Function(_$MediaImpl) then) =
+      __$$MediaImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: "type") String? type, @JsonKey(name: "url") String? url});
+}
+
+/// @nodoc
+class __$$MediaImplCopyWithImpl<$Res>
+    extends _$MediaCopyWithImpl<$Res, _$MediaImpl>
+    implements _$$MediaImplCopyWith<$Res> {
+  __$$MediaImplCopyWithImpl(
+      _$MediaImpl _value, $Res Function(_$MediaImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Media
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? type = freezed,
+    Object? url = freezed,
+  }) {
+    return _then(_$MediaImpl(
+      type: freezed == type
+          ? _value.type
+          : type // ignore: cast_nullable_to_non_nullable
+              as String?,
+      url: freezed == url
+          ? _value.url
+          : url // ignore: cast_nullable_to_non_nullable
+              as String?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MediaImpl implements _Media {
+  const _$MediaImpl(
+      {@JsonKey(name: "type") this.type, @JsonKey(name: "url") this.url});
+
+  factory _$MediaImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MediaImplFromJson(json);
+
+  @override
+  @JsonKey(name: "type")
+  final String? type;
+  @override
+  @JsonKey(name: "url")
+  final String? url;
+
+  @override
+  String toString() {
+    return 'Media(type: $type, url: $url)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MediaImpl &&
+            (identical(other.type, type) || other.type == type) &&
+            (identical(other.url, url) || other.url == url));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(runtimeType, type, url);
+
+  /// Create a copy of Media
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MediaImplCopyWith<_$MediaImpl> get copyWith =>
+      __$$MediaImplCopyWithImpl<_$MediaImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MediaImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Media implements Media {
+  const factory _Media(
+      {@JsonKey(name: "type") final String? type,
+      @JsonKey(name: "url") final String? url}) = _$MediaImpl;
+
+  factory _Media.fromJson(Map<String, dynamic> json) = _$MediaImpl.fromJson;
+
+  @override
+  @JsonKey(name: "type")
+  String? get type;
+  @override
+  @JsonKey(name: "url")
+  String? get url;
+
+  /// Create a copy of Media
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MediaImplCopyWith<_$MediaImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 

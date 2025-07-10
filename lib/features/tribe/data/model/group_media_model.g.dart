@@ -25,8 +25,9 @@ Map<String, dynamic> _$$GroupMediaModelImplToJson(
     };
 
 _$DataImpl _$$DataImplFromJson(Map<String, dynamic> json) => _$DataImpl(
-      medias:
-          (json['medias'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      medias: (json['medias'] as List<dynamic>?)
+          ?.map((e) => Media.fromJson(e as Map<String, dynamic>))
+          .toList(),
       meta: json['meta'] == null
           ? null
           : Meta.fromJson(json['meta'] as Map<String, dynamic>),
@@ -38,17 +39,28 @@ Map<String, dynamic> _$$DataImplToJson(_$DataImpl instance) =>
       'meta': instance.meta,
     };
 
+_$MediaImpl _$$MediaImplFromJson(Map<String, dynamic> json) => _$MediaImpl(
+      type: json['type'] as String?,
+      url: json['url'] as String?,
+    );
+
+Map<String, dynamic> _$$MediaImplToJson(_$MediaImpl instance) =>
+    <String, dynamic>{
+      'type': instance.type,
+      'url': instance.url,
+    };
+
 _$MetaImpl _$$MetaImplFromJson(Map<String, dynamic> json) => _$MetaImpl(
       currentPage: (json['current_page'] as num?)?.toInt(),
-      total: (json['total'] as num?)?.toInt(),
       perPage: (json['per_page'] as num?)?.toInt(),
+      total: (json['total'] as num?)?.toInt(),
       lastPage: (json['last_page'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$MetaImplToJson(_$MetaImpl instance) =>
     <String, dynamic>{
       'current_page': instance.currentPage,
-      'total': instance.total,
       'per_page': instance.perPage,
+      'total': instance.total,
       'last_page': instance.lastPage,
     };

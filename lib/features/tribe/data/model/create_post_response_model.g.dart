@@ -40,11 +40,19 @@ _$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
       text: json['text'] as String?,
       groupId: json['group_id'] as String?,
       userId: (json['user_id'] as num?)?.toInt(),
-      media:
-          (json['media'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      media: json['media'] == null
+          ? null
+          : Media.fromJson(json['media'] as Map<String, dynamic>),
+      likedByCurrentUser: json['liked_by_current_user'] as bool?,
+      commentsCount: (json['comments_count'] as num?)?.toInt(),
       isBookmarked: json['is_bookmarked'] as bool?,
-      createdAt: json['created_at'] as String?,
-      updatedAt: json['updated_at'] as String?,
+      isHidden: json['is_hidden'] as bool?,
+      createdAt: json['created_at'] == null
+          ? null
+          : DateTime.parse(json['created_at'] as String),
+      updatedAt: json['updated_at'] == null
+          ? null
+          : DateTime.parse(json['updated_at'] as String),
     );
 
 Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
@@ -54,7 +62,24 @@ Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
       'group_id': instance.groupId,
       'user_id': instance.userId,
       'media': instance.media,
+      'liked_by_current_user': instance.likedByCurrentUser,
+      'comments_count': instance.commentsCount,
       'is_bookmarked': instance.isBookmarked,
-      'created_at': instance.createdAt,
-      'updated_at': instance.updatedAt,
+      'is_hidden': instance.isHidden,
+      'created_at': instance.createdAt?.toIso8601String(),
+      'updated_at': instance.updatedAt?.toIso8601String(),
+    };
+
+_$MediaImpl _$$MediaImplFromJson(Map<String, dynamic> json) => _$MediaImpl(
+      images:
+          (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      videos: json['videos'] as List<dynamic>?,
+      documents: json['documents'] as List<dynamic>?,
+    );
+
+Map<String, dynamic> _$$MediaImplToJson(_$MediaImpl instance) =>
+    <String, dynamic>{
+      'images': instance.images,
+      'videos': instance.videos,
+      'documents': instance.documents,
     };

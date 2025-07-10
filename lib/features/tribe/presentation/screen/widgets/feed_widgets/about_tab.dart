@@ -49,8 +49,11 @@ class _AboutTabState extends State<AboutTab> {
 
       if (hasError || groupDetails == null) {
         return const Center(
-            child: Text('Failed to load group details',
-                style: TextStyle(color: Colors.white)));
+          child: Text(
+            'Failed to load group details',
+            style: TextStyle(color: Colors.white),
+          ),
+        );
       }
 
       return ListView(

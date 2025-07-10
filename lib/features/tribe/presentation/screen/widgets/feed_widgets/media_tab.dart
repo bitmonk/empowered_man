@@ -88,7 +88,7 @@ class _MediaTabState extends State<MediaTab> {
                 return ClipRRect(
                   borderRadius: BorderRadius.circular(8),
                   child: Image.network(
-                    mediaUrl,
+                    mediaUrl.url!,
                     fit: BoxFit.cover,
                     loadingBuilder: (context, child, loadingProgress) {
                       if (loadingProgress == null) return child;

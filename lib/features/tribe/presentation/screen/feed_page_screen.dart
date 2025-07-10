@@ -241,11 +241,18 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       }
 
       if (posts.isEmpty) {
-        return const Center(
-          child: Text(
-            'No posts yet',
-            style: TextStyle(color: Colors.white70),
-          ),
+        return Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(16),
+              child: _createPostInput(),
+            ),
+            VerticalSpacing(Get.height * 0.25),
+            const Text(
+              'No posts yet',
+              style: TextStyle(color: Colors.white70),
+            ),
+          ],
         );
       }
 

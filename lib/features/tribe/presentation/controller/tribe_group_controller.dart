@@ -1,10 +1,10 @@
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
 import 'package:empowered/features/tribe/data/model/group_media_model.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
@@ -22,6 +22,9 @@ class TribeGroupController extends GetxController {
 
   final RxBool isLoading = false.obs;
   final RxBool isPinUnpinLoading = false.obs;
+  final RxList<String> accessTypes = <String>[].obs; // Added for access types
+  final Rx<TheStates> accessTypesState =
+      TheStates.initial.obs; // Added for access types state
 
   Map<String, List<GroupModel>> filteredGroups = {
     'all': [],
@@ -41,7 +44,7 @@ class TribeGroupController extends GetxController {
     'admin_only': null,
   };
 
-  Rx<GroupPostModel> groupPostModel = const GroupPostModel().obs;
+  Rx<FeedPostsModel> groupPostModel = const FeedPostsModel().obs;
   Rx<GroupMediaModel> groupMediaModel = const GroupMediaModel().obs;
   Rx<SavedPostsModel> savedPostsModel = const SavedPostsModel().obs;
   Rx<FeedSavedPostsModel> feedSavedPostsModel = const FeedSavedPostsModel().obs;
@@ -70,6 +73,7 @@ class TribeGroupController extends GetxController {
     groupImagePath = '';
     _setupSearchListener();
     fetchAllGroups();
+    fetchAccessTypes(); // Fetch access types on initialization
   }
 
   @override
@@ -80,6 +84,31 @@ class TribeGroupController extends GetxController {
     accessTypeController.dispose();
     _cancelToken?.cancel();
     super.onClose();
+  }
+
+  Future<void> fetchAccessTypes({CancelToken? cancelToken}) async {
+    try {
+      accessTypesState.value = TheStates.loading;
+      _cancelToken?.cancel();
+      _cancelToken = cancelToken ?? CancelToken();
+
+      final result =
+          await remoteSource.getAccessTypes(cancelToken: _cancelToken);
+
+      result.fold(
+        (error) {
+          accessTypesState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          accessTypesState.value = TheStates.success;
+          accessTypes.assignAll(r); // Assuming r is List<String>
+        },
+      );
+    } catch (e) {
+      accessTypesState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to fetch access types: $e');
+    }
   }
 
   Future<void> fetchAllGroups() async {
@@ -304,7 +333,6 @@ class TribeGroupController extends GetxController {
     try {
       savedPostState.value = TheStates.loading;
 
-      // Cancel any ongoing request
       _cancelToken?.cancel();
       _cancelToken = cancelToken ?? CancelToken();
 
@@ -334,7 +362,6 @@ class TribeGroupController extends GetxController {
     try {
       getFeedSavedPostState.value = TheStates.loading;
 
-      // Cancel any ongoing request
       _cancelToken?.cancel();
       _cancelToken = cancelToken ?? CancelToken();
 
@@ -357,25 +384,6 @@ class TribeGroupController extends GetxController {
       AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
     }
   }
-
-  // Future<void> savePost(String postId, {String? groupId}) async {
-  //   try {
-  //     final result = await remoteSource.savePost(postId: postId);
-  //     result.fold(
-  //       (error) {
-  //         AppUtils.showErrorSnackbar(message: error.message);
-  //       },
-  //       (message) {
-  //         AppUtils.showSuccessSnackbar(message: message);
-  //         if (groupId != null) {
-  //           getSavedPosts(groupId); // Refresh saved posts
-  //         }
-  //       },
-  //     );
-  //   } catch (e) {
-  //     AppUtils.showErrorSnackbar(message: 'Failed to save post: $e');
-  //   }
-  // }
 
   Future<void> loadGroupDetails(String groupId) async {
     try {
@@ -421,6 +429,9 @@ class TribeGroupController extends GetxController {
   String? validateAccessType(String? value) {
     if (value == null || value.isEmpty) {
       return 'Access type is required';
+    }
+    if (!accessTypes.contains(value)) {
+      return 'Invalid access type selected';
     }
     return null;
   }

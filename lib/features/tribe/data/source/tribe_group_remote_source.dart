@@ -1,15 +1,15 @@
 import 'dart:io';
-
 import 'package:dartz/dartz.dart';
+import 'package:dio/dio.dart';
 import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/tribe/data/model/create_group_response_model.dart';
+import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
 import 'package:empowered/features/tribe/data/model/group_media_model.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:http_parser/http_parser.dart';
@@ -19,6 +19,30 @@ class TribeGroupRemoteSource {
   const TribeGroupRemoteSource(this._client);
 
   final DioApiClient _client;
+
+  Future<Either<AppError, List<String>>> getAccessTypes({
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.accessTypes,
+        cancelToken: cancelToken,
+      );
+      // Assuming response is a Map with a 'data' key containing the list
+      if (response is Map<String, dynamic> && response['data'] is List) {
+        return right((response['data'] as List<dynamic>).cast<String>());
+      } else {
+        return left(const InternalAppError(message: 'Invalid response format'));
+      }
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(
+            InternalAppError(message: 'Failed to fetch access types: $e'));
+      }
+    }
+  }
 
   Future<Either<AppError, GroupListModel>> getGroups({
     CancelToken? cancelToken,
@@ -208,14 +232,14 @@ class TribeGroupRemoteSource {
     }
   }
 
-  Future<Either<AppError, GroupPostModel>> getGroupPostById({
+  Future<Either<AppError, FeedPostsModel>> getGroupPostById({
     required String groupId,
     CancelToken? cancelToken,
   }) async {
     try {
       final response =
           await _client.get('${AppEndpoints.getGroupPosts}$groupId');
-      return right(GroupPostModel.fromJson(response));
+      return right(FeedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

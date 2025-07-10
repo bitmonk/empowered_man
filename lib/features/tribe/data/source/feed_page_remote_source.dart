@@ -6,6 +6,7 @@ import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/tribe/data/model/create_post_response_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
+import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
@@ -22,6 +23,21 @@ class FeedPageRemoteSource {
         AppEndpoints.getFeedPosts,
       );
       return right(FeedPostsModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, FeedSavedPostsModel>> getSavedPost() async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.getFeedSavedPost,
+      );
+      return right(FeedSavedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

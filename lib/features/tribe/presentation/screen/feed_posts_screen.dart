@@ -43,23 +43,29 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             onPressed: () => Get.back(),
           ),
           title: const Padding(
-            padding: EdgeInsets.zero,
-            child: ListTile(
-              contentPadding: EdgeInsets.zero,
-              title: Text(
-                'Feed',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 16,
+            padding:
+                EdgeInsets.symmetric(vertical: 8.0), // Added vertical padding
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Feed',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                  ),
                 ),
-              ),
-              subtitle: Text(
-                'Discover post from accross your organisation',
-                style: TextStyle(
-                  color: AppColors.textColor200,
+                SizedBox(height: 4), // Space between title and subtitle
+                Text(
+                  'Discover posts from across your organisation',
+                  style: TextStyle(
+                    color: AppColors.textColor200,
+                    fontSize: 12, // Slightly reduced font size for better fit
+                  ),
                 ),
-              ),
+              ],
             ),
           ),
           centerTitle: false,
@@ -67,6 +73,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       ),
       body: Column(
         children: [
+          const SizedBox(height: 10),
           _buildTabs(controller),
           Expanded(child: _buildTabContent(controller)),
           VerticalSpacing(MediaQuery.of(context).viewPadding.bottom + 16),
@@ -92,7 +99,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   // Handle 'Saved' tab (index 2)
                   tribeController.getFeedSavedPost().then((_) {
                     final savedPosts = tribeController
-                            .savedPostsModel.value.data?.savedPosts ??
+                            .feedSavedPostsModel.value.data?.savedPosts ??
                         [];
                     for (final post in savedPosts) {
                       controller.getPostComments(
@@ -302,7 +309,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: NetworkImage(
-                        media ?? ''), // Assuming media.url is the image URL
+                        media.url ?? ''), // Assuming media.url is the image URL
                     fit: BoxFit.cover,
                   ),
                 ),

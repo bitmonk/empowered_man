@@ -1,11 +1,12 @@
 import 'dart:io';
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
+// import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CreatePostScreen extends StatelessWidget {
   const CreatePostScreen({required this.groupId, super.key});
@@ -14,56 +15,61 @@ class CreatePostScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final controller = Get.find<FeedPageController>();
-    return Scaffold(
-      backgroundColor: const Color(0xFF18191A),
-      appBar: AppBar(
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
+      child: Scaffold(
         backgroundColor: const Color(0xFF18191A),
-        elevation: 0,
-        title: const Text('Create post', style: TextStyle(color: Colors.white)),
-        centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
-          onPressed: () {
-            controller.clearPostForm();
-            Get.back();
-          },
-        ),
-        actions: [
-          Padding(
-            padding: const EdgeInsets.only(right: 16),
-            child: Center(
-              child: Obx(
-                () => TextButton(
-                  onPressed:
-                      controller.createPostState.value == TheStates.loading
-                          ? null
-                          : () {
-                              final text =
-                                  controller.postTextController.text.trim();
-                              final media = controller.selectedMedia.toList();
-                              controller.createPost(
-                                groupId: groupId,
-                                text: text,
-                                media: media,
-                              );
-                            },
-                  child: Text(
-                    'Post',
-                    style: TextStyle(
-                      color:
-                          controller.createPostState.value == TheStates.loading
-                              ? Colors.grey
-                              : Colors.blue,
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF18191A),
+          elevation: 0,
+          title:
+              const Text('Create post', style: TextStyle(color: Colors.white)),
+          centerTitle: true,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () {
+              controller.clearPostForm();
+              Get.back();
+            },
+          ),
+          actions: [
+            Padding(
+              padding: const EdgeInsets.only(right: 16),
+              child: Center(
+                child: Obx(
+                  () => TextButton(
+                    onPressed:
+                        controller.createPostState.value == TheStates.loading
+                            ? null
+                            : () {
+                                final text =
+                                    controller.postTextController.text.trim();
+                                final media = controller.selectedMedia.toList();
+                                controller.createPost(
+                                  context: context,
+                                  groupId: groupId,
+                                  text: text,
+                                  media: media,
+                                );
+                              },
+                    child: Text(
+                      'Post',
+                      style: TextStyle(
+                        color: controller.createPostState.value ==
+                                TheStates.loading
+                            ? Colors.grey
+                            : Colors.blue,
+                      ),
                     ),
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
+        body: const PostBody(),
+        bottomSheet: const PostOptionsSheet(),
       ),
-      body: const PostBody(),
-      bottomSheet: const PostOptionsSheet(),
     );
   }
 }
@@ -82,11 +88,24 @@ class PostBody extends StatelessWidget {
           Row(
             children: [
               ClipOval(
-                child: Assets.images.leaderProfile.image(
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
-                ),
+                child: controller.userProfile != null
+                    ? Image.network(
+                        controller.userProfile!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 12),
               Column(
@@ -215,6 +234,51 @@ class PostBody extends StatelessWidget {
             size: 150,
           ),
         );
+      case 'video':
+        return FutureBuilder<String?>(
+          future: VideoThumbnail.thumbnailFile(
+            video: url,
+            imageFormat: ImageFormat.JPEG,
+            maxWidth: width.toInt(),
+            quality: 75,
+          ),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.done &&
+                snapshot.data != null) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  Image.file(
+                    File(snapshot.data!),
+                    width: width,
+                    height: height,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) => const Icon(
+                      Icons.broken_image,
+                      color: Colors.grey,
+                      size: 150,
+                    ),
+                  ),
+                  Icon(
+                    Icons.play_circle_filled,
+                    color: Colors.white.withOpacity(0.7),
+                    size: 50,
+                  ),
+                ],
+              );
+            }
+            return Container(
+              width: width,
+              height: height,
+              color: Colors.grey[800],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            );
+          },
+        );
       default:
         return const Icon(
           Icons.broken_image,
@@ -283,7 +347,7 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
               if (_isUploading) return;
               switch (item.label) {
                 case 'Photo/video':
-                  _pickMultipleImages(context);
+                  _pickVideo(context);
                   break;
                 case 'Attachment':
                   _pickPDF(context);
@@ -302,28 +366,30 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     );
   }
 
-  Future<void> _pickMultipleImages(BuildContext context) async {
+  Future<void> _pickVideo(BuildContext context) async {
     if (_isUploading) return;
 
     try {
       setState(() => _isUploading = true);
 
-      final pickedImages = await _picker.pickMultiImage(
-        maxWidth: 1920,
-        maxHeight: 1080,
-        imageQuality: 85,
+      final pickedVideo = await _picker.pickVideo(
+        source: ImageSource.gallery,
+        maxDuration: const Duration(seconds: 60), // Limit to 60 seconds
       );
 
-      if (pickedImages.isNotEmpty) {
-        for (var image in pickedImages) {
-          controller.addMedia(image.path, 'image');
+      if (pickedVideo != null) {
+        final file = File(pickedVideo.path);
+        final fileSize = await file.length();
+        if (fileSize > 50 * 1024 * 1024) {
+          // 50MB limit for videos
+          AppUtils.showErrorSnackbar(message: 'Video exceeds 50MB limit');
+          return;
         }
-        AppUtils.showSnackbar(
-          message: '${pickedImages.length} image(s) selected successfully',
-        );
+        controller.addMedia(pickedVideo.path, 'video');
+        AppUtils.showSnackbar(message: 'Video selected successfully');
       }
     } catch (e) {
-      AppUtils.showErrorSnackbar(message: 'Failed to pick images: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to pick video: $e');
     } finally {
       setState(() => _isUploading = false);
     }

@@ -114,68 +114,72 @@ class _CommentScreenState extends State<CommentScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.bgMedium,
-      appBar: AppBar(
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
+      child: Scaffold(
         backgroundColor: AppColors.bgMedium,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
-        ),
-        title: const Text(
-          'Comments',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
-        ),
-        centerTitle: false,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: Obx(() {
-              if (controller.commentState.value == TheStates.loading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  ),
-                );
-              } else if (controller.commentState.value == TheStates.error) {
-                return const Center(
-                  child: Text(
-                    'Error loading comments',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              } else if (controller
-                      .commentsModel[widget.postId]?.data?.comments?.isEmpty ??
-                  true) {
-                return const Center(
-                  child: Text(
-                    'No comments yet',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                );
-              }
-
-              final comments =
-                  controller.commentsModel[widget.postId]?.data?.comments ?? [];
-              return RefreshIndicator(
-                onRefresh: () =>
-                    controller.getPostComments(postId: widget.postId),
-                child: ListView(
-                  padding: const EdgeInsets.all(16),
-                  children: [
-                    _buildOriginalPost(),
-                    const SizedBox(height: 16),
-                    ...comments
-                        .map((comment) => _buildCommentWithReplies(comment)),
-                  ],
-                ),
-              );
-            }),
+        appBar: AppBar(
+          backgroundColor: AppColors.bgMedium,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => Get.back(),
           ),
-          _buildInputSection(),
-        ],
+          title: const Text(
+            'Comments',
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          ),
+          centerTitle: false,
+        ),
+        body: Column(
+          children: [
+            Expanded(
+              child: Obx(() {
+                if (controller.commentState.value == TheStates.loading) {
+                  return const Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  );
+                } else if (controller.commentState.value == TheStates.error) {
+                  return const Center(
+                    child: Text(
+                      'Error loading comments',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                } else if (controller.commentsModel[widget.postId]?.data
+                        ?.comments?.isEmpty ??
+                    true) {
+                  return const Center(
+                    child: Text(
+                      'No comments yet',
+                      style: TextStyle(color: Colors.white),
+                    ),
+                  );
+                }
+
+                final comments =
+                    controller.commentsModel[widget.postId]?.data?.comments ??
+                        [];
+                return RefreshIndicator(
+                  onRefresh: () =>
+                      controller.getPostComments(postId: widget.postId),
+                  child: ListView(
+                    padding: const EdgeInsets.all(16),
+                    children: [
+                      _buildOriginalPost(),
+                      const SizedBox(height: 16),
+                      ...comments
+                          .map((comment) => _buildCommentWithReplies(comment)),
+                    ],
+                  ),
+                );
+              }),
+            ),
+            _buildInputSection(),
+          ],
+        ),
       ),
     );
   }
@@ -193,11 +197,24 @@ class _CommentScreenState extends State<CommentScreen> {
           Row(
             children: [
               ClipOval(
-                child: Assets.images.leaderProfile.image(
-                  height: 40,
-                  width: 40,
-                  fit: BoxFit.cover,
-                ),
+                child: controller.userProfile != null
+                    ? Image.network(
+                        controller.userProfile!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -809,11 +826,24 @@ class _CommentScreenState extends State<CommentScreen> {
           Row(
             children: [
               ClipOval(
-                child: Assets.images.chatUserPicOne.image(
-                  height: 32,
-                  width: 32,
-                  fit: BoxFit.cover,
-                ),
+                child: controller.userProfile != null
+                    ? Image.network(
+                        controller.userProfile!,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
               ),
               const SizedBox(width: 12),
               Expanded(

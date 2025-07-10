@@ -19,7 +19,7 @@ class GroupMediaModel with _$GroupMediaModel {
 @freezed
 class Data with _$Data {
   const factory Data({
-    @JsonKey(name: "medias") List<String>? medias,
+    @JsonKey(name: "medias") List<Media>? medias,
     @JsonKey(name: "meta") Meta? meta,
   }) = _Data;
 
@@ -27,11 +27,21 @@ class Data with _$Data {
 }
 
 @freezed
+class Media with _$Media {
+  const factory Media({
+    @JsonKey(name: "type") String? type,
+    @JsonKey(name: "url") String? url,
+  }) = _Media;
+
+  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
+}
+
+@freezed
 class Meta with _$Meta {
   const factory Meta({
     @JsonKey(name: "current_page") int? currentPage,
-    @JsonKey(name: "total") int? total,
     @JsonKey(name: "per_page") int? perPage,
+    @JsonKey(name: "total") int? total,
     @JsonKey(name: "last_page") int? lastPage,
   }) = _Meta;
 

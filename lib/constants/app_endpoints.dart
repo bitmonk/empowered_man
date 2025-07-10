@@ -109,6 +109,7 @@ class AppEndpoints {
   static const String getGroupMedia = '/user/group/medias/';
   static const String getSavedPosts = '/user/group/saved-posts/';
   static const String getPostComments = '/user/post/comments';
+  static const String accessTypes = '/user/access-types';
 }
 
 class ExternalEndpoints {}

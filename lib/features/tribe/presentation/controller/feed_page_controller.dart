@@ -6,6 +6,7 @@ import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
@@ -165,6 +166,7 @@ class FeedPageController extends GetxController {
     required String text,
     required List<String> media,
     required String groupId,
+    BuildContext? context,
   }) async {
     if (text.isEmpty && media.isEmpty) {
       AppUtils.showErrorSnackbar(message: 'Please add some content or media');
@@ -175,7 +177,6 @@ class FeedPageController extends GetxController {
       createPostState.value = TheStates.loading;
       createPostError = null;
 
-      // Prepare media with types
       final mediaWithTypes = media.map((path) {
         return {
           'path': path,
@@ -190,19 +191,32 @@ class FeedPageController extends GetxController {
       );
 
       result.fold(
-        (error) {
+        (l) {
           createPostState.value = TheStates.error;
-          createPostError = error.message;
-          AppUtils.showErrorSnackbar(message: error.message);
+          createPostError = l.message;
+          AppUtils.showErrorSnackbar(message: l.message);
         },
-        (response) {
+        (r) async {
           createPostState.value = TheStates.success;
           AppUtils.showSnackbar(
-            message: response.message ?? 'Post created successfully',
+            message: r.message ?? 'Post created successfully',
           );
           clearPostForm();
-          loadFeedPosts();
-          Get.back();
+          // Call TribeGroupController.loadPostDetails to update posts
+          final tribeController = Get.find<TribeGroupController>();
+          await tribeController.loadPostDetails(groupId);
+          // Optionally, fetch comments for the new post
+          final newPost = tribeController.groupPostModel.value.data?.posts
+              ?.firstWhereOrNull((post) => post.id == r.data?.post?.id);
+          if (newPost != null) {
+            await getPostComments(postId: newPost.id?.toString() ?? '');
+          }
+          if (context != null) {
+            Navigator.pop(context);
+          } else {
+            print('Warning: Context is null, cannot pop screen');
+            Get.back(); // Fallback to Get.back
+          }
         },
       );
     } catch (e) {

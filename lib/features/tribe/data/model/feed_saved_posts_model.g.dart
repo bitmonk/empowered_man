@@ -63,12 +63,15 @@ _$SavedPostImpl _$$SavedPostImplFromJson(Map<String, dynamic> json) =>
       createdBy: json['created_by'] == null
           ? null
           : CreatedBy.fromJson(json['created_by'] as Map<String, dynamic>),
-      media:
-          (json['media'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      media: json['media'] == null
+          ? null
+          : Media.fromJson(json['media'] as Map<String, dynamic>),
       likedByCurrentUser: json['liked_by_current_user'] as bool?,
       likesCount: (json['likes_count'] as num?)?.toInt(),
       commentsCount: (json['comments_count'] as num?)?.toInt(),
       isBookmarked: json['is_bookmarked'] as bool?,
+      isHidden: json['is_hidden'] as bool?,
+      taggedUsers: json['tagged_users'] as List<dynamic>?,
       createdAt: json['created_at'] == null
           ? null
           : DateTime.parse(json['created_at'] as String),
@@ -89,6 +92,8 @@ Map<String, dynamic> _$$SavedPostImplToJson(_$SavedPostImpl instance) =>
       'likes_count': instance.likesCount,
       'comments_count': instance.commentsCount,
       'is_bookmarked': instance.isBookmarked,
+      'is_hidden': instance.isHidden,
+      'tagged_users': instance.taggedUsers,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),
     };
@@ -127,4 +132,18 @@ Map<String, dynamic> _$$CreatedByImplToJson(_$CreatedByImpl instance) =>
       'updated_at': instance.updatedAt?.toIso8601String(),
       'agora_chat_token': instance.agoraChatToken,
       'agora_user_token': instance.agoraUserToken,
+    };
+
+_$MediaImpl _$$MediaImplFromJson(Map<String, dynamic> json) => _$MediaImpl(
+      images:
+          (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
+      videos: json['videos'] as List<dynamic>?,
+      documents: json['documents'] as List<dynamic>?,
+    );
+
+Map<String, dynamic> _$$MediaImplToJson(_$MediaImpl instance) =>
+    <String, dynamic>{
+      'images': instance.images,
+      'videos': instance.videos,
+      'documents': instance.documents,
     };

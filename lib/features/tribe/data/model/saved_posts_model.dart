@@ -46,11 +46,13 @@ class SavedPost with _$SavedPost {
     @JsonKey(name: "group_id") int? groupId,
     @JsonKey(name: "user_id") int? userId,
     @JsonKey(name: "created_by") CreatedBy? createdBy,
-    @JsonKey(name: "media") List<String>? media,
+    @JsonKey(name: "media") Media? media,
     @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
     @JsonKey(name: "likes_count") int? likesCount,
     @JsonKey(name: "comments_count") int? commentsCount,
     @JsonKey(name: "is_bookmarked") bool? isBookmarked,
+    @JsonKey(name: "is_hidden") bool? isHidden,
+    @JsonKey(name: "tagged_users") List<dynamic>? taggedUsers,
     @JsonKey(name: "created_at") DateTime? createdAt,
     @JsonKey(name: "updated_at") DateTime? updatedAt,
   }) = _SavedPost;
@@ -78,4 +80,15 @@ class CreatedBy with _$CreatedBy {
 
   factory CreatedBy.fromJson(Map<String, dynamic> json) =>
       _$CreatedByFromJson(json);
+}
+
+@freezed
+class Media with _$Media {
+  const factory Media({
+    @JsonKey(name: "images") List<String>? images,
+    @JsonKey(name: "videos") List<dynamic>? videos,
+    @JsonKey(name: "documents") List<String>? documents,
+  }) = _Media;
+
+  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
 }

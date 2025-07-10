@@ -1,10 +1,11 @@
 import 'dart:io';
-
 import 'package:dotted_border/dotted_border.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/add_tribe_member.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class CreateTribeGroup extends StatefulWidget {
   const CreateTribeGroup({super.key});
@@ -23,15 +24,13 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
     tribeController.groupNameController = TextEditingController();
     tribeController.groupDescriptionController = TextEditingController();
     tribeController.accessTypeController = TextEditingController();
-
     tribeController.groupImagePath = '';
-
-    //tribeController.groupNameController = TextEditingController();
+    // Fetch access types from the API
+    tribeController.fetchAccessTypes();
   }
 
   Future<void> _pickImageFromGallery(
-    TribeGroupController tribeController,
-  ) async {
+      TribeGroupController tribeController) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -45,8 +44,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
         tribeController.setGroupImage(image.path);
       }
     } catch (e) {
-      //  print('Error picking image: $e');
-      // You can show a snackbar or error dialog here
+      AppUtils.showErrorSnackbar(message: 'Error picking image: $e');
     }
   }
 
@@ -107,7 +105,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
               AppTextFormField(
                 labelText: 'Group Name',
                 controller: tribeController.groupNameController,
-                textInputType: TextInputType.emailAddress,
+                textInputType: TextInputType.text,
                 hintText: 'Enter Group Name',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 validator: (value) {
@@ -120,7 +118,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                   return null;
                 },
               ),
-
               const SizedBox(height: 16),
               AppTextFormField(
                 labelText: 'About',
@@ -138,13 +135,11 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                   return null;
                 },
               ),
-
               const VerticalSpacing(16),
               const Text(
                 'Add Members',
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
-
               const VerticalSpacing(20),
               // Add Members Button
               OutlinedButton.icon(
@@ -158,7 +153,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                       onMembersUpdated: (newMembers) {
                         setState(() {
                           members = newMembers;
-                          // controller.fetchGroupInfo();
                         });
                       },
                     ),
@@ -184,9 +178,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
               const VerticalSpacing(12),
-              // Obx(
-              //   () => ,
-              // ),
               GestureDetector(
                 onTap: () => _pickImageFromGallery(tribeController),
                 child: DottedBorder(
@@ -246,23 +237,61 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Access Type
-              AppTextFormField(
-                labelText: 'Access Type',
-                controller: tribeController.accessTypeController,
-                textInputType: TextInputType.emailAddress,
-                floatingLabelBehavior: FloatingLabelBehavior.always,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Access type is required';
-                  }
-                  return null;
-                },
+              // Access Type Dropdown
+              Obx(
+                () => DropdownButtonFormField<String>(
+                  decoration: InputDecoration(
+                    labelText: 'Access Type',
+                    labelStyle: const TextStyle(color: Colors.white),
+                    hintText: 'Select Access Type',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: Colors.transparent,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white30),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.white30),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: Colors.blue),
+                    ),
+                  ),
+                  value: tribeController.accessTypeController.text.isNotEmpty
+                      ? tribeController.accessTypeController.text
+                      : null,
+                  hint: const Text(
+                    'Select Access Type',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                  items: tribeController.accessTypes
+                      .map((type) => DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(
+                              type,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ))
+                      .toList(),
+                  onChanged: (value) {
+                    if (value != null) {
+                      tribeController.accessTypeController.text = value;
+                    }
+                  },
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Access type is required';
+                    }
+                    return null;
+                  },
+                  dropdownColor: const Color(0xFF0D1B2A),
+                  icon: const Icon(Icons.arrow_drop_down, color: Colors.white),
+                ),
               ),
-
               const SizedBox(height: 24),
-
               // Buttons
               Obx(
                 () => Row(
@@ -289,7 +318,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                                         tribeController.groupImagePath.isEmpty
                                             ? null
                                             : tribeController.groupImagePath,
-                                    membersId: ['1', '2'],
+                                    membersId: members,
                                   );
                                   // Handle success state
                                   if (tribeController.createGroupState.value ==

@@ -1,5 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/tribe/data/model/group_post_model.dart';
+// import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:image_picker/image_picker.dart';
 
