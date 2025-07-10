@@ -4,13 +4,12 @@ import 'package:empowered/features/profile/presentation/controllers/profile_cont
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
-import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
+import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/manage_pin_group_sheet.dart';
-import 'package:get/get.dart';
 
 class TribeGroupController extends GetxController {
   TribeGroupController({required this.remoteSource});
@@ -63,6 +62,13 @@ class TribeGroupController extends GetxController {
   late TextEditingController groupDescriptionController;
   late TextEditingController accessTypeController;
   final TextEditingController searchController = TextEditingController();
+  @override
+  void refresh() {
+    groupImagePath = '';
+    _setupSearchListener();
+    fetchAllGroups();
+    fetchAccessTypes();
+  }
 
   @override
   void onInit() {
@@ -70,10 +76,7 @@ class TribeGroupController extends GetxController {
     groupNameController = TextEditingController();
     groupDescriptionController = TextEditingController();
     accessTypeController = TextEditingController();
-    groupImagePath = '';
-    _setupSearchListener();
-    fetchAllGroups();
-    fetchAccessTypes(); // Fetch access types on initialization
+    refresh();
   }
 
   @override
@@ -113,7 +116,7 @@ class TribeGroupController extends GetxController {
 
   Future<void> fetchAllGroups() async {
     for (final filter in filters) {
-      await loadGroups(showPost: filter.toLowerCase());
+      await loadGroups(showPost: filter);
     }
   }
 
@@ -129,7 +132,7 @@ class TribeGroupController extends GetxController {
     String? searchQuery,
     String? showPost,
   }) async {
-    final currentFilter = showPost ?? selectedFilters.value.toLowerCase();
+    final currentFilter = showPost ?? selectedFilters.value;
 
     filterStates.putIfAbsent(currentFilter, () => TheStates.initial.obs);
     errorMessages.putIfAbsent(currentFilter, () => null);
@@ -142,7 +145,7 @@ class TribeGroupController extends GetxController {
     _cancelToken = CancelToken();
 
     final result = await remoteSource.getGroups(
-      search: searchQuery ?? queryText.value,
+      search: searchQuery,
       showPost: currentFilter,
       cancelToken: _cancelToken,
     );
@@ -173,7 +176,7 @@ class TribeGroupController extends GetxController {
   }
 
   List<GroupModel> get currentGroups {
-    final currentFilter = selectedFilters.value.toLowerCase();
+    final currentFilter = selectedFilters.value;
     return filteredGroups[currentFilter] ?? [];
   }
 
@@ -303,6 +306,33 @@ class TribeGroupController extends GetxController {
       );
     } catch (e) {
       postDetailState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
+    }
+  }
+
+  Rx<TheStates> userPostState = TheStates.initial.obs;
+  RxnString userPostError = RxnString();
+  Rx<FeedPostsModel> userPostModel = const FeedPostsModel().obs;
+  Future<void> loadUserPost(String groupId, String userId) async {
+    try {
+      userPostError.value = null;
+      userPostState.value = TheStates.loading;
+      final result =
+          await remoteSource.getPostByUserId(groupId: groupId, userId: userId);
+
+      result.fold(
+        (error) {
+          userPostState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          userPostState.value = TheStates.success;
+          userPostModel.value = r;
+        },
+      );
+    } catch (e) {
+      userPostState.value = TheStates.error;
+      userPostError.value = 'Failed to load group posts: $e';
       AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
     }
   }
@@ -516,7 +546,7 @@ class TribeGroupController extends GetxController {
 
   Future<void> refreshGroups() async {
     await loadGroups(
-      showPost: selectedFilters.value.toLowerCase(),
+      showPost: selectedFilters.value,
       searchQuery: queryText.value,
     );
   }
@@ -524,20 +554,20 @@ class TribeGroupController extends GetxController {
   void clearSearch() {
     searchController.clear();
     queryText.value = '';
-    loadGroups(showPost: selectedFilters.value.toLowerCase());
+    loadGroups(showPost: selectedFilters.value);
   }
 
   void search(String query) {
     queryText.value = query;
     loadGroups(
-      showPost: selectedFilters.value.toLowerCase(),
+      showPost: selectedFilters.value,
       searchQuery: query,
     );
   }
 
   void changeFilter(String filter) {
     selectedFilters.value = filter;
-    loadGroups(showPost: filter.toLowerCase());
+    loadGroups(showPost: filter);
   }
 
   bool get hasSearchQuery => queryText.value?.isNotEmpty == true;
@@ -551,12 +581,12 @@ class TribeGroupController extends GetxController {
   }
 
   TheStates get currentFilterState {
-    final currentFilter = selectedFilters.value.toLowerCase();
+    final currentFilter = selectedFilters.value;
     return filterStates[currentFilter]?.value ?? TheStates.initial;
   }
 
   String? get currentFilterError {
-    final currentFilter = selectedFilters.value.toLowerCase();
+    final currentFilter = selectedFilters.value;
     return errorMessages[currentFilter];
   }
 }

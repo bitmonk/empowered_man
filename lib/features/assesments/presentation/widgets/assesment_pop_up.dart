@@ -114,6 +114,100 @@ class _AssesmentPopUpState extends State<AssesmentPopUp> {
     }
   }
 
+  // Future<void> _exportSelectedReflectionsToPdf(bool shouldShare) async {
+  //   final selectedCount = widget.selectedItems.where((item) => item).length;
+  //   if (selectedCount == 0) {
+  //     AppUtils.showErrorSnackbar(message: 'No Reflections selected for export');
+  //     return;
+  //   }
+
+  //   // Get selected Reflection data
+  //   final reflectionIds = <String>[];
+  //   final reflections = widget.searchReflection
+  //       ? _controller.reflectionSearchList
+  //       : _controller.reflectionLibraryList;
+
+  //   for (var i = 0; i < widget.selectedItems.length; i++) {
+  //     if (widget.selectedItems[i] && i < reflections.length) {
+  //       reflectionIds.add(reflections[i].id.toString());
+  //     }
+  //   }
+
+  //   if (reflectionIds.isEmpty) {
+  //     AppUtils.showErrorSnackbar(
+  //       message: 'No valid Reflections found for export',
+  //     );
+  //     return;
+  //   }
+
+  //   try {
+  //     // Get Reflection data for PDF
+  //     await _controller.getBulkSeeReflection(reflectionIds);
+  //     final userReflections =
+  //         _controller.userReflectionResponse.value.data?.userReflections;
+  //     if (userReflections == null || userReflections.isEmpty) {
+  //       AppUtils.showErrorSnackbar(message: 'No Reflection data available');
+  //       return;
+  //     }
+
+  //     // Show loading indicator
+  //     AppUtils.showDownloadingDialog(
+  //       message:
+  //           'Preparing ${userReflections.length} Reflections for export...',
+  //     );
+
+  //     // Format data for PDF
+  //     var formattedData = '';
+  //     var fromToDate = '';
+  //     if (userReflections.isNotEmpty) {
+  //       formattedData = _formatReflectionDataForPdf();
+  //       if (userReflections.length == 1 &&
+  //           userReflections.first.createdAt != null) {
+  //         fromToDate = userReflections.first.createdAt!.toString();
+  //       } else {
+  //         final dates = userReflections
+  //             .where((j) => j.createdAt != null)
+  //             .map((j) => j.createdAt!)
+  //             .toList();
+  //         if (dates.isNotEmpty) {
+  //           dates.sort();
+  //           fromToDate = '${dates.first} - ${dates.last}';
+  //         } else {
+  //           fromToDate = 'Reflection Export';
+  //         }
+  //       }
+  //     }
+
+  //     // Export the PDF with sharing enabled
+  //     await exportPdf(
+  //       context,
+  //       data: formattedData,
+  //       fromToDate: fromToDate,
+  //       shouldShare: shouldShare,
+  //     );
+
+  //     // Close the dialog after export is complete
+
+  //     if (Get.isDialogOpen ?? false) {
+  //       Get.back();
+  //     }
+
+  //     AppUtils.showSnackbar(message: 'Reflections exported successfully');
+  //   } catch (e) {
+  //     if (Get.isDialogOpen ?? false) {
+  //       Get.back();
+  //     }
+
+  //     print('Error sharing Reflections to PDF: $e');
+  //     AppUtils.showErrorSnackbar(message: 'Failed to share Reflections: $e');
+  //   } finally {
+  //     await Future.delayed(const Duration(milliseconds: 200));
+  //     if (Get.isDialogOpen ?? false) {
+  //       Get.back();
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return PopupMenuButton<String>(
@@ -124,11 +218,13 @@ class _AssesmentPopUpState extends State<AssesmentPopUp> {
       onSelected: (value) async {
         switch (value) {
           case 'download':
+            // _exportSelectedReflectionsToPdf(false);
             // Handle download action
             break;
           case 'delete':
             _handleDelete();
           case 'share':
+            // _exportSelectedJournalsToPdf(true); // Share only
             // Handle share action
             break;
         }

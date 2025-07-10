@@ -3,8 +3,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 
 class FeedPost extends StatefulWidget {
@@ -140,7 +138,7 @@ class _FeedPostState extends State<FeedPost> {
                     child: Row(
                       children: [
                         Icon(Icons.visibility_off_outlined,
-                            color: Colors.white),
+                            color: Colors.white,),
                         SizedBox(width: 8),
                         Text(
                           'Hide Post',
@@ -260,7 +258,7 @@ class _FeedPostState extends State<FeedPost> {
   }
 
   // Handle like toggle with optimistic update
-  void _handleLikeToggle() async {
+  Future<void> _handleLikeToggle() async {
     // Store current state for potential rollback
     final previousIsLiked = _isLiked;
     final previousLikesCount = _likesCount;
@@ -284,7 +282,7 @@ class _FeedPostState extends State<FeedPost> {
       });
       // Optionally show error message
       Get.snackbar('Error', 'Failed to toggle like: $e',
-          backgroundColor: Colors.red, colorText: Colors.white);
+          backgroundColor: Colors.red, colorText: Colors.white,);
     }
   }
 
@@ -401,9 +399,9 @@ class _FeedPostState extends State<FeedPost> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.picture_as_pdf,
-                      color: Colors.white, size: 40),
+                      color: Colors.white, size: 40,),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       url.split('/').last,
                       style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -431,7 +429,7 @@ class _FeedPostState extends State<FeedPost> {
                 children: [
                   const Icon(Icons.play_circle, color: Colors.white, size: 40),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text(
                       url.split('/').last,
                       style: const TextStyle(color: Colors.white, fontSize: 12),

@@ -22,53 +22,58 @@ class _CoursesScreenState extends State<CoursesScreen> {
       appBar: const CustomAppBar(
         title: 'Courses',
       ),
-      body: Obx(() {
-        final currentFilter = controller.selectedFilters.value.toLowerCase();
-        final courses = controller.filteredCourses[currentFilter] ?? [];
-        final error = controller.errorMessages[currentFilter];
-        return Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            children: [
-              _buildSearchBar(),
-              const VerticalSpacing(16),
-              _buildFilterButtons(),
-              const VerticalSpacing(16),
-              Expanded(
-                child: RefreshIndicator(
-                  onRefresh: () async {
-                    await controller.getCourses(
-                      tag: controller.selectedFilters.value.toLowerCase(),
-                    );
-                  },
-                  child:
-                      controller.filterStates[currentFilter]!.value.showWidget(
-                    success: () => courses.isEmpty
-                        ? const CustomErrorWidget(
-                            error: 'No course found.',
-                          )
-                        : ListView.builder(
-                            itemCount: courses.length,
-                            itemBuilder: (context, index) {
-                              return _buildCourseCard(courses[index]);
-                            },
-                          ),
-                    error: () => CustomErrorWidget(
-                      error: error,
-                      onPressed: () {
-                        controller.getCourses(
-                          tag: controller.selectedFilters.value.toLowerCase(),
-                        );
-                      },
+      body: SafeArea(
+        left: false,
+        right: false,
+        top: false,
+        child: Obx(() {
+          final currentFilter = controller.selectedFilters.value.toLowerCase();
+          final courses = controller.filteredCourses[currentFilter] ?? [];
+          final error = controller.errorMessages[currentFilter];
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Column(
+              children: [
+                _buildSearchBar(),
+                const VerticalSpacing(16),
+                _buildFilterButtons(),
+                const VerticalSpacing(16),
+                Expanded(
+                  child: RefreshIndicator(
+                    onRefresh: () async {
+                      await controller.getCourses(
+                        tag: controller.selectedFilters.value.toLowerCase(),
+                      );
+                    },
+                    child: controller.filterStates[currentFilter]!.value
+                        .showWidget(
+                      success: () => courses.isEmpty
+                          ? const CustomErrorWidget(
+                              error: 'No course found.',
+                            )
+                          : ListView.builder(
+                              itemCount: courses.length,
+                              itemBuilder: (context, index) {
+                                return _buildCourseCard(courses[index]);
+                              },
+                            ),
+                      error: () => CustomErrorWidget(
+                        error: error,
+                        onPressed: () {
+                          controller.getCourses(
+                            tag: controller.selectedFilters.value.toLowerCase(),
+                          );
+                        },
+                      ),
+                      orElse: () => const LoadingWidget(),
                     ),
-                    orElse: () => const LoadingWidget(),
                   ),
                 ),
-              ),
-            ],
-          ),
-        );
-      }),
+              ],
+            ),
+          );
+        }),
+      ),
     );
   }
 

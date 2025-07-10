@@ -57,7 +57,6 @@ class ChatList extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
           color: Colors.transparent,
-          width: 1,
         ),
       ),
       child: InkWell(
@@ -187,8 +186,8 @@ class ChatList extends StatelessWidget {
     return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        GreyDivider(),
-        VerticalSpacing(12),
+        const GreyDivider(),
+        const VerticalSpacing(12),
         Obx(() {
           final messages = controller.shortcutMessages[convo.id] ?? [];
           if (controller.shortcutMessages[convo.id] == null) {

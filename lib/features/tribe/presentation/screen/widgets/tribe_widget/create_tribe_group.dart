@@ -1,11 +1,10 @@
 import 'dart:io';
+
 import 'package:dotted_border/dotted_border.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/add_tribe_member.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class CreateTribeGroup extends StatefulWidget {
   const CreateTribeGroup({super.key});
@@ -30,7 +29,8 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
   }
 
   Future<void> _pickImageFromGallery(
-      TribeGroupController tribeController) async {
+    TribeGroupController tribeController,
+  ) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -105,7 +105,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
               AppTextFormField(
                 labelText: 'Group Name',
                 controller: tribeController.groupNameController,
-                textInputType: TextInputType.text,
                 hintText: 'Enter Group Name',
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 validator: (value) {
@@ -268,13 +267,15 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                     style: TextStyle(color: Colors.white54),
                   ),
                   items: tribeController.accessTypes
-                      .map((type) => DropdownMenuItem<String>(
-                            value: type,
-                            child: Text(
-                              type,
-                              style: const TextStyle(color: Colors.white),
-                            ),
-                          ))
+                      .map(
+                        (type) => DropdownMenuItem<String>(
+                          value: type,
+                          child: Text(
+                            type,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      )
                       .toList(),
                   onChanged: (value) {
                     if (value != null) {

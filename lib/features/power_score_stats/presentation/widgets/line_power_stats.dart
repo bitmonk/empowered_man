@@ -30,7 +30,7 @@ class LinePowerStats extends StatelessWidget {
               ],
             ),
           ),
-          const VerticalSpacing(16),
+          const VerticalSpacing(54),
           _buildLineChart(),
         ],
       ),

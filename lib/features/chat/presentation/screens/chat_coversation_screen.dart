@@ -521,8 +521,8 @@ class MessageTypeText extends StatefulWidget {
 class _MessageTypeTextState extends State<MessageTypeText> {
   String get htmlText => widget.text
       .replaceAll(RegExp(r'<p>\s*</p>'), '') // Remove empty p tags
-      .replaceAll(RegExp(r'<p>'), '') // Remove opening p tags
-      .replaceAll(RegExp(r'</p>'), '<br>') // Replace closing p tags with br
+      .replaceAll(RegExp('<p>'), '') // Remove opening p tags
+      .replaceAll(RegExp('</p>'), '<br>') // Replace closing p tags with br
       .replaceAll(
           RegExp(r'\n+'), '<br>',) // Replace multiple newlines with single br
       .replaceAll(RegExp(r'(<br>\s*){2,}'),

@@ -28,7 +28,6 @@ class MessageUtils {
             text: jsonMessage['content'] ?? '',
             isMine: isMine,
           );
-          break;
         case 'file':
           final fileName = jsonMessage['displayName'] ?? 'File';
           final remotePath = jsonMessage['remotePath'];
@@ -105,7 +104,6 @@ class MessageUtils {
                     ),
                   ),
                 );
-          break;
         case 'img':
           final remotePath = jsonMessage['remotePath'];
           wid = (remotePath != null && remotePath.toString().isNotEmpty)
@@ -114,7 +112,6 @@ class MessageUtils {
                   'Sending image.....',
                   style: TextStyle(color: Colors.white),
                 );
-          break;
         case 'video':
           final remotePath = jsonMessage.containsKey('remotePath');
           wid = remotePath
@@ -123,7 +120,6 @@ class MessageUtils {
                   'Sending video...',
                   style: TextStyle(color: Colors.white),
                 );
-          break;
         case 'audio':
           final remotePath = jsonMessage.containsKey('remotePath');
           wid = remotePath
@@ -135,7 +131,6 @@ class MessageUtils {
               : const Text(
                   'Audio too large. Please select an audio under 100MB.',
                 );
-          break;
         default:
           wid = const SizedBox.shrink();
       }

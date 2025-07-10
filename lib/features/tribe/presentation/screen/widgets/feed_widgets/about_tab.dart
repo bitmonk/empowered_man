@@ -3,6 +3,7 @@ import 'package:empowered/features/profile/presentation/controllers/profile_cont
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/add_tribe_member.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/user_feed.dart';
 
 class AboutTab extends StatefulWidget {
   const AboutTab({required this.groupId, super.key});
@@ -183,6 +184,14 @@ class _AboutTabState extends State<AboutTab> {
                       final index = entry.key;
                       final member = entry.value;
                       return ListTile(
+                        onTap: () {
+                          print(tribeController
+                              .groupDetailModel.value.data!.about,);
+                          Get.to(() => UserFeedPageScreen(
+                                group: tribeController.groupDetailModel.value,
+                                member: member,
+                              ),);
+                        },
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(
                           backgroundImage: member.user?.image != null

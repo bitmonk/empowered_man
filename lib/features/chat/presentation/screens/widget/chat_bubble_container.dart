@@ -332,15 +332,6 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
 }
 
 class _ActionOverlay extends StatelessWidget {
-  final Offset position;
-  final Size size;
-  final bool isMine;
-  final VoidCallback onLike;
-  final VoidCallback onReply;
-  final VoidCallback? onEdit;
-  final VoidCallback? onDelete;
-  final VoidCallback onDismiss;
-  final bool isLiked;
 
   const _ActionOverlay({
     required this.position,
@@ -353,6 +344,15 @@ class _ActionOverlay extends StatelessWidget {
     this.onEdit,
     this.onDelete,
   });
+  final Offset position;
+  final Size size;
+  final bool isMine;
+  final VoidCallback onLike;
+  final VoidCallback onReply;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback onDismiss;
+  final bool isLiked;
 
   @override
   Widget build(BuildContext context) {

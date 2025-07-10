@@ -6,8 +6,6 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_tab.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class FeedPageScreen extends StatefulWidget {
   const FeedPageScreen({required this.groupId, super.key});
@@ -28,7 +26,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       ..loadPostDetails(widget.groupId).then((_) {
         // Fetch comments for all posts after loading post details
         final posts = tribeController.groupPostModel.value.data?.posts ?? [];
-        for (var post in posts) {
+        for (final post in posts) {
           controller.getPostComments(postId: post.id?.toString() ?? '');
         }
       })
@@ -147,9 +145,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                   final savedPosts =
                       tribeController.savedPostsModel.value.data?.savedPosts ??
                           [];
-                  for (var post in savedPosts) {
+                  for (final post in savedPosts) {
                     controller.getPostComments(
-                        postId: post.id?.toString() ?? '');
+                        postId: post.id?.toString() ?? '',);
                   }
                 });
               }
@@ -260,7 +258,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         onRefresh: () async {
           await tribeController.loadPostDetails(widget.groupId);
           final posts = tribeController.groupPostModel.value.data?.posts ?? [];
-          for (var post in posts) {
+          for (final post in posts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
           }
         },
@@ -429,7 +427,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           await tribeController.getSavedPosts(widget.groupId);
           final savedPosts =
               tribeController.savedPostsModel.value.data?.savedPosts ?? [];
-          for (var post in savedPosts) {
+          for (final post in savedPosts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
           }
         },

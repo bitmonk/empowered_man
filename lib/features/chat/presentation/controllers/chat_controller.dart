@@ -1160,7 +1160,7 @@ class ChatController extends GetxController {
         message.attributes!['replyPreview'] =
             (replyToMessage.value!.body is ChatTextMessageBody)
                 ? (replyToMessage.value!.body as ChatTextMessageBody).content
-                : "[${replyToMessage.value!.body.runtimeType}]";
+                : '[${replyToMessage.value!.body.runtimeType}]';
         message.attributes!['replyToSender'] =
             replyToMessage.value!.from ?? 'Unknown';
         clearReply();

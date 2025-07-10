@@ -1,7 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/main/presentation/screens/widgets/main_drawer.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
-import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_posts_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/create_tribe_group.dart';
 
@@ -70,13 +68,8 @@ class _TribeScreenState extends State<TribeScreen> {
     return accessType == 'admin_only';
   }
 
-  String _getCurrentFilter() {
-    return controller.selectedFilters.value.toLowerCase();
-  }
-
   bool _isFilterSelected(String filter) {
-    return controller.selectedFilters.value.toLowerCase() ==
-        filter.toLowerCase();
+    return controller.selectedFilters.value == filter;
   }
 
   @override
@@ -84,277 +77,265 @@ class _TribeScreenState extends State<TribeScreen> {
     return Obx(
       () => Scaffold(
         key: _scaffoldKey,
-        backgroundColor: const Color(0xFF0F172A),
-        drawer: Container(
-          width: MediaQuery.of(context).size.width * 0.90,
-          color: AppColors.bgMedium,
-          child: const MainDrawer(),
+        appBar: const CustomAppBar(
+          title: 'Tribe',
         ),
-        body: _isCurrentFilterLoading()
-            ? const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              )
-            : Padding(
-                padding: const EdgeInsets.all(16),
-                child: ListView(
+        body:
+            // _isCurrentFilterLoading()
+            //     ? const Center(
+            //         child: CircularProgressIndicator(
+            //           valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+            //         ),
+            //       )
+            //     :
+            Padding(
+          padding: const EdgeInsets.all(16),
+          child: RefreshIndicator(
+            onRefresh: () async {
+              controller.refresh();
+            },
+            child: ListView(
+              children: [
+                // Search Field
+                Row(
+                  mainAxisAlignment: isUserCoach
+                      ? MainAxisAlignment.spaceBetween
+                      : MainAxisAlignment.start,
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 2, right: 8),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          InkWell(
-                            onTap: () {
-                              Get.back();
-                            },
-                            child: const Icon(
-                              Icons.arrow_back,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const Text(
-                            'Tribe',
-                            style: AppTextStyles.textHeadingH3,
-                          ),
-                          InkWell(
-                            onTap: () {
-                              _scaffoldKey.currentState?.openDrawer();
-                            },
-                            child: Assets.images.menu.svg(width: 32),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const VerticalSpacing(24),
-                    // Search Field
-                    Row(
-                      mainAxisAlignment: isUserCoach
-                          ? MainAxisAlignment.spaceBetween
-                          : MainAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: const Color(0xFF121E29),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            padding: const EdgeInsets.symmetric(horizontal: 12),
-                            child: TextField(
-                              controller: controller.searchController,
-                              style: const TextStyle(color: Colors.white),
-                              decoration: InputDecoration(
-                                hintText: 'Search...',
-                                hintStyle: const TextStyle(color: Colors.grey),
-                                border: InputBorder.none,
-                                icon: Assets.images.search
-                                    .svg(width: 24, height: 24),
-                              ),
-                              onChanged: (value) {
-                                controller.search(value);
-                              },
-                            ),
-                          ),
+                    Expanded(
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF121E29),
+                          borderRadius: BorderRadius.circular(12),
                         ),
-                        if (isUserCoach) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            width: 40,
-                            height: 40,
-                            margin: const EdgeInsets.only(left: 8),
-                            decoration: const BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: AppColors.primary500,
-                            ),
-                            child: IconButton(
-                              icon: const Icon(
-                                Icons.edit,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                              onPressed: () {
-                                showCreateGroupSheet(context);
-                              },
-                            ),
+                        padding: const EdgeInsets.symmetric(horizontal: 12),
+                        child: TextField(
+                          controller: controller.searchController,
+                          style: const TextStyle(color: Colors.white),
+                          decoration: InputDecoration(
+                            hintText: 'Search...',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            border: InputBorder.none,
+                            icon:
+                                Assets.images.search.svg(width: 24, height: 24),
                           ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Filter Tabs
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          _filterChip('All', _isFilterSelected('All'), () {
-                            controller.changeFilter('All');
-                          }),
-                          const SizedBox(width: 8),
-                          if (isUserCoach) ...[
-                            _filterChip('Created by You',
-                                _isFilterSelected('Created_by_you'), () {
-                              controller.changeFilter('Created_by_you');
-                            }),
-                            const SizedBox(width: 8),
-                          ],
-                          _filterChip(
-                              'Admin Only', _isFilterSelected('Admin_only'),
-                              () {
-                            controller.changeFilter('Admin_only');
-                          }),
-                        ],
+                          onChanged: (value) {
+                            if (value.isNotEmpty) {
+                              controller.search(value);
+                            } else {
+                              controller.refresh();
+                            }
+                          },
+                        ),
                       ),
                     ),
-                    const SizedBox(height: 24),
-                    GestureDetector(
-                      onTap: () => Get.to(() => FeedPostsScreen()),
-                      child: Row(
-                        children: [
-                          Assets.images.file.svg(width: 30, height: 30),
-                          const SizedBox(width: 8),
-                          const Text(
-                            'Posts',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    // Pinned Groups Section
-                    const Row(
-                      children: [
-                        Text(
-                          'Pinned Groups',
-                          style: TextStyle(
+                    if (isUserCoach) ...[
+                      const SizedBox(width: 8),
+                      Container(
+                        width: 40,
+                        height: 40,
+                        margin: const EdgeInsets.only(left: 8),
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: AppColors.primary500,
+                        ),
+                        child: IconButton(
+                          icon: const Icon(
+                            Icons.edit,
                             color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                            size: 20,
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Pinned Groups List
-                    if (controller.pinnedGroups.isEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B).withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        child: const Center(
-                          child: Text(
-                            'No pinned groups found',
-                            style: TextStyle(color: Colors.grey, fontSize: 14),
-                          ),
+                          onPressed: () {
+                            showCreateGroupSheet(context);
+                          },
                         ),
                       ),
-                    ] else ...[
-                      ..._getPinnedGroups(),
-                    ],
-                    const SizedBox(height: 8),
-                    GestureDetector(
-                      onTap: () {
-                        controller.showManagePinGroupSheet(context);
-                      },
-                      child: Row(
-                        children: [
-                          Assets.images.addIconWithBackground.svg(
-                            width: 30,
-                            height: 30,
-                          ),
-                          const SizedBox(width: 12),
-                          const Text(
-                            'Add pinned group',
-                            style: TextStyle(color: Colors.blue),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    const Row(
-                      children: [
-                        Text(
-                          'Groups',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    // Other Groups
-                    if (_hasCurrentFilterError()) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B).withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: Colors.red.withOpacity(0.3)),
-                        ),
-                        child: Center(
-                          child: Column(
-                            children: [
-                              const Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                                size: 24,
-                              ),
-                              const SizedBox(height: 8),
-                              Text(
-                                controller.currentFilterError ??
-                                    'Something went wrong',
-                                style: const TextStyle(
-                                  color: Colors.red,
-                                  fontSize: 14,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                              const SizedBox(height: 8),
-                              ElevatedButton(
-                                onPressed: () {
-                                  controller.refreshGroups();
-                                },
-                                child: const Text('Retry'),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ] else if (controller.unpinnedGroups.isEmpty) ...[
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF1E293B).withOpacity(0.5),
-                          borderRadius: BorderRadius.circular(8),
-                          border:
-                              Border.all(color: Colors.grey.withOpacity(0.3)),
-                        ),
-                        child: Center(
-                          child: Text(
-                            controller.hasSearchQuery
-                                ? 'No groups found matching "${controller.queryText.value}"'
-                                : _getEmptyStateMessage(),
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                    ] else ...[
-                      ..._getGroups(),
                     ],
                   ],
                 ),
-              ),
+                const SizedBox(height: 12),
+                // Filter Tabs
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: [
+                      _filterChip('All', _isFilterSelected('All'), () {
+                        controller.changeFilter('All');
+                      }),
+                      const SizedBox(width: 8),
+                      if (isUserCoach) ...[
+                        _filterChip('Created by You',
+                            _isFilterSelected('Created_by_you'), () {
+                          controller.changeFilter('Created_by_you');
+                        }),
+                        const SizedBox(width: 8),
+                      ],
+                      _filterChip('Admin Only', _isFilterSelected('Admin_only'),
+                          () {
+                        controller.changeFilter('Admin_only');
+                      }),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 24),
+                if (controller.currentFilterState == TheStates.loading) const Padding(
+                        padding: EdgeInsets.symmetric(vertical: 100),
+                        child: AppLoadingWidget(),
+                      ) else Column(
+                        children: [
+                          GestureDetector(
+                            onTap: () => Get.to(() => const FeedPostsScreen()),
+                            child: Row(
+                              children: [
+                                Assets.images.file.svg(width: 30, height: 30),
+                                const SizedBox(width: 8),
+                                const Text(
+                                  'Posts',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          const SizedBox(height: 24),
+                          // Pinned Groups Section
+                          const Row(
+                            children: [
+                              Text(
+                                'Pinned Groups',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Pinned Groups List
+                          if (controller.pinnedGroups.isEmpty) ...[
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B).withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: Colors.grey.withOpacity(0.3),),
+                              ),
+                              child: const Center(
+                                child: Text(
+                                  'No pinned groups found',
+                                  style: TextStyle(
+                                      color: Colors.grey, fontSize: 14,),
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            ..._getPinnedGroups(),
+                          ],
+                          const SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: () {
+                              controller.showManagePinGroupSheet(context);
+                            },
+                            child: Row(
+                              children: [
+                                Assets.images.addIconWithBackground.svg(
+                                  width: 30,
+                                  height: 30,
+                                ),
+                                const SizedBox(width: 12),
+                                const Text(
+                                  'Add pinned group',
+                                  style: TextStyle(color: Colors.blue),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          const Row(
+                            children: [
+                              Text(
+                                'Groups',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          // Other Groups
+                          if (_hasCurrentFilterError()) ...[
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B).withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: Colors.red.withOpacity(0.3),),
+                              ),
+                              child: Center(
+                                child: Column(
+                                  children: [
+                                    const Icon(
+                                      Icons.error_outline,
+                                      color: Colors.red,
+                                      size: 24,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Text(
+                                      controller.currentFilterError ??
+                                          'Something went wrong',
+                                      style: const TextStyle(
+                                        color: Colors.red,
+                                        fontSize: 14,
+                                      ),
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        controller.refreshGroups();
+                                      },
+                                      child: const Text('Retry'),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ] else if (controller.unpinnedGroups.isEmpty) ...[
+                            Container(
+                              padding: const EdgeInsets.all(16),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF1E293B).withOpacity(0.5),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                    color: Colors.grey.withOpacity(0.3),),
+                              ),
+                              child: Center(
+                                child: Text(
+                                  controller.hasSearchQuery
+                                      ? 'No groups found matching "${controller.queryText.value}"'
+                                      : _getEmptyStateMessage(),
+                                  style: const TextStyle(
+                                    color: Colors.grey,
+                                    fontSize: 14,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ] else ...[
+                            ..._getGroups(),
+                          ],
+                        ],
+                      ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }

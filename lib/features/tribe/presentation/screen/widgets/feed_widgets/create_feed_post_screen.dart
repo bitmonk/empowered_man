@@ -89,7 +89,7 @@ class PostBody extends StatelessWidget {
                 children: [
                   Text(
                     controller.userFullName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -159,7 +159,7 @@ class PostBody extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            '+ ${additionalCount}',
+                            '+ $additionalCount',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,

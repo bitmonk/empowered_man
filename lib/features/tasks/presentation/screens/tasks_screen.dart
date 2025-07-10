@@ -40,8 +40,8 @@ class _TasksScreenState extends State<TasksScreen> {
                 child: DrawerHeaderWithBack(title: 'Tasks'),
               ),
               const VerticalSpacing(32),
-              _searchField(),
-              const VerticalSpacing(26),
+              // _searchField(),
+              // const VerticalSpacing(26),
               _weekListWidget(),
               const VerticalSpacing(10),
               controller.getTaskState.value.showWidget(
@@ -184,6 +184,7 @@ class _TasksScreenState extends State<TasksScreen> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: AppTextFormField(
+        onChanged: (v) {},
         controller: controller.searchTextController,
         enabledBorderSide: const BorderSide(color: AppColors.bgMedium),
         borderSide: const BorderSide(color: AppColors.bgMedium),

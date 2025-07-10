@@ -151,7 +151,9 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
               AppOutlinedButton(
                 text: 'Share',
                 width: 200,
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),

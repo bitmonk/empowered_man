@@ -1,6 +1,6 @@
 import 'dart:io';
+
 import 'package:dartz/dartz.dart';
-import 'package:dio/dio.dart';
 import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
@@ -9,8 +9,8 @@ import 'package:empowered/features/tribe/data/model/create_group_response_model.
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/group_about_model.dart';
-import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/group_list_model.dart';
+import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
@@ -29,7 +29,7 @@ class TribeGroupRemoteSource {
         cancelToken: cancelToken,
       );
       // Assuming response is a Map with a 'data' key containing the list
-      if (response is Map<String, dynamic> && response['data'] is List) {
+      if (response['data'] is List) {
         return right((response['data'] as List<dynamic>).cast<String>());
       } else {
         return left(const InternalAppError(message: 'Invalid response format'));
@@ -39,7 +39,8 @@ class TribeGroupRemoteSource {
         return left(e);
       } else {
         return left(
-            InternalAppError(message: 'Failed to fetch access types: $e'));
+          InternalAppError(message: 'Failed to fetch access types: $e'),
+        );
       }
     }
   }
@@ -50,7 +51,11 @@ class TribeGroupRemoteSource {
     String? showPost,
   }) async {
     try {
-      final response = await _client.get(AppEndpoints.createGroup);
+      final response = await _client.get(AppEndpoints.createGroup,
+          queryParameters: {
+            if (search != null) 'search': search,
+            'show_post': showPost,
+          },);
       return right(GroupListModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -79,7 +84,8 @@ class TribeGroupRemoteSource {
       final file = File(imagePath);
       if (!await file.exists()) {
         return left(
-            const InternalAppError(message: 'Image file does not exist'));
+          const InternalAppError(message: 'Image file does not exist'),
+        );
       }
       final fileName = imagePath.split('/').last;
       final mimeType =
@@ -88,7 +94,8 @@ class TribeGroupRemoteSource {
 
       if (!mimeType.startsWith('image/')) {
         return left(
-            const InternalAppError(message: 'Selected file is not an image'));
+          const InternalAppError(message: 'Selected file is not an image'),
+        );
       }
 
       formDataMap.files.add(
@@ -239,6 +246,26 @@ class TribeGroupRemoteSource {
     try {
       final response =
           await _client.get('${AppEndpoints.getGroupPosts}$groupId');
+      return right(FeedPostsModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, FeedPostsModel>> getPostByUserId({
+    required String groupId,
+    required String userId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.userPost,
+        queryParameters: {'group_id': groupId, 'user_id': userId},
+      );
       return right(FeedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {

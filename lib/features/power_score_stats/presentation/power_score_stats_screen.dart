@@ -34,63 +34,67 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
         },
       ),
       body: Obx(
-        () => SingleChildScrollView(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              HomeHeaderWidgets(
-                hideControls: true,
-                level:
-                    powerController.powerScoreResponse.value.currentLevel ?? '',
-                upcomingLevel:
-                    powerController.powerScoreResponse.value.upcomingLevel ??
-                        '',
-                userProgressbarPoints: powerController
-                        .powerScoreResponse.value.userProgressbarPoints ??
-                    '',
-                totalPointsProgressBar: powerController
-                        .powerScoreResponse.value.totalPointsProgressbar ??
-                    '',
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  GestureDetector(
-                    onTap: () => powerController.changeWeek(-1),
-                    child: Assets.images.cirlceArrowBack.svg(),
-                  ),
-                  const HorizontalSpacing(20),
-                  Text(
-                    powerController.getDateRange(),
-                    style: AppTextStyles.textBodyB3
-                        .copyWith(color: AppColors.textColor200),
-                  ),
-                  const HorizontalSpacing(20),
-                  GestureDetector(
-                    onTap: () => powerController.changeWeek(1),
-                    child: Assets.images.circleArrowForward.svg(),
-                  ),
-                ],
-              ),
-              const VerticalSpacing(22),
-              _buildAverageScore(),
-              const VerticalSpacing(20),
-              _buildScoreBreakdown(),
-              const VerticalSpacing(20),
-              _buildSummaryBreakdown(),
-              const VerticalSpacing(20),
-              AverageWeeklyScore(
-                weeklyStatus:
-                    powerController.powerScoreResponse.value.weeklystatus,
-              ),
-              const VerticalSpacing(20),
-              LinePowerStats(
-                monthlystatus:
-                    powerController.powerScoreResponse.value.monthlystatus,
-              ),
-              const BottomSpacing(),
-            ],
+        () => Padding(
+          padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                HomeHeaderWidgets(
+                  hideControls: true,
+                  level:
+                      powerController.powerScoreResponse.value.currentLevel ??
+                          '',
+                  upcomingLevel:
+                      powerController.powerScoreResponse.value.upcomingLevel ??
+                          '',
+                  userProgressbarPoints: powerController
+                          .powerScoreResponse.value.userProgressbarPoints ??
+                      '',
+                  totalPointsProgressBar: powerController
+                          .powerScoreResponse.value.totalPointsProgressbar ??
+                      '',
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    GestureDetector(
+                      onTap: () => powerController.changeWeek(-1),
+                      child: Assets.images.cirlceArrowBack.svg(),
+                    ),
+                    const HorizontalSpacing(20),
+                    Text(
+                      powerController.getDateRange(),
+                      style: AppTextStyles.textBodyB3
+                          .copyWith(color: AppColors.textColor200),
+                    ),
+                    const HorizontalSpacing(20),
+                    GestureDetector(
+                      onTap: () => powerController.changeWeek(1),
+                      child: Assets.images.circleArrowForward.svg(),
+                    ),
+                  ],
+                ),
+                const VerticalSpacing(22),
+                _buildAverageScore(),
+                const VerticalSpacing(20),
+                _buildScoreBreakdown(),
+                const VerticalSpacing(20),
+                _buildSummaryBreakdown(),
+                const VerticalSpacing(20),
+                AverageWeeklyScore(
+                  weeklyStatus:
+                      powerController.powerScoreResponse.value.weeklystatus,
+                ),
+                const VerticalSpacing(20),
+                LinePowerStats(
+                  monthlystatus:
+                      powerController.powerScoreResponse.value.monthlystatus,
+                ),
+                const BottomSpacing(),
+              ],
+            ),
           ),
         ),
       ),

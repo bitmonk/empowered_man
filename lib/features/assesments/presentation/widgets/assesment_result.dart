@@ -179,7 +179,7 @@ class AssesmentResult extends StatelessWidget {
                     previousText: 'Download PDF',
                     nextText: 'Complete',
                     onPrevious: () {
-                      navigateToAssessmentScreen();
+                      // navigateToAssessmentScreen();
                     },
                     onNext: () async {
                       navigateToAssessmentScreen();

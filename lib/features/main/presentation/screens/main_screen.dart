@@ -115,6 +115,7 @@ class _MainScreenState extends State<MainScreen>
       },
       child: Scaffold(
         key: AppWidgetKey.journalScaffold,
+        resizeToAvoidBottomInset: false,
         drawer: Drawer(
           width: MediaQuery.of(context).size.width * 0.92,
           backgroundColor: AppColors.bgMedium,
@@ -308,17 +309,17 @@ class ChatIconClipper extends CustomClipper<Path> {
     var width = size.width;
     var height = size.height;
 
-    path..moveTo(0, height) // Start at bottom-left
+    path
+      ..moveTo(0, height) // Start at bottom-left
 
-    // Create an outward semi-circle curve
-    ..quadraticBezierTo(
-      width * 0.5,
-      -height * 0.5, // Control point (higher up for outward effect)
-      width, height, // End at bottom-right
-    )
-
-    ..lineTo(width, height) // Close the path
-    ..lineTo(0, height); // Close the path
+      // Create an outward semi-circle curve
+      ..quadraticBezierTo(
+        width * 0.5,
+        -height * 0.5, // Control point (higher up for outward effect)
+        width, height, // End at bottom-right
+      )
+      ..lineTo(width, height) // Close the path
+      ..lineTo(0, height); // Close the path
 
     return path;
   }

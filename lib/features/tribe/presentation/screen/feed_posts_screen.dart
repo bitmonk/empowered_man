@@ -1,10 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
-import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/create_post_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class FeedPostsScreen extends StatefulWidget {
   const FeedPostsScreen({super.key});
@@ -23,7 +20,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     controller.loadFeedPosts().then((_) {
       // Fetch comments for all posts after loading
       final posts = controller.posts.value;
-      for (var post in posts) {
+      for (final post in posts) {
         controller.getPostComments(postId: post.id?.toString() ?? '');
       }
     });
@@ -44,7 +41,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           ),
           title: const Padding(
             padding:
-                EdgeInsets.symmetric(vertical: 8.0), // Added vertical padding
+                EdgeInsets.symmetric(vertical: 8), // Added vertical padding
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
@@ -103,7 +100,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                         [];
                     for (final post in savedPosts) {
                       controller.getPostComments(
-                          postId: post.id?.toString() ?? '');
+                          postId: post.id?.toString() ?? '',);
                     }
                   });
                 }
@@ -205,7 +202,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
         onRefresh: () async {
           await controller.loadFeedPosts();
           final posts = controller.posts.value;
-          for (var post in posts) {
+          for (final post in posts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
           }
         },
@@ -294,7 +291,6 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             crossAxisCount: 3, // 3 items per row
             crossAxisSpacing: 8,
             mainAxisSpacing: 8,
-            childAspectRatio: 1, // Square items
           ),
           itemCount: mediaItems.length,
           itemBuilder: (context, index) {
@@ -309,7 +305,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: NetworkImage(
-                        media.url ?? ''), // Assuming media.url is the image URL
+                        media.url ?? '',), // Assuming media.url is the image URL
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -407,7 +403,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           await tribeController.getFeedSavedPost();
           final savedPosts =
               tribeController.feedSavedPostsModel.value.data?.savedPosts ?? [];
-          for (var post in savedPosts) {
+          for (final post in savedPosts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
           }
         },

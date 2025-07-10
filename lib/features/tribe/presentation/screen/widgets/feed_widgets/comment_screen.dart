@@ -3,7 +3,6 @@ import 'package:empowered/features/profile/presentation/controllers/profile_cont
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
@@ -199,7 +198,7 @@ class _CommentScreenState extends State<CommentScreen> {
               ClipOval(
                 child: controller.userProfile != null
                     ? Image.network(
-                        controller.userProfile!,
+                        controller.userProfile,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -418,7 +417,7 @@ class _CommentScreenState extends State<CommentScreen> {
                   comment.id.toString(),
                   comment.user?.fullName ?? 'Unknown',
                   comment.text ?? '',
-                )),
+                ),),
           ],
         ],
       ),
@@ -428,13 +427,8 @@ class _CommentScreenState extends State<CommentScreen> {
   Comment _mapToComment(dynamic reply) {
     print('Mapping reply: $reply'); // Debug log
     if (reply is! Map<String, dynamic>) {
-      return Comment(
-        id: null,
-        text: null,
-        user: null,
-        createdAt: null,
+      return const Comment(
         likesCount: 0,
-        replys: null,
       );
     }
     final profileController = Get.find<ProfileController>();
@@ -546,7 +540,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                                   comment.id.toString(),
                                               orElse: () => comment,
                                             )
-                                            ?.likesCount ??
+                                            .likesCount ??
                                         0) >
                                     0
                                 ? Icons.favorite
@@ -559,7 +553,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                                   comment.id.toString(),
                                               orElse: () => comment,
                                             )
-                                            ?.likesCount ??
+                                            .likesCount ??
                                         0) >
                                     0
                                 ? Colors.red
@@ -579,7 +573,7 @@ class _CommentScreenState extends State<CommentScreen> {
                                             comment.id.toString(),
                                         orElse: () => comment,
                                       )
-                                      ?.likesCount ??
+                                      .likesCount ??
                                   0,
                             ),
                             style: const TextStyle(
@@ -627,7 +621,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildReply(Comment reply, String parentCommentId,
-      String parentUserName, String parentContent) {
+      String parentUserName, String parentContent,) {
     return Container(
       margin: const EdgeInsets.only(left: 40, bottom: 8),
       child: Row(
@@ -828,7 +822,7 @@ class _CommentScreenState extends State<CommentScreen> {
               ClipOval(
                 child: controller.userProfile != null
                     ? Image.network(
-                        controller.userProfile!,
+                        controller.userProfile,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,

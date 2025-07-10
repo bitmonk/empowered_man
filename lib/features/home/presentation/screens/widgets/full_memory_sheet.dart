@@ -124,7 +124,9 @@ class FullMemoryBottomSheet extends StatelessWidget {
                   const VerticalSpacing(16),
                   AppOutlinedButton(
                     text: 'Share',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),

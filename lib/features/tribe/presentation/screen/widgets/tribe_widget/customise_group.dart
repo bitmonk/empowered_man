@@ -23,7 +23,7 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
   List<String> members = [];
 
   Future<void> _pickImageFromGallery(
-      TribeGroupController tribeController) async {
+      TribeGroupController tribeController,) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(

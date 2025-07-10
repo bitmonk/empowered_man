@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:app_links/app_links.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
@@ -8,8 +9,6 @@ import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
-import 'package:image_picker/image_picker.dart';
 
 class FeedPageController extends GetxController {
   FeedPageController({required this.remoteSource});
@@ -516,7 +515,7 @@ class FeedPageController extends GetxController {
       ..writeln('📱 Check out this post from $userName on EmpoweredMan!')
       ..writeln()
       ..writeln(
-          '"${content.length > 200 ? '${content.substring(0, 200)}...' : content}"')
+          '"${content.length > 200 ? '${content.substring(0, 200)}...' : content}"',)
       ..writeln()
       ..writeln('👍 $likesCount likes • 💬 $commentsCount comments')
       ..writeln()

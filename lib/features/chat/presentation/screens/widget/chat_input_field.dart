@@ -293,7 +293,7 @@ class _ChatInputFieldState extends State<ChatInputField> {
             if (replyMsg == null) return const SizedBox.shrink();
             final preview = (replyMsg.body is ChatTextMessageBody)
                 ? (replyMsg.body as ChatTextMessageBody).content
-                : "[${replyMsg.body.runtimeType}]";
+                : '[${replyMsg.body.runtimeType}]';
             return Container(
               margin: const EdgeInsets.only(bottom: 8),
               padding: const EdgeInsets.all(8),

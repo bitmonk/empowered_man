@@ -434,6 +434,9 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
         if (pickedDate != null) {
           dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
           addTaskRequestModel.dueDate = dateController.text;
+        } else {
+          dateController.text = DateFormat('yyyy-MM-dd').format(DateTime.now());
+          addTaskRequestModel.dueDate = dateController.text;
         }
       },
       suffixIcon: InkWell(
@@ -441,7 +444,12 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
           var pickedDate = await _handleDatePicker();
 
           if (pickedDate != null) {
-            DateFormat('yyyy-MM-dd').format(pickedDate);
+            dateController.text = DateFormat('yyyy-MM-dd').format(pickedDate);
+            addTaskRequestModel.dueDate = dateController.text;
+          } else {
+            dateController.text =
+                DateFormat('yyyy-MM-dd').format(DateTime.now());
+            addTaskRequestModel.dueDate = dateController.text;
           }
         },
         child: Padding(

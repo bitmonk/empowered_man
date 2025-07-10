@@ -1,11 +1,10 @@
 import 'dart:io';
+
 import 'package:empowered/core/extension/extensions.dart';
 // import 'package:empowered/features/tribe/data/model/group_post_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CreatePostScreen extends StatelessWidget {
@@ -90,7 +89,7 @@ class PostBody extends StatelessWidget {
               ClipOval(
                 child: controller.userProfile != null
                     ? Image.network(
-                        controller.userProfile!,
+                        controller.userProfile,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -113,7 +112,7 @@ class PostBody extends StatelessWidget {
                 children: [
                   Text(
                     controller.userFullName,
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.bold,
                     ),
@@ -171,7 +170,7 @@ class PostBody extends StatelessWidget {
                         ),
                         child: Center(
                           child: Text(
-                            '+ ${additionalCount}',
+                            '+ $additionalCount',
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 24,
@@ -202,7 +201,7 @@ class PostBody extends StatelessWidget {
   }
 
   Widget _buildMediaPreview(BuildContext context, String url, String fileType,
-      double width, double height) {
+      double width, double height,) {
     switch (fileType) {
       case 'pdf':
         return Container(
@@ -212,10 +211,10 @@ class PostBody extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Icons.picture_as_pdf, color: Colors.white, size: 50),
+              const Icon(Icons.picture_as_pdf, color: Colors.white, size: 50),
               Text(
                 url.split('/').last,
-                style: TextStyle(color: Colors.white, fontSize: 12),
+                style: const TextStyle(color: Colors.white, fontSize: 12),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -348,16 +347,12 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
               switch (item.label) {
                 case 'Photo/video':
                   _pickVideo(context);
-                  break;
                 case 'Attachment':
                   _pickPDF(context);
-                  break;
                 case 'Camera':
                   _takePicture(context);
-                  break;
                 case 'GIF':
                   _pickGIF(context);
-                  break;
               }
             },
           );
