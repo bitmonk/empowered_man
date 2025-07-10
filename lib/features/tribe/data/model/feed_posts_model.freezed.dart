@@ -20,11 +20,11 @@ FeedPostsModel _$FeedPostsModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$FeedPostsModel {
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   bool? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   String? get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   Data? get data => throw _privateConstructorUsedError;
 
   /// Serializes this FeedPostsModel to a JSON map.
@@ -44,9 +44,9 @@ abstract class $FeedPostsModelCopyWith<$Res> {
       _$FeedPostsModelCopyWithImpl<$Res, FeedPostsModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool? status,
-      @JsonKey(name: "message") String? message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   $DataCopyWith<$Res>? get data;
 }
@@ -110,9 +110,9 @@ abstract class _$$FeedPostsModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool? status,
-      @JsonKey(name: "message") String? message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   @override
   $DataCopyWith<$Res>? get data;
@@ -156,21 +156,21 @@ class __$$FeedPostsModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$FeedPostsModelImpl implements _FeedPostsModel {
   const _$FeedPostsModelImpl(
-      {@JsonKey(name: "status") this.status,
-      @JsonKey(name: "message") this.message,
-      @JsonKey(name: "data") this.data});
+      {@JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'message') this.message,
+      @JsonKey(name: 'data') this.data});
 
   factory _$FeedPostsModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$FeedPostsModelImplFromJson(json);
 
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   final bool? status;
   @override
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   final String? message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   final Data? data;
 
   @override
@@ -211,21 +211,21 @@ class _$FeedPostsModelImpl implements _FeedPostsModel {
 
 abstract class _FeedPostsModel implements FeedPostsModel {
   const factory _FeedPostsModel(
-      {@JsonKey(name: "status") final bool? status,
-      @JsonKey(name: "message") final String? message,
-      @JsonKey(name: "data") final Data? data}) = _$FeedPostsModelImpl;
+      {@JsonKey(name: 'status') final bool? status,
+      @JsonKey(name: 'message') final String? message,
+      @JsonKey(name: 'data') final Data? data}) = _$FeedPostsModelImpl;
 
   factory _FeedPostsModel.fromJson(Map<String, dynamic> json) =
       _$FeedPostsModelImpl.fromJson;
 
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   bool? get status;
   @override
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   String? get message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   Data? get data;
 
   /// Create a copy of FeedPostsModel
@@ -242,9 +242,9 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Data {
-  @JsonKey(name: "posts")
+  @JsonKey(name: 'posts')
   List<Post>? get posts => throw _privateConstructorUsedError;
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   Meta? get meta => throw _privateConstructorUsedError;
 
   /// Serializes this Data to a JSON map.
@@ -262,8 +262,8 @@ abstract class $DataCopyWith<$Res> {
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
   $Res call(
-      {@JsonKey(name: "posts") List<Post>? posts,
-      @JsonKey(name: "meta") Meta? meta});
+      {@JsonKey(name: 'posts') List<Post>? posts,
+      @JsonKey(name: 'meta') Meta? meta});
 
   $MetaCopyWith<$Res>? get meta;
 }
@@ -321,8 +321,8 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "posts") List<Post>? posts,
-      @JsonKey(name: "meta") Meta? meta});
+      {@JsonKey(name: 'posts') List<Post>? posts,
+      @JsonKey(name: 'meta') Meta? meta});
 
   @override
   $MetaCopyWith<$Res>? get meta;
@@ -360,8 +360,8 @@ class __$$DataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DataImpl implements _Data {
   const _$DataImpl(
-      {@JsonKey(name: "posts") final List<Post>? posts,
-      @JsonKey(name: "meta") this.meta})
+      {@JsonKey(name: 'posts') final List<Post>? posts,
+      @JsonKey(name: 'meta') this.meta})
       : _posts = posts;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
@@ -369,7 +369,7 @@ class _$DataImpl implements _Data {
 
   final List<Post>? _posts;
   @override
-  @JsonKey(name: "posts")
+  @JsonKey(name: 'posts')
   List<Post>? get posts {
     final value = _posts;
     if (value == null) return null;
@@ -379,7 +379,7 @@ class _$DataImpl implements _Data {
   }
 
   @override
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   final Meta? meta;
 
   @override
@@ -419,16 +419,16 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: "posts") final List<Post>? posts,
-      @JsonKey(name: "meta") final Meta? meta}) = _$DataImpl;
+      {@JsonKey(name: 'posts') final List<Post>? posts,
+      @JsonKey(name: 'meta') final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
-  @JsonKey(name: "posts")
+  @JsonKey(name: 'posts')
   List<Post>? get posts;
   @override
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   Meta? get meta;
 
   /// Create a copy of Data
@@ -445,13 +445,13 @@ Meta _$MetaFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Meta {
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   int? get currentPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   int? get total => throw _privateConstructorUsedError;
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   int? get perPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   int? get lastPage => throw _privateConstructorUsedError;
 
   /// Serializes this Meta to a JSON map.
@@ -469,10 +469,10 @@ abstract class $MetaCopyWith<$Res> {
       _$MetaCopyWithImpl<$Res, Meta>;
   @useResult
   $Res call(
-      {@JsonKey(name: "current_page") int? currentPage,
-      @JsonKey(name: "total") int? total,
-      @JsonKey(name: "per_page") int? perPage,
-      @JsonKey(name: "last_page") int? lastPage});
+      {@JsonKey(name: 'current_page') int? currentPage,
+      @JsonKey(name: 'total') int? total,
+      @JsonKey(name: 'per_page') int? perPage,
+      @JsonKey(name: 'last_page') int? lastPage});
 }
 
 /// @nodoc
@@ -524,10 +524,10 @@ abstract class _$$MetaImplCopyWith<$Res> implements $MetaCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "current_page") int? currentPage,
-      @JsonKey(name: "total") int? total,
-      @JsonKey(name: "per_page") int? perPage,
-      @JsonKey(name: "last_page") int? lastPage});
+      {@JsonKey(name: 'current_page') int? currentPage,
+      @JsonKey(name: 'total') int? total,
+      @JsonKey(name: 'per_page') int? perPage,
+      @JsonKey(name: 'last_page') int? lastPage});
 }
 
 /// @nodoc
@@ -572,25 +572,25 @@ class __$$MetaImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MetaImpl implements _Meta {
   const _$MetaImpl(
-      {@JsonKey(name: "current_page") this.currentPage,
-      @JsonKey(name: "total") this.total,
-      @JsonKey(name: "per_page") this.perPage,
-      @JsonKey(name: "last_page") this.lastPage});
+      {@JsonKey(name: 'current_page') this.currentPage,
+      @JsonKey(name: 'total') this.total,
+      @JsonKey(name: 'per_page') this.perPage,
+      @JsonKey(name: 'last_page') this.lastPage});
 
   factory _$MetaImpl.fromJson(Map<String, dynamic> json) =>
       _$$MetaImplFromJson(json);
 
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   final int? currentPage;
   @override
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   final int? total;
   @override
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   final int? perPage;
   @override
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   final int? lastPage;
 
   @override
@@ -634,24 +634,24 @@ class _$MetaImpl implements _Meta {
 
 abstract class _Meta implements Meta {
   const factory _Meta(
-      {@JsonKey(name: "current_page") final int? currentPage,
-      @JsonKey(name: "total") final int? total,
-      @JsonKey(name: "per_page") final int? perPage,
-      @JsonKey(name: "last_page") final int? lastPage}) = _$MetaImpl;
+      {@JsonKey(name: 'current_page') final int? currentPage,
+      @JsonKey(name: 'total') final int? total,
+      @JsonKey(name: 'per_page') final int? perPage,
+      @JsonKey(name: 'last_page') final int? lastPage}) = _$MetaImpl;
 
   factory _Meta.fromJson(Map<String, dynamic> json) = _$MetaImpl.fromJson;
 
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   int? get currentPage;
   @override
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   int? get total;
   @override
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   int? get perPage;
   @override
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   int? get lastPage;
 
   /// Create a copy of Meta
@@ -668,33 +668,33 @@ Post _$PostFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Post {
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: "text")
+  @JsonKey(name: 'text')
   String? get text => throw _privateConstructorUsedError;
-  @JsonKey(name: "group_id")
+  @JsonKey(name: 'group_id')
   int? get groupId => throw _privateConstructorUsedError;
-  @JsonKey(name: "user_id")
+  @JsonKey(name: 'user_id')
   int? get userId => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_by")
+  @JsonKey(name: 'created_by')
   CreatedBy? get createdBy => throw _privateConstructorUsedError;
-  @JsonKey(name: "media")
+  @JsonKey(name: 'media')
   Media? get media => throw _privateConstructorUsedError;
-  @JsonKey(name: "liked_by_current_user")
+  @JsonKey(name: 'liked_by_current_user')
   bool? get likedByCurrentUser => throw _privateConstructorUsedError;
-  @JsonKey(name: "likes_count")
+  @JsonKey(name: 'likes_count')
   int? get likesCount => throw _privateConstructorUsedError;
-  @JsonKey(name: "comments_count")
+  @JsonKey(name: 'comments_count')
   int? get commentsCount => throw _privateConstructorUsedError;
-  @JsonKey(name: "is_bookmarked")
+  @JsonKey(name: 'is_bookmarked')
   bool? get isBookmarked => throw _privateConstructorUsedError;
-  @JsonKey(name: "is_hidden")
+  @JsonKey(name: 'is_hidden')
   bool? get isHidden => throw _privateConstructorUsedError;
-  @JsonKey(name: "tagged_users")
+  @JsonKey(name: 'tagged_users')
   List<dynamic>? get taggedUsers => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
   /// Serializes this Post to a JSON map.
@@ -712,20 +712,20 @@ abstract class $PostCopyWith<$Res> {
       _$PostCopyWithImpl<$Res, Post>;
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "text") String? text,
-      @JsonKey(name: "group_id") int? groupId,
-      @JsonKey(name: "user_id") int? userId,
-      @JsonKey(name: "created_by") CreatedBy? createdBy,
-      @JsonKey(name: "media") Media? media,
-      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
-      @JsonKey(name: "likes_count") int? likesCount,
-      @JsonKey(name: "comments_count") int? commentsCount,
-      @JsonKey(name: "is_bookmarked") bool? isBookmarked,
-      @JsonKey(name: "is_hidden") bool? isHidden,
-      @JsonKey(name: "tagged_users") List<dynamic>? taggedUsers,
-      @JsonKey(name: "created_at") DateTime? createdAt,
-      @JsonKey(name: "updated_at") DateTime? updatedAt});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'text') String? text,
+      @JsonKey(name: 'group_id') int? groupId,
+      @JsonKey(name: 'user_id') int? userId,
+      @JsonKey(name: 'created_by') CreatedBy? createdBy,
+      @JsonKey(name: 'media') Media? media,
+      @JsonKey(name: 'liked_by_current_user') bool? likedByCurrentUser,
+      @JsonKey(name: 'likes_count') int? likesCount,
+      @JsonKey(name: 'comments_count') int? commentsCount,
+      @JsonKey(name: 'is_bookmarked') bool? isBookmarked,
+      @JsonKey(name: 'is_hidden') bool? isHidden,
+      @JsonKey(name: 'tagged_users') List<dynamic>? taggedUsers,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
   $CreatedByCopyWith<$Res>? get createdBy;
   $MediaCopyWith<$Res>? get media;
@@ -858,20 +858,20 @@ abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "text") String? text,
-      @JsonKey(name: "group_id") int? groupId,
-      @JsonKey(name: "user_id") int? userId,
-      @JsonKey(name: "created_by") CreatedBy? createdBy,
-      @JsonKey(name: "media") Media? media,
-      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
-      @JsonKey(name: "likes_count") int? likesCount,
-      @JsonKey(name: "comments_count") int? commentsCount,
-      @JsonKey(name: "is_bookmarked") bool? isBookmarked,
-      @JsonKey(name: "is_hidden") bool? isHidden,
-      @JsonKey(name: "tagged_users") List<dynamic>? taggedUsers,
-      @JsonKey(name: "created_at") DateTime? createdAt,
-      @JsonKey(name: "updated_at") DateTime? updatedAt});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'text') String? text,
+      @JsonKey(name: 'group_id') int? groupId,
+      @JsonKey(name: 'user_id') int? userId,
+      @JsonKey(name: 'created_by') CreatedBy? createdBy,
+      @JsonKey(name: 'media') Media? media,
+      @JsonKey(name: 'liked_by_current_user') bool? likedByCurrentUser,
+      @JsonKey(name: 'likes_count') int? likesCount,
+      @JsonKey(name: 'comments_count') int? commentsCount,
+      @JsonKey(name: 'is_bookmarked') bool? isBookmarked,
+      @JsonKey(name: 'is_hidden') bool? isHidden,
+      @JsonKey(name: 'tagged_users') List<dynamic>? taggedUsers,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
 
   @override
   $CreatedByCopyWith<$Res>? get createdBy;
@@ -971,61 +971,61 @@ class __$$PostImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$PostImpl implements _Post {
   const _$PostImpl(
-      {@JsonKey(name: "id") this.id,
-      @JsonKey(name: "text") this.text,
-      @JsonKey(name: "group_id") this.groupId,
-      @JsonKey(name: "user_id") this.userId,
-      @JsonKey(name: "created_by") this.createdBy,
-      @JsonKey(name: "media") this.media,
-      @JsonKey(name: "liked_by_current_user") this.likedByCurrentUser,
-      @JsonKey(name: "likes_count") this.likesCount,
-      @JsonKey(name: "comments_count") this.commentsCount,
-      @JsonKey(name: "is_bookmarked") this.isBookmarked,
-      @JsonKey(name: "is_hidden") this.isHidden,
-      @JsonKey(name: "tagged_users") final List<dynamic>? taggedUsers,
-      @JsonKey(name: "created_at") this.createdAt,
-      @JsonKey(name: "updated_at") this.updatedAt})
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'text') this.text,
+      @JsonKey(name: 'group_id') this.groupId,
+      @JsonKey(name: 'user_id') this.userId,
+      @JsonKey(name: 'created_by') this.createdBy,
+      @JsonKey(name: 'media') this.media,
+      @JsonKey(name: 'liked_by_current_user') this.likedByCurrentUser,
+      @JsonKey(name: 'likes_count') this.likesCount,
+      @JsonKey(name: 'comments_count') this.commentsCount,
+      @JsonKey(name: 'is_bookmarked') this.isBookmarked,
+      @JsonKey(name: 'is_hidden') this.isHidden,
+      @JsonKey(name: 'tagged_users') final List<dynamic>? taggedUsers,
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt})
       : _taggedUsers = taggedUsers;
 
   factory _$PostImpl.fromJson(Map<String, dynamic> json) =>
       _$$PostImplFromJson(json);
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   final int? id;
   @override
-  @JsonKey(name: "text")
+  @JsonKey(name: 'text')
   final String? text;
   @override
-  @JsonKey(name: "group_id")
+  @JsonKey(name: 'group_id')
   final int? groupId;
   @override
-  @JsonKey(name: "user_id")
+  @JsonKey(name: 'user_id')
   final int? userId;
   @override
-  @JsonKey(name: "created_by")
+  @JsonKey(name: 'created_by')
   final CreatedBy? createdBy;
   @override
-  @JsonKey(name: "media")
+  @JsonKey(name: 'media')
   final Media? media;
   @override
-  @JsonKey(name: "liked_by_current_user")
+  @JsonKey(name: 'liked_by_current_user')
   final bool? likedByCurrentUser;
   @override
-  @JsonKey(name: "likes_count")
+  @JsonKey(name: 'likes_count')
   final int? likesCount;
   @override
-  @JsonKey(name: "comments_count")
+  @JsonKey(name: 'comments_count')
   final int? commentsCount;
   @override
-  @JsonKey(name: "is_bookmarked")
+  @JsonKey(name: 'is_bookmarked')
   final bool? isBookmarked;
   @override
-  @JsonKey(name: "is_hidden")
+  @JsonKey(name: 'is_hidden')
   final bool? isHidden;
   final List<dynamic>? _taggedUsers;
   @override
-  @JsonKey(name: "tagged_users")
+  @JsonKey(name: 'tagged_users')
   List<dynamic>? get taggedUsers {
     final value = _taggedUsers;
     if (value == null) return null;
@@ -1035,10 +1035,10 @@ class _$PostImpl implements _Post {
   }
 
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
 
   @override
@@ -1113,64 +1113,64 @@ class _$PostImpl implements _Post {
 
 abstract class _Post implements Post {
   const factory _Post(
-      {@JsonKey(name: "id") final int? id,
-      @JsonKey(name: "text") final String? text,
-      @JsonKey(name: "group_id") final int? groupId,
-      @JsonKey(name: "user_id") final int? userId,
-      @JsonKey(name: "created_by") final CreatedBy? createdBy,
-      @JsonKey(name: "media") final Media? media,
-      @JsonKey(name: "liked_by_current_user") final bool? likedByCurrentUser,
-      @JsonKey(name: "likes_count") final int? likesCount,
-      @JsonKey(name: "comments_count") final int? commentsCount,
-      @JsonKey(name: "is_bookmarked") final bool? isBookmarked,
-      @JsonKey(name: "is_hidden") final bool? isHidden,
-      @JsonKey(name: "tagged_users") final List<dynamic>? taggedUsers,
-      @JsonKey(name: "created_at") final DateTime? createdAt,
-      @JsonKey(name: "updated_at") final DateTime? updatedAt}) = _$PostImpl;
+      {@JsonKey(name: 'id') final int? id,
+      @JsonKey(name: 'text') final String? text,
+      @JsonKey(name: 'group_id') final int? groupId,
+      @JsonKey(name: 'user_id') final int? userId,
+      @JsonKey(name: 'created_by') final CreatedBy? createdBy,
+      @JsonKey(name: 'media') final Media? media,
+      @JsonKey(name: 'liked_by_current_user') final bool? likedByCurrentUser,
+      @JsonKey(name: 'likes_count') final int? likesCount,
+      @JsonKey(name: 'comments_count') final int? commentsCount,
+      @JsonKey(name: 'is_bookmarked') final bool? isBookmarked,
+      @JsonKey(name: 'is_hidden') final bool? isHidden,
+      @JsonKey(name: 'tagged_users') final List<dynamic>? taggedUsers,
+      @JsonKey(name: 'created_at') final DateTime? createdAt,
+      @JsonKey(name: 'updated_at') final DateTime? updatedAt}) = _$PostImpl;
 
   factory _Post.fromJson(Map<String, dynamic> json) = _$PostImpl.fromJson;
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id;
   @override
-  @JsonKey(name: "text")
+  @JsonKey(name: 'text')
   String? get text;
   @override
-  @JsonKey(name: "group_id")
+  @JsonKey(name: 'group_id')
   int? get groupId;
   @override
-  @JsonKey(name: "user_id")
+  @JsonKey(name: 'user_id')
   int? get userId;
   @override
-  @JsonKey(name: "created_by")
+  @JsonKey(name: 'created_by')
   CreatedBy? get createdBy;
   @override
-  @JsonKey(name: "media")
+  @JsonKey(name: 'media')
   Media? get media;
   @override
-  @JsonKey(name: "liked_by_current_user")
+  @JsonKey(name: 'liked_by_current_user')
   bool? get likedByCurrentUser;
   @override
-  @JsonKey(name: "likes_count")
+  @JsonKey(name: 'likes_count')
   int? get likesCount;
   @override
-  @JsonKey(name: "comments_count")
+  @JsonKey(name: 'comments_count')
   int? get commentsCount;
   @override
-  @JsonKey(name: "is_bookmarked")
+  @JsonKey(name: 'is_bookmarked')
   bool? get isBookmarked;
   @override
-  @JsonKey(name: "is_hidden")
+  @JsonKey(name: 'is_hidden')
   bool? get isHidden;
   @override
-  @JsonKey(name: "tagged_users")
+  @JsonKey(name: 'tagged_users')
   List<dynamic>? get taggedUsers;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
 
   /// Create a copy of Post
@@ -1187,29 +1187,29 @@ CreatedBy _$CreatedByFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$CreatedBy {
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: "full_name")
+  @JsonKey(name: 'full_name')
   String? get fullName => throw _privateConstructorUsedError;
-  @JsonKey(name: "slug")
+  @JsonKey(name: 'slug')
   String? get slug => throw _privateConstructorUsedError;
-  @JsonKey(name: "email")
+  @JsonKey(name: 'email')
   String? get email => throw _privateConstructorUsedError;
-  @JsonKey(name: "phone_number")
+  @JsonKey(name: 'phone_number')
   String? get phoneNumber => throw _privateConstructorUsedError;
-  @JsonKey(name: "occupation")
+  @JsonKey(name: 'occupation')
   String? get occupation => throw _privateConstructorUsedError;
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   String? get image => throw _privateConstructorUsedError;
-  @JsonKey(name: "is_coach")
+  @JsonKey(name: 'is_coach')
   bool? get isCoach => throw _privateConstructorUsedError;
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: "agora_chat_token")
+  @JsonKey(name: 'agora_chat_token')
   String? get agoraChatToken => throw _privateConstructorUsedError;
-  @JsonKey(name: "agora_user_token")
+  @JsonKey(name: 'agora_user_token')
   String? get agoraUserToken => throw _privateConstructorUsedError;
 
   /// Serializes this CreatedBy to a JSON map.
@@ -1228,18 +1228,18 @@ abstract class $CreatedByCopyWith<$Res> {
       _$CreatedByCopyWithImpl<$Res, CreatedBy>;
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "full_name") String? fullName,
-      @JsonKey(name: "slug") String? slug,
-      @JsonKey(name: "email") String? email,
-      @JsonKey(name: "phone_number") String? phoneNumber,
-      @JsonKey(name: "occupation") String? occupation,
-      @JsonKey(name: "image") String? image,
-      @JsonKey(name: "is_coach") bool? isCoach,
-      @JsonKey(name: "created_at") DateTime? createdAt,
-      @JsonKey(name: "updated_at") DateTime? updatedAt,
-      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
-      @JsonKey(name: "agora_user_token") String? agoraUserToken});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'slug') String? slug,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
+      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
 }
 
 /// @nodoc
@@ -1332,18 +1332,18 @@ abstract class _$$CreatedByImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "id") int? id,
-      @JsonKey(name: "full_name") String? fullName,
-      @JsonKey(name: "slug") String? slug,
-      @JsonKey(name: "email") String? email,
-      @JsonKey(name: "phone_number") String? phoneNumber,
-      @JsonKey(name: "occupation") String? occupation,
-      @JsonKey(name: "image") String? image,
-      @JsonKey(name: "is_coach") bool? isCoach,
-      @JsonKey(name: "created_at") DateTime? createdAt,
-      @JsonKey(name: "updated_at") DateTime? updatedAt,
-      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
-      @JsonKey(name: "agora_user_token") String? agoraUserToken});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'slug') String? slug,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt,
+      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
+      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
 }
 
 /// @nodoc
@@ -1429,57 +1429,57 @@ class __$$CreatedByImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$CreatedByImpl implements _CreatedBy {
   const _$CreatedByImpl(
-      {@JsonKey(name: "id") this.id,
-      @JsonKey(name: "full_name") this.fullName,
-      @JsonKey(name: "slug") this.slug,
-      @JsonKey(name: "email") this.email,
-      @JsonKey(name: "phone_number") this.phoneNumber,
-      @JsonKey(name: "occupation") this.occupation,
-      @JsonKey(name: "image") this.image,
-      @JsonKey(name: "is_coach") this.isCoach,
-      @JsonKey(name: "created_at") this.createdAt,
-      @JsonKey(name: "updated_at") this.updatedAt,
-      @JsonKey(name: "agora_chat_token") this.agoraChatToken,
-      @JsonKey(name: "agora_user_token") this.agoraUserToken});
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'full_name') this.fullName,
+      @JsonKey(name: 'slug') this.slug,
+      @JsonKey(name: 'email') this.email,
+      @JsonKey(name: 'phone_number') this.phoneNumber,
+      @JsonKey(name: 'occupation') this.occupation,
+      @JsonKey(name: 'image') this.image,
+      @JsonKey(name: 'is_coach') this.isCoach,
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt,
+      @JsonKey(name: 'agora_chat_token') this.agoraChatToken,
+      @JsonKey(name: 'agora_user_token') this.agoraUserToken});
 
   factory _$CreatedByImpl.fromJson(Map<String, dynamic> json) =>
       _$$CreatedByImplFromJson(json);
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   final int? id;
   @override
-  @JsonKey(name: "full_name")
+  @JsonKey(name: 'full_name')
   final String? fullName;
   @override
-  @JsonKey(name: "slug")
+  @JsonKey(name: 'slug')
   final String? slug;
   @override
-  @JsonKey(name: "email")
+  @JsonKey(name: 'email')
   final String? email;
   @override
-  @JsonKey(name: "phone_number")
+  @JsonKey(name: 'phone_number')
   final String? phoneNumber;
   @override
-  @JsonKey(name: "occupation")
+  @JsonKey(name: 'occupation')
   final String? occupation;
   @override
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   final String? image;
   @override
-  @JsonKey(name: "is_coach")
+  @JsonKey(name: 'is_coach')
   final bool? isCoach;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   final DateTime? createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   final DateTime? updatedAt;
   @override
-  @JsonKey(name: "agora_chat_token")
+  @JsonKey(name: 'agora_chat_token')
   final String? agoraChatToken;
   @override
-  @JsonKey(name: "agora_user_token")
+  @JsonKey(name: 'agora_user_token')
   final String? agoraUserToken;
 
   @override
@@ -1548,58 +1548,58 @@ class _$CreatedByImpl implements _CreatedBy {
 
 abstract class _CreatedBy implements CreatedBy {
   const factory _CreatedBy(
-          {@JsonKey(name: "id") final int? id,
-          @JsonKey(name: "full_name") final String? fullName,
-          @JsonKey(name: "slug") final String? slug,
-          @JsonKey(name: "email") final String? email,
-          @JsonKey(name: "phone_number") final String? phoneNumber,
-          @JsonKey(name: "occupation") final String? occupation,
-          @JsonKey(name: "image") final String? image,
-          @JsonKey(name: "is_coach") final bool? isCoach,
-          @JsonKey(name: "created_at") final DateTime? createdAt,
-          @JsonKey(name: "updated_at") final DateTime? updatedAt,
-          @JsonKey(name: "agora_chat_token") final String? agoraChatToken,
-          @JsonKey(name: "agora_user_token") final String? agoraUserToken}) =
+          {@JsonKey(name: 'id') final int? id,
+          @JsonKey(name: 'full_name') final String? fullName,
+          @JsonKey(name: 'slug') final String? slug,
+          @JsonKey(name: 'email') final String? email,
+          @JsonKey(name: 'phone_number') final String? phoneNumber,
+          @JsonKey(name: 'occupation') final String? occupation,
+          @JsonKey(name: 'image') final String? image,
+          @JsonKey(name: 'is_coach') final bool? isCoach,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') final DateTime? updatedAt,
+          @JsonKey(name: 'agora_chat_token') final String? agoraChatToken,
+          @JsonKey(name: 'agora_user_token') final String? agoraUserToken}) =
       _$CreatedByImpl;
 
   factory _CreatedBy.fromJson(Map<String, dynamic> json) =
       _$CreatedByImpl.fromJson;
 
   @override
-  @JsonKey(name: "id")
+  @JsonKey(name: 'id')
   int? get id;
   @override
-  @JsonKey(name: "full_name")
+  @JsonKey(name: 'full_name')
   String? get fullName;
   @override
-  @JsonKey(name: "slug")
+  @JsonKey(name: 'slug')
   String? get slug;
   @override
-  @JsonKey(name: "email")
+  @JsonKey(name: 'email')
   String? get email;
   @override
-  @JsonKey(name: "phone_number")
+  @JsonKey(name: 'phone_number')
   String? get phoneNumber;
   @override
-  @JsonKey(name: "occupation")
+  @JsonKey(name: 'occupation')
   String? get occupation;
   @override
-  @JsonKey(name: "image")
+  @JsonKey(name: 'image')
   String? get image;
   @override
-  @JsonKey(name: "is_coach")
+  @JsonKey(name: 'is_coach')
   bool? get isCoach;
   @override
-  @JsonKey(name: "created_at")
+  @JsonKey(name: 'created_at')
   DateTime? get createdAt;
   @override
-  @JsonKey(name: "updated_at")
+  @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
   @override
-  @JsonKey(name: "agora_chat_token")
+  @JsonKey(name: 'agora_chat_token')
   String? get agoraChatToken;
   @override
-  @JsonKey(name: "agora_user_token")
+  @JsonKey(name: 'agora_user_token')
   String? get agoraUserToken;
 
   /// Create a copy of CreatedBy
@@ -1616,11 +1616,11 @@ Media _$MediaFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Media {
-  @JsonKey(name: "images")
+  @JsonKey(name: 'images')
   List<String>? get images => throw _privateConstructorUsedError;
-  @JsonKey(name: "videos")
+  @JsonKey(name: 'videos')
   List<dynamic>? get videos => throw _privateConstructorUsedError;
-  @JsonKey(name: "documents")
+  @JsonKey(name: 'documents')
   List<dynamic>? get documents => throw _privateConstructorUsedError;
 
   /// Serializes this Media to a JSON map.
@@ -1638,9 +1638,9 @@ abstract class $MediaCopyWith<$Res> {
       _$MediaCopyWithImpl<$Res, Media>;
   @useResult
   $Res call(
-      {@JsonKey(name: "images") List<String>? images,
-      @JsonKey(name: "videos") List<dynamic>? videos,
-      @JsonKey(name: "documents") List<dynamic>? documents});
+      {@JsonKey(name: 'images') List<String>? images,
+      @JsonKey(name: 'videos') List<dynamic>? videos,
+      @JsonKey(name: 'documents') List<dynamic>? documents});
 }
 
 /// @nodoc
@@ -1687,9 +1687,9 @@ abstract class _$$MediaImplCopyWith<$Res> implements $MediaCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "images") List<String>? images,
-      @JsonKey(name: "videos") List<dynamic>? videos,
-      @JsonKey(name: "documents") List<dynamic>? documents});
+      {@JsonKey(name: 'images') List<String>? images,
+      @JsonKey(name: 'videos') List<dynamic>? videos,
+      @JsonKey(name: 'documents') List<dynamic>? documents});
 }
 
 /// @nodoc
@@ -1730,9 +1730,9 @@ class __$$MediaImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MediaImpl implements _Media {
   const _$MediaImpl(
-      {@JsonKey(name: "images") final List<String>? images,
-      @JsonKey(name: "videos") final List<dynamic>? videos,
-      @JsonKey(name: "documents") final List<dynamic>? documents})
+      {@JsonKey(name: 'images') final List<String>? images,
+      @JsonKey(name: 'videos') final List<dynamic>? videos,
+      @JsonKey(name: 'documents') final List<dynamic>? documents})
       : _images = images,
         _videos = videos,
         _documents = documents;
@@ -1742,7 +1742,7 @@ class _$MediaImpl implements _Media {
 
   final List<String>? _images;
   @override
-  @JsonKey(name: "images")
+  @JsonKey(name: 'images')
   List<String>? get images {
     final value = _images;
     if (value == null) return null;
@@ -1753,7 +1753,7 @@ class _$MediaImpl implements _Media {
 
   final List<dynamic>? _videos;
   @override
-  @JsonKey(name: "videos")
+  @JsonKey(name: 'videos')
   List<dynamic>? get videos {
     final value = _videos;
     if (value == null) return null;
@@ -1764,7 +1764,7 @@ class _$MediaImpl implements _Media {
 
   final List<dynamic>? _documents;
   @override
-  @JsonKey(name: "documents")
+  @JsonKey(name: 'documents')
   List<dynamic>? get documents {
     final value = _documents;
     if (value == null) return null;
@@ -1815,21 +1815,21 @@ class _$MediaImpl implements _Media {
 
 abstract class _Media implements Media {
   const factory _Media(
-          {@JsonKey(name: "images") final List<String>? images,
-          @JsonKey(name: "videos") final List<dynamic>? videos,
-          @JsonKey(name: "documents") final List<dynamic>? documents}) =
+          {@JsonKey(name: 'images') final List<String>? images,
+          @JsonKey(name: 'videos') final List<dynamic>? videos,
+          @JsonKey(name: 'documents') final List<dynamic>? documents}) =
       _$MediaImpl;
 
   factory _Media.fromJson(Map<String, dynamic> json) = _$MediaImpl.fromJson;
 
   @override
-  @JsonKey(name: "images")
+  @JsonKey(name: 'images')
   List<String>? get images;
   @override
-  @JsonKey(name: "videos")
+  @JsonKey(name: 'videos')
   List<dynamic>? get videos;
   @override
-  @JsonKey(name: "documents")
+  @JsonKey(name: 'documents')
   List<dynamic>? get documents;
 
   /// Create a copy of Media

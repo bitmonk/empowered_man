@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
 import 'package:empowered/features/assesments/presentation/controllers/user_assessment_controller.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assessment_pdf_service.dart';
 import 'package:empowered/features/assesments/presentation/widgets/average_percentage.dart';
 import 'package:empowered/features/assesments/presentation/widgets/navigation_buttons.dart';
 
@@ -18,6 +19,56 @@ class AssesmentResult extends StatelessWidget {
         ),
         (route) => route.settings.name == AppRoutes.assesmentsScreen,
       );
+    }
+
+    Future<void> downloadPdf() async {
+      try {
+        // Show loading dialog
+        Get.dialog(
+          const Center(
+            child: CircularProgressIndicator(),
+          ),
+          barrierDismissible: false,
+        );
+
+        // Generate PDF
+        await AssessmentPdfService.generateAndDownloadPdf(
+          userAssessmentModel: controller.userAssessmentModel.value,
+          totalObtainedScore:
+              controller.scoreQuestionModel.value.data?.totalObtainedScore ?? 0,
+          totalScore: controller.scoreQuestionModel.value.data?.totalScore ?? 0,
+          scoreOverview:
+              controller.scoreQuestionModel.value.data?.scoreOverview,
+          scoreOverviewList:
+              controller.scoreQuestionModel.value.data?.scoreOverviewList,
+        );
+
+        // Hide loading dialog
+        Get.back();
+
+        // Show success message
+        Get.snackbar(
+          'Success',
+          'PDF generated successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.primary500,
+          colorText: AppColors.textColor50,
+          duration: const Duration(seconds: 3),
+        );
+      } catch (e) {
+        // Hide loading dialog
+        Get.back();
+
+        // Show error message
+        Get.snackbar(
+          'Error',
+          'Failed to generate PDF: ${e.toString()}',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: AppColors.error500,
+          colorText: AppColors.textColor50,
+          duration: const Duration(seconds: 3),
+        );
+      }
     }
 
     return PopScope(
@@ -178,9 +229,10 @@ class AssesmentResult extends StatelessWidget {
                   child: NavigationButtons(
                     previousText: 'Download PDF',
                     nextText: 'Complete',
-                    onPrevious: () {
-                      // navigateToAssessmentScreen();
-                    },
+
+                    onPrevious: downloadPdf,
+                    // navigateToAssessmentScreen();
+
                     onNext: () async {
                       navigateToAssessmentScreen();
                     },

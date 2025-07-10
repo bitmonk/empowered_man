@@ -20,11 +20,11 @@ GroupMediaModel _$GroupMediaModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GroupMediaModel {
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   bool? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   String? get message => throw _privateConstructorUsedError;
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   Data? get data => throw _privateConstructorUsedError;
 
   /// Serializes this GroupMediaModel to a JSON map.
@@ -44,9 +44,9 @@ abstract class $GroupMediaModelCopyWith<$Res> {
       _$GroupMediaModelCopyWithImpl<$Res, GroupMediaModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool? status,
-      @JsonKey(name: "message") String? message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   $DataCopyWith<$Res>? get data;
 }
@@ -110,9 +110,9 @@ abstract class _$$GroupMediaModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "status") bool? status,
-      @JsonKey(name: "message") String? message,
-      @JsonKey(name: "data") Data? data});
+      {@JsonKey(name: 'status') bool? status,
+      @JsonKey(name: 'message') String? message,
+      @JsonKey(name: 'data') Data? data});
 
   @override
   $DataCopyWith<$Res>? get data;
@@ -156,21 +156,21 @@ class __$$GroupMediaModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupMediaModelImpl implements _GroupMediaModel {
   const _$GroupMediaModelImpl(
-      {@JsonKey(name: "status") this.status,
-      @JsonKey(name: "message") this.message,
-      @JsonKey(name: "data") this.data});
+      {@JsonKey(name: 'status') this.status,
+      @JsonKey(name: 'message') this.message,
+      @JsonKey(name: 'data') this.data});
 
   factory _$GroupMediaModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupMediaModelImplFromJson(json);
 
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   final bool? status;
   @override
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   final String? message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   final Data? data;
 
   @override
@@ -211,21 +211,21 @@ class _$GroupMediaModelImpl implements _GroupMediaModel {
 
 abstract class _GroupMediaModel implements GroupMediaModel {
   const factory _GroupMediaModel(
-      {@JsonKey(name: "status") final bool? status,
-      @JsonKey(name: "message") final String? message,
-      @JsonKey(name: "data") final Data? data}) = _$GroupMediaModelImpl;
+      {@JsonKey(name: 'status') final bool? status,
+      @JsonKey(name: 'message') final String? message,
+      @JsonKey(name: 'data') final Data? data}) = _$GroupMediaModelImpl;
 
   factory _GroupMediaModel.fromJson(Map<String, dynamic> json) =
       _$GroupMediaModelImpl.fromJson;
 
   @override
-  @JsonKey(name: "status")
+  @JsonKey(name: 'status')
   bool? get status;
   @override
-  @JsonKey(name: "message")
+  @JsonKey(name: 'message')
   String? get message;
   @override
-  @JsonKey(name: "data")
+  @JsonKey(name: 'data')
   Data? get data;
 
   /// Create a copy of GroupMediaModel
@@ -242,9 +242,9 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Data {
-  @JsonKey(name: "medias")
+  @JsonKey(name: 'medias')
   List<Media>? get medias => throw _privateConstructorUsedError;
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   Meta? get meta => throw _privateConstructorUsedError;
 
   /// Serializes this Data to a JSON map.
@@ -262,8 +262,8 @@ abstract class $DataCopyWith<$Res> {
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
   $Res call(
-      {@JsonKey(name: "medias") List<Media>? medias,
-      @JsonKey(name: "meta") Meta? meta});
+      {@JsonKey(name: 'medias') List<Media>? medias,
+      @JsonKey(name: 'meta') Meta? meta});
 
   $MetaCopyWith<$Res>? get meta;
 }
@@ -321,8 +321,8 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "medias") List<Media>? medias,
-      @JsonKey(name: "meta") Meta? meta});
+      {@JsonKey(name: 'medias') List<Media>? medias,
+      @JsonKey(name: 'meta') Meta? meta});
 
   @override
   $MetaCopyWith<$Res>? get meta;
@@ -360,8 +360,8 @@ class __$$DataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DataImpl implements _Data {
   const _$DataImpl(
-      {@JsonKey(name: "medias") final List<Media>? medias,
-      @JsonKey(name: "meta") this.meta})
+      {@JsonKey(name: 'medias') final List<Media>? medias,
+      @JsonKey(name: 'meta') this.meta})
       : _medias = medias;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
@@ -369,7 +369,7 @@ class _$DataImpl implements _Data {
 
   final List<Media>? _medias;
   @override
-  @JsonKey(name: "medias")
+  @JsonKey(name: 'medias')
   List<Media>? get medias {
     final value = _medias;
     if (value == null) return null;
@@ -379,7 +379,7 @@ class _$DataImpl implements _Data {
   }
 
   @override
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   final Meta? meta;
 
   @override
@@ -419,16 +419,16 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: "medias") final List<Media>? medias,
-      @JsonKey(name: "meta") final Meta? meta}) = _$DataImpl;
+      {@JsonKey(name: 'medias') final List<Media>? medias,
+      @JsonKey(name: 'meta') final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
-  @JsonKey(name: "medias")
+  @JsonKey(name: 'medias')
   List<Media>? get medias;
   @override
-  @JsonKey(name: "meta")
+  @JsonKey(name: 'meta')
   Meta? get meta;
 
   /// Create a copy of Data
@@ -445,9 +445,9 @@ Media _$MediaFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Media {
-  @JsonKey(name: "type")
+  @JsonKey(name: 'type')
   String? get type => throw _privateConstructorUsedError;
-  @JsonKey(name: "url")
+  @JsonKey(name: 'url')
   String? get url => throw _privateConstructorUsedError;
 
   /// Serializes this Media to a JSON map.
@@ -465,7 +465,7 @@ abstract class $MediaCopyWith<$Res> {
       _$MediaCopyWithImpl<$Res, Media>;
   @useResult
   $Res call(
-      {@JsonKey(name: "type") String? type, @JsonKey(name: "url") String? url});
+      {@JsonKey(name: 'type') String? type, @JsonKey(name: 'url') String? url});
 }
 
 /// @nodoc
@@ -507,7 +507,7 @@ abstract class _$$MediaImplCopyWith<$Res> implements $MediaCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "type") String? type, @JsonKey(name: "url") String? url});
+      {@JsonKey(name: 'type') String? type, @JsonKey(name: 'url') String? url});
 }
 
 /// @nodoc
@@ -543,16 +543,16 @@ class __$$MediaImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MediaImpl implements _Media {
   const _$MediaImpl(
-      {@JsonKey(name: "type") this.type, @JsonKey(name: "url") this.url});
+      {@JsonKey(name: 'type') this.type, @JsonKey(name: 'url') this.url});
 
   factory _$MediaImpl.fromJson(Map<String, dynamic> json) =>
       _$$MediaImplFromJson(json);
 
   @override
-  @JsonKey(name: "type")
+  @JsonKey(name: 'type')
   final String? type;
   @override
-  @JsonKey(name: "url")
+  @JsonKey(name: 'url')
   final String? url;
 
   @override
@@ -591,16 +591,16 @@ class _$MediaImpl implements _Media {
 
 abstract class _Media implements Media {
   const factory _Media(
-      {@JsonKey(name: "type") final String? type,
-      @JsonKey(name: "url") final String? url}) = _$MediaImpl;
+      {@JsonKey(name: 'type') final String? type,
+      @JsonKey(name: 'url') final String? url}) = _$MediaImpl;
 
   factory _Media.fromJson(Map<String, dynamic> json) = _$MediaImpl.fromJson;
 
   @override
-  @JsonKey(name: "type")
+  @JsonKey(name: 'type')
   String? get type;
   @override
-  @JsonKey(name: "url")
+  @JsonKey(name: 'url')
   String? get url;
 
   /// Create a copy of Media
@@ -617,13 +617,13 @@ Meta _$MetaFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Meta {
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   int? get currentPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   int? get perPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   int? get total => throw _privateConstructorUsedError;
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   int? get lastPage => throw _privateConstructorUsedError;
 
   /// Serializes this Meta to a JSON map.
@@ -641,10 +641,10 @@ abstract class $MetaCopyWith<$Res> {
       _$MetaCopyWithImpl<$Res, Meta>;
   @useResult
   $Res call(
-      {@JsonKey(name: "current_page") int? currentPage,
-      @JsonKey(name: "per_page") int? perPage,
-      @JsonKey(name: "total") int? total,
-      @JsonKey(name: "last_page") int? lastPage});
+      {@JsonKey(name: 'current_page') int? currentPage,
+      @JsonKey(name: 'per_page') int? perPage,
+      @JsonKey(name: 'total') int? total,
+      @JsonKey(name: 'last_page') int? lastPage});
 }
 
 /// @nodoc
@@ -696,10 +696,10 @@ abstract class _$$MetaImplCopyWith<$Res> implements $MetaCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: "current_page") int? currentPage,
-      @JsonKey(name: "per_page") int? perPage,
-      @JsonKey(name: "total") int? total,
-      @JsonKey(name: "last_page") int? lastPage});
+      {@JsonKey(name: 'current_page') int? currentPage,
+      @JsonKey(name: 'per_page') int? perPage,
+      @JsonKey(name: 'total') int? total,
+      @JsonKey(name: 'last_page') int? lastPage});
 }
 
 /// @nodoc
@@ -744,25 +744,25 @@ class __$$MetaImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MetaImpl implements _Meta {
   const _$MetaImpl(
-      {@JsonKey(name: "current_page") this.currentPage,
-      @JsonKey(name: "per_page") this.perPage,
-      @JsonKey(name: "total") this.total,
-      @JsonKey(name: "last_page") this.lastPage});
+      {@JsonKey(name: 'current_page') this.currentPage,
+      @JsonKey(name: 'per_page') this.perPage,
+      @JsonKey(name: 'total') this.total,
+      @JsonKey(name: 'last_page') this.lastPage});
 
   factory _$MetaImpl.fromJson(Map<String, dynamic> json) =>
       _$$MetaImplFromJson(json);
 
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   final int? currentPage;
   @override
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   final int? perPage;
   @override
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   final int? total;
   @override
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   final int? lastPage;
 
   @override
@@ -806,24 +806,24 @@ class _$MetaImpl implements _Meta {
 
 abstract class _Meta implements Meta {
   const factory _Meta(
-      {@JsonKey(name: "current_page") final int? currentPage,
-      @JsonKey(name: "per_page") final int? perPage,
-      @JsonKey(name: "total") final int? total,
-      @JsonKey(name: "last_page") final int? lastPage}) = _$MetaImpl;
+      {@JsonKey(name: 'current_page') final int? currentPage,
+      @JsonKey(name: 'per_page') final int? perPage,
+      @JsonKey(name: 'total') final int? total,
+      @JsonKey(name: 'last_page') final int? lastPage}) = _$MetaImpl;
 
   factory _Meta.fromJson(Map<String, dynamic> json) = _$MetaImpl.fromJson;
 
   @override
-  @JsonKey(name: "current_page")
+  @JsonKey(name: 'current_page')
   int? get currentPage;
   @override
-  @JsonKey(name: "per_page")
+  @JsonKey(name: 'per_page')
   int? get perPage;
   @override
-  @JsonKey(name: "total")
+  @JsonKey(name: 'total')
   int? get total;
   @override
-  @JsonKey(name: "last_page")
+  @JsonKey(name: 'last_page')
   int? get lastPage;
 
   /// Create a copy of Meta

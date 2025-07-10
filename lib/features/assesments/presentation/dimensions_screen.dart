@@ -116,7 +116,7 @@ class _DimensionScreenState extends State<DimensionScreen> {
     Navigator.pop(context);
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     var progressValue = widget.dimensionIndex / widget.totalDimensions;
 
@@ -158,8 +158,10 @@ class _DimensionScreenState extends State<DimensionScreen> {
                           SliderTheme(
                             data: const SliderThemeData(
                               trackHeight: 6,
-                              thumbShape: RoundSliderThumbShape(enabledThumbRadius: 12),
-                              overlayShape: RoundSliderOverlayShape(overlayRadius: 20),
+                              thumbShape:
+                                  RoundSliderThumbShape(enabledThumbRadius: 12),
+                              overlayShape:
+                                  RoundSliderOverlayShape(overlayRadius: 20),
                             ),
                             child: Slider(
                               value: selectedScore,
@@ -202,6 +204,16 @@ class _DimensionScreenState extends State<DimensionScreen> {
                           .copyWith(dividerColor: Colors.transparent),
                       child: Column(
                         children: [
+                          // Text(
+                          //   widget
+                          //           .userAssessmentData
+                          //           .userAssessment!
+                          //           .questions![widget.dimensionIndex - 1]
+                          //           .description ??
+                          //       '',
+                          //   style: AppTextStyles.textBodyB2
+                          //       .copyWith(fontWeight: FontWeight.bold),
+                          // ),
                           HtmlWidget(
                             widget
                                     .userAssessmentData

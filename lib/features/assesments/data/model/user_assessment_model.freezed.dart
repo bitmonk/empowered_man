@@ -1323,11 +1323,11 @@ Answer _$AnswerFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Answer {
   @JsonKey(name: 'id')
-  int get id => throw _privateConstructorUsedError;
+  int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'user_assessment_score_id')
-  int get userAssessmentScoreId => throw _privateConstructorUsedError;
+  int? get userAssessmentScoreId => throw _privateConstructorUsedError;
   @JsonKey(name: 'score')
-  int get score => throw _privateConstructorUsedError;
+  int? get score => throw _privateConstructorUsedError;
 
   /// Serializes this Answer to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -1344,9 +1344,9 @@ abstract class $AnswerCopyWith<$Res> {
       _$AnswerCopyWithImpl<$Res, Answer>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int id,
-      @JsonKey(name: 'user_assessment_score_id') int userAssessmentScoreId,
-      @JsonKey(name: 'score') int score});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'user_assessment_score_id') int? userAssessmentScoreId,
+      @JsonKey(name: 'score') int? score});
 }
 
 /// @nodoc
@@ -1364,23 +1364,23 @@ class _$AnswerCopyWithImpl<$Res, $Val extends Answer>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? userAssessmentScoreId = null,
-    Object? score = null,
+    Object? id = freezed,
+    Object? userAssessmentScoreId = freezed,
+    Object? score = freezed,
   }) {
     return _then(_value.copyWith(
-      id: null == id
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      userAssessmentScoreId: null == userAssessmentScoreId
+              as int?,
+      userAssessmentScoreId: freezed == userAssessmentScoreId
           ? _value.userAssessmentScoreId
           : userAssessmentScoreId // ignore: cast_nullable_to_non_nullable
-              as int,
-      score: null == score
+              as int?,
+      score: freezed == score
           ? _value.score
           : score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ) as $Val);
   }
 }
@@ -1393,9 +1393,9 @@ abstract class _$$AnswerImplCopyWith<$Res> implements $AnswerCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int id,
-      @JsonKey(name: 'user_assessment_score_id') int userAssessmentScoreId,
-      @JsonKey(name: 'score') int score});
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'user_assessment_score_id') int? userAssessmentScoreId,
+      @JsonKey(name: 'score') int? score});
 }
 
 /// @nodoc
@@ -1411,23 +1411,23 @@ class __$$AnswerImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
-    Object? id = null,
-    Object? userAssessmentScoreId = null,
-    Object? score = null,
+    Object? id = freezed,
+    Object? userAssessmentScoreId = freezed,
+    Object? score = freezed,
   }) {
     return _then(_$AnswerImpl(
-      id: null == id
+      id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      userAssessmentScoreId: null == userAssessmentScoreId
+              as int?,
+      userAssessmentScoreId: freezed == userAssessmentScoreId
           ? _value.userAssessmentScoreId
           : userAssessmentScoreId // ignore: cast_nullable_to_non_nullable
-              as int,
-      score: null == score
+              as int?,
+      score: freezed == score
           ? _value.score
           : score // ignore: cast_nullable_to_non_nullable
-              as int,
+              as int?,
     ));
   }
 }
@@ -1446,13 +1446,13 @@ class _$AnswerImpl implements _Answer {
 
   @override
   @JsonKey(name: 'id')
-  final int id;
+  final int? id;
   @override
   @JsonKey(name: 'user_assessment_score_id')
-  final int userAssessmentScoreId;
+  final int? userAssessmentScoreId;
   @override
   @JsonKey(name: 'score')
-  final int score;
+  final int? score;
 
   @override
   String toString() {
@@ -1493,22 +1493,22 @@ class _$AnswerImpl implements _Answer {
 
 abstract class _Answer implements Answer {
   const factory _Answer(
-      {@JsonKey(name: 'id') required final int id,
+      {@JsonKey(name: 'id') required final int? id,
       @JsonKey(name: 'user_assessment_score_id')
-      required final int userAssessmentScoreId,
-      @JsonKey(name: 'score') required final int score}) = _$AnswerImpl;
+      required final int? userAssessmentScoreId,
+      @JsonKey(name: 'score') required final int? score}) = _$AnswerImpl;
 
   factory _Answer.fromJson(Map<String, dynamic> json) = _$AnswerImpl.fromJson;
 
   @override
   @JsonKey(name: 'id')
-  int get id;
+  int? get id;
   @override
   @JsonKey(name: 'user_assessment_score_id')
-  int get userAssessmentScoreId;
+  int? get userAssessmentScoreId;
   @override
   @JsonKey(name: 'score')
-  int get score;
+  int? get score;
 
   /// Create a copy of Answer
   /// with the given fields replaced by the non-null parameter values.

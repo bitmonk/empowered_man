@@ -112,9 +112,10 @@ Map<String, dynamic> _$$AssessmentQuestionImplToJson(
     };
 
 _$AnswerImpl _$$AnswerImplFromJson(Map<String, dynamic> json) => _$AnswerImpl(
-      id: (json['id'] as num).toInt(),
-      userAssessmentScoreId: (json['user_assessment_score_id'] as num).toInt(),
-      score: (json['score'] as num).toInt(),
+      id: (json['id'] as num?)?.toInt(),
+      userAssessmentScoreId:
+          (json['user_assessment_score_id'] as num?)?.toInt(),
+      score: (json['score'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$$AnswerImplToJson(_$AnswerImpl instance) =>

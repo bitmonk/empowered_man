@@ -73,10 +73,10 @@ class AssessmentQuestion with _$AssessmentQuestion {
 @freezed
 class Answer with _$Answer {
   const factory Answer({
-    @JsonKey(name: 'id') required int id,
+    @JsonKey(name: 'id') required int? id,
     @JsonKey(name: 'user_assessment_score_id')
-    required int userAssessmentScoreId,
-    @JsonKey(name: 'score') required int score,
+    required int? userAssessmentScoreId,
+    @JsonKey(name: 'score') required int? score,
   }) = _Answer;
   factory Answer.fromJson(Map<String, dynamic> json) => _$AnswerFromJson(json);
 }
