@@ -41,6 +41,7 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToCommentId;
   String? replyingToUserName;
   String? replyingToContent;
+  String? parentReplyId; // Track parent reply ID for nested replies
 
   // Track expanded states
   final RxSet<String> expandedComments =
@@ -75,11 +76,13 @@ class _CommentScreenState extends State<CommentScreen> {
     super.dispose();
   }
 
-  void _startReply(String commentId, String userName, String content) {
+  void _startReply(String commentId, String userName, String content,
+      {String? parentId}) {
     setState(() {
       replyingToCommentId = commentId;
       replyingToUserName = userName;
       replyingToContent = content;
+      parentReplyId = parentId; // Store parent reply ID for nested replies
     });
     _inputController.clear();
     _inputFocusNode.requestFocus();
@@ -90,6 +93,7 @@ class _CommentScreenState extends State<CommentScreen> {
       replyingToCommentId = null;
       replyingToUserName = null;
       replyingToContent = null;
+      parentReplyId = null;
     });
     _inputController.clear();
     _inputFocusNode.unfocus();
@@ -107,8 +111,20 @@ class _CommentScreenState extends State<CommentScreen> {
       )
           .then((_) async {
         print('Refreshing comments for post ID: ${widget.postId}');
+        // Clear and refresh repliesModel for the parent comment or reply
+        String targetId = parentReplyId ?? replyingToCommentId!;
+        controller.repliesModel.remove(targetId);
+        controller.repliesModel.refresh();
         await controller.getPostComments(postId: widget.postId);
-        await controller.getCommentReplies(commentId: replyingToCommentId!);
+        await controller.getCommentReplies(commentId: targetId);
+        // Automatically expand the replies for the parent
+        if (parentReplyId != null) {
+          // For nested replies, expand the parent reply's nested replies
+          expandedNestedReplies.add(parentReplyId!);
+        } else {
+          // For top-level replies, expand the parent comment's replies
+          expandedReplies.add(replyingToCommentId!);
+        }
         _cancelReply();
       });
     } else {
@@ -118,7 +134,9 @@ class _CommentScreenState extends State<CommentScreen> {
         customComment: _inputController.text.trim(),
       )
           .then((_) async {
+        // Refresh commentsModel to force UI update
         await controller.getPostComments(postId: widget.postId);
+        controller.commentsModel.refresh();
         _inputController.clear();
       });
     }
@@ -766,6 +784,8 @@ class _CommentScreenState extends State<CommentScreen> {
                               reply.id.toString(),
                               reply.user?.fullName ?? 'Unknown',
                               reply.text ?? '',
+                              parentId:
+                                  parentCommentId, // Pass parent comment ID
                             ),
                             child: const Text(
                               'Reply',
@@ -937,6 +957,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         nestedReply.id.toString(),
                         nestedReply.user?.fullName ?? 'Unknown',
                         nestedReply.text ?? '',
+                        parentId: parentReplyId, // Pass parent reply ID
                       ),
                       child: const Text(
                         'Reply',
