@@ -221,6 +221,8 @@ class _DimensionScreenState extends State<DimensionScreen> {
                                     .questions![widget.dimensionIndex - 1]
                                     .description ??
                                 '',
+                            onErrorBuilder: (context, element, error) =>
+                                Text(error.toString()),
                             textStyle: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.w600,

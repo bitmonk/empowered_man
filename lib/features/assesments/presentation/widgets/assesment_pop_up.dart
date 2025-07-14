@@ -230,17 +230,17 @@ class _AssesmentPopUpState extends State<AssesmentPopUp> {
         }
       },
       itemBuilder: (context) => [
-        _buildPopupMenuItem(
-          'Download',
-          Assets.images.download.path,
-          'download',
-        ),
+        // _buildPopupMenuItem(
+        //   'Download',
+        //   Assets.images.download.path,
+        //   'download',
+        // ),
         _buildPopupMenuItem(
           'Delete',
           Assets.images.deletePop.path,
           'delete',
         ),
-        _buildPopupMenuItem('Share', Assets.images.sharePop.path, 'share'),
+        // _buildPopupMenuItem('Share', Assets.images.sharePop.path, 'share'),
       ],
     );
   }
