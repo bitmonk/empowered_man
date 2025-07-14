@@ -5,7 +5,6 @@ import 'package:dio/dio.dart';
 import 'package:empowered/core/config/environment_helper.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
-import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/core/routes/app_routes.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
@@ -47,8 +46,8 @@ class DioApiClient {
         headers: {
           'Accept': 'application/json',
         },
-        connectTimeout: const Duration(seconds: 50),
-        receiveTimeout: const Duration(seconds: 50),
+        connectTimeout: const Duration(seconds: 20),
+        receiveTimeout: const Duration(seconds: 20),
       )
       ..interceptors.addAll([
         AppInterceptor(preference, baseUrl),
@@ -133,6 +132,42 @@ class DioApiClient {
     );
   }
 
+  Future<Map<String, dynamic>> download(
+    String url,
+    String path, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    ProgressCallback? onReceiveProgress,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.download(
+        url,
+        path,
+        onReceiveProgress: onReceiveProgress,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
+  Future<Map<String, dynamic>> patch(
+    String url, {
+    Map<String, dynamic>? queryParameters,
+    dynamic body,
+    CancelToken? cancelToken, // Add CancelToken as a parameter
+  }) async {
+    return _request(
+      () => _dio.patch(
+        url,
+        queryParameters: queryParameters,
+        data: body,
+        cancelToken: cancelToken,
+      ),
+    );
+  }
+
   Future<Map<String, dynamic>> _request(
     Future<dynamic> Function() requestFunction,
   ) async {
@@ -170,14 +205,15 @@ class DioApiClient {
   }
 
   void _handleDioException(DioException error) {
-    try {
-      if (error.type == DioExceptionType.unknown ||
-          error.type == DioExceptionType.badResponse) {
-        if (error.response?.statusCode == 500) {
-          throw ApiErrorResponse(
-            message: 'Internal server error. Please try again after sometime.',
-          );
-        }
+    if (error.type == DioExceptionType.unknown ||
+        error.type == DioExceptionType.badResponse) {
+      // if (error.response?.statusCode == 500) {
+      //   throw ApiErrorResponse(
+      //     message: 'Internal server error. Please try again after sometime.',
+      //   );
+      // }
+      if (error.response?.data is Map &&
+          error.response?.data.containsKey('message')) {
         if (error.response?.data['message'] is Map<String, dynamic>) {
           final errors =
               error.response?.data['message'] as Map<String, dynamic>?;
@@ -190,12 +226,21 @@ class DioApiClient {
         if (errorMsg != null) {
           throw ApiErrorResponse(message: errorMsg);
         }
+      } else {
+        throw ApiErrorResponse(
+          message: DioErrorHandler.handle(error),
+        );
       }
-      var msg = DioErrorHandler.handle(error);
-      throw ApiErrorResponse(message: msg);
-    } catch (_) {
-      rethrow;
     }
+    var msg = DioErrorHandler.handle(error);
+    if (error.type == DioExceptionType.cancel) {
+      throw ApiErrorResponse(
+        message: msg,
+      );
+    }
+    throw ApiErrorResponse(
+      message: msg,
+    );
   }
 }
 
@@ -204,12 +249,6 @@ class AppInterceptor extends Interceptor {
 
   final AppSharedPref _preference;
   final String baseUrl;
-  final List<String> _noAuthEndpoints = [
-    // ExternalEndpoints.privacyPolicy,
-    // ExternalEndpoints.termsAndCondition,
-    // ExternalEndpoints.faq,
-    // ExternalEndpoints.faqCategory,
-  ];
 
   static bool isUnauthorized = false;
 
@@ -229,16 +268,16 @@ class AppInterceptor extends Interceptor {
         );
         return;
       }
-      final requiresAuth = !_noAuthEndpoints.any(
-        (endpoint) => options.path.contains(endpoint),
-      );
+      // final requiresAuth = !_noAuthEndpoints.any(
+      //   (endpoint) => options.path.contains(endpoint),
+      // );
 
-      if (requiresAuth) {
-        final accessToken = await _preference.getAccessToken();
-        if (accessToken != null) {
-          options.headers['Authorization'] = 'Bearer $accessToken';
-        }
+      // if (requiresAuth) {
+      final accessToken = await _preference.getRefreshToken();
+      if (accessToken != null) {
+        options.headers['Authorization'] = 'Bearer $accessToken';
       }
+      // }
 
       options.baseUrl = baseUrl;
 
@@ -274,13 +313,12 @@ class AppInterceptor extends Interceptor {
     if (err.response?.statusCode == 401) {
       isUnauthorized = true;
       await _preference.removeAll();
-      // getx.Get.offAllNamed(AppRoutes.loginPage);
       WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (getx.Get.currentRoute != AppRoutes.loginPage) {
+        if (getx.Get.currentRoute != AppRoutes.landingScreen) {
           try {
-            getx.Get.find<Preferences>().removeAll();
+            getx.Get.find<AppSharedPref>().removeAll();
             AppWidgetKey.bottomBarController.jumpToTab(0);
-            getx.Get.offAllNamed(AppRoutes.loginPage);
+            getx.Get.offAllNamed(AppRoutes.landingScreen);
           } catch (e) {
             debugPrint('Navigation failed: $e');
           }

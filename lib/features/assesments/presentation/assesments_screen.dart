@@ -1,0 +1,173 @@
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/assesments/presentation/controllers/assessment_history_controller.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_history.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_list.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_pop_up.dart';
+
+class AssessmentsScreen extends StatefulWidget {
+  const AssessmentsScreen({super.key});
+
+  @override
+  State<AssessmentsScreen> createState() => _AssessmentsScreenState();
+}
+
+class _AssessmentsScreenState extends State<AssessmentsScreen> {
+  int _selectedTabIndex = 0; // 0: Assessments, 1: History
+  final controller = Get.find<AssessmentHistoryController>();
+  List<String> selectedIds = [];
+  List<bool> _selectedItems = [];
+  @override
+  void initState() {
+    super.initState();
+    controller.getAssessmentHistory(isInitialLoad: true);
+    controller.selectedAssessment.value = null;
+  }
+
+  void _handleSelectedItems(
+    List<String> deletedIds,
+    bool shouldClearSelection,
+  ) {
+    if (shouldClearSelection) {
+      _resetSelectionState();
+    } else {
+      for (final id in deletedIds) {
+        selectedIds.remove(id);
+      }
+
+      final isSearchActive = controller.queryText.value != null &&
+          controller.queryText.value!.isNotEmpty;
+      final assessmentList = isSearchActive
+          ? controller.userAssessmentSearchList
+          : controller.userAssessmentHistoryList;
+
+      for (var i = 0; i < assessmentList.length; i++) {
+        final isSelected =
+            selectedIds.contains(assessmentList[i].id.toString());
+        _selectedItems[i] = isSelected;
+        if (isSearchActive) {
+          controller.selectSeaarchBulk[i] = isSelected;
+        } else {
+          controller.selectBulk[i] = isSelected;
+        }
+      }
+    }
+  }
+
+  void _resetSelectionState() {
+    final isSearchActive = controller.queryText.value != null &&
+        controller.queryText.value!.isNotEmpty;
+    final itemCount = isSearchActive
+        ? controller.userAssessmentSearchList.length
+        : controller.userAssessmentHistoryList.length;
+
+    setState(() {
+      _selectedItems = List.generate(itemCount, (_) => false);
+      // _selectAll = false;
+      selectedIds.clear();
+
+      if (isSearchActive) {
+        controller.selectSeaarchBulk.value =
+            List.generate(itemCount, (_) => false);
+      } else {
+        controller.selectBulk.value = List.generate(itemCount, (_) => false);
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AppScaffold(
+      appBar: const CustomAppBar(
+        title: 'Assessments',
+      ),
+      body: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8)
+            .copyWith(bottom: context.devicePaddingBottom),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Row(
+                children: [
+                  _buildTab(
+                    'Assessments',
+                    isSelected: _selectedTabIndex == 0,
+                    index: 0,
+                  ),
+                  const SizedBox(width: 8),
+                  _buildTab(
+                    'History',
+                    isSelected: _selectedTabIndex == 1,
+                    index: 1,
+                  ),
+                  const Spacer(),
+                  Obx(() {
+                    final isSearchActive = controller.queryText.value != null &&
+                        controller.queryText.value!.isNotEmpty;
+
+                    final selectionList = isSearchActive
+                        ? controller.selectSeaarchBulk
+                        : controller.selectBulk;
+
+                    final hasSelections =
+                        selectionList.any((element) => element == true);
+
+                    if (hasSelections && _selectedTabIndex == 1) {
+                      return AssesmentPopUp(
+                        selectedItems: selectionList,
+                        assessmentHistoryList: isSearchActive
+                            ? controller.userAssessmentSearchList
+                            : controller.userAssessmentHistoryList,
+                        searchAssessment: isSearchActive,
+                        onSelected: _handleSelectedItems,
+                      );
+                    }
+                    return const SizedBox();
+                  }),
+                ],
+              ),
+            ),
+            const VerticalSpacing(8),
+
+            // IndexedStack for switching content
+            Expanded(
+              child: IndexedStack(
+                index: _selectedTabIndex,
+                children: const [
+                  AssessmentListScreen(),
+                  AssesmentHistory(), // Table View
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // Builds selectable tabs
+  Widget _buildTab(
+    String text, {
+    required bool isSelected,
+    required int index,
+  }) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedTabIndex = index;
+          context.hideKeyboard();
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.color3B4B58),
+          color: isSelected ? AppColors.color3B4B58 : Colors.black26,
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Text(text, style: AppTextStyles.textBodyB4),
+      ),
+    );
+  }
+}

@@ -1,0 +1,2 @@
+D:/learning/empoweredman-mobile/android/app/.cxx/Debug/u2b42n5x/x86_64/CMakeFiles/edit_cache.dir
+D:/learning/empoweredman-mobile/android/app/.cxx/Debug/u2b42n5x/x86_64/CMakeFiles/rebuild_cache.dir

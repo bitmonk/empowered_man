@@ -16,6 +16,7 @@ class AppDropdown<T> extends StatelessWidget {
     this.enabledBorderColor = AppColors.textColor200,
     this.borderWidth = 1.0,
     this.hintStyle,
+    this.icon,
     this.labelStyle,
     this.style,
     this.errorStyle,
@@ -31,6 +32,7 @@ class AppDropdown<T> extends StatelessWidget {
   final Widget? prefixIcon;
   final BorderRadius borderRadius;
   final Color fillColor;
+  final Icon? icon;
   final Color focusedBorderColor;
   final Color enabledBorderColor;
   final double borderWidth;
@@ -61,6 +63,7 @@ class AppDropdown<T> extends StatelessWidget {
         }).toList(),
         onChanged: onChanged,
         validator: validator,
+        icon: icon,
         decoration: InputDecoration(
           floatingLabelBehavior: FloatingLabelBehavior.auto,
           labelText: labelText,

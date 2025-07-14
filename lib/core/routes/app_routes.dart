@@ -1,14 +1,15 @@
-import 'package:empowered/features/assesments/assesment_result.dart';
-import 'package:empowered/features/assesments/assesment_trailer.dart';
-import 'package:empowered/features/assesments/assesments_screen.dart';
+import 'package:empowered/features/assesments/presentation/assesments_screen.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_result.dart';
+import 'package:empowered/features/assesments/presentation/widgets/assesment_trailer.dart';
 import 'package:empowered/features/change_password/presentation/controllers/change_password_bindings.dart';
 import 'package:empowered/features/change_password/presentation/screens/change_password_screen.dart';
 import 'package:empowered/features/chat/presentation/screens/chat_coversation_screen.dart';
-
+import 'package:empowered/features/contact_us/presentation/controllers/contact_us_bindings.dart';
+import 'package:empowered/features/contact_us/presentation/screens/contact_us_screen.dart';
 import 'package:empowered/features/forgot_password/presentation/controllers/forgot_password_bindings.dart';
 import 'package:empowered/features/forgot_password/presentation/screens/forgot_password_screen.dart';
-import 'package:empowered/features/goals/goals_overview.dart';
-import 'package:empowered/features/goals/reflection_screen.dart';
+import 'package:empowered/features/goals/presentation/screens/goals_overview.dart';
+import 'package:empowered/features/goals/presentation/screens/reflection_screen.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_library.dart';
 import 'package:empowered/features/landing/landing_screen.dart';
 import 'package:empowered/features/login/presentation/controllers/login_bindings.dart';
@@ -18,10 +19,12 @@ import 'package:empowered/features/main/presentation/screens/main_screen.dart';
 import 'package:empowered/features/notification/presentation/screen/notification_history_screen.dart';
 import 'package:empowered/features/onboarding/presentation/controllers/onboarding_bindings.dart';
 import 'package:empowered/features/onboarding/presentation/screens/onboarding_screen.dart';
-
+import 'package:empowered/features/profile/presentation/controllers/profile_bindings.dart';
+import 'package:empowered/features/profile/presentation/screens/profile_screen.dart';
 import 'package:empowered/features/reset_password/presentation/controllers/reset_password_bindings.dart';
 import 'package:empowered/features/reset_password/presentation/screens/app_success_screen.dart';
 import 'package:empowered/features/reset_password/presentation/screens/reset_password_screen.dart';
+import 'package:empowered/features/signup/presentation/controller/signup_bindings.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_details_screen.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_occupation.dart';
 import 'package:empowered/features/signup/presentation/screens/add_your_photo_screen.dart';
@@ -54,9 +57,16 @@ class AppRoutes {
   static const String assesmentsResult = '/assesmentsResult';
   static const String notificationHistory = '/notificationHistory';
   static const String goalsOverview = '/goalsOverview';
+  static const String profile = '/profile';
   static const String reflectionScreen = '/reflectionScreen';
   static const String journalLibrary = '/journalLibrary';
   static const String addNewTask = '/addNewTask';
+  static const String privacyPolicy = '/privacy-policy';
+  static const String termsAndConditions = '/terms-and-conditions';
+  static const String communityGuidelines = '/community_guide_lines';
+  static const String faqs = '/faq';
+  static const String contactUs = '/user/contact-us';
+  static const String postDetail = '/post-detail';
 
   static List<GetPage<dynamic>>? appPages = [
     GetPage(
@@ -99,10 +109,16 @@ class AppRoutes {
       binding: OnboardingBindings(),
     ),
     GetPage(
+      name: profile,
+      page: () => const ProfileScreen(),
+      binding: ProfileBindings(),
+    ),
+    GetPage(
       name: forgotPassword,
       page: () => const ForgotPasswordScreen(),
       binding: ForgotPasswordBindings(),
     ),
+ 
     GetPage(
       name: resetPassword,
       page: () => const ResetPasswordScreen(),
@@ -119,7 +135,17 @@ class AppRoutes {
     ),
     GetPage(
       name: signup,
+      binding: SignupBindings(),
       page: () => const SignupScreen(),
+    ),
+    GetPage(
+      name: contactUs,
+      binding: ContactUsBindings(),
+      page: () => ContactUsScreen(
+        name: '',
+        message: '',
+        email: '',
+      ),
     ),
     GetPage(
       name: chatConversationScreen,

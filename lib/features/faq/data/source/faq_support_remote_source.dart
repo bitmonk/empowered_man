@@ -1,35 +1,25 @@
 import 'package:dartz/dartz.dart';
-import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/faq/data/model/faq_model.dart';
 
 class FaqSupportRemoteSource {
   const FaqSupportRemoteSource(this._client);
   final DioApiClient _client;
 
-  Future<Either<AppError, ApiResponse<dynamic>>> fetchData({
-    required int pageKey,
-    String? searchQuery,
-  }) async {
+  Future<Either<AppError, FaqModel>> getFaqDetails() async {
     try {
-      // final param = <String, dynamic>{'page': pageKey};
-      // final url = searchQuery == null
-      //     ? AppEndpoints.countries
-      //     : AppEndpoints.countries + searchQuery;
+      final response = await _client.get(AppRoutes.faqs);
 
-      // final response =
-      //     await _client.httpGet<dynamic>(url, queryParameters: param);
-      // return right(
-      //   ApiResponse(
-      //     data: null
-      //   ,)
-      // );
-      throw UnimplementedError();
+      final faqList = FaqModel.fromJson(response);
+
+      return Right(faqList);
     } catch (e) {
       if (e is ApiErrorResponse) {
-        return left(e);
+        return Left(e);
       } else {
-        return left(InternalAppError(message: e.toString()));
+        return Left(InternalAppError(message: e.toString()));
       }
     }
   }

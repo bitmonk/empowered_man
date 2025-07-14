@@ -1,10 +1,21 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/push_notification/presentation/screen/push_notification_screen.dart';
 
 class HomeHeaderWidgets extends StatelessWidget {
-  const HomeHeaderWidgets({super.key, this.hideControls = false});
+  const HomeHeaderWidgets({
+    required this.level,
+    required this.upcomingLevel,
+    required this.userProgressbarPoints,
+    required this.totalPointsProgressBar,
+    super.key,
+    this.hideControls = false,
+  });
   final bool hideControls;
+  final String level;
+  final String upcomingLevel;
+  final String userProgressbarPoints;
+  final String totalPointsProgressBar;
 
   @override
   Widget build(BuildContext context) {
@@ -24,10 +35,16 @@ class HomeHeaderWidgets extends StatelessWidget {
                     color: AppColors.primary500,
                   ),
                   child: ClipOval(
-                    child: Assets.images.homeProfile.image(
+                    child: AppCachedImage(
                       width: 48,
                       height: 48,
                       fit: BoxFit.cover,
+                      errorWid: const Icon(Icons.person),
+                      imgUrl: Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .image ??
+                          '',
                     ),
                   ),
                 ),
@@ -40,10 +57,21 @@ class HomeHeaderWidgets extends StatelessWidget {
                       style: AppTextStyles.textBodyB3,
                     ),
                     const VerticalSpacing(2),
-                    Text(
-                      'Allen Jhon',
-                      style: AppTextStyles.textBodyB3
-                          .copyWith(color: AppColors.white),
+                    Obx(
+                      () {
+                        final fullName = Get.find<ProfileController>()
+                            .userProfile
+                            .value
+                            .fullName;
+                        return Text(
+                          (fullName != null && fullName.length > 12)
+                              ? fullName.split(' ').first
+                              : fullName ?? '',
+                          style: AppTextStyles.textBodyB3
+                              .copyWith(color: AppColors.white),
+                          maxLines: 2,
+                        );
+                      },
                     ),
                   ],
                 ),
@@ -55,7 +83,7 @@ class HomeHeaderWidgets extends StatelessWidget {
                 const HorizontalSpacing(8),
                 InkWell(
                   onTap: () {
-                    Get.toNamed(AppRoutes.notificationHistory);
+                    Get.to(const PushNotificationScreen(true));
                   },
                   child: Assets.images.notification.svg(width: 40),
                 ),
@@ -72,15 +100,15 @@ class HomeHeaderWidgets extends StatelessWidget {
               ],
             ),
           ),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Level 3',
+              level,
               style: AppTextStyles.textBodyB1,
             ),
             Text(
-              'Needs 100 points to level 4',
+              upcomingLevel,
               style: AppTextStyles.textBodyB3,
             ),
           ],
@@ -90,18 +118,18 @@ class HomeHeaderWidgets extends StatelessWidget {
           borderRadius: BorderRadius.circular(20),
           minHeight: 8,
           color: AppColors.colorF5CA41,
-          value: 0.4,
+          value: _calculateProgressValue(),
         ),
         const VerticalSpacing(4),
-        const Row(
+        Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              '200',
+              userProgressbarPoints,
               style: AppTextStyles.textBodyB3,
             ),
             Text(
-              '5000',
+              totalPointsProgressBar,
               style: AppTextStyles.textBodyB3,
             ),
           ],
@@ -109,5 +137,13 @@ class HomeHeaderWidgets extends StatelessWidget {
         const VerticalSpacing(16),
       ],
     );
+  }
+
+  double _calculateProgressValue() {
+    final points = int.tryParse(userProgressbarPoints) ?? 0;
+    final total = int.tryParse(totalPointsProgressBar) ?? 100;
+    
+    if (total == 0) return 0;
+    return points / total;
   }
 }

@@ -1,6 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/full_memory_sheet.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class MyMemoryBottomSheet extends StatelessWidget {
   const MyMemoryBottomSheet({super.key});
@@ -182,7 +181,9 @@ class MyMemoryBottomSheet extends StatelessWidget {
                   const VerticalSpacing(16),
                   AppOutlinedButton(
                     text: 'Share',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),

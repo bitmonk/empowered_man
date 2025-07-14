@@ -1,8 +1,297 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
+import 'package:empowered/features/export_pdf/custom_pdf.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_library_index_model.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/screens/widget/journal_summary_dialog.dart';
 
-class JournalLibraryPopUp extends StatelessWidget {
-  const JournalLibraryPopUp({super.key});
+class JournalLibraryPopUp extends StatefulWidget {
+  const JournalLibraryPopUp({
+    required this.selectedItems,
+    required this.onSelected,
+    required this.searchJournal,
+    required this.journalList,
+    super.key,
+  });
+  final List<bool> selectedItems;
+  final bool searchJournal;
+  final Function(List<String> deletedIds, bool shouldClearSelection) onSelected;
+  final List<UserJournal> journalList;
+  @override
+  State<JournalLibraryPopUp> createState() => _JournalLibraryPopUpState();
+}
+
+class _JournalLibraryPopUpState extends State<JournalLibraryPopUp> {
+  final JournalEmotionNameController _controller =
+      Get.find<JournalEmotionNameController>();
+  int selectedCount = 0;
+  @override
+  void initState() {
+    super.initState();
+    selectedCount = widget.selectedItems.where((item) => item).length;
+
+    _initializeData();
+  }
+
+  Future<void> _exportSelectedJournalsToPdf(bool shouldShare) async {
+    final selectedCount = widget.selectedItems.where((item) => item).length;
+    if (selectedCount == 0) {
+      AppUtils.showErrorSnackbar(message: 'No journals selected for export');
+      return;
+    }
+
+    // Get selected journal data
+    final journalIds = <String>[];
+    final journals = widget.searchJournal
+        ? _controller.journalSearchList
+        : _controller.journalLibraryList;
+
+    for (var i = 0; i < widget.selectedItems.length; i++) {
+      if (widget.selectedItems[i] && i < journals.length) {
+        journalIds.add(journals[i].id.toString());
+      }
+    }
+
+    if (journalIds.isEmpty) {
+      AppUtils.showErrorSnackbar(message: 'No valid journals found for export');
+      return;
+    }
+
+    try {
+      // Get journal data for PDF
+      await _controller.getBulkSeeJournal(journalIds);
+      final userJournals =
+          _controller.userJournalResponse.value.data?.userJournals;
+      if (userJournals == null || userJournals.isEmpty) {
+        AppUtils.showErrorSnackbar(message: 'No journal data available');
+        return;
+      }
+
+      // Show loading indicator
+      AppUtils.showDownloadingDialog(
+        message: 'Preparing ${userJournals.length} journals for export...',
+      );
+
+      // Format data for PDF
+      var formattedData = '';
+      var fromToDate = '';
+      if (userJournals.isNotEmpty) {
+        formattedData = _formatJournalDataForPdf();
+        if (userJournals.length == 1 && userJournals.first.createdAt != null) {
+          fromToDate = userJournals.first.createdAt!;
+        } else {
+          final dates = userJournals
+              .where((j) => j.createdAt != null)
+              .map((j) => j.createdAt!)
+              .toList();
+          if (dates.isNotEmpty) {
+            dates.sort();
+            fromToDate = '${dates.first} - ${dates.last}';
+          } else {
+            fromToDate = 'Journal Export';
+          }
+        }
+      }
+
+      // Export the PDF with sharing enabled
+      await exportPdf(
+        context,
+        data: formattedData,
+        fromToDate: fromToDate,
+        shouldShare: shouldShare,
+      );
+
+      // Close the dialog after export is complete
+
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+
+      AppUtils.showSnackbar(message: 'Journals exported successfully');
+    } catch (e) {
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+
+      print('Error sharing journals to PDF: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to share journals: $e');
+    } finally {
+      await Future.delayed(const Duration(milliseconds: 200));
+      if (Get.isDialogOpen ?? false) {
+        Get.back();
+      }
+    }
+  }
+
+  String _formatJournalDataForPdf() {
+    final buffer = StringBuffer();
+    for (final journal
+        in _controller.userJournalResponse.value.data?.userJournals ?? []) {
+      // Add journal emotion/title
+      buffer
+        ..writeln('${journal.journal?.emotionName ?? "Untitled Journal"}')
+        ..writeln('-------------------------------------------');
+
+      final journalAnswers = journal.journalAnswers;
+      if (journalAnswers != null && journalAnswers.isNotEmpty) {
+        for (final answer in journalAnswers) {
+          // Add main question and answer
+          if (answer.mainQuestion != null) {
+            buffer
+              ..writeln('Q: ${answer.mainQuestion!.question ?? "Question"}')
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
+          }
+          // Add follow-up question and answer if available
+          if (answer.followUpQuestion != null) {
+            buffer
+              ..writeln(
+                'Q: ${answer.followUpQuestion!.question ?? "Follow-up Question"}',
+              )
+              ..writeln('A: ${answer.text ?? "No answer provided"}')
+              ..writeln();
+          }
+        }
+      } else {
+        buffer.writeln('No answers available for this journal.');
+      }
+      buffer.writeln('\n\n');
+    }
+    return buffer.toString();
+  }
+
+// Helper function to check if sharing is available
+  Future<bool> canShare(String filePath) async {
+    try {
+      return true; // Simplified check - assume sharing is available
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<void> _initializeData() async {}
+  Future<void> delete() async {
+    Future.delayed(const Duration(milliseconds: 100), () async {
+      if (widget.selectedItems.where((item) => item).isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No journals selected for deletion',
+        );
+        return;
+      }
+
+      final shouldDelete = await Get.dialog<bool>(
+        AlertDialog(
+          backgroundColor: AppColors.bgBorder,
+          title: const Text(
+            'Delete Journals',
+            style: AppTextStyles.textHeadingH3,
+          ),
+          content: const Text(
+            'Are you sure you want to delete the selected journals? This action cannot be undone.',
+            style: AppTextStyles.textBodyB2,
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Get.back(result: false),
+              child: const Text(
+                'Cancel',
+                style: TextStyle(color: AppColors.textColor50),
+              ),
+            ),
+            TextButton(
+              onPressed: () => Get.back(result: true),
+              child: const Text(
+                'Delete',
+                style: TextStyle(color: Colors.redAccent),
+              ),
+            ),
+          ],
+        ),
+      );
+
+      if (shouldDelete != true) return;
+
+      final journalIds = <String>[];
+      final journals = widget.searchJournal
+          ? _controller.journalSearchList
+          : _controller.journalLibraryList;
+
+      for (var i = 0; i < widget.selectedItems.length; i++) {
+        if (widget.selectedItems[i] && i < journals.length) {
+          journalIds.add(journals[i].id.toString());
+        }
+      }
+
+      if (journalIds.isEmpty) {
+        AppUtils.showErrorSnackbar(
+          message: 'No valid journals found for deletion',
+        );
+        return;
+      }
+
+      try {
+        final result = await _controller.deleteBulkJournal(journalIds);
+        if (result == true) {
+          widget.onSelected(journalIds, true);
+          await _controller.getJournalLibrary(
+            isInitialLoad: true,
+            searchJournal: widget.searchJournal,
+          );
+          _controller.refreshData();
+
+          // Get.close(1);
+        }
+      } catch (e) {
+        print('Error deleting journals: $e');
+        AppUtils.showErrorSnackbar(
+          message: 'Failed to delete journals: $e',
+        );
+      }
+    });
+  }
+
+  Future<void> seeJournal() async {
+    if (selectedCount > 0) {
+      final journalIds = List<String>.empty(growable: true);
+      for (var i = 0; i < widget.selectedItems.length; i++) {
+        if (widget.selectedItems[i] && i < widget.journalList.length) {
+          journalIds.add(widget.journalList[i].id.toString());
+        }
+      }
+
+      if (journalIds.isEmpty) {
+        AppUtils.showErrorSnackbar(message: 'No journals selected');
+        return;
+      }
+
+      final success = await _controller.getBulkSeeJournal(journalIds);
+
+      if (!success!) {
+        return;
+      }
+
+      // Handle both single and multiple journal cases
+      final userJournals =
+          _controller.userJournalResponse.value.data?.userJournals;
+
+      if (userJournals != null && userJournals.isNotEmpty) {
+        // If only one journal, pass it directly
+        if (userJournals.length == 1) {
+          Get.to(() => JournalSummaryDialog(
+                userJournal: [userJournals.first],
+              ),);
+        } else {
+          // If multiple journals, pass the list
+          Get.to(() => JournalSummaryDialog(
+                userJournal: userJournals,
+              ),);
+        }
+      } else {
+        AppUtils.showErrorSnackbar(
+          message: 'No journal data available',
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -12,27 +301,30 @@ class JournalLibraryPopUp extends StatelessWidget {
         height: 33,
         width: 33,
         child: Assets.images.circleThreeDot.svg(),
-      ), // Uses the three-dot icon
-      color: AppColors.bgBorder, // Background color matching the UI
+      ),
+      color: AppColors.bgBorder,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       onSelected: (value) {
         switch (value) {
           case 'download':
-            // Handle download action
-            break;
+            _exportSelectedJournalsToPdf(false);
+          // Handle download action
           case 'delete':
-            // Handle delete action
-            break;
+            delete();
           case 'share':
-            // Handle share action
-            break;
+            _exportSelectedJournalsToPdf(true); // Share only
+
+          // Handle share action
           case 'see_journal':
-            // Handle share action
-            break;
+            seeJournal();
         }
       },
       itemBuilder: (context) => [
-        _buildPopupMenuItem('Share', Assets.images.sharePop.path, 'share'),
+        _buildPopupMenuItem(
+          'Share',
+          Assets.images.sharePop.path,
+          'share',
+        ),
         _buildPopupMenuItem(
           'Download',
           Assets.images.download.path,
@@ -43,7 +335,15 @@ class JournalLibraryPopUp extends StatelessWidget {
           Assets.images.note.path,
           'see_journal',
         ),
-        _buildPopupMenuItem('Delete', Assets.images.deletePop.path, 'delete'),
+
+        // if (selectedCount == 1) ...[
+
+        // ],
+        _buildPopupMenuItem(
+          'Delete',
+          Assets.images.deletePop.path,
+          'delete',
+        ),
       ],
     );
   }
@@ -55,16 +355,18 @@ class JournalLibraryPopUp extends StatelessWidget {
   ) {
     return PopupMenuItem(
       value: value,
-      child: Row(
-        children: [
-          Image.asset(
-            icon,
-            width: 20,
-            color: AppColors.textColor50,
-          ),
-          const HorizontalSpacing(6),
-          Text(text, style: AppTextStyles.textBodyB2),
-        ],
+      child: GestureDetector(
+        child: Row(
+          children: [
+            Image.asset(
+              icon,
+              width: 20,
+              color: AppColors.textColor50,
+            ),
+            const HorizontalSpacing(6),
+            Text(text, style: AppTextStyles.textBodyB2),
+          ],
+        ),
       ),
     );
   }

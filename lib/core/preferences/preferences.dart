@@ -7,6 +7,7 @@ class PreferenceKeys {
   static const String deviceToken = 'DEVICE_TOKEN';
   static const String refreshToken = 'REFRESH_TOKEN';
   static const String themeMode = 'IS_DARK_MODE';
+  static const String userProfile = 'userProfile';
 }
 
 class Preferences {
@@ -15,66 +16,77 @@ class Preferences {
   );
   final FlutterSecureStorage _secureStorage;
 
-  Future<void> saveString(String name, String value) async {
-    await _secureStorage.write(key: name.toLowerCase(), value: value);
+  Future<void> saveIsFirstRun() async {
+    await _secureStorage.write(key: PreferenceKeys.isFirstRun, value: 'false');
   }
 
-  Future<void> saveModel(String name, Object value) async {
-    await _secureStorage.write(
-      key: name.toLowerCase(),
-      value: value.toString(),
+  Future<String> getIsFirstRun() async {
+    final value = await _secureStorage.read(
+      key: PreferenceKeys.isFirstRun,
     );
+    return value ?? 'true';
   }
 
-  Future<void> userData(String name, String value) async {
-    await _secureStorage.write(key: name.toLowerCase(), value: value);
-  }
+  // Future<void> saveString(String name, String value) async {
+  //   await _secureStorage.write(key: name.toLowerCase(), value: value);
+  // }
 
-  Future<void> saveBool(String name, {required bool value}) async {
-    await _secureStorage.write(
-      key: name.toLowerCase(),
-      value: value.toString(),
-    );
-  }
+  // Future<void> saveModel(String name, Object value) async {
+  //   await _secureStorage.write(
+  //     key: name.toLowerCase(),
+  //     value: value.toString(),
+  //   );
+  // }
 
-  Future<void> saveLOGOUT() async {
-    await _secureStorage.deleteAll();
-  }
+  // Future<void> userData(String name, String value) async {
+  //   await _secureStorage.write(key: name.toLowerCase(), value: value);
+  // }
 
-  Future<String?> getString(String name) async {
-    final value = await _secureStorage.read(key: name.toLowerCase());
-    return value;
-  }
+  // Future<void> saveBool(String name, {required bool value}) async {
+  //   await _secureStorage.write(
+  //     key: name.toLowerCase(),
+  //     value: value.toString(),
+  //   );
+  // }
 
-  Future<bool> getBool(String name) async {
-    final value = await _secureStorage.read(key: name.toLowerCase());
-    return value == 'true';
-  }
+  // Future<void> saveLOGOUT() async {
+  //   await _secureStorage.deleteAll();
+  // }
 
-  ///Returns true if null
-  Future<bool> getBoolTrueIfNull(String name) async {
-    final value = await _secureStorage.read(key: name.toLowerCase());
-    return !(value == 'false');
-  }
+  // Future<String?> getString(String name) async {
+  //   final value = await _secureStorage.read(key: name.toLowerCase());
+  //   return value;
+  // }
 
-  Future<int> getInt(String name) async {
-    final value = await _secureStorage.read(key: name.toLowerCase());
-    final intValue = value ?? '0';
-    return int.parse(intValue);
-  }
+  // Future<bool> getBool(String name) async {
+  //   final value = await _secureStorage.read(key: name.toLowerCase());
+  //   return value == 'true';
+  // }
 
-  Future<void> saveInt(String name, int value) async {
-    await _secureStorage.write(
-      key: name.toLowerCase(),
-      value: value.toString(),
-    );
-  }
+  // ///Returns true if null
+  // Future<bool> getBoolTrueIfNull(String name) async {
+  //   final value = await _secureStorage.read(key: name.toLowerCase());
+  //   return !(value == 'false');
+  // }
 
-  Future<void> remove(String name) async {
-    await _secureStorage.delete(key: name.toLowerCase());
-  }
+  // Future<int> getInt(String name) async {
+  //   final value = await _secureStorage.read(key: name.toLowerCase());
+  //   final intValue = value ?? '0';
+  //   return int.parse(intValue);
+  // }
 
-  Future<void> removeAll() async {
-    await _secureStorage.deleteAll();
-  }
+  // Future<void> saveInt(String name, int value) async {
+  //   await _secureStorage.write(
+  //     key: name.toLowerCase(),
+  //     value: value.toString(),
+  //   );
+  // }
+
+  // Future<void> remove(String name) async {
+  //   await _secureStorage.delete(key: name.toLowerCase());
+  // }
+
+  // Future<void> removeAll() async {
+  //   await _secureStorage.deleteAll();
+  // }
 }

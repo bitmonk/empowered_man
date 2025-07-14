@@ -1,5 +1,4 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class FullMemoryBottomSheet extends StatelessWidget {
   const FullMemoryBottomSheet({super.key});
@@ -106,7 +105,7 @@ class FullMemoryBottomSheet extends StatelessWidget {
                       alignment: Alignment.center,
                       padding: const EdgeInsets.symmetric(
                         vertical: 5,
-                        horizontal: 50,
+                        horizontal: 20,
                       ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(20),
@@ -125,7 +124,9 @@ class FullMemoryBottomSheet extends StatelessWidget {
                   const VerticalSpacing(16),
                   AppOutlinedButton(
                     text: 'Share',
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.pop(context);
+                    },
                   ),
                 ],
               ),

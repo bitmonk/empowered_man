@@ -6,6 +6,7 @@ import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/preferences.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/core/push_notification/firebase_notification_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -50,6 +51,7 @@ class AppInitializer {
   static void injectDependencies() {
     Get
       ..put(const FlutterSecureStorage())
+      ..lazyPut(() => FirebaseNotificationService())
       ..put(Preferences(Get.find()))
       ..put(SharedPreferences.getInstance())
       ..put(AppSharedPref(Get.find()))

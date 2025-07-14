@@ -4,7 +4,6 @@ import 'package:empowered/features/home/presentation/screens/widgets/daily_widge
 import 'package:empowered/features/home/presentation/screens/widgets/home_header_widgets.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/monthly_widget.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/weekly_widget.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 
 class HomeScreen extends GetView<HomeController> {
   const HomeScreen({super.key});
@@ -18,15 +17,52 @@ class HomeScreen extends GetView<HomeController> {
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
-            const HomeHeaderWidgets(),
+            Obx(
+              () => controller.dashboardLevelState.value.showWidget(
+                  success: () {
+                    return HomeHeaderWidgets(
+                      level: controller.dashboardLevelData.value.currentLevel ??
+                          '',
+                      upcomingLevel:
+                          controller.dashboardLevelData.value.upcomingLevel ??
+                              '',
+                      totalPointsProgressBar: controller.dashboardLevelData
+                              .value.totalPointsProgressbar ??
+                          '',
+                      userProgressbarPoints: controller
+                              .dashboardLevelData.value.userProgressbarPoints ??
+                          '',
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: () => Row(
+                        children: [
+                          Expanded(
+                            child: CustomErrorWidget(
+                              error: controller.dashboardLevelError.value,
+                            ),
+                          ),
+                          IconButton(
+                              onPressed: () {},
+                              icon: const Icon(
+                                Icons.refresh,
+                                color: AppColors.primary500,
+                              ),),
+                        ],
+                      ),),
+            ),
             // Tab Buttons
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                _buildTabButton(0, 'My Daily'),
-                _buildTabButton(1, 'My Weekly'),
-                _buildTabButton(2, 'My Monthly'),
-              ],
+            SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: Row(
+                spacing: 10,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildTabButton(0, 'My Daily'),
+                  _buildTabButton(1, 'My Weekly'),
+                  _buildTabButton(2, 'My Monthly'),
+                ],
+              ),
             ),
             const VerticalSpacing(16),
 
@@ -54,6 +90,12 @@ class HomeScreen extends GetView<HomeController> {
         final isSelected = controller.selectedTabIndex.value == index;
         return GestureDetector(
           onTap: () {
+            if (index == 2) {
+              controller.getMyMonthy();
+            }
+            if (index == 1) {
+              controller.getDashboardPowerStreak();
+            }
             controller.updateSelectedTab(index);
           },
           child: Container(

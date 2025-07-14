@@ -1,15 +1,12 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/features/chat/presentation/screens/widget/chat_bubble_container.dart';
 import 'package:empowered/features/chat/presentation/screens/widget/chat_input_field.dart';
-import 'package:empowered/gen/assets.gen.dart';
 
 class ChatThreadsTile extends StatelessWidget {
   const ChatThreadsTile({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final controller = Get.find<ChatController>();
+    // final controller = Get.find<ChatController>();
     return ListView.builder(
       itemCount: 6,
       itemBuilder: (context, index) {
@@ -53,22 +50,22 @@ class ChatThreadsTile extends StatelessWidget {
               endent: 20,
               color: AppColors.bgBorderVLight,
             ),
-            ListView.builder(
-              shrinkWrap: true,
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: controller.chatConversationList.length,
-              itemBuilder: (context, index) {
-                var chat = controller.chatConversationList[index];
-                return ChatBubbleContainer(
-                  message: chat.message,
-                  isMine: chat.isMine,
-                  timeStamp: chat.timeStamp,
-                  onLike: () {},
-                );
-              },
-            ),
-            ChatInputField(),
+            // ListView.builder(
+            //   shrinkWrap: true,
+            //   padding: const EdgeInsets.symmetric(horizontal: 16),
+            //   physics: const NeverScrollableScrollPhysics(),
+            //   itemCount: controller.chatConversationList.length,
+            //   itemBuilder: (context, index) {
+            //     var chat = controller.chatConversationList[index];
+            //     return ChatBubbleContainer(
+            //       message: chat.message,
+            //       isMine: chat.isMine,
+            //       timeStamp: chat.timeStamp,
+            //       onLike: () {},
+            //     );
+            //   },
+            // ),
+            const ChatInputField(),
           ],
         );
       },

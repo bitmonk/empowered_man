@@ -1,14 +1,18 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
+import 'package:empowered/features/delete_account/presentation/controller/delete_account_controller.dart';
 
 class DeleteBottomSheet extends StatelessWidget {
-  const DeleteBottomSheet({super.key});
-
+  const DeleteBottomSheet({required this.controller, super.key});
+  final DeleteAccountController controller;
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.bgMedium,
+        color: const Color(
+          0xff132534,
+        ),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Padding(
@@ -37,11 +41,11 @@ class DeleteBottomSheet extends StatelessWidget {
               style: AppTextStyles.titleHeading,
             ),
             const VerticalSpacing(20),
-            const AppDivider(),
+            const GreyDivider(),
             const VerticalSpacing(20),
             Text(
               textAlign: TextAlign.center,
-              'Lorem ipsum dolor sit amet,\n consectetuer adipiscing elit. Aenean commodo ligula eget dolor massa. Cum sociin natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Donec quam felis.',
+              'Are you sure you want to delete your account? This action cannot be undone.',
               style: AppTextStyles.titleMd.copyWith(
                 fontWeight: FontWeight.w400,
                 fontSize: 16,
@@ -51,14 +55,23 @@ class DeleteBottomSheet extends StatelessWidget {
             const VerticalSpacing(24),
             AppOutlinedButton.orange(
               text: 'Delete',
-              onPressed: () {
-                Navigator.pop(context);
+              isLoading:
+                  controller.deleteAccountState.value == TheStates.loading,
+              onPressed: () async {
+                final result = await controller.deleteAccount();
+                if (result == true) {
+                  await Get.find<AppSharedPref>().removeAll();
+                  Get.offAllNamed(AppRoutes.landingScreen);
+                }
               },
             ),
             const VerticalSpacing(16),
             AppOutlinedButton.withOutlined(
               safePadding: true,
               hasShadow: false,
+              backgroundColor: const Color(
+                0xff132534,
+              ),
               text: 'Cancel',
               onPressed: () {
                 Navigator.pop(context);

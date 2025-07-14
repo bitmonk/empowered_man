@@ -1,30 +1,151 @@
 import 'package:dartz/dartz.dart';
+import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/features/tasks/data/model/add_task_request_model.dart';
+import 'package:empowered/features/tasks/data/model/task_enums_model.dart';
+import 'package:empowered/features/tasks/data/model/task_model.dart';
 
 class TasksRemoteSource {
   const TasksRemoteSource(this._client);
   final DioApiClient _client;
 
-  Future<Either<AppError, ApiResponse<dynamic>>> fetchData({
-    required int pageKey,
-    String? searchQuery,
+  Future<Either<AppError, TaskEnumsModel>> getTaskEnums({
+    CancelToken? cancelToken,
   }) async {
     try {
-      // final param = <String, dynamic>{'page': pageKey};
-      // final url = searchQuery == null
-      //     ? AppEndpoints.countries
-      //     : AppEndpoints.countries + searchQuery;
+      final response = await _client.get(
+        AppEndpoints.getTaskEnums,
+        cancelToken: cancelToken,
+      );
+      return right(TaskEnumsModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
 
-      // final response =
-      //     await _client.httpGet<dynamic>(url, queryParameters: param);
-      // return right(
-      //   ApiResponse(
-      //     data: null
-      //   ,)
-      // );
-      throw UnimplementedError();
+  Future<Either<AppError, TaskModel>> getTask({
+    required String day,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        AppEndpoints.getTask,
+        queryParameters: {'date': day},
+        cancelToken: cancelToken,
+      );
+      return right(TaskModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> addTask({
+    required AddTaskRequestModel body,
+    String? id,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.post(
+        id != null ? AppEndpoints.updateTask(id) : AppEndpoints.addTask,
+        body: FormData.fromMap(
+          {...body.toMap(), if (id != null) '_method': 'put'},
+        ),
+        cancelToken: cancelToken,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> deleteTask({
+    required String taskId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.delete(
+        AppEndpoints.delTask(taskId),
+        cancelToken: cancelToken,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> changeTaskLevel({
+    required String taskId,
+    String? level,
+    String? completionStatus,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.patch(
+        AppEndpoints.changeLevel(taskId),
+        body: {
+          'level': level ?? '',
+          'completion_status': completionStatus ?? '',
+        },
+        cancelToken: cancelToken,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> markMainTaskCompleted({
+    required String taskId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.patch(
+        AppEndpoints.markMainTaskCompleted(taskId),
+        cancelToken: cancelToken,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> markSubTaskCompleted({
+    required String taskId,
+    required String subTaskId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.patch(
+        AppEndpoints.markSubTaskCompleted(taskId, subTaskId),
+        cancelToken: cancelToken,
+      );
+      return right(response['message']);
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

@@ -3,9 +3,6 @@ import 'package:empowered/features/help/presentation/controller/help_binding.dar
 import 'package:empowered/features/help/presentation/screen/help_screen.dart';
 import 'package:empowered/features/help_support/presentation/controllers/help_support_controller.dart';
 import 'package:empowered/features/help_support/presentation/screens/widget/container_list.dart';
-import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
-import 'package:empowered/utlis/url_launcher_utls.dart';
 
 class HelpSupportScreen extends GetView<HelpSupportController> {
   const HelpSupportScreen({super.key});

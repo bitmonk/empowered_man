@@ -1,104 +1,189 @@
+import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/chat/presentation/controllers/chat_controller.dart';
-import 'package:empowered/gen/assets.gen.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:intl/intl.dart';
 
 class ChatBubbleContainer extends StatefulWidget {
   const ChatBubbleContainer({
     required this.isMine,
     required this.message,
+    required this.messageId,
     required this.timeStamp,
-    required this.onLike,
+    required this.messageWidget,
+    this.onEdit,
+    this.onLike,
     super.key,
-    this.isLiked = false,
-    this.isJournal = false,
-    this.isAnotherUser = false,
   });
 
   final bool isMine;
-  final bool isJournal;
-  final bool isLiked;
-  final bool isAnotherUser;
-  final String message;
+  final String messageId;
+  final ChatMessage message;
+  final Function? onLike;
+  final Function? onEdit;
   final String timeStamp;
-
-  final VoidCallback onLike;
+  final Widget messageWidget;
 
   @override
   State<ChatBubbleContainer> createState() => _ChatBubbleContainerState();
 }
 
 class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
-  bool isLiked = false; // Internal state for like
+  bool showActions = false;
+  final controller = Get.find<ChatController>();
+  String? _messageText;
+  OverlayEntry? _overlayEntry;
 
   @override
   void initState() {
     super.initState();
-    isLiked = widget.isLiked; // Initialize with the passed value
-  }
-
-  void _showPopupMenu(BuildContext context, Offset position) {
-    final left = position.dx - 60; // Adjust for alignment
-    final top = position.dy - 130; // Position above the bubble
-
-    showDialog(
-      context: context,
-      barrierColor: AppColors.transparent,
-      builder: (context) {
-        return Stack(
-          children: [
-            Positioned(
-              left: left,
-              top: top,
-              child: Material(
-                color: Colors.transparent,
-                child: Container(
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    color: AppColors.bgMedium,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      InkWell(
-                        onTap: () {
-                          setState(() {
-                            isLiked = !isLiked; // Toggle like state
-                          });
-                          widget.onLike.call();
-                          Navigator.pop(context);
-                        },
-                        child: Assets.images.chatLike.svg(width: 20),
-                      ),
-                      const HorizontalSpacing(16),
-                      InkWell(
-                        onTap: () {
-                          Navigator.pop(context);
-                        },
-                        child: Assets.images.chatUndo.svg(width: 20),
-                      ),
-                      const HorizontalSpacing(16),
-                      InkWell(
-                        onTap: () {
-                          Get.find<ChatController>().chatController.text =
-                              widget.message;
-                          Navigator.pop(context);
-                        },
-                        child: Assets.images.chatEdit.svg(width: 20),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ],
-        );
-      },
-    );
+    _setUp();
   }
 
   @override
+  void dispose() {
+    _removeOverlay();
+    super.dispose();
+  }
+
+  void _setUp() {
+    var text = switch (widget.message.body) {
+      ChatTextMessageBody body => body.content,
+      _ => widget.message.toJson().containsKey('attributes') &&
+              widget.message.toJson()['attributes'] != null &&
+              widget.message.toJson()['attributes'].containsKey('caption')
+          ? widget.message.toJson()['attributes']['caption']
+          : ''
+    };
+    setState(() {
+      _messageText = text;
+    });
+  }
+
+  String _formatTimestamp(String timestamp) {
+    try {
+      final dateTime = DateTime.parse(timestamp).timeZoneName == 'UTC'
+          ? DateTime.parse(timestamp).toLocal()
+          : DateTime.parse(timestamp);
+      final now = DateTime.now();
+      final difference = now.difference(dateTime);
+      if (difference.inDays == 0) {
+        return DateFormat('hh:mm a').format(dateTime);
+      } else if (difference.inDays == 1) {
+        return 'Yesterday at ${DateFormat('hh:mm a').format(dateTime)}';
+      } else if (difference.inDays < 7) {
+        return DateFormat('EEEE').format(dateTime);
+      } else {
+        return DateFormat('MMM d, yyyy').format(dateTime);
+      }
+    } catch (e) {
+      return timestamp;
+    }
+  }
+
+  void _removeOverlay() {
+    _overlayEntry?.remove();
+    _overlayEntry = null;
+  }
+
+  void _showActionsOverlay(BuildContext context) {
+    _removeOverlay();
+
+    final renderBox = context.findRenderObject()! as RenderBox;
+    final position = renderBox.localToGlobal(Offset.zero);
+    final size = renderBox.size;
+
+    _overlayEntry = OverlayEntry(
+      builder: (context) => _ActionOverlay(
+        position: position,
+        size: size,
+        isMine: widget.isMine,
+        onLike: () async {
+          await _handleLike();
+          _removeOverlay();
+        },
+        onReply: () {
+          controller..selectReply(widget.message)
+          ..scrollToBottom();
+          _removeOverlay();
+        },
+        onEdit: widget.isMine && widget.message.body is ChatTextMessageBody
+            ? () {
+                controller.chatController.text = _messageText!;
+                widget.onEdit?.call();
+                _removeOverlay();
+              }
+            : null,
+        onDelete: widget.isMine
+            ? () async {
+                controller.messageIdToDelete.value = widget.messageId;
+                await controller.deleteMessage();
+                _removeOverlay();
+              }
+            : null,
+        onDismiss: _removeOverlay,
+        isLiked: _isLiked(),
+      ),
+    );
+
+    Overlay.of(context).insert(_overlayEntry!);
+
+    // Auto dismiss after 4 seconds
+    Future.delayed(const Duration(seconds: 4), () {
+      _removeOverlay();
+    });
+  }
+
+  void _handleLongPress() {
+    _showActionsOverlay(context);
+  }
+
+  bool _isLiked() {
+    final userId = controller.currentUserId.value;
+    if (userId == null) {
+      print(
+          'Error: currentUserId is null in _isLiked for msgId ${widget.messageId}',);
+      return false;
+    }
+    final reactions = controller.reactionMap[widget.messageId] ?? [];
+    final isLiked =
+        reactions.any((r) => r.reaction == '👍' && r.userList.contains(userId));
+    print(
+        'Checking if liked for msgId ${widget.messageId}: $isLiked, reactions: $reactions',);
+    return isLiked;
+  }
+
+ Future<void> _handleLike() async {
+  final userId = controller.currentUserId.value;
+  if (userId == null) {
+    print('Error: currentUserId is null in _handleLike');
+    Get.snackbar('Error', 'User not logged in', snackPosition: SnackPosition.BOTTOM);
+    return;
+  }
+  final isCurrentlyLiked = _isLiked();
+  try {
+    if (isCurrentlyLiked) {
+      await controller.removeReaction(widget.messageId, '👍');
+    } else {
+      await controller.addReaction(widget.messageId, '👍');
+    }
+  } catch (e) {
+    print('Error handling like: $e');
+    Get.snackbar(
+      'Error',
+      'Failed to ${isCurrentlyLiked ? 'remove' : 'add'} reaction',
+      snackPosition: SnackPosition.BOTTOM,
+    );
+  }
+}
+
+  @override
   Widget build(BuildContext context) {
+    final formattedTimestamp = _formatTimestamp(widget.timeStamp);
+    final replyPreview = widget.message.attributes?['replyPreview'];
+    final replyToSender = widget.message.attributes?['replyToSender'];
+    final replyToMsgId = widget.message.attributes?['replyTo'];
+
     return Align(
       alignment: widget.isMine ? Alignment.centerRight : Alignment.centerLeft,
       child: Column(
@@ -107,9 +192,7 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
         children: [
           const VerticalSpacing(16),
           GestureDetector(
-            onLongPressStart: (details) {
-              _showPopupMenu(context, details.globalPosition);
-            },
+            onLongPress: _handleLongPress,
             child: Row(
               mainAxisAlignment: widget.isMine
                   ? MainAxisAlignment.end
@@ -120,70 +203,104 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                   Padding(
                     padding: const EdgeInsets.only(right: 8),
                     child: ClipOval(
-                      child: widget.isAnotherUser
-                          ? Assets.images.chatUserPic
-                              .image(height: 25, width: 25)
-                          : widget.isJournal
-                              ? Assets.images.appIcon
-                                  .image(height: 25, width: 25)
-                              : Assets.images.chatUserPicTwo
-                                  .image(height: 25, width: 25),
+                      child: Assets.images.chatUserPicTwo
+                          .image(height: 25, width: 25),
                     ),
                   ),
                 Flexible(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
+                  child: Stack(
                     children: [
-                      Stack(
-                        alignment: Alignment.bottomRight,
-                        clipBehavior: Clip.none,
+                      Column(
+                        crossAxisAlignment: widget.isMine
+                            ? CrossAxisAlignment.end
+                            : CrossAxisAlignment.start,
                         children: [
-                          Container(
-                            margin: const EdgeInsets.all(4),
-                            padding: const EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: !widget.isMine
-                                    ? AppColors.bgBorder
-                                    : Colors.transparent,
-                              ),
-                              color: widget.isMine
-                                  ? AppColors.primary500
-                                  : AppColors.bgMedium,
-                              borderRadius: BorderRadius.only(
-                                bottomRight: const Radius.circular(14),
-                                topLeft: !widget.isMine
-                                    ? Radius.zero
-                                    : const Radius.circular(14),
-                                bottomLeft: const Radius.circular(14),
-                                topRight: widget.isMine
-                                    ? Radius.zero
-                                    : const Radius.circular(14),
-                              ),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                Text(
-                                  widget.message,
-                                  style: AppTextStyles.textBodyB2,
-                                  softWrap: true,
+                          if (replyPreview != null && replyToSender != null)
+                            GestureDetector(
+                              onTap: () {
+                                if (replyToMsgId != null) {
+                                  controller.scrollToMessage(replyToMsgId);
+                                }
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: widget.isMine
+                                      ? AppColors.bgBorder
+                                      : AppColors.bgContainer,
+                                  borderRadius: BorderRadius.only(
+                                    topLeft: const Radius.circular(16),
+                                    topRight: const Radius.circular(16),
+                                    bottomLeft:
+                                        Radius.circular(widget.isMine ? 16 : 0),
+                                    bottomRight:
+                                        Radius.circular(widget.isMine ? 0 : 16),
+                                  ),
                                 ),
-                              ],
+                                child: Column(
+                                  crossAxisAlignment: widget.isMine
+                                      ? CrossAxisAlignment.end
+                                      : CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      replyToSender,
+                                      style: const TextStyle(
+                                        color: AppColors.primary500,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 13,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      replyPreview,
+                                      style: const TextStyle(
+                                        color: Colors.white60,
+                                        fontSize: 13,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
                             ),
+                          Stack(
+                            children: [
+                              Column(
+                                crossAxisAlignment: widget.isMine
+                                    ? CrossAxisAlignment.end
+                                    : CrossAxisAlignment.start,
+                                children: [
+                                  widget.messageWidget,
+                                  Padding(
+                                    padding: const EdgeInsets.all(8),
+                                    child: Text(
+                                      formattedTimestamp,
+                                      style: AppTextStyles.textCaptionC2,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              // Use Obx to reactively listen to reaction changes
+                              Obx(() {
+                                // Force rebuild when reactionMap changes
+                                controller.reactionMap.value;
+
+                                if (!_isLiked()) {
+                                  return const SizedBox.shrink();
+                                }
+
+                                return Positioned(
+                                  bottom: 20,
+                                  right: widget.isMine ? 4 : null,
+                                  left: widget.isMine ? null : 4,
+                                  child: Assets.images.chatBubbleLike
+                                      .image(width: 32),
+                                );
+                              }),
+                            ],
                           ),
-                          if (isLiked)
-                            Positioned(
-                              right: -10,
-                              bottom: -10,
-                              child:
-                                  Assets.images.chatBubbleLike.image(width: 32),
-                            ),
                         ],
-                      ),
-                      Text(
-                        widget.timeStamp,
-                        style: AppTextStyles.textCaptionC2,
                       ),
                     ],
                   ),
@@ -192,14 +309,153 @@ class _ChatBubbleContainerState extends State<ChatBubbleContainer> {
                   Padding(
                     padding: const EdgeInsets.only(left: 8),
                     child: ClipOval(
-                      child: Assets.images.chatUserPicOne
-                          .image(height: 25, width: 25),
+                      child: AppCachedImage(
+                        width: 25,
+                        height: 25,
+                        fit: BoxFit.cover,
+                        errorWid: const Icon(Icons.person),
+                        imgUrl: Get.find<ProfileController>()
+                                .userProfile
+                                .value
+                                .image ??
+                            '',
+                      ),
                     ),
                   ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _ActionOverlay extends StatelessWidget {
+
+  const _ActionOverlay({
+    required this.position,
+    required this.size,
+    required this.isMine,
+    required this.onLike,
+    required this.onReply,
+    required this.onDismiss,
+    required this.isLiked,
+    this.onEdit,
+    this.onDelete,
+  });
+  final Offset position;
+  final Size size;
+  final bool isMine;
+  final VoidCallback onLike;
+  final VoidCallback onReply;
+  final VoidCallback? onEdit;
+  final VoidCallback? onDelete;
+  final VoidCallback onDismiss;
+  final bool isLiked;
+
+  @override
+  Widget build(BuildContext context) {
+    return Material(
+      color: Colors.transparent,
+      child: GestureDetector(
+        onTap: onDismiss,
+        behavior: HitTestBehavior.opaque,
+        child: Stack(
+          children: [
+            // Positioned overlay near the message
+            Positioned(
+              left: isMine ? null : position.dx + 40,
+              right: isMine
+                  ? MediaQuery.of(context).size.width -
+                      position.dx -
+                      size.width +
+                      40
+                  : null,
+              top: position.dy - 60,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: Colors.black.withOpacity(0.8),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _ActionButton(
+                      onTap: onLike,
+                      child: Assets.images.chatLike.svg(
+                        width: 20,
+                        color: isLiked ? Colors.blue : Colors.white,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    _ActionButton(
+                      onTap: onReply,
+                      child: const Icon(
+                        Icons.reply,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                    if (onEdit != null) ...[
+                      const SizedBox(width: 8),
+                      _ActionButton(
+                        onTap: onEdit!,
+                        child: Assets.images.chatEdit.svg(
+                          width: 20,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
+                    if (onDelete != null) ...[
+                      const SizedBox(width: 8),
+                      _ActionButton(
+                        onTap: onDelete!,
+                        child: Assets.images.deletePop.image(
+                          width: 20,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _ActionButton extends StatelessWidget {
+
+  const _ActionButton({
+    required this.onTap,
+    required this.child,
+  });
+  final VoidCallback onTap;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: child,
       ),
     );
   }

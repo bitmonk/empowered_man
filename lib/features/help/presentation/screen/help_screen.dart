@@ -2,7 +2,6 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/faq/presentation/controllers/faq_support_bindings.dart';
 import 'package:empowered/features/faq/presentation/screens/faq_support_screen.dart';
 import 'package:empowered/features/help/presentation/controller/help_controller.dart';
-import 'package:empowered/utlis/navigation_helper.dart';
 
 class HelpScreen extends GetView<HelpController> {
   const HelpScreen({super.key});

@@ -48,6 +48,10 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
                 filled: false,
                 enabledBorderColor: AppColors.bgBorderVLight,
                 focusedBorderColor: AppColors.bgBorderVLight,
+                icon: const Icon(
+                  Icons.expand_more, // Replace with a suitable icon
+                  color: AppColors.textColor100,
+                ),
                 labelText: 'Chat',
                 value: 'Select Chat',
                 items: ['Select Chat', 'Chat 1', 'Chat 2'].map((String value) {
@@ -71,7 +75,7 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
               const VerticalSpacing(12),
               Flexible(
                 child: Container(
-                  padding: const EdgeInsets.all(4),
+                  padding: const EdgeInsets.all(6),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
@@ -97,7 +101,6 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
                             toolbarSectionSpacing: 2,
                             showJustifyAlignment: false,
                             showListBullets: false,
-                            showCenterAlignment: false,
                             showClearFormat: false,
                             showFontFamily: false,
                             showFontSize: false,
@@ -145,12 +148,12 @@ class _ShareScoreDialogState extends State<ShareScoreDialog> {
                 ),
               ),
               const VerticalSpacing(32),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 68),
-                child: AppOutlinedButton(
-                  text: 'Share',
-                  onPressed: () {},
-                ),
+              AppOutlinedButton(
+                text: 'Share',
+                width: 200,
+                onPressed: () {
+                  Navigator.pop(context);
+                },
               ),
             ],
           ),

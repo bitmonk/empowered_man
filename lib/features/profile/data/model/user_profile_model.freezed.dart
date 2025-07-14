@@ -1,0 +1,446 @@
+// coverage:ignore-file
+// GENERATED CODE - DO NOT MODIFY BY HAND
+// ignore_for_file: type=lint
+// ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
+
+part of 'user_profile_model.dart';
+
+// **************************************************************************
+// FreezedGenerator
+// **************************************************************************
+
+T _$identity<T>(T value) => value;
+
+final _privateConstructorUsedError = UnsupportedError(
+    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+
+UserProfileModel _$UserProfileModelFromJson(Map<String, dynamic> json) {
+  return _UserProfileModel.fromJson(json);
+}
+
+/// @nodoc
+mixin _$UserProfileModel {
+  @JsonKey(name: 'id')
+  int? get id => throw _privateConstructorUsedError;
+  @JsonKey(name: 'full_name')
+  String? get fullName => throw _privateConstructorUsedError;
+  @JsonKey(name: 'slug')
+  String? get slug => throw _privateConstructorUsedError;
+  @JsonKey(name: 'email')
+  String? get email => throw _privateConstructorUsedError;
+  @JsonKey(name: 'phone_number')
+  String? get phoneNumber => throw _privateConstructorUsedError;
+  @JsonKey(name: 'occupation')
+  String? get occupation => throw _privateConstructorUsedError;
+  @JsonKey(name: 'image')
+  String? get image => throw _privateConstructorUsedError;
+  @JsonKey(name: 'is_coach')
+  bool? get isCoach => throw _privateConstructorUsedError;
+  @JsonKey(name: 'agora_chat_token')
+  String? get agoraChatToken => throw _privateConstructorUsedError;
+  @JsonKey(name: 'agora_user_token')
+  String? get agoraUserToken => throw _privateConstructorUsedError;
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+
+  /// Serializes this UserProfileModel to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of UserProfileModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $UserProfileModelCopyWith<UserProfileModel> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $UserProfileModelCopyWith<$Res> {
+  factory $UserProfileModelCopyWith(
+          UserProfileModel value, $Res Function(UserProfileModel) then) =
+      _$UserProfileModelCopyWithImpl<$Res, UserProfileModel>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'slug') String? slug,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
+      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
+      @JsonKey(name: 'agora_user_token') String? agoraUserToken,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+}
+
+/// @nodoc
+class _$UserProfileModelCopyWithImpl<$Res, $Val extends UserProfileModel>
+    implements $UserProfileModelCopyWith<$Res> {
+  _$UserProfileModelCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of UserProfileModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? fullName = freezed,
+    Object? slug = freezed,
+    Object? email = freezed,
+    Object? phoneNumber = freezed,
+    Object? occupation = freezed,
+    Object? image = freezed,
+    Object? isCoach = freezed,
+    Object? agoraChatToken = freezed,
+    Object? agoraUserToken = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      fullName: freezed == fullName
+          ? _value.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      slug: freezed == slug
+          ? _value.slug
+          : slug // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      occupation: freezed == occupation
+          ? _value.occupation
+          : occupation // ignore: cast_nullable_to_non_nullable
+              as String?,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isCoach: freezed == isCoach
+          ? _value.isCoach
+          : isCoach // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      agoraChatToken: freezed == agoraChatToken
+          ? _value.agoraChatToken
+          : agoraChatToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      agoraUserToken: freezed == agoraUserToken
+          ? _value.agoraUserToken
+          : agoraUserToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$UserProfileModelImplCopyWith<$Res>
+    implements $UserProfileModelCopyWith<$Res> {
+  factory _$$UserProfileModelImplCopyWith(_$UserProfileModelImpl value,
+          $Res Function(_$UserProfileModelImpl) then) =
+      __$$UserProfileModelImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: 'id') int? id,
+      @JsonKey(name: 'full_name') String? fullName,
+      @JsonKey(name: 'slug') String? slug,
+      @JsonKey(name: 'email') String? email,
+      @JsonKey(name: 'phone_number') String? phoneNumber,
+      @JsonKey(name: 'occupation') String? occupation,
+      @JsonKey(name: 'image') String? image,
+      @JsonKey(name: 'is_coach') bool? isCoach,
+      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
+      @JsonKey(name: 'agora_user_token') String? agoraUserToken,
+      @JsonKey(name: 'created_at') DateTime? createdAt,
+      @JsonKey(name: 'updated_at') DateTime? updatedAt});
+}
+
+/// @nodoc
+class __$$UserProfileModelImplCopyWithImpl<$Res>
+    extends _$UserProfileModelCopyWithImpl<$Res, _$UserProfileModelImpl>
+    implements _$$UserProfileModelImplCopyWith<$Res> {
+  __$$UserProfileModelImplCopyWithImpl(_$UserProfileModelImpl _value,
+      $Res Function(_$UserProfileModelImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of UserProfileModel
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? id = freezed,
+    Object? fullName = freezed,
+    Object? slug = freezed,
+    Object? email = freezed,
+    Object? phoneNumber = freezed,
+    Object? occupation = freezed,
+    Object? image = freezed,
+    Object? isCoach = freezed,
+    Object? agoraChatToken = freezed,
+    Object? agoraUserToken = freezed,
+    Object? createdAt = freezed,
+    Object? updatedAt = freezed,
+  }) {
+    return _then(_$UserProfileModelImpl(
+      id: freezed == id
+          ? _value.id
+          : id // ignore: cast_nullable_to_non_nullable
+              as int?,
+      fullName: freezed == fullName
+          ? _value.fullName
+          : fullName // ignore: cast_nullable_to_non_nullable
+              as String?,
+      slug: freezed == slug
+          ? _value.slug
+          : slug // ignore: cast_nullable_to_non_nullable
+              as String?,
+      email: freezed == email
+          ? _value.email
+          : email // ignore: cast_nullable_to_non_nullable
+              as String?,
+      phoneNumber: freezed == phoneNumber
+          ? _value.phoneNumber
+          : phoneNumber // ignore: cast_nullable_to_non_nullable
+              as String?,
+      occupation: freezed == occupation
+          ? _value.occupation
+          : occupation // ignore: cast_nullable_to_non_nullable
+              as String?,
+      image: freezed == image
+          ? _value.image
+          : image // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isCoach: freezed == isCoach
+          ? _value.isCoach
+          : isCoach // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      agoraChatToken: freezed == agoraChatToken
+          ? _value.agoraChatToken
+          : agoraChatToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      agoraUserToken: freezed == agoraUserToken
+          ? _value.agoraUserToken
+          : agoraUserToken // ignore: cast_nullable_to_non_nullable
+              as String?,
+      createdAt: freezed == createdAt
+          ? _value.createdAt
+          : createdAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+      updatedAt: freezed == updatedAt
+          ? _value.updatedAt
+          : updatedAt // ignore: cast_nullable_to_non_nullable
+              as DateTime?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$UserProfileModelImpl implements _UserProfileModel {
+  const _$UserProfileModelImpl(
+      {@JsonKey(name: 'id') this.id,
+      @JsonKey(name: 'full_name') this.fullName,
+      @JsonKey(name: 'slug') this.slug,
+      @JsonKey(name: 'email') this.email,
+      @JsonKey(name: 'phone_number') this.phoneNumber,
+      @JsonKey(name: 'occupation') this.occupation,
+      @JsonKey(name: 'image') this.image,
+      @JsonKey(name: 'is_coach') this.isCoach,
+      @JsonKey(name: 'agora_chat_token') this.agoraChatToken,
+      @JsonKey(name: 'agora_user_token') this.agoraUserToken,
+      @JsonKey(name: 'created_at') this.createdAt,
+      @JsonKey(name: 'updated_at') this.updatedAt});
+
+  factory _$UserProfileModelImpl.fromJson(Map<String, dynamic> json) =>
+      _$$UserProfileModelImplFromJson(json);
+
+  @override
+  @JsonKey(name: 'id')
+  final int? id;
+  @override
+  @JsonKey(name: 'full_name')
+  final String? fullName;
+  @override
+  @JsonKey(name: 'slug')
+  final String? slug;
+  @override
+  @JsonKey(name: 'email')
+  final String? email;
+  @override
+  @JsonKey(name: 'phone_number')
+  final String? phoneNumber;
+  @override
+  @JsonKey(name: 'occupation')
+  final String? occupation;
+  @override
+  @JsonKey(name: 'image')
+  final String? image;
+  @override
+  @JsonKey(name: 'is_coach')
+  final bool? isCoach;
+  @override
+  @JsonKey(name: 'agora_chat_token')
+  final String? agoraChatToken;
+  @override
+  @JsonKey(name: 'agora_user_token')
+  final String? agoraUserToken;
+  @override
+  @JsonKey(name: 'created_at')
+  final DateTime? createdAt;
+  @override
+  @JsonKey(name: 'updated_at')
+  final DateTime? updatedAt;
+
+  @override
+  String toString() {
+    return 'UserProfileModel(id: $id, fullName: $fullName, slug: $slug, email: $email, phoneNumber: $phoneNumber, occupation: $occupation, image: $image, isCoach: $isCoach, agoraChatToken: $agoraChatToken, agoraUserToken: $agoraUserToken, createdAt: $createdAt, updatedAt: $updatedAt)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$UserProfileModelImpl &&
+            (identical(other.id, id) || other.id == id) &&
+            (identical(other.fullName, fullName) ||
+                other.fullName == fullName) &&
+            (identical(other.slug, slug) || other.slug == slug) &&
+            (identical(other.email, email) || other.email == email) &&
+            (identical(other.phoneNumber, phoneNumber) ||
+                other.phoneNumber == phoneNumber) &&
+            (identical(other.occupation, occupation) ||
+                other.occupation == occupation) &&
+            (identical(other.image, image) || other.image == image) &&
+            (identical(other.isCoach, isCoach) || other.isCoach == isCoach) &&
+            (identical(other.agoraChatToken, agoraChatToken) ||
+                other.agoraChatToken == agoraChatToken) &&
+            (identical(other.agoraUserToken, agoraUserToken) ||
+                other.agoraUserToken == agoraUserToken) &&
+            (identical(other.createdAt, createdAt) ||
+                other.createdAt == createdAt) &&
+            (identical(other.updatedAt, updatedAt) ||
+                other.updatedAt == updatedAt));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      fullName,
+      slug,
+      email,
+      phoneNumber,
+      occupation,
+      image,
+      isCoach,
+      agoraChatToken,
+      agoraUserToken,
+      createdAt,
+      updatedAt);
+
+  /// Create a copy of UserProfileModel
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$UserProfileModelImplCopyWith<_$UserProfileModelImpl> get copyWith =>
+      __$$UserProfileModelImplCopyWithImpl<_$UserProfileModelImpl>(
+          this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$UserProfileModelImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _UserProfileModel implements UserProfileModel {
+  const factory _UserProfileModel(
+          {@JsonKey(name: 'id') final int? id,
+          @JsonKey(name: 'full_name') final String? fullName,
+          @JsonKey(name: 'slug') final String? slug,
+          @JsonKey(name: 'email') final String? email,
+          @JsonKey(name: 'phone_number') final String? phoneNumber,
+          @JsonKey(name: 'occupation') final String? occupation,
+          @JsonKey(name: 'image') final String? image,
+          @JsonKey(name: 'is_coach') final bool? isCoach,
+          @JsonKey(name: 'agora_chat_token') final String? agoraChatToken,
+          @JsonKey(name: 'agora_user_token') final String? agoraUserToken,
+          @JsonKey(name: 'created_at') final DateTime? createdAt,
+          @JsonKey(name: 'updated_at') final DateTime? updatedAt}) =
+      _$UserProfileModelImpl;
+
+  factory _UserProfileModel.fromJson(Map<String, dynamic> json) =
+      _$UserProfileModelImpl.fromJson;
+
+  @override
+  @JsonKey(name: 'id')
+  int? get id;
+  @override
+  @JsonKey(name: 'full_name')
+  String? get fullName;
+  @override
+  @JsonKey(name: 'slug')
+  String? get slug;
+  @override
+  @JsonKey(name: 'email')
+  String? get email;
+  @override
+  @JsonKey(name: 'phone_number')
+  String? get phoneNumber;
+  @override
+  @JsonKey(name: 'occupation')
+  String? get occupation;
+  @override
+  @JsonKey(name: 'image')
+  String? get image;
+  @override
+  @JsonKey(name: 'is_coach')
+  bool? get isCoach;
+  @override
+  @JsonKey(name: 'agora_chat_token')
+  String? get agoraChatToken;
+  @override
+  @JsonKey(name: 'agora_user_token')
+  String? get agoraUserToken;
+  @override
+  @JsonKey(name: 'created_at')
+  DateTime? get createdAt;
+  @override
+  @JsonKey(name: 'updated_at')
+  DateTime? get updatedAt;
+
+  /// Create a copy of UserProfileModel
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$UserProfileModelImplCopyWith<_$UserProfileModelImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}

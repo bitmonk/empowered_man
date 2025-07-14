@@ -28,28 +28,25 @@ class _TaskStatusWidgetState extends State<TaskStatusWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: _toggleStatus, // Toggle on tap
-      child: Align(
-        alignment: Alignment.centerLeft,
-        child: Container(
-          decoration: BoxDecoration(
-            border: Border.all(color: AppColors.primary500),
-            color: _isAchieved
-                ? AppColors.primary500 // "Achieved" color
-                : AppColors.bgDark, // "Undo" color
-            borderRadius: BorderRadius.circular(16),
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: 10,
-            vertical: 3,
-          ),
-          child: Text(
-            _isAchieved ? 'Achieved' : 'Undo', // Dynamic text
-            style: const TextStyle(
-              color: AppColors.textColor50,
-              fontSize: 12,
-            ),
+    return Align(
+      alignment: Alignment.centerLeft,
+      child: Container(
+        decoration: BoxDecoration(
+          border: Border.all(color: AppColors.primary500),
+          color: _isAchieved
+              ? AppColors.primary500 // "Achieved" color
+              : AppColors.bgDark, // "Undo" color
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 8,
+          vertical: 3,
+        ),
+        child: Text(
+          _isAchieved ? 'Achieved' : 'Not Achieved', // Dynamic text
+          style: const TextStyle(
+            color: AppColors.textColor50,
+            fontSize: 12,
           ),
         ),
       ),

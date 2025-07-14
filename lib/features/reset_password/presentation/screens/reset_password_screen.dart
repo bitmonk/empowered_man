@@ -1,9 +1,6 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/reset_password/presentation/controllers/reset_password_controller.dart';
 import 'package:empowered/features/reset_password/presentation/screens/app_success_screen.dart';
-import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/app_validators.dart';
-import 'package:empowered/utlis/uihelper.dart';
 import 'package:form_validator/form_validator.dart';
 
 class ResetPasswordScreenParam {

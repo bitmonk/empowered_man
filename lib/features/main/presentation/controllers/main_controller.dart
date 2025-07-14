@@ -1,8 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/extension/string_extension.dart';
 import 'package:empowered/core/preferences/preferences.dart';
+import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/features/main/data/source/main_remote_source.dart';
-import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:flutter/services.dart';
 
 enum DrawerItemEnum {
@@ -16,6 +16,7 @@ enum DrawerItemEnum {
   powerScoreStats,
   assessment,
   settings,
+  tribe,
 }
 
 class MainController extends GetxController {
@@ -64,11 +65,11 @@ class MainController extends GetxController {
 
   Future<void> initialize() async {
     final token =
-        await Get.find<Preferences>().getString(PreferenceKeys.accessToken);
+        await Get.find<AppSharedPref>().getString(PreferenceKeys.accessToken);
     if (token?.isNullOrEmpty() ?? true) {
       isUserLoggedIn.value = false;
     } else {
-      getUser();
+      // getUser();
       isUserLoggedIn.value = true;
     }
   }

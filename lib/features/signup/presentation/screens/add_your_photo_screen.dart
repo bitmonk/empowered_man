@@ -2,9 +2,8 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/signup/presentation/controller/signup_controller.dart';
 import 'package:empowered/features/signup/presentation/widgets/dots_indicator.dart';
-import 'package:empowered/gen/assets.gen.dart';
-import 'package:empowered/utlis/uihelper.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -17,7 +16,7 @@ class AddYourPhotoScreen extends StatefulWidget {
 
 class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
   final ImagePicker _picker = ImagePicker();
-  XFile? _selectedImage;
+  final controller = Get.find<SignupController>();
 
   Future<void> _takePhoto() async {
     UiHelper.showloaderdialog(context);
@@ -25,7 +24,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
     if (photo != null) {
       photo = await cropImage(photo);
       setState(() {
-        _selectedImage = photo;
+        controller.selectedImage.value = photo;
       });
     }
     Navigator.pop(Get.overlayContext!);
@@ -38,7 +37,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
     if (photo != null) {
       photo = await cropImage(photo);
       setState(() {
-        _selectedImage = photo;
+        controller.selectedImage.value = photo;
       });
     }
     Navigator.pop(Get.overlayContext!);
@@ -47,6 +46,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
   Future<XFile> cropImage(XFile pickedImage) async {
     final croppedFile = await ImageCropper().cropImage(
       sourcePath: pickedImage.path,
+      compressQuality: 100,
       uiSettings: [
         AndroidUiSettings(
           toolbarTitle: 'Cropper',
@@ -100,20 +100,20 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      if (_selectedImage != null)
+                      if (controller.selectedImage.value != null)
                         Container(
                           width: 91, // Circular width
                           height: 91, // Circular height
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            border: Border.all(
-                              color: Colors.grey, // Optional border color
-                              width: 2, // Optional border width
-                            ),
+                            // border: Border.all(
+                            //   color: Colors.grey, // Optional border color
+                            //   width: 2, // Optional border width
+                            // ),
                           ),
                           child: ClipOval(
                             child: Image.file(
-                              File(_selectedImage!.path),
+                              File(controller.selectedImage.value!.path),
                               fit: BoxFit.cover,
                               width: 91,
                               height: 91,
@@ -133,6 +133,7 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
                         style: AppTextStyles.textBodyB2,
                       ),
                       AppTextButton(
+                        color: AppColors.primary500,
                         label: 'Upload from library',
                         onTap: _uploadFromLibrary, // Upload from library
                       ),
@@ -144,9 +145,13 @@ class _AddYourPhotoScreenState extends State<AddYourPhotoScreen> {
             const VerticalSpacing(16),
             AppOutlinedButton(
               text: 'Next',
-              onPressed: _selectedImage != null
+              onPressed: controller.selectedImage.value != null
                   ? () {
-                      Get.toNamed(AppRoutes.addYourDetailsScreen);
+                      if (controller.selectedImage.value != null) {
+                        Get.toNamed(AppRoutes.addYourDetailsScreen);
+                      } else {
+                        AppUtils.showErrorSnackbar(message: 'Email required');
+                      }
                     }
                   : null,
             ),

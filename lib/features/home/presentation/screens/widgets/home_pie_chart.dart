@@ -1,7 +1,13 @@
 import 'package:empowered/core/extension/extensions.dart';
 
 class HomePieChart extends StatelessWidget {
-  const HomePieChart({super.key});
+  const HomePieChart(
+      {required this.centerText, required this.habit, required this.journal, required this.tasks, required this.goals, super.key,});
+  final String centerText;
+  final double habit;
+  final double journal;
+  final double tasks;
+  final double goals;
 
   @override
   Widget build(BuildContext context) {
@@ -13,24 +19,24 @@ class HomePieChart extends StatelessWidget {
           alignment: Alignment.center,
           children: [
             // Outer Blue Ring
-            _buildProgressCircle(AppColors.color5CE0A0, 0.75, 6, 170),
+            _buildProgressCircle(AppColors.color5CE0A0, journal / 50, 6, 170),
             // Outer Blue Ring
-            _buildProgressCircle(AppColors.colorF5CA41, 0.75, 6, 150),
+            _buildProgressCircle(AppColors.colorF5CA41, tasks / 50, 6, 150),
 
             // Middle Yellow Ring
-            _buildProgressCircle(AppColors.primary200, 0.60, 6, 130),
+            _buildProgressCircle(AppColors.primary200, habit / 50, 6, 130),
 
             // Inner Green Ring
-            _buildProgressCircle(AppColors.primary50, 0.35, 6, 110),
+            _buildProgressCircle(AppColors.primary50, goals / 50, 6, 110),
 
             // Centered Score Text
-            const Positioned(
+            Positioned(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    '24',
-                    style: TextStyle(
+                    centerText,
+                    style: const TextStyle(
                       color: AppColors.textColor50,
                       fontWeight: FontWeight.w600,
                       fontSize: 32,

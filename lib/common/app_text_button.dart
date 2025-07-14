@@ -23,6 +23,17 @@ class AppTextButton extends StatelessWidget {
       horizontal: 6,
     ),
   });
+  const AppTextButton.blue({
+    required this.label,
+    super.key,
+    this.onTap,
+    this.color = AppColors.textColor200,
+    this.fontSize = 16,
+    this.padding = const EdgeInsets.symmetric(
+      vertical: 4,
+      horizontal: 6,
+    ),
+  });
   final String label;
   final Color color;
   final double fontSize;
