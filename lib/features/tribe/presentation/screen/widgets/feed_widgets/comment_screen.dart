@@ -90,8 +90,10 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
-        // postId: widget.postId, // Pass postId to refresh comments
       );
+      Future.delayed(const Duration(milliseconds: 300), () {
+        controller.getPostComments(postId: widget.postId);
+      });
       _cancelReply();
     } else {
       final success = controller.commentOnPost(
@@ -169,8 +171,8 @@ class _CommentScreenState extends State<CommentScreen> {
                     children: [
                       _buildOriginalPost(),
                       const SizedBox(height: 16),
-                      ...comments
-                          .map((comment) => _buildCommentWithReplies(comment)),
+                      ...comments.map((comment) =>
+                          _buildCommentWithReplies(comment, indentLevel: 0)),
                     ],
                   ),
                 );
@@ -196,9 +198,10 @@ class _CommentScreenState extends State<CommentScreen> {
           Row(
             children: [
               ClipOval(
-                child: controller.userProfile != null
+                child: (widget.imageUrls.isNotEmpty &&
+                        widget.imageUrls.first.isNotEmpty)
                     ? Image.network(
-                        controller.userProfile,
+                        widget.imageUrls.first,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -404,20 +407,36 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  Widget _buildCommentWithReplies(Comment comment) {
+  Widget _buildCommentWithReplies(Comment comment, {int indentLevel = 0}) {
+    final sortedReplies = comment.replys != null
+        ? () {
+            final list = List<Comment>.from(comment.replys!)
+              ..sort((a, b) {
+                if (a.createdAt == null && b.createdAt == null) return 0;
+                if (a.createdAt == null) return -1;
+                if (b.createdAt == null) return 1;
+                return a.createdAt!.compareTo(b.createdAt!);
+              });
+            return list;
+          }()
+        : <Comment>[];
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: EdgeInsets.only(bottom: 12, left: indentLevel * 40.0),
       child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildComment(comment),
-          if (comment.replys?.isNotEmpty ?? false) ...[
+          if (sortedReplies.isNotEmpty) ...[
             const SizedBox(height: 8),
-            ...comment.replys!.map((reply) => _buildReply(
-                  reply, // Pass reply directly since it's already a Comment
-                  comment.id.toString(),
-                  comment.user?.fullName ?? 'Unknown',
-                  comment.text ?? '',
-                ),),
+            ...sortedReplies.map(
+              (reply) => _buildReply(
+                reply,
+                comment.id.toString(),
+                comment.user?.fullName ?? 'Unknown',
+                comment.text ?? '',
+                indentLevel: indentLevel + 1,
+              ),
+            ),
           ],
         ],
       ),
@@ -425,7 +444,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Comment _mapToComment(dynamic reply) {
-    print('Mapping reply: $reply'); // Debug log
+    print('Mapping reply: $reply');
     if (reply is! Map<String, dynamic>) {
       return const Comment(
         likesCount: 0,
@@ -451,7 +470,7 @@ class _CommentScreenState extends State<CommentScreen> {
           ? DateTime.tryParse(reply['created_at'])
           : null,
       likesCount: reply['likes_count'] as int? ?? 0,
-      replys: reply['replys'] as List<Comment>?, // Correct key name
+      replys: reply['replys'] as List<Comment>?,
     );
   }
 
@@ -525,7 +544,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      controller.toggleLike(comment.id.toString());
+                      controller.toggleCommentLike(comment.id.toString());
                     },
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -620,125 +639,159 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  Widget _buildReply(Comment reply, String parentCommentId,
-      String parentUserName, String parentContent,) {
+  Widget _buildReply(
+    Comment reply,
+    String parentCommentId,
+    String parentUserName,
+    String parentContent, {
+    int indentLevel = 1,
+  }) {
+    final sortedSubReplies = reply.replys != null
+        ? () {
+            final list = List<Comment>.from(reply.replys!)
+              ..sort((a, b) {
+                if (a.createdAt == null && b.createdAt == null) return 0;
+                if (a.createdAt == null) return -1;
+                if (b.createdAt == null) return 1;
+                return a.createdAt!.compareTo(b.createdAt!);
+              });
+            return list;
+          }()
+        : <Comment>[];
     return Container(
-      margin: const EdgeInsets.only(left: 40, bottom: 8),
-      child: Row(
+      margin: EdgeInsets.only(left: indentLevel * 40.0, bottom: 8),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          ClipOval(
-            child: reply.user?.image != null
-                ? Image.network(
-                    reply.user!.image!,
-                    height: 28,
-                    width: 28,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Assets.images.leaderProfile.image(
-                      height: 28,
-                      width: 28,
-                      fit: BoxFit.cover,
-                    ),
-                  )
-                : Assets.images.leaderProfile.image(
-                    height: 28,
-                    width: 28,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        reply.user?.fullName ?? 'Unknown',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipOval(
+                child: reply.user?.image != null
+                    ? Image.network(
+                        reply.user!.image!,
+                        height: 28,
+                        width: 28,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          height: 28,
+                          width: 28,
+                          fit: BoxFit.cover,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      )
+                    : Assets.images.leaderProfile.image(
+                        height: 28,
+                        width: 28,
+                        fit: BoxFit.cover,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatDateTime(reply.createdAt),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 11,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  reply.text ?? '',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 13,
-                  ),
-                  maxLines: 5,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                const SizedBox(height: 6),
-                Row(
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    GestureDetector(
-                      onTap: () {
-                        controller.toggleLike(reply.id.toString());
-                      },
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            (reply.likesCount ?? 0) > 0
-                                ? Icons.favorite
-                                : Icons.favorite_border,
-                            color: (reply.likesCount ?? 0) > 0
-                                ? Colors.red
-                                : Colors.white,
-                            size: 14,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatCount(reply.likesCount ?? 0),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            reply.user?.fullName ?? 'Unknown',
                             style: const TextStyle(
                               color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          _formatDateTime(reply.createdAt),
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 11,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      reply.text ?? '',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 13,
+                      ),
+                      maxLines: 5,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            controller.toggleReplyLike(reply.id.toString());
+                          },
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                (reply.likesCount ?? 0) > 0
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: (reply.likesCount ?? 0) > 0
+                                    ? Colors.red
+                                    : Colors.white,
+                                size: 14,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatCount(reply.likesCount ?? 0),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 11,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        GestureDetector(
+                          onTap: () => _startReply(
+                            reply.id.toString(), // Reply to the specific reply
+                            reply.user?.fullName ?? 'Unknown',
+                            reply.text ?? '',
+                          ),
+                          child: const Text(
+                            'Reply',
+                            style: TextStyle(
+                              color: Colors.white70,
                               fontSize: 11,
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => _startReply(
-                        parentCommentId,
-                        reply.user?.fullName ?? 'Unknown',
-                        reply.text ?? '',
-                      ),
-                      child: const Text(
-                        'Reply',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w500,
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
+          if (sortedSubReplies.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            ...sortedSubReplies.map(
+              (subReply) => _buildReply(
+                subReply,
+                reply.id.toString(), // Use reply.id for nested replies
+                reply.user?.fullName ?? 'Unknown',
+                reply.text ?? '',
+                indentLevel: indentLevel + 1,
+              ),
+            ),
+          ],
         ],
       ),
     );

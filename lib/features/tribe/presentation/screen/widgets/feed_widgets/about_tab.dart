@@ -185,12 +185,15 @@ class _AboutTabState extends State<AboutTab> {
                       final member = entry.value;
                       return ListTile(
                         onTap: () {
-                          print(tribeController
-                              .groupDetailModel.value.data!.about,);
-                          Get.to(() => UserFeedPageScreen(
-                                group: tribeController.groupDetailModel.value,
-                                member: member,
-                              ),);
+                          print(
+                            tribeController.groupDetailModel.value.data!.about,
+                          );
+                          Get.to(
+                            () => UserFeedPageScreen(
+                              group: tribeController.groupDetailModel.value,
+                              member: member,
+                            ),
+                          );
                         },
                         contentPadding: EdgeInsets.zero,
                         leading: CircleAvatar(

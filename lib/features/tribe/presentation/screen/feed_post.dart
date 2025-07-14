@@ -517,11 +517,11 @@ class _FeedPostState extends State<FeedPost> {
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
         timeAgo: formatDateTime(widget.post.createdAt),
         content: widget.post.text ?? '',
-        imageUrls: [
-          if (widget.post.createdBy?.image != null &&
-              widget.post.createdBy!.image!.isNotEmpty)
-            widget.post.createdBy!.image!,
-        ],
+        imageUrls: widget.post.media is Media
+            ? widget.post.media.images ?? []
+            : widget.post.media is List
+                ? List<String>.from(widget.post.media)
+                : [],
         isLiked: _isLiked, // Use local state
         postId: widget.post.id?.toString() ?? '',
         likesCount: _likesCount, // Use local state

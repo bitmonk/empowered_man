@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dotted_border/dotted_border.dart';
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/tribe/data/model/add_members_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/add_tribe_member.dart';
 import 'package:image_picker/image_picker.dart';
@@ -24,13 +25,11 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
     tribeController.groupDescriptionController = TextEditingController();
     tribeController.accessTypeController = TextEditingController();
     tribeController.groupImagePath = '';
-    // Fetch access types from the API
     tribeController.fetchAccessTypes();
   }
 
   Future<void> _pickImageFromGallery(
-    TribeGroupController tribeController,
-  ) async {
+      TribeGroupController tribeController) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -41,7 +40,9 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
       );
 
       if (image != null) {
-        tribeController.setGroupImage(image.path);
+        setState(() {
+          tribeController.setGroupImage(image.path);
+        });
       }
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Error picking image: $e');
@@ -78,7 +79,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
       builder: (_, controller) => Container(
         padding: const EdgeInsets.all(16),
         decoration: const BoxDecoration(
-          color: Color(0xFF0D1B2A), // Dark background
+          color: Color(0xFF0D1B2A),
           borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SingleChildScrollView(
@@ -86,7 +87,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Header
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -139,8 +139,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 'Add Members',
                 style: TextStyle(color: Colors.white, fontSize: 14),
               ),
-              const VerticalSpacing(20),
-              // Add Members Button
+              const VerticalSpacing(12),
               OutlinedButton.icon(
                 onPressed: () {
                   showModalBottomSheet(
@@ -148,7 +147,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
                     builder: (context) => AddTribeMember(
-                      selectedMembers: const [],
+                      selectedMembers: members,
                       onMembersUpdated: (newMembers) {
                         setState(() {
                           members = newMembers;
@@ -172,6 +171,57 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 ),
               ),
               const VerticalSpacing(12),
+              if (members.isNotEmpty) ...[
+                const Text(
+                  'Selected Members',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                const VerticalSpacing(12),
+                Obx(() {
+                  final allMembers = tribeController
+                          .groupMembersModel.value.addMembersData?.users ??
+                      [];
+                  return Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    children: members.map((memberId) {
+                      final member = allMembers.firstWhere(
+                        (user) => user.id?.toString() == memberId,
+                        orElse: () => const User(fullName: 'Unknown'),
+                      );
+                      return Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          ClipOval(
+                            child: member.image != null
+                                ? Image.network(
+                                    member.image!,
+                                    width: 30,
+                                    height: 30,
+                                    fit: BoxFit.cover,
+                                    errorBuilder:
+                                        (context, error, stackTrace) =>
+                                            Assets.images.profilePic.image(
+                                                width: 30,
+                                                height: 30,
+                                                fit: BoxFit.cover),
+                                  )
+                                : Assets.images.profilePic.image(
+                                    width: 30, height: 30, fit: BoxFit.cover),
+                          ),
+                          const HorizontalSpacing(8),
+                          Text(
+                            member.fullName ?? 'Unknown',
+                            style: const TextStyle(
+                                color: Colors.white, fontSize: 14),
+                          ),
+                        ],
+                      );
+                    }).toList(),
+                  );
+                }),
+                const VerticalSpacing(12),
+              ],
               const Text(
                 'Add Group Photo',
                 style: TextStyle(color: Colors.white, fontSize: 14),
@@ -236,7 +286,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 ),
               ),
               const SizedBox(height: 16),
-              // Access Type Dropdown
               Obx(
                 () => DropdownButtonFormField<String>(
                   decoration: InputDecoration(
@@ -293,7 +342,6 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 ),
               ),
               const SizedBox(height: 24),
-              // Buttons
               Obx(
                 () => Row(
                   children: [
@@ -305,7 +353,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                             : 'Create',
                         onPressed: tribeController.createGroupState.value ==
                                 TheStates.loading
-                            ? null // Disable button during loading
+                            ? null
                             : () async {
                                 if (_validateForm(tribeController)) {
                                   await tribeController.createGroup(
@@ -321,17 +369,13 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                                             : tribeController.groupImagePath,
                                     membersId: members,
                                   );
-                                  // Handle success state
                                   if (tribeController.createGroupState.value ==
                                       TheStates.success) {
                                     tribeController
                                       ..clearGroupForm()
                                       ..clearGroupImage();
-                                    await tribeController
-                                        .refreshGroups(); // Refresh group list
-                                    Navigator.pop(
-                                      context,
-                                    ); // Close bottom sheet
+                                    await tribeController.refreshGroups();
+                                    Navigator.pop(context);
                                   }
                                 }
                               },

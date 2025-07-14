@@ -1,4 +1,8 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/tribe/data/model/add_members_model.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
+import 'package:dio/dio.dart';
+import 'package:get/get.dart';
 
 class AddTribeMember extends StatefulWidget {
   const AddTribeMember({
@@ -14,34 +18,42 @@ class AddTribeMember extends StatefulWidget {
 }
 
 class _AddTribeMemberState extends State<AddTribeMember> {
-  final List<String> allMembers = [
-    'Liam Cooper',
-    'Emma Johnson',
-    'Noah Brown',
-    'Olivia Smith',
-    'Ava Williams',
-    'Sophia Jones',
-  ];
-  late List<String> selectedMembers;
+  late List<String> selectedMemberIds;
+  final controller = Get.find<TribeGroupController>();
+  CancelToken? _cancelToken;
 
   @override
   void initState() {
     super.initState();
-    selectedMembers = List.from(widget.selectedMembers);
+    selectedMemberIds = List.from(widget.selectedMembers);
+    _fetchMembers();
   }
 
-  void toggleMember(String member) {
+  void _fetchMembers() {
+    _cancelToken = CancelToken();
+    controller.getGroupMembers(cancelToken: _cancelToken);
+  }
+
+  void toggleMember(String memberId) {
     setState(() {
-      if (selectedMembers.contains(member)) {
-        selectedMembers.remove(member);
+      if (selectedMemberIds.contains(memberId)) {
+        selectedMemberIds.remove(memberId);
       } else {
-        selectedMembers.add(member);
+        selectedMemberIds.add(memberId);
       }
     });
+    widget.onMembersUpdated(selectedMemberIds);
   }
 
   void saveMembers() {
-    widget.onMembersUpdated(selectedMembers);
+    widget.onMembersUpdated(selectedMemberIds);
+    Navigator.pop(context);
+  }
+
+  @override
+  void dispose() {
+    _cancelToken?.cancel();
+    super.dispose();
   }
 
   @override
@@ -76,7 +88,7 @@ class _AddTribeMemberState extends State<AddTribeMember> {
           const VerticalSpacing(12),
           const GreyDivider(),
           const VerticalSpacing(12),
-          if (selectedMembers.isNotEmpty) ...[
+          if (selectedMemberIds.isNotEmpty) ...[
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -85,29 +97,50 @@ class _AddTribeMemberState extends State<AddTribeMember> {
               ),
             ),
             const VerticalSpacing(12),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                children: selectedMembers.map((member) {
-                  return Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      ClipOval(
-                        child: Assets.images.profilePic
-                            .image(width: 30, height: 30, fit: BoxFit.cover),
-                      ),
-                      const HorizontalSpacing(4),
-                      Text(
-                        member,
-                        style: AppTextStyles.textBodyB3,
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
+            Obx(() {
+              final members =
+                  controller.groupMembersModel.value.addMembersData?.users ??
+                      [];
+              return Align(
+                alignment: Alignment.centerLeft,
+                child: Wrap(
+                  spacing: 12,
+                  runSpacing: 12,
+                  children: selectedMemberIds.map((memberId) {
+                    final member = members.firstWhere(
+                      (user) => user.id?.toString() == memberId,
+                      orElse: () => const User(fullName: 'Unknown'),
+                    );
+                    return Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        ClipOval(
+                          child: member.image != null
+                              ? Image.network(
+                                  member.image!,
+                                  width: 30,
+                                  height: 30,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Assets.images.profilePic.image(
+                                          width: 30,
+                                          height: 30,
+                                          fit: BoxFit.cover),
+                                )
+                              : Assets.images.profilePic.image(
+                                  width: 30, height: 30, fit: BoxFit.cover),
+                        ),
+                        const HorizontalSpacing(4),
+                        Text(
+                          member.fullName ?? 'Unknown',
+                          style: AppTextStyles.textBodyB3,
+                        ),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              );
+            }),
             const VerticalSpacing(12),
             const GreyDivider(),
             const VerticalSpacing(12),
@@ -121,43 +154,62 @@ class _AddTribeMemberState extends State<AddTribeMember> {
           ),
           const VerticalSpacing(16),
           Expanded(
-            child: ListView.builder(
-              itemCount: allMembers.length,
-              itemBuilder: (context, index) {
-                final member = allMembers[index];
-                return ListTile(
-                  contentPadding: const EdgeInsets.symmetric(vertical: 8),
-                  leading: ClipOval(
-                    child: Assets.images.profilePic
-                        .image(width: 40, height: 40, fit: BoxFit.cover),
-                  ),
-                  title: Row(
-                    children: [
-                      Text(
-                        member,
-                        style: AppTextStyles.textBodyB1,
-                      ),
-                      const HorizontalSpacing(4),
-                      if (index <
-                          2) // Just for example, adding green dot for first two users
-                        const CircleAvatar(
-                          radius: 2.5,
-                          backgroundColor: AppColors.color5CE0A0,
+            child: Obx(() {
+              final state = controller.getGroupMemberState.value;
+              if (state == TheStates.loading) {
+                return const Center(child: CircularProgressIndicator());
+              } else if (state == TheStates.error) {
+                return const Center(child: Text('Failed to load members'));
+              }
+              final members =
+                  controller.groupMembersModel.value.addMembersData?.users ??
+                      [];
+              return ListView.builder(
+                itemCount: members.length,
+                itemBuilder: (context, index) {
+                  final member = members[index];
+                  final memberId = member.id?.toString();
+                  if (memberId == null) return const SizedBox.shrink();
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 8),
+                    leading: ClipOval(
+                      child: member.image != null
+                          ? Image.network(
+                              member.image!,
+                              width: 40,
+                              height: 40,
+                              fit: BoxFit.cover,
+                              errorBuilder: (context, error, stackTrace) =>
+                                  Assets.images.profilePic.image(
+                                      width: 40, height: 40, fit: BoxFit.cover),
+                            )
+                          : Assets.images.profilePic
+                              .image(width: 40, height: 40, fit: BoxFit.cover),
+                    ),
+                    title: Row(
+                      children: [
+                        Text(
+                          member.fullName ?? 'Unknown',
+                          style: AppTextStyles.textBodyB1,
                         ),
-                    ],
-                  ),
-                  trailing: Checkbox(
-                    value: selectedMembers.contains(member),
-                    onChanged: (_) {
-                      toggleMember(member);
-                      saveMembers();
-                    },
-                    side: const BorderSide(color: AppColors.textColor50),
-                    activeColor: AppColors.primary500,
-                  ),
-                );
-              },
-            ),
+                        const HorizontalSpacing(4),
+                        if (member.isCoach ?? false)
+                          const CircleAvatar(
+                            radius: 2.5,
+                            backgroundColor: AppColors.color5CE0A0,
+                          ),
+                      ],
+                    ),
+                    trailing: Checkbox(
+                      value: selectedMemberIds.contains(memberId),
+                      onChanged: (_) => toggleMember(memberId),
+                      side: const BorderSide(color: AppColors.textColor50),
+                      activeColor: AppColors.primary500,
+                    ),
+                  );
+                },
+              );
+            }),
           ),
           const VerticalSpacing(20),
           Row(
@@ -171,15 +223,10 @@ class _AddTribeMemberState extends State<AddTribeMember> {
               const HorizontalSpacing(12),
               Expanded(
                 child: AppOutlinedButton(
-                  text: selectedMembers.isEmpty
+                  text: selectedMemberIds.isEmpty
                       ? 'Done'
-                      : 'Add ${selectedMembers.length} Member${selectedMembers.length > 1 ? 's' : ''}',
-
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-
-                  // onPressed: addMembersToGroup,
+                      : 'Add ${selectedMemberIds.length} Member${selectedMemberIds.length > 1 ? 's' : ''}',
+                  onPressed: saveMembers,
                 ),
               ),
             ],

@@ -249,6 +249,50 @@ class FeedPageController extends GetxController {
     }
   }
 
+  Future<void> toggleCommentLike(String commentId) async {
+    try {
+      posts.refresh();
+
+      final result = await remoteSource.likeComment(commentId: commentId);
+
+      result.fold(
+        (error) {
+          posts.refresh();
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (message) {
+          AppUtils.showSnackbar(message: message);
+          // loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      posts.refresh();
+      AppUtils.showErrorSnackbar(message: 'Failed to like post: $e');
+    }
+  }
+
+  Future<void> toggleReplyLike(String commentId) async {
+    try {
+      posts.refresh();
+
+      final result = await remoteSource.likeComment(commentId: commentId);
+
+      result.fold(
+        (error) {
+          posts.refresh();
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (message) {
+          AppUtils.showSnackbar(message: message);
+          // loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      posts.refresh();
+      AppUtils.showErrorSnackbar(message: 'Failed to like post: $e');
+    }
+  }
+
   Future<void> toggleSave(String postId) async {
     try {
       final result = await remoteSource.savePost(postId: postId);
@@ -348,7 +392,7 @@ class FeedPageController extends GetxController {
 
   Future<void> likeComment(String commentId) async {
     try {
-      final result = await remoteSource.likeComment(postId: commentId);
+      final result = await remoteSource.likeComment(commentId: commentId);
 
       result.fold(
         (error) {
@@ -515,7 +559,8 @@ class FeedPageController extends GetxController {
       ..writeln('📱 Check out this post from $userName on EmpoweredMan!')
       ..writeln()
       ..writeln(
-          '"${content.length > 200 ? '${content.substring(0, 200)}...' : content}"',)
+        '"${content.length > 200 ? '${content.substring(0, 200)}...' : content}"',
+      )
       ..writeln()
       ..writeln('👍 $likesCount likes • 💬 $commentsCount comments')
       ..writeln()

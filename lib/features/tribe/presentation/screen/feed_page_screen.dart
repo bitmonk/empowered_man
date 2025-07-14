@@ -147,7 +147,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                           [];
                   for (final post in savedPosts) {
                     controller.getPostComments(
-                        postId: post.id?.toString() ?? '',);
+                      postId: post.id?.toString() ?? '',
+                    );
                   }
                 });
               }
@@ -261,6 +262,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           for (final post in posts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
           }
+          setState(() {}); // Force widget rebuild to reflect updated likes
         },
         child: ListView.builder(
           padding: const EdgeInsets.all(16),

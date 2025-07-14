@@ -5,6 +5,7 @@ import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/features/tribe/data/model/add_members_model.dart';
 import 'package:empowered/features/tribe/data/model/create_group_response_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart';
@@ -51,11 +52,13 @@ class TribeGroupRemoteSource {
     String? showPost,
   }) async {
     try {
-      final response = await _client.get(AppEndpoints.createGroup,
-          queryParameters: {
-            if (search != null) 'search': search,
-            'show_post': showPost,
-          },);
+      final response = await _client.get(
+        AppEndpoints.createGroup,
+        queryParameters: {
+          if (search != null) 'search': search,
+          'show_post': showPost,
+        },
+      );
       return right(GroupListModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -333,6 +336,21 @@ class TribeGroupRemoteSource {
     try {
       final response = await _client.get(AppEndpoints.getFeedSavedPost);
       return right(FeedSavedPostsModel.fromJson(response));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, GroupMembersModel>> getMembers({
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(AppEndpoints.getMembers);
+      return right(GroupMembersModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

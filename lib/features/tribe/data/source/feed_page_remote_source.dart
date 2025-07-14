@@ -208,11 +208,11 @@ class FeedPageRemoteSource {
   }
 
   Future<Either<AppError, String>> likeComment({
-    required String postId,
+    required String commentId,
   }) async {
     try {
       final response = await _client.post(
-        '${AppEndpoints.likeComment}?comment_id=$postId',
+        '${AppEndpoints.likeComment}?comment_id=$commentId',
       );
       return right(response['message']);
     } catch (e) {
