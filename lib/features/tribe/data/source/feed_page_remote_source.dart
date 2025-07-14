@@ -3,6 +3,8 @@ import 'package:empowered/constants/app_endpoints.dart';
 import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
+import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
+// import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
 import 'package:empowered/features/tribe/data/model/create_post_response_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
@@ -215,6 +217,23 @@ class FeedPageRemoteSource {
         '${AppEndpoints.likeComment}?comment_id=$commentId',
       );
       return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, CommentRepliesModel>> getCommentReplies({
+    required String commentId,
+  }) async {
+    try {
+      final response = await _client.get(
+        '${AppEndpoints.getCommentReplies}?comment_id=$commentId',
+      );
+      return right(CommentRepliesModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

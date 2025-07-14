@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:app_links/app_links.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
+import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
+// import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
@@ -158,6 +160,31 @@ class FeedPageController extends GetxController {
       feedMediaState.value = TheStates.error;
       feedError = 'Failed to load feed media: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    }
+  }
+
+  Rx<CommentRepliesModel> repliesModel = const CommentRepliesModel().obs;
+  Rx<TheStates> getRepliesState = TheStates.initial.obs;
+
+  Future<void> getCommentReplies({required String commentId}) async {
+    try {
+      getRepliesState.value = TheStates.loading;
+
+      final result = await remoteSource.getCommentReplies(commentId: commentId);
+
+      result.fold(
+        (l) {
+          getRepliesState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          getRepliesState.value = TheStates.success;
+          repliesModel.value = r;
+        },
+      );
+    } catch (e) {
+      getRepliesState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
     }
   }
 
@@ -351,6 +378,7 @@ class FeedPageController extends GetxController {
         (r) {
           commentState.value = TheStates.success;
           commentsModel[postId] = r;
+          commentsModel.refresh();
         },
       );
     } catch (e) {

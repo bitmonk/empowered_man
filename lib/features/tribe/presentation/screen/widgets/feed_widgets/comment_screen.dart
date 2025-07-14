@@ -1,8 +1,12 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
+import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
+    as post_comments;
+import 'package:empowered/features/tribe/data/model/comment_replies_model.dart'
+    as comment_replies;
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
@@ -37,6 +41,12 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToCommentId;
   String? replyingToUserName;
   String? replyingToContent;
+
+  // Track expanded states
+  final RxSet<String> expandedComments =
+      <String>{}.obs; // For comment text expansion
+  final RxSet<String> expandedReplies = <String>{}.obs; // For reply visibility
+  final RxSet<String> loadingReplies = <String>{}.obs; // For loading state
 
   String _formatCount(int count) {
     if (count >= 1000000) {
@@ -87,20 +97,24 @@ class _CommentScreenState extends State<CommentScreen> {
     if (_inputController.text.trim().isEmpty) return;
 
     if (replyingToCommentId != null) {
+      print('Sending reply to comment ID: $replyingToCommentId');
       controller.replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
       );
       Future.delayed(const Duration(milliseconds: 300), () {
+        print('Refreshing comments for post ID: ${widget.postId}');
         controller.getPostComments(postId: widget.postId);
+        // Fetch replies for the specific comment
+        controller.getCommentReplies(commentId: replyingToCommentId!);
       });
       _cancelReply();
     } else {
-      final success = controller.commentOnPost(
+      controller.commentOnPost(
         widget.postId,
         customComment: _inputController.text.trim(),
       );
-      if (success == true) _inputController.clear();
+      _inputController.clear();
     }
   }
 
@@ -111,6 +125,20 @@ class _CommentScreenState extends State<CommentScreen> {
     } catch (e) {
       return 'N/A';
     }
+  }
+
+  bool _shouldShowMoreButton(String text, {int maxLines = 3}) {
+    // Approximate calculation - you might want to use a more accurate method
+    const avgCharsPerLine =
+        40; // Adjust based on your font size and screen width
+    return text.length > (maxLines * avgCharsPerLine);
+  }
+
+  String _getTruncatedText(String text, {int maxLines = 3}) {
+    const avgCharsPerLine = 40;
+    final maxChars = maxLines * avgCharsPerLine;
+    if (text.length <= maxChars) return text;
+    return '${text.substring(0, maxChars)}...';
   }
 
   @override
@@ -163,6 +191,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 final comments =
                     controller.commentsModel[widget.postId]?.data?.comments ??
                         [];
+                print('Comments loaded: ${comments.length}');
                 return RefreshIndicator(
                   onRefresh: () =>
                       controller.getPostComments(postId: widget.postId),
@@ -171,8 +200,8 @@ class _CommentScreenState extends State<CommentScreen> {
                     children: [
                       _buildOriginalPost(),
                       const SizedBox(height: 16),
-                      ...comments.map((comment) =>
-                          _buildCommentWithReplies(comment, indentLevel: 0)),
+                      ...comments
+                          .map((comment) => _buildCommentWithReplies(comment)),
                     ],
                   ),
                 );
@@ -407,391 +436,341 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  Widget _buildCommentWithReplies(Comment comment, {int indentLevel = 0}) {
-    final sortedReplies = comment.replys != null
-        ? () {
-            final list = List<Comment>.from(comment.replys!)
-              ..sort((a, b) {
-                if (a.createdAt == null && b.createdAt == null) return 0;
-                if (a.createdAt == null) return -1;
-                if (b.createdAt == null) return 1;
-                return a.createdAt!.compareTo(b.createdAt!);
-              });
-            return list;
-          }()
-        : <Comment>[];
-    return Container(
-      margin: EdgeInsets.only(bottom: 12, left: indentLevel * 40.0),
-      child: Column(
+  Widget _buildCommentWithReplies(post_comments.Comment comment) {
+    return Obx(() {
+      final commentId = comment.id.toString();
+      final hasReplies =
+          comment.commentsCount != null && comment.commentsCount! > 0;
+      final isRepliesExpanded = expandedReplies.contains(commentId);
+      final isLoadingReplies = loadingReplies.contains(commentId);
+
+      // Get replies from controller's repliesModel
+      final replies = controller.repliesModel.value.repliesData?.comments ?? [];
+
+      return Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildComment(comment),
+
+            // Show replies button
+            if (hasReplies) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: GestureDetector(
+                  onTap: () async {
+                    if (isRepliesExpanded) {
+                      expandedReplies.remove(commentId);
+                    } else {
+                      loadingReplies.add(commentId);
+                      await controller.getCommentReplies(commentId: commentId);
+                      loadingReplies.remove(commentId);
+                      expandedReplies.add(commentId);
+                    }
+                  },
+                  child: isLoadingReplies
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white70),
+                          ),
+                        )
+                      : Text(
+                          isRepliesExpanded
+                              ? 'Hide replies'
+                              : 'View ${comment.commentsCount} ${comment.commentsCount == 1 ? 'reply' : 'replies'}',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 13,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+
+            // Show replies if expanded
+            if (isRepliesExpanded && replies.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...replies.map((reply) => _buildReply(reply, commentId)),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildComment(post_comments.Comment comment) {
+    return Obx(() {
+      final commentId = comment.id.toString();
+      final isExpanded = expandedComments.contains(commentId);
+      final commentText = comment.text ?? '';
+      final shouldShowMore = _shouldShowMoreButton(commentText);
+
+      return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildComment(comment),
-          if (sortedReplies.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            ...sortedReplies.map(
-              (reply) => _buildReply(
-                reply,
-                comment.id.toString(),
-                comment.user?.fullName ?? 'Unknown',
-                comment.text ?? '',
-                indentLevel: indentLevel + 1,
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  Comment _mapToComment(dynamic reply) {
-    print('Mapping reply: $reply');
-    if (reply is! Map<String, dynamic>) {
-      return const Comment(
-        likesCount: 0,
-      );
-    }
-    final profileController = Get.find<ProfileController>();
-    return Comment(
-      id: reply['id'] ?? 'unknown_${DateTime.now().millisecondsSinceEpoch}',
-      text: reply['text'] as String? ?? '',
-      user: reply['user'] != null
-          ? User(
-              fullName: reply['user']['full_name'] as String? ??
-                  (profileController.userProfile.value.fullName ?? 'Unknown'),
-              image: reply['user']['image'] as String? ??
-                  profileController.userProfile.value.image,
-            )
-          : User(
-              fullName:
-                  profileController.userProfile.value.fullName ?? 'Unknown',
-              image: profileController.userProfile.value.image,
-            ),
-      createdAt: reply['created_at'] != null
-          ? DateTime.tryParse(reply['created_at'])
-          : null,
-      likesCount: reply['likes_count'] as int? ?? 0,
-      replys: reply['replys'] as List<Comment>?,
-    );
-  }
-
-  Widget _buildComment(Comment comment) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        ClipOval(
-          child: comment.user?.image != null
-              ? Image.network(
-                  comment.user!.image!,
-                  height: 32,
-                  width: 32,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      Assets.images.leaderProfile.image(
+          ClipOval(
+            child: comment.user?.image != null
+                ? Image.network(
+                    comment.user!.image!,
+                    height: 32,
+                    width: 32,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Assets.images.leaderProfile.image(
+                      height: 32,
+                      width: 32,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Assets.images.leaderProfile.image(
                     height: 32,
                     width: 32,
                     fit: BoxFit.cover,
                   ),
-                )
-              : Assets.images.leaderProfile.image(
-                  height: 32,
-                  width: 32,
-                  fit: BoxFit.cover,
-                ),
-        ),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      comment.user?.fullName ?? 'Unknown',
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        comment.user?.fullName ?? 'Unknown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatDateTime(comment.createdAt),
                       style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                        color: Colors.grey,
+                        fontSize: 12,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    _formatDateTime(comment.createdAt),
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 12,
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 4),
-              Text(
-                comment.text ?? '',
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 14,
+                  ],
                 ),
-                maxLines: 5,
-                overflow: TextOverflow.ellipsis,
-              ),
-              const SizedBox(height: 8),
-              Row(
-                children: [
+                const SizedBox(height: 4),
+
+                // Comment text with show more/less functionality
+                Text(
+                  isExpanded ? commentText : _getTruncatedText(commentText),
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 14,
+                  ),
+                ),
+
+                // Show more/less button
+                if (shouldShowMore) ...[
+                  const SizedBox(height: 4),
                   GestureDetector(
                     onTap: () {
-                      controller.toggleCommentLike(comment.id.toString());
+                      if (isExpanded) {
+                        expandedComments.remove(commentId);
+                      } else {
+                        expandedComments.add(commentId);
+                      }
                     },
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Obx(
-                          () => Icon(
-                            (controller.commentsModel[widget.postId]?.data
-                                            ?.comments
-                                            ?.firstWhere(
-                                              (c) =>
-                                                  c.id.toString() ==
-                                                  comment.id.toString(),
-                                              orElse: () => comment,
-                                            )
-                                            .likesCount ??
-                                        0) >
-                                    0
+                    child: Text(
+                      isExpanded ? 'Show less' : 'Show more',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        controller.toggleCommentLike(commentId);
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            (comment.likesCount ?? 0) > 0
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: (controller.commentsModel[widget.postId]
-                                            ?.data?.comments
-                                            ?.firstWhere(
-                                              (c) =>
-                                                  c.id.toString() ==
-                                                  comment.id.toString(),
-                                              orElse: () => comment,
-                                            )
-                                            .likesCount ??
-                                        0) >
-                                    0
+                            color: (comment.likesCount ?? 0) > 0
                                 ? Colors.red
                                 : Colors.white,
                             size: 16,
                           ),
-                        ),
-                        const SizedBox(width: 4),
-                        Obx(
-                          () => Text(
-                            _formatCount(
-                              controller.commentsModel[widget.postId]?.data
-                                      ?.comments
-                                      ?.firstWhere(
-                                        (c) =>
-                                            c.id.toString() ==
-                                            comment.id.toString(),
-                                        orElse: () => comment,
-                                      )
-                                      .likesCount ??
-                                  0,
-                            ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCount(comment.likesCount ?? 0),
                             style: const TextStyle(
                               color: Colors.white,
                               fontSize: 12,
                             ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  GestureDetector(
-                    onTap: () => _startReply(
-                      comment.id.toString(),
-                      comment.user?.fullName ?? 'Unknown',
-                      comment.text ?? '',
-                    ),
-                    child: const Text(
-                      'Reply',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                        ],
                       ),
                     ),
-                  ),
-                  if (comment.replys?.isNotEmpty ?? false) ...[
                     const SizedBox(width: 16),
-                    Text(
-                      '${comment.replys!.length} ${comment.replys!.length == 1 ? 'reply' : 'replies'}',
-                      style: const TextStyle(
-                        color: Colors.white54,
-                        fontSize: 12,
+                    GestureDetector(
+                      onTap: () => _startReply(
+                        commentId,
+                        comment.user?.fullName ?? 'Unknown',
+                        commentText,
                       ),
-                    ),
-                  ],
-                ],
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _buildReply(
-    Comment reply,
-    String parentCommentId,
-    String parentUserName,
-    String parentContent, {
-    int indentLevel = 1,
-  }) {
-    final sortedSubReplies = reply.replys != null
-        ? () {
-            final list = List<Comment>.from(reply.replys!)
-              ..sort((a, b) {
-                if (a.createdAt == null && b.createdAt == null) return 0;
-                if (a.createdAt == null) return -1;
-                if (b.createdAt == null) return 1;
-                return a.createdAt!.compareTo(b.createdAt!);
-              });
-            return list;
-          }()
-        : <Comment>[];
-    return Container(
-      margin: EdgeInsets.only(left: indentLevel * 40.0, bottom: 8),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              ClipOval(
-                child: reply.user?.image != null
-                    ? Image.network(
-                        reply.user!.image!,
-                        height: 28,
-                        width: 28,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          height: 28,
-                          width: 28,
-                          fit: BoxFit.cover,
+                      child: const Text(
+                        'Reply',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
-                      )
-                    : Assets.images.leaderProfile.image(
-                        height: 28,
-                        width: 28,
-                        fit: BoxFit.cover,
                       ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            reply.user?.fullName ?? 'Unknown',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 13,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _formatDateTime(reply.createdAt),
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 11,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      reply.text ?? '',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 13,
-                      ),
-                      maxLines: 5,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        GestureDetector(
-                          onTap: () {
-                            controller.toggleReplyLike(reply.id.toString());
-                          },
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                (reply.likesCount ?? 0) > 0
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: (reply.likesCount ?? 0) > 0
-                                    ? Colors.red
-                                    : Colors.white,
-                                size: 14,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                _formatCount(reply.likesCount ?? 0),
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 11,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        GestureDetector(
-                          onTap: () => _startReply(
-                            reply.id.toString(), // Reply to the specific reply
-                            reply.user?.fullName ?? 'Unknown',
-                            reply.text ?? '',
-                          ),
-                          child: const Text(
-                            'Reply',
-                            style: TextStyle(
-                              color: Colors.white70,
-                              fontSize: 11,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-          if (sortedSubReplies.isNotEmpty) ...[
-            const SizedBox(height: 8),
-            ...sortedSubReplies.map(
-              (subReply) => _buildReply(
-                subReply,
-                reply.id.toString(), // Use reply.id for nested replies
-                reply.user?.fullName ?? 'Unknown',
-                reply.text ?? '',
-                indentLevel: indentLevel + 1,
-              ),
+              ],
             ),
-          ],
+          ),
+        ],
+      );
+    });
+  }
+
+  Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
+    return Container(
+      margin: const EdgeInsets.only(left: 40.0, bottom: 12),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ClipOval(
+            child: reply.user?.image != null
+                ? Image.network(
+                    reply.user!.image!,
+                    height: 28,
+                    width: 28,
+                    fit: BoxFit.cover,
+                    errorBuilder: (context, error, stackTrace) =>
+                        Assets.images.leaderProfile.image(
+                      height: 28,
+                      width: 28,
+                      fit: BoxFit.cover,
+                    ),
+                  )
+                : Assets.images.leaderProfile.image(
+                    height: 28,
+                    width: 28,
+                    fit: BoxFit.cover,
+                  ),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        reply.user?.fullName ?? 'Unknown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      _formatDateTime(reply.createdAt),
+                      style: const TextStyle(
+                        color: Colors.grey,
+                        fontSize: 11,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  reply.text ?? '',
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        controller.toggleReplyLike(reply.id.toString());
+                      },
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            (reply.likesCount ?? 0) > 0
+                                ? Icons.favorite
+                                : Icons.favorite_border,
+                            color: (reply.likesCount ?? 0) > 0
+                                ? Colors.red
+                                : Colors.white,
+                            size: 14,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCount(reply.likesCount ?? 0),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 11,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    GestureDetector(
+                      onTap: () => _startReply(
+                        reply.id.toString(),
+                        reply.user?.fullName ?? 'Unknown',
+                        reply.text ?? '',
+                      ),
+                      child: const Text(
+                        'Reply',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -873,7 +852,7 @@ class _CommentScreenState extends State<CommentScreen> {
           Row(
             children: [
               ClipOval(
-                child: controller.userProfile != null
+                child: controller.userProfile.isNotEmpty
                     ? Image.network(
                         controller.userProfile,
                         width: 40,

@@ -99,6 +99,7 @@ class AppEndpoints {
   static const String commentPost = '/user/post/comment';
   static const String likeComment = '/user/comment/like';
   static const String replyComment = '/user/comment/reply';
+  static const String getCommentReplies = '/user/comment/replies';
   static const String savePost = '/user/post/save';
   static const String hidePost = '/user/post/hide';
   static const String getFeedSavedPost = '/user/post-feed/saved-posts';
