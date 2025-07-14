@@ -46,6 +46,8 @@ class _CommentScreenState extends State<CommentScreen> {
   final RxSet<String> expandedComments =
       <String>{}.obs; // For comment text expansion
   final RxSet<String> expandedReplies = <String>{}.obs; // For reply visibility
+  final RxSet<String> expandedNestedReplies =
+      <String>{}.obs; // For nested reply visibility
   final RxSet<String> loadingReplies = <String>{}.obs; // For loading state
 
   String _formatCount(int count) {
@@ -98,23 +100,27 @@ class _CommentScreenState extends State<CommentScreen> {
 
     if (replyingToCommentId != null) {
       print('Sending reply to comment ID: $replyingToCommentId');
-      controller.replyToComment(
+      controller
+          .replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
-      );
-      Future.delayed(const Duration(milliseconds: 300), () {
+      )
+          .then((_) async {
         print('Refreshing comments for post ID: ${widget.postId}');
-        controller.getPostComments(postId: widget.postId);
-        // Fetch replies for the specific comment
-        controller.getCommentReplies(commentId: replyingToCommentId!);
+        await controller.getPostComments(postId: widget.postId);
+        await controller.getCommentReplies(commentId: replyingToCommentId!);
+        _cancelReply();
       });
-      _cancelReply();
     } else {
-      controller.commentOnPost(
+      controller
+          .commentOnPost(
         widget.postId,
         customComment: _inputController.text.trim(),
-      );
-      _inputController.clear();
+      )
+          .then((_) async {
+        await controller.getPostComments(postId: widget.postId);
+        _inputController.clear();
+      });
     }
   }
 
@@ -128,9 +134,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   bool _shouldShowMoreButton(String text, {int maxLines = 3}) {
-    // Approximate calculation - you might want to use a more accurate method
-    const avgCharsPerLine =
-        40; // Adjust based on your font size and screen width
+    const avgCharsPerLine = 40;
     return text.length > (maxLines * avgCharsPerLine);
   }
 
@@ -444,8 +448,9 @@ class _CommentScreenState extends State<CommentScreen> {
       final isRepliesExpanded = expandedReplies.contains(commentId);
       final isLoadingReplies = loadingReplies.contains(commentId);
 
-      // Get replies from controller's repliesModel
-      final replies = controller.repliesModel.value.repliesData?.comments ?? [];
+      // Get replies for this comment
+      final replies =
+          controller.repliesModel[commentId]?.repliesData?.comments ?? [];
 
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -453,8 +458,6 @@ class _CommentScreenState extends State<CommentScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             _buildComment(comment),
-
-            // Show replies button
             if (hasReplies) ...[
               const SizedBox(height: 8),
               Padding(
@@ -493,8 +496,6 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
             ],
-
-            // Show replies if expanded
             if (isRepliesExpanded && replies.isNotEmpty) ...[
               const SizedBox(height: 8),
               ...replies.map((reply) => _buildReply(reply, commentId)),
@@ -567,8 +568,6 @@ class _CommentScreenState extends State<CommentScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-
-                // Comment text with show more/less functionality
                 Text(
                   isExpanded ? commentText : _getTruncatedText(commentText),
                   style: const TextStyle(
@@ -576,8 +575,6 @@ class _CommentScreenState extends State<CommentScreen> {
                     fontSize: 14,
                   ),
                 ),
-
-                // Show more/less button
                 if (shouldShowMore) ...[
                   const SizedBox(height: 4),
                   GestureDetector(
@@ -598,7 +595,6 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                   ),
                 ],
-
                 const SizedBox(height: 8),
                 Row(
                   children: [
@@ -656,28 +652,213 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
+    final replyId = reply.id.toString();
+    final hasNestedReplies =
+        reply.commentsCount != null && reply.commentsCount! > 0;
+    final isNestedRepliesExpanded = expandedNestedReplies.contains(replyId);
+    final isLoadingNestedReplies = loadingReplies.contains(replyId);
+
+    return Obx(() {
+      // Get nested replies for this reply
+      final nestedReplies =
+          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+
+      return Container(
+        margin: const EdgeInsets.only(left: 40.0, bottom: 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipOval(
+                  child: reply.user?.image != null
+                      ? Image.network(
+                          reply.user!.image!,
+                          height: 28,
+                          width: 28,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) =>
+                              Assets.images.leaderProfile.image(
+                            height: 28,
+                            width: 28,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Assets.images.leaderProfile.image(
+                          height: 28,
+                          width: 28,
+                          fit: BoxFit.cover,
+                        ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              reply.user?.fullName ?? 'Unknown',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            _formatDateTime(reply.createdAt),
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 11,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        reply.text ?? '',
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 13,
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () {
+                              controller.toggleReplyLike(reply.id.toString());
+                            },
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  (reply.likesCount ?? 0) > 0
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: (reply.likesCount ?? 0) > 0
+                                      ? Colors.red
+                                      : Colors.white,
+                                  size: 14,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _formatCount(reply.likesCount ?? 0),
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(width: 16),
+                          GestureDetector(
+                            onTap: () => _startReply(
+                              reply.id.toString(),
+                              reply.user?.fullName ?? 'Unknown',
+                              reply.text ?? '',
+                            ),
+                            child: const Text(
+                              'Reply',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 11,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            // Show nested replies button
+            if (hasNestedReplies) ...[
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0),
+                child: GestureDetector(
+                  onTap: () async {
+                    if (isNestedRepliesExpanded) {
+                      expandedNestedReplies.remove(replyId);
+                    } else {
+                      loadingReplies.add(replyId);
+                      await controller.getCommentReplies(commentId: replyId);
+                      loadingReplies.remove(replyId);
+                      expandedNestedReplies.add(replyId);
+                    }
+                  },
+                  child: isLoadingNestedReplies
+                      ? const SizedBox(
+                          height: 20,
+                          width: 20,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white70),
+                          ),
+                        )
+                      : Text(
+                          isNestedRepliesExpanded
+                              ? 'Hide replies'
+                              : 'View ${reply.commentsCount} ${reply.commentsCount == 1 ? 'reply' : 'replies'}',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                ),
+              ),
+            ],
+            // Show nested replies if expanded
+            if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
+              const SizedBox(height: 8),
+              ...nestedReplies.map(
+                  (nestedReply) => _buildNestedReply(nestedReply, replyId)),
+            ],
+          ],
+        ),
+      );
+    });
+  }
+
+  Widget _buildNestedReply(
+      comment_replies.Comment nestedReply, String parentReplyId) {
     return Container(
-      margin: const EdgeInsets.only(left: 40.0, bottom: 12),
+      margin: const EdgeInsets.only(
+          left: 80.0, bottom: 12), // Indent further for nested replies
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           ClipOval(
-            child: reply.user?.image != null
+            child: nestedReply.user?.image != null
                 ? Image.network(
-                    reply.user!.image!,
-                    height: 28,
-                    width: 28,
+                    nestedReply.user!.image!,
+                    height: 24,
+                    width: 24,
                     fit: BoxFit.cover,
                     errorBuilder: (context, error, stackTrace) =>
                         Assets.images.leaderProfile.image(
-                      height: 28,
-                      width: 28,
+                      height: 24,
+                      width: 24,
                       fit: BoxFit.cover,
                     ),
                   )
                 : Assets.images.leaderProfile.image(
-                    height: 28,
-                    width: 28,
+                    height: 24,
+                    width: 24,
                     fit: BoxFit.cover,
                   ),
           ),
@@ -690,11 +871,11 @@ class _CommentScreenState extends State<CommentScreen> {
                   children: [
                     Expanded(
                       child: Text(
-                        reply.user?.fullName ?? 'Unknown',
+                        nestedReply.user?.fullName ?? 'Unknown',
                         style: const TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                          fontSize: 12,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
@@ -702,10 +883,10 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _formatDateTime(reply.createdAt),
+                      _formatDateTime(nestedReply.createdAt),
                       style: const TextStyle(
                         color: Colors.grey,
-                        fontSize: 11,
+                        fontSize: 10,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -714,10 +895,10 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  reply.text ?? '',
+                  nestedReply.text ?? '',
                   style: const TextStyle(
                     color: Colors.white70,
-                    fontSize: 13,
+                    fontSize: 12,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -725,26 +906,26 @@ class _CommentScreenState extends State<CommentScreen> {
                   children: [
                     GestureDetector(
                       onTap: () {
-                        controller.toggleReplyLike(reply.id.toString());
+                        controller.toggleReplyLike(nestedReply.id.toString());
                       },
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            (reply.likesCount ?? 0) > 0
+                            (nestedReply.likesCount ?? 0) > 0
                                 ? Icons.favorite
                                 : Icons.favorite_border,
-                            color: (reply.likesCount ?? 0) > 0
+                            color: (nestedReply.likesCount ?? 0) > 0
                                 ? Colors.red
                                 : Colors.white,
-                            size: 14,
+                            size: 12,
                           ),
                           const SizedBox(width: 4),
                           Text(
-                            _formatCount(reply.likesCount ?? 0),
+                            _formatCount(nestedReply.likesCount ?? 0),
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 11,
+                              fontSize: 10,
                             ),
                           ),
                         ],
@@ -753,15 +934,15 @@ class _CommentScreenState extends State<CommentScreen> {
                     const SizedBox(width: 16),
                     GestureDetector(
                       onTap: () => _startReply(
-                        reply.id.toString(),
-                        reply.user?.fullName ?? 'Unknown',
-                        reply.text ?? '',
+                        nestedReply.id.toString(),
+                        nestedReply.user?.fullName ?? 'Unknown',
+                        nestedReply.text ?? '',
                       ),
                       child: const Text(
                         'Reply',
                         style: TextStyle(
                           color: Colors.white70,
-                          fontSize: 11,
+                          fontSize: 10,
                           fontWeight: FontWeight.w500,
                         ),
                       ),

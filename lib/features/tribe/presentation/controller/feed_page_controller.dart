@@ -163,7 +163,8 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Rx<CommentRepliesModel> repliesModel = const CommentRepliesModel().obs;
+  final RxMap<String, CommentRepliesModel> repliesModel =
+      <String, CommentRepliesModel>{}.obs;
   Rx<TheStates> getRepliesState = TheStates.initial.obs;
 
   Future<void> getCommentReplies({required String commentId}) async {
@@ -179,7 +180,8 @@ class FeedPageController extends GetxController {
         },
         (r) {
           getRepliesState.value = TheStates.success;
-          repliesModel.value = r;
+          repliesModel[commentId] = r; // Store replies for this commentId
+          repliesModel.refresh(); // Notify UI of the change
         },
       );
     } catch (e) {
