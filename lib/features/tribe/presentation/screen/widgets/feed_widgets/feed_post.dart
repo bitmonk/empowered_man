@@ -1,10 +1,16 @@
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
+import 'package:gif/gif.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:flutter_gif/flutter_gif.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
+import 'package:flutter/material.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -12,31 +18,31 @@ class FeedPost extends StatefulWidget {
     super.key,
   });
 
-  final dynamic
-      post; // Post from feed_posts_model.dart or saved_posts_model.dart
+  final dynamic post;
 
   @override
   State<FeedPost> createState() => _FeedPostState();
 }
 
-class _FeedPostState extends State<FeedPost> {
+class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
   bool _expanded = false;
   late final FeedPageController controller;
-  late bool _isLiked; // Local state for like status
-  late int _likesCount; // Local state for likes count
-  late bool _isBookmarked; // Local state for bookmark status
+  late bool _isLiked;
+  late int _likesCount;
+  late bool _isBookmarked;
+  late GifController gifController;
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<FeedPageController>();
+    gifController = GifController(vsync: this);
     _syncStateWithWidget();
   }
 
   @override
   void didUpdateWidget(covariant FeedPost oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the post id, like count, or bookmark status changes, update local state
     if (widget.post.id != oldWidget.post.id ||
         widget.post.likesCount != oldWidget.post.likesCount ||
         widget.post.likedByCurrentUser != oldWidget.post.likedByCurrentUser ||
@@ -45,11 +51,16 @@ class _FeedPostState extends State<FeedPost> {
     }
   }
 
+  @override
+  void dispose() {
+    gifController.dispose();
+    super.dispose();
+  }
+
   void _syncStateWithWidget() {
     _isLiked = widget.post.likedByCurrentUser ?? false;
     _likesCount = widget.post.likesCount ?? 0;
-    _isBookmarked =
-        widget.post.isBookmarked ?? false; // Initialize bookmark state
+    _isBookmarked = widget.post.isBookmarked ?? false;
   }
 
   String formatDateTime(DateTime? dateTime) {
@@ -78,7 +89,6 @@ class _FeedPostState extends State<FeedPost> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // User info
           Row(
             children: [
               ClipOval(
@@ -173,12 +183,8 @@ class _FeedPostState extends State<FeedPost> {
           const VerticalSpacing(12),
           const GreyDivider(),
           const VerticalSpacing(12),
-
-          // Media
           _buildMedia(widget.post.media),
           const VerticalSpacing(12),
-
-          // Content
           Text(textToShow, style: const TextStyle(color: Colors.white)),
           if (content.length > 100)
             TextButton(
@@ -191,11 +197,8 @@ class _FeedPostState extends State<FeedPost> {
           const VerticalSpacing(12),
           const GreyDivider(),
           const VerticalSpacing(12),
-
-          // Action bar
           Row(
             children: [
-              // Like button
               GestureDetector(
                 onTap: _handleLikeToggle,
                 child: _isLiked
@@ -208,8 +211,6 @@ class _FeedPostState extends State<FeedPost> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(width: 16),
-
-              // Comment button
               Obx(
                 () => GestureDetector(
                   onTap: _navigateToComments,
@@ -231,8 +232,6 @@ class _FeedPostState extends State<FeedPost> {
                 ),
               ),
               const SizedBox(width: 16),
-
-              // Share button
               Obx(
                 () => GestureDetector(
                   onTap: controller.isSharing.value
@@ -256,10 +255,7 @@ class _FeedPostState extends State<FeedPost> {
                         ),
                 ),
               ),
-
               const Spacer(),
-
-              // Save button
               GestureDetector(
                 onTap: _handleSaveToggle,
                 child: _isBookmarked
@@ -273,7 +269,6 @@ class _FeedPostState extends State<FeedPost> {
     );
   }
 
-  // Handle like toggle with optimistic update
   Future<void> _handleLikeToggle() async {
     final previousIsLiked = _isLiked;
     final previousLikesCount = _likesCount;
@@ -299,20 +294,16 @@ class _FeedPostState extends State<FeedPost> {
     }
   }
 
-  // Handle save toggle with optimistic update
   Future<void> _handleSaveToggle() async {
     final previousIsBookmarked = _isBookmarked;
 
-    // Optimistically update local state
     setState(() {
       _isBookmarked = !_isBookmarked;
     });
 
     try {
       await controller.toggleSave(widget.post.id?.toString() ?? '');
-      // Assuming controller updates the post's isBookmarked property reactively
     } catch (e) {
-      // Revert on failure
       setState(() {
         _isBookmarked = previousIsBookmarked;
       });
@@ -330,63 +321,77 @@ class _FeedPostState extends State<FeedPost> {
       return const SizedBox.shrink();
     }
 
+    List<Map<String, dynamic>> allMedia = [];
     if (media is Media) {
-      final allMedia = [
-        ...(media.images?.map((url) => {'url': url, 'type': 'image'}) ?? []),
+      allMedia = [
+        ...(media.images?.map((url) => {
+                  'url': url,
+                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
+                }) ??
+            []),
         ...(media.documents?.map((url) => {'url': url, 'type': 'document'}) ??
             []),
         ...(media.videos?.map((url) => {'url': url, 'type': 'video'}) ?? []),
       ];
-
-      if (allMedia.isEmpty) return const SizedBox.shrink();
-
-      return SizedBox(
-        height: allMedia.length == 1 ? 200 : 120,
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount:
-                allMedia.length == 1 ? 1 : (allMedia.length == 2 ? 2 : 3),
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: allMedia.length == 1 ? 16 / 9 : 1,
-          ),
-          itemCount: allMedia.length,
-          itemBuilder: (context, index) {
-            return _buildSingleMedia(allMedia[index]);
-          },
-        ),
-      );
-    }
-
-    if (media is List) {
-      final allMedia = media
+    } else if (media is List) {
+      allMedia = media
           .whereType<String>()
-          .map((url) => {'url': url, 'type': 'image'})
+          .map((url) => {
+                'url': url,
+                'type': _getMediaType(url),
+              })
           .toList();
-
-      if (allMedia.isEmpty) return const SizedBox.shrink();
-
-      return SizedBox(
-        height: allMedia.length == 1 ? 200 : 120,
-        child: GridView.builder(
-          physics: const NeverScrollableScrollPhysics(),
-          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount:
-                allMedia.length == 1 ? 1 : (allMedia.length == 2 ? 2 : 3),
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-            childAspectRatio: allMedia.length == 1 ? 16 / 9 : 1,
-          ),
-          itemCount: allMedia.length,
-          itemBuilder: (context, index) {
-            return _buildSingleMedia(allMedia[index]);
-          },
-        ),
-      );
     }
 
-    return const SizedBox.shrink();
+    if (allMedia.isEmpty) return const SizedBox.shrink();
+
+    return SizedBox(
+      height: allMedia.length == 1 ? 200 : 120,
+      child: GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount:
+              allMedia.length == 1 ? 1 : (allMedia.length == 2 ? 2 : 3),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: allMedia.length == 1 ? 16 / 9 : 1,
+        ),
+        itemCount: allMedia.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => _openMediaViewer(allMedia, index),
+            child: _buildSingleMedia(allMedia[index]),
+          );
+        },
+      ),
+    );
+  }
+
+  String _getMediaType(String url) {
+    final extension = url.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'webp':
+        return 'image';
+      case 'gif':
+        return 'gif';
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+      case 'mkv':
+        return 'video';
+      case 'pdf':
+        return 'document';
+      default:
+        return 'image';
+    }
+  }
+
+  void _openMediaViewer(
+      List<Map<String, dynamic>> mediaList, int initialIndex) {
+    Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
   Widget _buildSingleMedia(Map<String, dynamic> item) {
@@ -420,10 +425,31 @@ class _FeedPostState extends State<FeedPost> {
             ),
           ),
         );
+      case 'gif':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Gif(
+            image: NetworkImage(url),
+            controller: gifController,
+            autostart: Autostart.loop,
+            placeholder: (context) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            ),
+            onFetchCompleted: () {
+              gifController.reset();
+              gifController.forward();
+            },
+          ),
+        );
       case 'document':
         return GestureDetector(
           onTap: () {
-            // Implement document viewer or open URL
+            _openMediaViewer([item], 0);
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -454,27 +480,63 @@ class _FeedPostState extends State<FeedPost> {
       case 'video':
         return GestureDetector(
           onTap: () {
-            // Implement video player or open URL
+            _openMediaViewer([item], 0);
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
-            child: Container(
-              color: Colors.grey[800],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.play_circle, color: Colors.white, size: 40),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      url.split('/').last,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                FutureBuilder<Uint8List?>(
+                  future: VideoThumbnail.thumbnailData(
+                    video: url,
+                    imageFormat: ImageFormat.PNG,
+                    maxWidth: 400,
+                    quality: 60,
                   ),
-                ],
-              ),
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return Container(
+                        color: Colors.black,
+                        child: const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      return Image.memory(
+                        snapshot.data!,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                      );
+                    } else {
+                      return Container(
+                        color: Colors.black,
+                        child: const Center(
+                          child: Icon(Icons.videocam,
+                              color: Colors.white38, size: 48),
+                        ),
+                      );
+                    }
+                  },
+                ),
+                const Icon(Icons.play_circle_fill,
+                    color: Colors.white, size: 48),
+                Positioned(
+                  bottom: 8,
+                  left: 0,
+                  right: 0,
+                  child: Text(
+                    url.split('/').last,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
             ),
           ),
         );
@@ -527,16 +589,35 @@ class _FeedPostState extends State<FeedPost> {
   }
 
   void _navigateToComments() {
+    List<Map<String, dynamic>> allMedia = [];
+    final media = widget.post.media;
+    if (media is Media) {
+      allMedia = [
+        ...(media.images?.map((url) => {
+                  'url': url,
+                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
+                }) ??
+            []),
+        ...(media.documents?.map((url) => {'url': url, 'type': 'document'}) ??
+            []),
+        ...(media.videos?.map((url) => {'url': url, 'type': 'video'}) ?? []),
+      ];
+    } else if (media is List) {
+      allMedia = media
+          .whereType<String>()
+          .map((url) => {
+                'url': url,
+                'type': _getMediaType(url),
+              })
+          .toList();
+    }
+
     Get.to(
       () => CommentScreen(
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
         timeAgo: formatDateTime(widget.post.createdAt),
         content: widget.post.text ?? '',
-        imageUrls: [
-          if (widget.post.createdBy?.image != null &&
-              widget.post.createdBy!.image!.isNotEmpty)
-            widget.post.createdBy!.image!,
-        ],
+        media: allMedia,
         isLiked: _isLiked,
         postId: widget.post.id?.toString() ?? '',
         likesCount: _likesCount,

@@ -200,8 +200,13 @@ class PostBody extends StatelessWidget {
     );
   }
 
-  Widget _buildMediaPreview(BuildContext context, String url, String fileType,
-      double width, double height,) {
+  Widget _buildMediaPreview(
+    BuildContext context,
+    String url,
+    String fileType,
+    double width,
+    double height,
+  ) {
     switch (fileType) {
       case 'pdf':
         return Container(
@@ -327,6 +332,64 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
       _Option(icon: Icons.gif_box, label: 'GIF', color: Colors.teal),
     ];
 
+    // Move _pickImage and _showPhotoVideoPicker above their first use
+    Future<void> _pickImage(BuildContext context) async {
+      if (_isUploading) return;
+      try {
+        setState(() => _isUploading = true);
+        final pickedImages = await _picker.pickMultiImage(
+          maxWidth: 1920,
+          maxHeight: 1080,
+          imageQuality: 85,
+        );
+        if (pickedImages.isNotEmpty) {
+          for (final img in pickedImages) {
+            controller.addMedia(img.path, 'image');
+          }
+          AppUtils.showSnackbar(message: 'Photos selected successfully');
+        }
+      } catch (e) {
+        AppUtils.showErrorSnackbar(message: 'Failed to pick photos: $e');
+      } finally {
+        setState(() => _isUploading = false);
+      }
+    }
+
+    void _showPhotoVideoPicker(BuildContext context) {
+      showModalBottomSheet(
+        context: context,
+        backgroundColor: const Color(0xFF242526),
+        shape: const RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+        ),
+        builder: (ctx) => SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.photo, color: Colors.green),
+                title:
+                    const Text('Photo', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickImage(context);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.videocam, color: Colors.blue),
+                title:
+                    const Text('Video', style: TextStyle(color: Colors.white)),
+                onTap: () {
+                  Navigator.pop(ctx);
+                  _pickVideo(context);
+                },
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
     return Container(
       height: MediaQuery.of(context).size.height * 0.3,
       decoration: const BoxDecoration(
@@ -346,13 +409,17 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
               if (_isUploading) return;
               switch (item.label) {
                 case 'Photo/video':
-                  _pickVideo(context);
+                  _showPhotoVideoPicker(context);
+                  break;
                 case 'Attachment':
                   _pickPDF(context);
+                  break;
                 case 'Camera':
                   _takePicture(context);
+                  break;
                 case 'GIF':
                   _pickGIF(context);
+                  break;
               }
             },
           );
@@ -363,28 +430,28 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
 
   Future<void> _pickVideo(BuildContext context) async {
     if (_isUploading) return;
-
     try {
       setState(() => _isUploading = true);
-
-      final pickedVideo = await _picker.pickVideo(
-        source: ImageSource.gallery,
-        maxDuration: const Duration(seconds: 60), // Limit to 60 seconds
+      final pickedVideos = await FilePicker.platform.pickFiles(
+        type: FileType.video,
+        allowMultiple: true,
       );
-
-      if (pickedVideo != null) {
-        final file = File(pickedVideo.path);
-        final fileSize = await file.length();
-        if (fileSize > 50 * 1024 * 1024) {
-          // 50MB limit for videos
-          AppUtils.showErrorSnackbar(message: 'Video exceeds 50MB limit');
-          return;
+      if (pickedVideos != null && pickedVideos.files.isNotEmpty) {
+        for (final file in pickedVideos.files) {
+          if (file.path != null) {
+            final videoFile = File(file.path!);
+            final fileSize = await videoFile.length();
+            if (fileSize > 50 * 1024 * 1024) {
+              AppUtils.showErrorSnackbar(message: 'A video exceeds 50MB limit');
+              continue;
+            }
+            controller.addMedia(file.path!, 'video');
+          }
         }
-        controller.addMedia(pickedVideo.path, 'video');
-        AppUtils.showSnackbar(message: 'Video selected successfully');
+        AppUtils.showSnackbar(message: 'Videos selected successfully');
       }
     } catch (e) {
-      AppUtils.showErrorSnackbar(message: 'Failed to pick video: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to pick videos: $e');
     } finally {
       setState(() => _isUploading = false);
     }

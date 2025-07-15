@@ -517,7 +517,7 @@ class _FeedPostState extends State<FeedPost> {
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
         timeAgo: formatDateTime(widget.post.createdAt),
         content: widget.post.text ?? '',
-        imageUrls: widget.post.media is Media
+        media: widget.post.media is Media
             ? widget.post.media.images ?? []
             : widget.post.media is List
                 ? List<String>.from(widget.post.media)

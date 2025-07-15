@@ -1,3 +1,8 @@
+import 'package:gif/gif.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:typed_data';
+import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:flutter_gif/flutter_gif.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
@@ -5,6 +10,7 @@ import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart'
     as comment_replies;
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
@@ -14,7 +20,7 @@ class CommentScreen extends StatefulWidget {
     required this.userName,
     required this.timeAgo,
     required this.content,
-    required this.imageUrls,
+    required this.media,
     required this.isLiked,
     required this.postId,
     required this.likesCount,
@@ -24,7 +30,7 @@ class CommentScreen extends StatefulWidget {
   final String userName;
   final String timeAgo;
   final String content;
-  final List<String> imageUrls;
+  final List<Map<String, dynamic>> media;
   final bool isLiked;
   final String postId;
   final int likesCount;
@@ -33,7 +39,9 @@ class CommentScreen extends StatefulWidget {
   State<CommentScreen> createState() => _CommentScreenState();
 }
 
-class _CommentScreenState extends State<CommentScreen> {
+class _CommentScreenState extends State<CommentScreen>
+    with TickerProviderStateMixin {
+  final RxInt replyLikeUpdateTrigger = 0.obs;
   final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
@@ -43,12 +51,10 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToUserName;
   String? replyingToContent;
   String? parentReplyId;
+  late GifController gifController;
 
-  // Track like states and counts for comments and replies
   final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
   final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
-
-  // Track expanded states (reactive) - only for comment text expansion
   final RxSet<String> expandedComments = <String>{}.obs;
 
   @override
@@ -56,7 +62,7 @@ class _CommentScreenState extends State<CommentScreen> {
     super.initState();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
-    // Initialize comment like states after fetching comments
+    gifController = GifController(vsync: this);
     controller.getPostComments(postId: widget.postId).then((_) {
       final comments =
           controller.commentsModel[widget.postId]?.data?.comments ?? [];
@@ -74,6 +80,7 @@ class _CommentScreenState extends State<CommentScreen> {
   void dispose() {
     _inputController.dispose();
     _inputFocusNode.dispose();
+    gifController.dispose();
     super.dispose();
   }
 
@@ -115,7 +122,6 @@ class _CommentScreenState extends State<CommentScreen> {
         controller.repliesModel.refresh();
         await controller.getPostComments(postId: widget.postId);
         await controller.getCommentReplies(commentId: targetId);
-        // Expand the relevant replies in controller
         if (parentReplyId != null) {
           controller.expandedNestedReplies.add(parentReplyId!);
         } else {
@@ -138,16 +144,13 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _toggleCommentLike(String commentId, int currentLikes, bool isLiked) {
-    // Optimistic UI update
     commentLikeStates[commentId] = !isLiked;
     commentLikeCounts[commentId] =
-        isLiked ? currentLikes - 1 : currentLikes + 1;
+        isLiked ? (currentLikes - 1) : (currentLikes + 1);
     commentLikeStates.refresh();
     commentLikeCounts.refresh();
-
-    controller.toggleCommentLike(commentId, widget.postId).then((_) {
-      controller.getPostComments(postId: widget.postId);
-    });
+    replyLikeUpdateTrigger.value++;
+    controller.toggleCommentLike(commentId, widget.postId);
   }
 
   void _toggleReplyLike(
@@ -156,17 +159,13 @@ class _CommentScreenState extends State<CommentScreen> {
     bool isLiked, {
     String? parentCommentId,
   }) {
-    // Optimistic UI update
     commentLikeStates[replyId] = !isLiked;
-    commentLikeCounts[replyId] = isLiked ? currentLikes - 1 : currentLikes + 1;
+    commentLikeCounts[replyId] =
+        isLiked ? (currentLikes - 1) : (currentLikes + 1);
     commentLikeStates.refresh();
     commentLikeCounts.refresh();
-
-    controller.toggleReplyLike(replyId).then((_) async {
-      final parentId = parentCommentId ?? replyId;
-      await controller.getCommentReplies(commentId: parentId);
-      controller.repliesModel.refresh();
-    });
+    replyLikeUpdateTrigger.value++;
+    controller.toggleReplyLike(replyId);
   }
 
   void _toggleReplies(String commentId, bool isExpanded) {
@@ -309,10 +308,9 @@ class _CommentScreenState extends State<CommentScreen> {
           Row(
             children: [
               ClipOval(
-                child: (widget.imageUrls.isNotEmpty &&
-                        widget.imageUrls.first.isNotEmpty)
+                child: controller.userProfile.isNotEmpty
                     ? Image.network(
-                        widget.imageUrls.first,
+                        controller.userProfile,
                         width: 40,
                         height: 40,
                         fit: BoxFit.cover,
@@ -410,9 +408,9 @@ class _CommentScreenState extends State<CommentScreen> {
             maxLines: 10,
             overflow: TextOverflow.ellipsis,
           ),
-          if (widget.imageUrls.isNotEmpty) ...[
+          if (widget.media.isNotEmpty) ...[
             const SizedBox(height: 12),
-            _buildImages(widget.imageUrls),
+            _buildMedia(widget.media),
           ],
           const SizedBox(height: 12),
           const GreyDivider(),
@@ -497,38 +495,170 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  Widget _buildImages(List<String> urls) {
-    if (urls.length == 1) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(
-          urls.first,
-          width: double.infinity,
-          height: 200,
-          fit: BoxFit.cover,
-          errorBuilder: (context, error, stackTrace) => const SizedBox.shrink(),
+  Widget _buildMedia(List<Map<String, dynamic>> media) {
+    return SizedBox(
+      height: media.length == 1 ? 200 : 120,
+      child: GridView.builder(
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: media.length == 1 ? 1 : (media.length == 2 ? 2 : 3),
+          crossAxisSpacing: 8,
+          mainAxisSpacing: 8,
+          childAspectRatio: media.length == 1 ? 16 / 9 : 1,
         ),
-      );
-    } else {
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: urls
-            .map(
-              (url) => ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.network(
-                  url,
-                  width: 100,
-                  height: 100,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) =>
-                      const SizedBox.shrink(),
+        itemCount: media.length,
+        itemBuilder: (context, index) {
+          return GestureDetector(
+            onTap: () => _openMediaViewer(media, index),
+            child: _buildSingleMedia(media[index]),
+          );
+        },
+      ),
+    );
+  }
+
+  void _openMediaViewer(
+      List<Map<String, dynamic>> mediaList, int initialIndex) {
+    Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
+  }
+
+  Widget _buildSingleMedia(Map<String, dynamic> item) {
+    final url = item['url'] as String;
+    final type = item['type'] as String;
+
+    switch (type) {
+      case 'image':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: CachedNetworkImage(
+            imageUrl: url,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               ),
-            )
-            .toList(),
-      );
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: Icon(
+                  Icons.broken_image,
+                  color: Colors.white54,
+                  size: 40,
+                ),
+              ),
+            ),
+          ),
+        );
+      case 'gif':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Gif(
+            image: NetworkImage(url),
+            controller: gifController,
+            autostart: Autostart.loop,
+            placeholder: (context) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            ),
+            onFetchCompleted: () {
+              gifController.reset();
+              gifController.forward();
+            },
+          ),
+        );
+      case 'document':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            color: Colors.grey[800],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.picture_as_pdf,
+                  color: Colors.white,
+                  size: 40,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    url.split('/').last,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      case 'video':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              FutureBuilder<Uint8List?>(
+                future: VideoThumbnail.thumbnailData(
+                  video: url,
+                  imageFormat: ImageFormat.PNG,
+                  maxWidth: 400,
+                  quality: 60,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    return Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    );
+                  } else {
+                    return Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: Icon(Icons.videocam,
+                            color: Colors.white38, size: 48),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 48),
+              Positioned(
+                bottom: 8,
+                left: 0,
+                right: 0,
+                child: Text(
+                  url.split('/').last,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
     }
   }
 
@@ -731,14 +861,12 @@ class _CommentScreenState extends State<CommentScreen> {
 
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
     final replyId = reply.id.toString();
-    final hasNestedReplies =
-        reply.commentsCount != null && reply.commentsCount! > 0;
-    // Initialize like state and count for reply
     if (!commentLikeCounts.containsKey(replyId)) {
       commentLikeCounts[replyId] = reply.likesCount ?? 0;
       commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
     }
     return Obx(() {
+      replyLikeUpdateTrigger.value;
       final nestedReplies =
           controller.repliesModel[replyId]?.repliesData?.comments ?? [];
       final isLiked = commentLikeStates[replyId] ?? false;
@@ -869,7 +997,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ],
             ),
-            if (hasNestedReplies) ...[
+            if (reply.commentsCount != null && reply.commentsCount! > 0) ...[
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
@@ -913,17 +1041,14 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget _buildNestedReply(
       comment_replies.Comment nestedReply, String parentReplyId) {
     final replyId = nestedReply.id.toString();
-
-    // Initialize like state and count for nested reply
     if (!commentLikeCounts.containsKey(replyId)) {
       commentLikeCounts[replyId] = nestedReply.likesCount ?? 0;
       commentLikeStates[replyId] = (nestedReply.likesCount ?? 0) > 0;
     }
-
     return Obx(() {
+      replyLikeUpdateTrigger.value;
       final isLiked = commentLikeStates[replyId] ?? false;
       final likeCount = commentLikeCounts[replyId] ?? 0;
-
       return Container(
         margin: const EdgeInsets.only(left: 80.0, bottom: 12),
         child: Row(
