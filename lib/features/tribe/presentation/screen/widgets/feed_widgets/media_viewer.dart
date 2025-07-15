@@ -1,150 +1,177 @@
-import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flutter_gif/flutter_gif.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:gif/gif.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:get/get.dart';
 
 class MediaViewer extends StatefulWidget {
   final List<Map<String, dynamic>> mediaList;
   final int initialIndex;
-
-  const MediaViewer({
-    required this.mediaList,
-    required this.initialIndex,
-    super.key,
-  });
+  const MediaViewer({required this.mediaList, required this.initialIndex});
 
   @override
   State<MediaViewer> createState() => _MediaViewerState();
 }
 
-class _MediaViewerState extends State<MediaViewer>
-    with TickerProviderStateMixin {
+class _MediaViewerState extends State<MediaViewer> {
   late PageController _pageController;
   late int _currentIndex;
-  late GifController gifController;
 
   @override
   void initState() {
     super.initState();
     _currentIndex = widget.initialIndex;
     _pageController = PageController(initialPage: _currentIndex);
-    gifController = GifController(vsync: this);
   }
 
   @override
   void dispose() {
     _pageController.dispose();
-    gifController.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.black,
-      appBar: AppBar(
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
+      child: Scaffold(
         backgroundColor: Colors.black,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Get.back(),
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.close, color: Colors.white),
+            onPressed: () => Get.back(),
+          ),
+          title: Text(
+            '${_currentIndex + 1} / ${widget.mediaList.length}',
+            style: const TextStyle(color: Colors.white),
+          ),
+          centerTitle: true,
         ),
-      ),
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.mediaList.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
-          if (widget.mediaList[index]['type'] == 'gif') {
-            gifController.reset();
-            gifController.forward();
-          }
-        },
-        itemBuilder: (context, index) {
-          final item = widget.mediaList[index];
-          final url = item['url'] as String;
-          final type = item['type'] as String;
-
-          switch (type) {
-            case 'image':
-              return CachedNetworkImage(
-                imageUrl: url,
-                fit: BoxFit.contain,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        body: PageView.builder(
+          controller: _pageController,
+          itemCount: widget.mediaList.length,
+          onPageChanged: (i) {
+            setState(() => _currentIndex = i);
+          },
+          itemBuilder: (context, index) {
+            final item = widget.mediaList[index];
+            final url = item['url'] as String;
+            final type = item['type'] as String;
+            switch (type) {
+              case 'image':
+                return InteractiveViewer(
+                  child: SizedBox.expand(
+                    child: CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                        size: 80,
+                      ),
+                    ),
                   ),
-                ),
-                errorWidget: (context, url, error) => const Center(
-                  child:
-                      Icon(Icons.broken_image, color: Colors.white54, size: 64),
-                ),
-              );
-            case 'gif':
-              return Gif(
-                image: NetworkImage(url),
-                controller: gifController,
-                autostart: Autostart.loop,
-                placeholder: (context) => const Center(
-                  child: CircularProgressIndicator(
-                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                );
+              case 'gif':
+                return InteractiveViewer(
+                  child: SizedBox.expand(
+                    child: CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.contain,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(
+                        Icons.broken_image,
+                        color: Colors.white,
+                        size: 80,
+                      ),
+                    ),
                   ),
-                ),
-                onFetchCompleted: () {
-                  gifController.reset();
-                  gifController.forward();
-                },
-              );
-            case 'video':
-              return VideoPlayerWidget(videoUrl: url);
-            case 'document':
-              return WebViewWidget(
-                controller: WebViewController()
-                  ..setJavaScriptMode(JavaScriptMode.unrestricted)
-                  ..loadRequest(Uri.parse(url)),
-              );
-            default:
-              return const Center(
-                child: Text(
-                  'Unsupported media type',
-                  style: TextStyle(color: Colors.white),
-                ),
-              );
-          }
-        },
+                );
+              case 'video':
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Container(
+                      width: constraints.maxWidth,
+                      height: constraints.maxHeight,
+                      color: Colors.black,
+                      child: _VideoPlayerWidget(url: url, key: ValueKey(url)),
+                    );
+                  },
+                );
+              case 'document':
+                return Container(
+                  width: double.infinity,
+                  height: double.infinity,
+                  alignment: Alignment.center,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.picture_as_pdf,
+                            color: Colors.white, size: 80),
+                        const SizedBox(height: 16),
+                        Text(
+                          url.split('/').last,
+                          style: const TextStyle(
+                              color: Colors.white, fontSize: 18),
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          icon: const Icon(Icons.open_in_new),
+                          label: const Text('Open PDF'),
+                          onPressed: () async {
+                            await launchUrl(Uri.parse(url));
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              default:
+                return const SizedBox.shrink();
+            }
+          },
+        ),
       ),
     );
   }
 }
 
-class VideoPlayerWidget extends StatefulWidget {
-  final String videoUrl;
-
-  const VideoPlayerWidget({required this.videoUrl, super.key});
+class _VideoPlayerWidget extends StatefulWidget {
+  final String url;
+  const _VideoPlayerWidget({required this.url, Key? key}) : super(key: key);
 
   @override
-  State<VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
 }
 
-class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
   late VideoPlayerController _controller;
-  bool _isInitialized = false;
+  bool _initialized = false;
 
   @override
   void initState() {
     super.initState();
-    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.videoUrl))
+    _controller = VideoPlayerController.network(widget.url)
       ..initialize().then((_) {
-        if (mounted) {
-          setState(() {
-            _isInitialized = true;
-          });
-          _controller.play();
-        }
+        setState(() => _initialized = true);
+        _controller.play();
       });
   }
 
@@ -156,15 +183,54 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _isInitialized
-        ? AspectRatio(
-            aspectRatio: _controller.value.aspectRatio,
-            child: VideoPlayer(_controller),
-          )
-        : const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+    if (!_initialized) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+        ),
+      );
+    }
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _controller.value.isPlaying
+              ? _controller.pause()
+              : _controller.play();
+        });
+      },
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Center(
+            child: AspectRatio(
+              aspectRatio: _controller.value.aspectRatio > 0
+                  ? _controller.value.aspectRatio
+                  : 16 / 9,
+              child: VideoPlayer(_controller),
             ),
-          );
+          ),
+          VideoProgressIndicator(_controller, allowScrubbing: true),
+          Positioned(
+            bottom: 16,
+            right: 16,
+            child: FloatingActionButton(
+              mini: true,
+              backgroundColor: Colors.black54,
+              onPressed: () {
+                setState(() {
+                  _controller.value.isPlaying
+                      ? _controller.pause()
+                      : _controller.play();
+                });
+              },
+              child: Icon(
+                _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

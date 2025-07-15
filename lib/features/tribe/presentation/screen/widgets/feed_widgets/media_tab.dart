@@ -2,8 +2,6 @@ import 'package:empowered/enum/the_states.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flutter_gif/flutter_gif.dart';
-import 'package:gif/gif.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
@@ -17,21 +15,13 @@ class MediaTab extends StatefulWidget {
   State<MediaTab> createState() => _MediaTabState();
 }
 
-class _MediaTabState extends State<MediaTab> with TickerProviderStateMixin {
+class _MediaTabState extends State<MediaTab> {
   final TribeGroupController controller = Get.find<TribeGroupController>();
-  late GifController gifController;
 
   @override
   void initState() {
     super.initState();
-    gifController = GifController(vsync: this);
     controller.loadGroupMedia(widget.groupId);
-  }
-
-  @override
-  void dispose() {
-    gifController.dispose();
-    super.dispose();
   }
 
   String _getMediaType(String url) {
@@ -87,6 +77,7 @@ class _MediaTabState extends State<MediaTab> with TickerProviderStateMixin {
 
     switch (type) {
       case 'image':
+      case 'gif':
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
@@ -110,27 +101,6 @@ class _MediaTabState extends State<MediaTab> with TickerProviderStateMixin {
                 ),
               ),
             ),
-          ),
-        );
-      case 'gif':
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Gif(
-            image: NetworkImage(url),
-            controller: gifController,
-            autostart: Autostart.loop,
-            placeholder: (context) => Container(
-              color: Colors.grey[800],
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            ),
-            onFetchCompleted: () {
-              gifController.reset();
-              gifController.forward();
-            },
           ),
         );
       case 'document':
@@ -254,6 +224,7 @@ class _MediaTabState extends State<MediaTab> with TickerProviderStateMixin {
       final mediaList = mediaData.medias ?? [];
       final totalMedia = mediaData.meta?.total ?? 0;
 
+      // Convert mediaList to a list of maps with URL and type
       final formattedMediaList = mediaList
           .map((media) => {
                 'url': media.url,

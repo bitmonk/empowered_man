@@ -1,8 +1,6 @@
-import 'package:gif/gif.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flutter_gif/flutter_gif.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
@@ -39,8 +37,7 @@ class CommentScreen extends StatefulWidget {
   State<CommentScreen> createState() => _CommentScreenState();
 }
 
-class _CommentScreenState extends State<CommentScreen>
-    with TickerProviderStateMixin {
+class _CommentScreenState extends State<CommentScreen> {
   final RxInt replyLikeUpdateTrigger = 0.obs;
   final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
@@ -51,7 +48,6 @@ class _CommentScreenState extends State<CommentScreen>
   String? replyingToUserName;
   String? replyingToContent;
   String? parentReplyId;
-  late GifController gifController;
 
   final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
   final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
@@ -62,7 +58,6 @@ class _CommentScreenState extends State<CommentScreen>
     super.initState();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
-    gifController = GifController(vsync: this);
     controller.getPostComments(postId: widget.postId).then((_) {
       final comments =
           controller.commentsModel[widget.postId]?.data?.comments ?? [];
@@ -80,7 +75,6 @@ class _CommentScreenState extends State<CommentScreen>
   void dispose() {
     _inputController.dispose();
     _inputFocusNode.dispose();
-    gifController.dispose();
     super.dispose();
   }
 
@@ -496,6 +490,8 @@ class _CommentScreenState extends State<CommentScreen>
   }
 
   Widget _buildMedia(List<Map<String, dynamic>> media) {
+    final additionalCount = media.length > 3 ? media.length - 3 : 0;
+
     return SizedBox(
       height: media.length == 1 ? 200 : 120,
       child: GridView.builder(
@@ -506,11 +502,36 @@ class _CommentScreenState extends State<CommentScreen>
           mainAxisSpacing: 8,
           childAspectRatio: media.length == 1 ? 16 / 9 : 1,
         ),
-        itemCount: media.length,
+        itemCount: media.length > 3 ? 3 : media.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => _openMediaViewer(media, index),
-            child: _buildSingleMedia(media[index]),
+          final isLast = index == 2 && additionalCount > 0;
+          return Stack(
+            children: [
+              GestureDetector(
+                onTap: () => _openMediaViewer(media, index),
+                child: _buildSingleMedia(media[index]),
+              ),
+              if (isLast)
+                GestureDetector(
+                  onTap: () => _openMediaViewer(media, 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '+ $additionalCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -528,6 +549,7 @@ class _CommentScreenState extends State<CommentScreen>
 
     switch (type) {
       case 'image':
+      case 'gif':
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
@@ -551,27 +573,6 @@ class _CommentScreenState extends State<CommentScreen>
                 ),
               ),
             ),
-          ),
-        );
-      case 'gif':
-        return ClipRRect(
-          borderRadius: BorderRadius.circular(8),
-          child: Gif(
-            image: NetworkImage(url),
-            controller: gifController,
-            autostart: Autostart.loop,
-            placeholder: (context) => Container(
-              color: Colors.grey[800],
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            ),
-            onFetchCompleted: () {
-              gifController.reset();
-              gifController.forward();
-            },
           ),
         );
       case 'document':
@@ -861,6 +862,8 @@ class _CommentScreenState extends State<CommentScreen>
 
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
     final replyId = reply.id.toString();
+    final hasNestedReplies =
+        reply.commentsCount != null && reply.commentsCount! > 0;
     if (!commentLikeCounts.containsKey(replyId)) {
       commentLikeCounts[replyId] = reply.likesCount ?? 0;
       commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
@@ -997,7 +1000,7 @@ class _CommentScreenState extends State<CommentScreen>
                 ),
               ],
             ),
-            if (reply.commentsCount != null && reply.commentsCount! > 0) ...[
+            if (hasNestedReplies) ...[
               const SizedBox(height: 8),
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),

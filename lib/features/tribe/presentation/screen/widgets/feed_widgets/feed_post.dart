@@ -1,16 +1,14 @@
-import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
-import 'package:gif/gif.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
-// import 'package:flutter_gif/flutter_gif.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
+import 'dart:typed_data';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -18,25 +16,24 @@ class FeedPost extends StatefulWidget {
     super.key,
   });
 
-  final dynamic post;
+  final dynamic
+      post; // Post from feed_posts_model.dart or saved_posts_model.dart
 
   @override
   State<FeedPost> createState() => _FeedPostState();
 }
 
-class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
+class _FeedPostState extends State<FeedPost> {
   bool _expanded = false;
   late final FeedPageController controller;
   late bool _isLiked;
   late int _likesCount;
   late bool _isBookmarked;
-  late GifController gifController;
 
   @override
   void initState() {
     super.initState();
     controller = Get.find<FeedPageController>();
-    gifController = GifController(vsync: this);
     _syncStateWithWidget();
   }
 
@@ -49,12 +46,6 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
         widget.post.isBookmarked != oldWidget.post.isBookmarked) {
       _syncStateWithWidget();
     }
-  }
-
-  @override
-  void dispose() {
-    gifController.dispose();
-    super.dispose();
   }
 
   void _syncStateWithWidget() {
@@ -345,6 +336,8 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
+    final additionalCount = allMedia.length > 3 ? allMedia.length - 3 : 0;
+
     return SizedBox(
       height: allMedia.length == 1 ? 200 : 120,
       child: GridView.builder(
@@ -356,11 +349,36 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
           mainAxisSpacing: 8,
           childAspectRatio: allMedia.length == 1 ? 16 / 9 : 1,
         ),
-        itemCount: allMedia.length,
+        itemCount: allMedia.length > 3 ? 3 : allMedia.length,
         itemBuilder: (context, index) {
-          return GestureDetector(
-            onTap: () => _openMediaViewer(allMedia, index),
-            child: _buildSingleMedia(allMedia[index]),
+          final isLast = index == 2 && additionalCount > 0;
+          return Stack(
+            children: [
+              GestureDetector(
+                onTap: () => _openMediaViewer(allMedia, index),
+                child: _buildSingleMedia(allMedia[index]),
+              ),
+              if (isLast)
+                GestureDetector(
+                  onTap: () => _openMediaViewer(allMedia, 0),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.black.withOpacity(0.5),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Center(
+                      child: Text(
+                        '+ $additionalCount',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           );
         },
       ),
@@ -400,6 +418,7 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
 
     switch (type) {
       case 'image':
+      case 'gif':
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
@@ -425,110 +444,21 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
             ),
           ),
         );
-      case 'gif':
+      case 'document':
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
-          child: Gif(
-            image: NetworkImage(url),
-            controller: gifController,
-            autostart: Autostart.loop,
-            placeholder: (context) => Container(
-              color: Colors.grey[800],
-              child: const Center(
-                child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ),
-              ),
-            ),
-            onFetchCompleted: () {
-              gifController.reset();
-              gifController.forward();
-            },
-          ),
-        );
-      case 'document':
-        return GestureDetector(
-          onTap: () {
-            _openMediaViewer([item], 0);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Container(
-              color: Colors.grey[800],
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(
-                    Icons.picture_as_pdf,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text(
-                      url.split('/').last,
-                      style: const TextStyle(color: Colors.white, fontSize: 12),
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        );
-      case 'video':
-        return GestureDetector(
-          onTap: () {
-            _openMediaViewer([item], 0);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: Stack(
-              alignment: Alignment.center,
+          child: Container(
+            color: Colors.grey[800],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FutureBuilder<Uint8List?>(
-                  future: VideoThumbnail.thumbnailData(
-                    video: url,
-                    imageFormat: ImageFormat.PNG,
-                    maxWidth: 400,
-                    quality: 60,
-                  ),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return Container(
-                        color: Colors.black,
-                        child: const Center(
-                          child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
-                        ),
-                      );
-                    } else if (snapshot.hasData && snapshot.data != null) {
-                      return Image.memory(
-                        snapshot.data!,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                      );
-                    } else {
-                      return Container(
-                        color: Colors.black,
-                        child: const Center(
-                          child: Icon(Icons.videocam,
-                              color: Colors.white38, size: 48),
-                        ),
-                      );
-                    }
-                  },
+                const Icon(
+                  Icons.picture_as_pdf,
+                  color: Colors.white,
+                  size: 40,
                 ),
-                const Icon(Icons.play_circle_fill,
-                    color: Colors.white, size: 48),
-                Positioned(
-                  bottom: 8,
-                  left: 0,
-                  right: 0,
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
                   child: Text(
                     url.split('/').last,
                     style: const TextStyle(color: Colors.white, fontSize: 12),
@@ -538,6 +468,63 @@ class _FeedPostState extends State<FeedPost> with TickerProviderStateMixin {
                 ),
               ],
             ),
+          ),
+        );
+      case 'video':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              FutureBuilder<Uint8List?>(
+                future: VideoThumbnail.thumbnailData(
+                  video: url,
+                  imageFormat: ImageFormat.PNG,
+                  maxWidth: 400,
+                  quality: 60,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    return Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    );
+                  } else {
+                    return Container(
+                      color: Colors.black,
+                      child: const Center(
+                        child: Icon(Icons.videocam,
+                            color: Colors.white38, size: 48),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 48),
+              Positioned(
+                bottom: 8,
+                left: 0,
+                right: 0,
+                child: Text(
+                  url.split('/').last,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
           ),
         );
       default:

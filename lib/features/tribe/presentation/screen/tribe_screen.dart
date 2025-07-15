@@ -238,7 +238,7 @@ class _TribeScreenState extends State<TribeScreen> {
                       ] else ...[
                         ..._getPinnedGroups(),
                       ],
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       GestureDetector(
                         onTap: () {
                           controller.showManagePinGroupSheet(context);

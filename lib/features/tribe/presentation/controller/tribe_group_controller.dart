@@ -384,7 +384,9 @@ class TribeGroupController extends GetxController {
         },
         (r) {
           savedPostState.value = TheStates.success;
-          savedPostsModel.value = r ?? const SavedPostsModel();
+          savedPostsModel.value = r;
+          print(
+              'Saved Posts Media: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.${r.data?.savedPosts?.map((post) => post.media?.toJson()).toList()}');
         },
       );
     } catch (e) {

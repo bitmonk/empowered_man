@@ -44,6 +44,18 @@ class CreatePostScreen extends StatelessWidget {
                                 final text =
                                     controller.postTextController.text.trim();
                                 final media = controller.selectedMedia.toList();
+                                // Check if text is empty and no media is selected
+                                if (text.isEmpty && media.isEmpty) {
+                                  AppUtils.showErrorSnackbar(
+                                    message: 'Please add text or media to post',
+                                  );
+                                  return;
+                                }
+                                if (text.isEmpty) {
+                                  AppUtils.showErrorSnackbar(
+                                      message: 'Please add some text to post');
+                                  return;
+                                }
                                 controller.createPost(
                                   context: context,
                                   groupId: groupId,
@@ -319,6 +331,15 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   final controller = Get.find<FeedPageController>();
   final ImagePicker _picker = ImagePicker();
 
+  bool _canSelectMedia(String mediaType) {
+    if (controller.selectedMedia.isEmpty) return true;
+    final currentMediaTypes = controller.selectedMediaTypes.values.toSet();
+    if (mediaType == 'pdf') {
+      return currentMediaTypes.isEmpty;
+    }
+    return !currentMediaTypes.contains('pdf');
+  }
+
   @override
   Widget build(BuildContext context) {
     final options = [
@@ -332,9 +353,14 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
       _Option(icon: Icons.gif_box, label: 'GIF', color: Colors.teal),
     ];
 
-    // Move _pickImage and _showPhotoVideoPicker above their first use
     Future<void> _pickImage(BuildContext context) async {
-      if (_isUploading) return;
+      if (_isUploading || !_canSelectMedia('image')) {
+        if (!_canSelectMedia('image')) {
+          AppUtils.showErrorSnackbar(
+              message: 'Cannot add photos when a PDF is selected');
+        }
+        return;
+      }
       try {
         setState(() => _isUploading = true);
         final pickedImages = await _picker.pickMultiImage(
@@ -346,7 +372,6 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
           for (final img in pickedImages) {
             controller.addMedia(img.path, 'image');
           }
-          AppUtils.showSnackbar(message: 'Photos selected successfully');
         }
       } catch (e) {
         AppUtils.showErrorSnackbar(message: 'Failed to pick photos: $e');
@@ -356,6 +381,11 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     }
 
     void _showPhotoVideoPicker(BuildContext context) {
+      if (!_canSelectMedia('image') || !_canSelectMedia('video')) {
+        AppUtils.showErrorSnackbar(
+            message: 'Cannot add photos or videos when a PDF is selected');
+        return;
+      }
       showModalBottomSheet(
         context: context,
         backgroundColor: const Color(0xFF242526),
@@ -429,7 +459,13 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   }
 
   Future<void> _pickVideo(BuildContext context) async {
-    if (_isUploading) return;
+    if (_isUploading || !_canSelectMedia('video')) {
+      if (!_canSelectMedia('video')) {
+        AppUtils.showErrorSnackbar(
+            message: 'Cannot add videos when a PDF is selected');
+      }
+      return;
+    }
     try {
       setState(() => _isUploading = true);
       final pickedVideos = await FilePicker.platform.pickFiles(
@@ -448,7 +484,6 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
             controller.addMedia(file.path!, 'video');
           }
         }
-        AppUtils.showSnackbar(message: 'Videos selected successfully');
       }
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to pick videos: $e');
@@ -458,21 +493,23 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   }
 
   Future<void> _takePicture(BuildContext context) async {
-    if (_isUploading) return;
-
+    if (_isUploading || !_canSelectMedia('image')) {
+      if (!_canSelectMedia('image')) {
+        AppUtils.showErrorSnackbar(
+            message: 'Cannot add photos when a PDF is selected');
+      }
+      return;
+    }
     try {
       setState(() => _isUploading = true);
-
       final pickedImage = await _picker.pickImage(
         source: ImageSource.camera,
         maxWidth: 1920,
         maxHeight: 1080,
         imageQuality: 85,
       );
-
       if (pickedImage != null) {
         controller.addMedia(pickedImage.path, 'image');
-        AppUtils.showSnackbar(message: 'Photo captured successfully');
       }
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to take picture: $e');
@@ -482,28 +519,35 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   }
 
   Future<void> _pickPDF(BuildContext context) async {
-    if (_isUploading) return;
-
+    if (_isUploading || !_canSelectMedia('pdf')) {
+      if (!_canSelectMedia('pdf')) {
+        AppUtils.showErrorSnackbar(
+            message: 'Cannot add PDF when other media types are selected');
+      }
+      return;
+    }
     try {
       setState(() => _isUploading = true);
-
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['pdf'],
+        allowMultiple: false, // Restrict to single file selection
       );
-
       if (result != null && result.files.isNotEmpty) {
         final pdfPath = result.files.single.path;
         if (pdfPath != null) {
+          if (!pdfPath.toLowerCase().endsWith('.pdf')) {
+            AppUtils.showErrorSnackbar(
+                message: 'Only PDF files are allowed for attachments');
+            return;
+          }
           final file = File(pdfPath);
           final fileSize = await file.length();
           if (fileSize > 10 * 1024 * 1024) {
-            // 10MB limit
             AppUtils.showErrorSnackbar(message: 'PDF exceeds 10MB limit');
             return;
           }
           controller.addMedia(pdfPath, 'pdf');
-          AppUtils.showSnackbar(message: 'PDF selected successfully');
         }
       }
     } catch (e) {
@@ -514,28 +558,29 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   }
 
   Future<void> _pickGIF(BuildContext context) async {
-    if (_isUploading) return;
-
+    if (_isUploading || !_canSelectMedia('gif')) {
+      if (!_canSelectMedia('gif')) {
+        AppUtils.showErrorSnackbar(
+            message: 'Cannot add GIF when a PDF is selected');
+      }
+      return;
+    }
     try {
       setState(() => _isUploading = true);
-
       final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['gif'],
       );
-
       if (result != null && result.files.isNotEmpty) {
         final gifPath = result.files.single.path;
         if (gifPath != null) {
           final file = File(gifPath);
           final fileSize = await file.length();
           if (fileSize > 5 * 1024 * 1024) {
-            // 5MB limit
             AppUtils.showErrorSnackbar(message: 'GIF exceeds 5MB limit');
             return;
           }
           controller.addMedia(gifPath, 'gif');
-          AppUtils.showSnackbar(message: 'GIF selected successfully');
         }
       }
     } catch (e) {
