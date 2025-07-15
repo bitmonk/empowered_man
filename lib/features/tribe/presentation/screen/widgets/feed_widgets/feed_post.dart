@@ -4,6 +4,7 @@ import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:intl/intl.dart';
+import 'package:get/get.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -23,6 +24,7 @@ class _FeedPostState extends State<FeedPost> {
   late final FeedPageController controller;
   late bool _isLiked; // Local state for like status
   late int _likesCount; // Local state for likes count
+  late bool _isBookmarked; // Local state for bookmark status
 
   @override
   void initState() {
@@ -34,10 +36,11 @@ class _FeedPostState extends State<FeedPost> {
   @override
   void didUpdateWidget(covariant FeedPost oldWidget) {
     super.didUpdateWidget(oldWidget);
-    // If the post id or like count changes, update local state
+    // If the post id, like count, or bookmark status changes, update local state
     if (widget.post.id != oldWidget.post.id ||
         widget.post.likesCount != oldWidget.post.likesCount ||
-        widget.post.likedByCurrentUser != oldWidget.post.likedByCurrentUser) {
+        widget.post.likedByCurrentUser != oldWidget.post.likedByCurrentUser ||
+        widget.post.isBookmarked != oldWidget.post.isBookmarked) {
       _syncStateWithWidget();
     }
   }
@@ -45,6 +48,8 @@ class _FeedPostState extends State<FeedPost> {
   void _syncStateWithWidget() {
     _isLiked = widget.post.likedByCurrentUser ?? false;
     _likesCount = widget.post.likesCount ?? 0;
+    _isBookmarked =
+        widget.post.isBookmarked ?? false; // Initialize bookmark state
   }
 
   String formatDateTime(DateTime? dateTime) {
@@ -68,7 +73,7 @@ class _FeedPostState extends State<FeedPost> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.feedContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -133,15 +138,13 @@ class _FeedPostState extends State<FeedPost> {
                     value: 'save',
                     child: Row(
                       children: [
-                        if (widget.post.isBookmarked ?? false)
+                        if (_isBookmarked)
                           Assets.images.savedPost.svg(width: 28, height: 28)
                         else
                           Assets.images.savePost.svg(width: 28, height: 28),
                         const SizedBox(width: 8),
                         Text(
-                          widget.post.isBookmarked ?? false
-                              ? 'Unsave Post'
-                              : 'Save Post',
+                          _isBookmarked ? 'Unsave Post' : 'Save Post',
                           style: const TextStyle(color: Colors.white),
                         ),
                       ],
@@ -181,7 +184,7 @@ class _FeedPostState extends State<FeedPost> {
             TextButton(
               onPressed: () => setState(() => _expanded = !_expanded),
               child: Text(
-                _expanded ? 'See Less' : 'See More',
+                _expanded ? ' -   See Less' : ' +   See More',
                 style: const TextStyle(color: Colors.blue),
               ),
             ),
@@ -195,11 +198,9 @@ class _FeedPostState extends State<FeedPost> {
               // Like button
               GestureDetector(
                 onTap: _handleLikeToggle,
-                child: Icon(
-                  _isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: _isLiked ? Colors.red : Colors.white,
-                  size: 20,
-                ),
+                child: _isLiked
+                    ? Assets.images.heartFilledPng.image(width: 24, height: 24)
+                    : Assets.images.heartPng.image(width: 24, height: 24),
               ),
               const SizedBox(width: 4),
               Text(
@@ -215,7 +216,7 @@ class _FeedPostState extends State<FeedPost> {
                   child: Row(
                     children: [
                       Assets.images.comment
-                          .svg(height: 20, width: 20, fit: BoxFit.cover),
+                          .svg(height: 24, width: 24, fit: BoxFit.cover),
                       const SizedBox(width: 4),
                       Text(
                         _formatCount(
@@ -260,9 +261,8 @@ class _FeedPostState extends State<FeedPost> {
 
               // Save button
               GestureDetector(
-                onTap: () =>
-                    controller.toggleSave(widget.post.id?.toString() ?? ''),
-                child: widget.post.isBookmarked ?? false
+                onTap: _handleSaveToggle,
+                child: _isBookmarked
                     ? Assets.images.savedPost.svg(width: 22, height: 22)
                     : Assets.images.savePost.svg(width: 22, height: 22),
               ),
@@ -275,28 +275,21 @@ class _FeedPostState extends State<FeedPost> {
 
   // Handle like toggle with optimistic update
   Future<void> _handleLikeToggle() async {
-    // Store current state for potential rollback
     final previousIsLiked = _isLiked;
     final previousLikesCount = _likesCount;
 
-    // Optimistically update local state
     setState(() {
       _isLiked = !_isLiked;
       _likesCount = _isLiked ? _likesCount + 1 : _likesCount - 1;
     });
 
     try {
-      // Call controller to toggle like on the backend
       await controller.toggleLike(widget.post.id?.toString() ?? '');
-      // Update widget.post if necessary (assuming controller updates the posts list)
-      // If controller updates the posts list reactively, this may not be needed
     } catch (e) {
-      // Revert on failure
       setState(() {
         _isLiked = previousIsLiked;
         _likesCount = previousLikesCount;
       });
-      // Optionally show error message
       Get.snackbar(
         'Error',
         'Failed to toggle like: $e',
@@ -306,13 +299,37 @@ class _FeedPostState extends State<FeedPost> {
     }
   }
 
+  // Handle save toggle with optimistic update
+  Future<void> _handleSaveToggle() async {
+    final previousIsBookmarked = _isBookmarked;
+
+    // Optimistically update local state
+    setState(() {
+      _isBookmarked = !_isBookmarked;
+    });
+
+    try {
+      await controller.toggleSave(widget.post.id?.toString() ?? '');
+      // Assuming controller updates the post's isBookmarked property reactively
+    } catch (e) {
+      // Revert on failure
+      setState(() {
+        _isBookmarked = previousIsBookmarked;
+      });
+      Get.snackbar(
+        'Error',
+        'Failed to toggle save: $e',
+        backgroundColor: Colors.red,
+        colorText: Colors.white,
+      );
+    }
+  }
+
   Widget _buildMedia(dynamic media) {
-    // Handle null case
     if (media == null) {
       return const SizedBox.shrink();
     }
 
-    // Handle new Media class
     if (media is Media) {
       final allMedia = [
         ...(media.images?.map((url) => {'url': url, 'type': 'image'}) ?? []),
@@ -342,7 +359,6 @@ class _FeedPostState extends State<FeedPost> {
       );
     }
 
-    // Handle old List<String> case (for groupPostModel or backward compatibility)
     if (media is List) {
       final allMedia = media
           .whereType<String>()
@@ -370,7 +386,6 @@ class _FeedPostState extends State<FeedPost> {
       );
     }
 
-    // Fallback for unexpected types
     return const SizedBox.shrink();
   }
 
@@ -409,7 +424,6 @@ class _FeedPostState extends State<FeedPost> {
         return GestureDetector(
           onTap: () {
             // Implement document viewer or open URL
-            // Example: launchUrl(Uri.parse(url));
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -441,7 +455,6 @@ class _FeedPostState extends State<FeedPost> {
         return GestureDetector(
           onTap: () {
             // Implement video player or open URL
-            // Example: launchUrl(Uri.parse(url));
           },
           child: ClipRRect(
             borderRadius: BorderRadius.circular(8),
@@ -483,9 +496,11 @@ class _FeedPostState extends State<FeedPost> {
   void _handleMenuAction(String action) {
     switch (action) {
       case 'save':
-        controller.toggleSave(widget.post.id?.toString() ?? '');
+        _handleSaveToggle();
+        break;
       case 'hide':
         _showHideConfirmation();
+        break;
     }
   }
 
@@ -522,9 +537,9 @@ class _FeedPostState extends State<FeedPost> {
               widget.post.createdBy!.image!.isNotEmpty)
             widget.post.createdBy!.image!,
         ],
-        isLiked: _isLiked, // Use local state
+        isLiked: _isLiked,
         postId: widget.post.id?.toString() ?? '',
-        likesCount: _likesCount, // Use local state
+        likesCount: _likesCount,
       ),
     );
   }

@@ -110,6 +110,20 @@ class $AssetsImagesGen {
   /// File path: assets/images/Group 2.svg
   SvgGenImage get group2 => const SvgGenImage('assets/images/Group 2.svg');
 
+  /// File path: assets/images/Heart.png
+  AssetGenImage get heartPng => const AssetGenImage('assets/images/Heart.png');
+
+  /// File path: assets/images/Heart.svg
+  SvgGenImage get heartSvg => const SvgGenImage('assets/images/Heart.svg');
+
+  /// File path: assets/images/Heart_filled.png
+  AssetGenImage get heartFilledPng =>
+      const AssetGenImage('assets/images/Heart_filled.png');
+
+  /// File path: assets/images/Heart_filled.svg
+  SvgGenImage get heartFilledSvg =>
+      const SvgGenImage('assets/images/Heart_filled.svg');
+
   /// File path: assets/images/Journal.svg
   SvgGenImage get journalSvg => const SvgGenImage('assets/images/Journal.svg');
 
@@ -379,6 +393,9 @@ class $AssetsImagesGen {
   SvgGenImage get drawerHome =>
       const SvgGenImage('assets/images/drawer_home.svg');
 
+  /// File path: assets/images/edit-2.svg
+  SvgGenImage get edit2 => const SvgGenImage('assets/images/edit-2.svg');
+
   /// File path: assets/images/edit.svg
   SvgGenImage get edit => const SvgGenImage('assets/images/edit.svg');
 
@@ -536,9 +553,6 @@ class $AssetsImagesGen {
   /// File path: assets/images/habits_arrow_down.svg
   SvgGenImage get habitsArrowDown =>
       const SvgGenImage('assets/images/habits_arrow_down.svg');
-
-  /// File path: assets/images/heart.svg
-  SvgGenImage get heart => const SvgGenImage('assets/images/heart.svg');
 
   /// File path: assets/images/heart_off.svg
   SvgGenImage get heartOff => const SvgGenImage('assets/images/heart_off.svg');
@@ -978,6 +992,10 @@ class $AssetsImagesGen {
         courses,
         ellipse1,
         group2,
+        heartPng,
+        heartSvg,
+        heartFilledPng,
+        heartFilledSvg,
         journalSvg,
         journalPng,
         logout,
@@ -1051,6 +1069,7 @@ class $AssetsImagesGen {
         drawerBack,
         drawerGame,
         drawerHome,
+        edit2,
         edit,
         editProfile,
         editProfilePic,
@@ -1093,7 +1112,6 @@ class $AssetsImagesGen {
         habitArrowRight,
         habits,
         habitsArrowDown,
-        heart,
         heartOff,
         home,
         homeActive,
