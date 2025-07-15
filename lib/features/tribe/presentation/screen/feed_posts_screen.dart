@@ -87,20 +87,29 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           return Padding(
             padding: const EdgeInsets.only(left: 16), // Space between tabs
             child: GestureDetector(
-              onTap: () {
+              onTap: () async {
                 controller.changeTab(index);
-                if (index == 1) {
+                if (index == 0) {
+                  // Handle 'Posts' tab (index 0) - refresh posts and comments, like pull-to-refresh
+                  await controller.loadFeedPosts();
+                  final posts = controller.posts;
+                  for (final post in posts) {
+                    await controller.getPostComments(
+                        postId: post.id?.toString() ?? '');
+                  }
+                } else if (index == 1) {
                   // Handle 'Media' tab (index 1)
                   controller.getFeedMedia(); // Call to fetch media
                 } else if (index == 2) {
                   // Handle 'Saved' tab (index 2)
-                  tribeController.getFeedSavedPost().then((_) {
+                  tribeController.getFeedSavedPost().then((_) async {
                     final savedPosts = tribeController
                             .feedSavedPostsModel.value.data?.savedPosts ??
                         [];
                     for (final post in savedPosts) {
-                      controller.getPostComments(
-                          postId: post.id?.toString() ?? '',);
+                      await controller.getPostComments(
+                        postId: post.id?.toString() ?? '',
+                      );
                     }
                   });
                 }
@@ -305,7 +314,8 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   borderRadius: BorderRadius.circular(8),
                   image: DecorationImage(
                     image: NetworkImage(
-                        media.url ?? '',), // Assuming media.url is the image URL
+                      media.url ?? '',
+                    ), // Assuming media.url is the image URL
                     fit: BoxFit.cover,
                   ),
                 ),

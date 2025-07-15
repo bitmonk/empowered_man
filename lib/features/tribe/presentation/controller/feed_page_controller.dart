@@ -135,6 +135,20 @@ class FeedPageController extends GetxController {
     expandedComments.refresh();
   }
 
+  void updateCommentLike(String commentId, bool isLiked, int likeCount) {
+    final comments = commentsModel.values
+        .expand((model) => model.data?.comments ?? [])
+        .toList();
+    final comment =
+        comments.firstWhereOrNull((c) => c.id.toString() == commentId);
+    if (comment != null) {
+      comment.likesCount = likeCount;
+      // Optionally, set a flag if you track liked state separately
+      // comment.isLiked = isLiked;
+    }
+    commentsModel.refresh();
+  }
+
   Future<void> loadSavedPosts() async {
     try {
       feedState.value = TheStates.loading;

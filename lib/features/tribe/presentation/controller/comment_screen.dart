@@ -145,9 +145,11 @@ class _CommentScreenState extends State<CommentScreen> {
     commentLikeStates.refresh();
     commentLikeCounts.refresh();
 
-    controller.toggleCommentLike(commentId, widget.postId).then((_) {
-      controller.getPostComments(postId: widget.postId);
-    });
+    // Update local data model instead of refetching
+    controller.updateCommentLike(
+        commentId, !isLiked, commentLikeCounts[commentId]!);
+    // Perform backend call without awaiting to allow UI to update immediately
+    controller.toggleCommentLike(commentId, widget.postId);
   }
 
   void _toggleReplyLike(
@@ -162,11 +164,11 @@ class _CommentScreenState extends State<CommentScreen> {
     commentLikeStates.refresh();
     commentLikeCounts.refresh();
 
-    controller.toggleReplyLike(replyId).then((_) async {
-      final parentId = parentCommentId ?? replyId;
-      await controller.getCommentReplies(commentId: parentId);
-      controller.repliesModel.refresh();
-    });
+    // Update local data model instead of refetching
+    controller.updateReplyLike(
+        replyId, !isLiked, commentLikeCounts[replyId]!, parentCommentId);
+    // Perform backend call without awaiting
+    controller.toggleReplyLike(replyId, parentCommentId);
   }
 
   void _toggleReplies(String commentId, bool isExpanded) {
@@ -687,17 +689,35 @@ class _CommentScreenState extends State<CommentScreen> {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 16,
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return ScaleTransition(
+                                  scale: animation, child: child);
+                            },
+                            child: Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              key: ValueKey<bool>(isLiked),
+                              color: isLiked ? Colors.red : Colors.white,
+                              size: 16,
+                            ),
                           ),
                           const SizedBox(width: 4),
-                          Text(
-                            _formatCount(likeCount),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
+                          AnimatedSwitcher(
+                            duration: const Duration(milliseconds: 200),
+                            transitionBuilder:
+                                (Widget child, Animation<double> animation) {
+                              return FadeTransition(
+                                  opacity: animation, child: child);
+                            },
+                            child: Text(
+                              _formatCount(likeCount),
+                              key: ValueKey<int>(likeCount),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                         ],
@@ -827,19 +847,37 @@ class _CommentScreenState extends State<CommentScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isLiked ? Colors.red : Colors.white,
-                                  size: 14,
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  transitionBuilder: (Widget child,
+                                      Animation<double> animation) {
+                                    return ScaleTransition(
+                                        scale: animation, child: child);
+                                  },
+                                  child: Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    key: ValueKey<bool>(isLiked),
+                                    color: isLiked ? Colors.red : Colors.white,
+                                    size: 14,
+                                  ),
                                 ),
                                 const SizedBox(width: 4),
-                                Text(
-                                  _formatCount(likeCount),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
+                                AnimatedSwitcher(
+                                  duration: const Duration(milliseconds: 200),
+                                  transitionBuilder: (Widget child,
+                                      Animation<double> animation) {
+                                    return FadeTransition(
+                                        opacity: animation, child: child);
+                                  },
+                                  child: Text(
+                                    _formatCount(likeCount),
+                                    key: ValueKey<int>(likeCount),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                    ),
                                   ),
                                 ),
                               ],
@@ -1001,17 +1039,37 @@ class _CommentScreenState extends State<CommentScreen> {
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(
-                              isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: isLiked ? Colors.red : Colors.white,
-                              size: 12,
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return ScaleTransition(
+                                    scale: animation, child: child);
+                              },
+                              child: Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                key: ValueKey<bool>(isLiked),
+                                color: isLiked ? Colors.red : Colors.white,
+                                size: 12,
+                              ),
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              _formatCount(likeCount),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
+                            AnimatedSwitcher(
+                              duration: const Duration(milliseconds: 200),
+                              transitionBuilder:
+                                  (Widget child, Animation<double> animation) {
+                                return FadeTransition(
+                                    opacity: animation, child: child);
+                              },
+                              child: Text(
+                                _formatCount(likeCount),
+                                key: ValueKey<int>(likeCount),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
                               ),
                             ),
                           ],
