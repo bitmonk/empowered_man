@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
     as post_comments;
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart'
@@ -43,12 +44,30 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToContent;
   String? parentReplyId;
 
+  // Track like states and counts for comments and replies
+  final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
+  final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
+
+  // Track expanded states (reactive) - only for comment text expansion
+  final RxSet<String> expandedComments = <String>{}.obs;
+
   @override
   void initState() {
     super.initState();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
-    controller.getPostComments(postId: widget.postId);
+    // Initialize comment like states after fetching comments
+    controller.getPostComments(postId: widget.postId).then((_) {
+      final comments =
+          controller.commentsModel[widget.postId]?.data?.comments ?? [];
+      for (var comment in comments) {
+        final commentId = comment.id.toString();
+        commentLikeCounts[commentId] = comment.likesCount ?? 0;
+        commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+      }
+      commentLikeCounts.refresh();
+      commentLikeStates.refresh();
+    });
   }
 
   @override
@@ -89,10 +108,20 @@ class _CommentScreenState extends State<CommentScreen> {
           .replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
-        refreshRepliesFor:
-            parentReplyId, // If replying to a nested reply, refresh parent thread
       )
-          .then((_) {
+          .then((_) async {
+        String targetId = parentReplyId ?? replyingToCommentId!;
+        controller.repliesModel.remove(targetId);
+        controller.repliesModel.refresh();
+        await controller.getPostComments(postId: widget.postId);
+        await controller.getCommentReplies(commentId: targetId);
+        _syncReplyLikeStates(targetId);
+        // Expand the relevant replies in controller
+        if (parentReplyId != null) {
+          controller.expandedNestedReplies.add(parentReplyId!);
+        } else {
+          controller.expandedReplies.add(replyingToCommentId!);
+        }
         _cancelReply();
       });
     } else {
@@ -101,10 +130,88 @@ class _CommentScreenState extends State<CommentScreen> {
         widget.postId,
         customComment: _inputController.text.trim(),
       )
-          .then((_) {
+          .then((_) async {
+        await controller.getPostComments(postId: widget.postId);
+        controller.commentsModel.refresh();
         _inputController.clear();
       });
     }
+  }
+
+  void _toggleCommentLike(String commentId, int currentLikes, bool isLiked) {
+    // Optimistic UI update
+    commentLikeStates[commentId] = !isLiked;
+    commentLikeCounts[commentId] =
+        isLiked ? currentLikes - 1 : currentLikes + 1;
+    commentLikeStates.refresh();
+    commentLikeCounts.refresh();
+
+    controller.toggleCommentLike(commentId, widget.postId).then((_) {
+      controller.getPostComments(postId: widget.postId);
+    });
+  }
+
+  void _toggleReplyLike(String replyId, int currentLikes, bool isLiked,
+      {String? parentCommentId}) {
+    // Optimistic UI update
+    commentLikeStates[replyId] = !isLiked;
+    commentLikeCounts[replyId] = isLiked ? currentLikes - 1 : currentLikes + 1;
+    commentLikeStates.refresh();
+    commentLikeCounts.refresh();
+
+    controller.toggleReplyLike(replyId).then((_) async {
+      final parentId = parentCommentId ?? replyId;
+      await controller.getCommentReplies(commentId: parentId);
+      _syncReplyLikeStates(parentId);
+      controller.repliesModel.refresh();
+    });
+  }
+
+  void _toggleReplies(String commentId, bool isExpanded) {
+    if (isExpanded) {
+      controller.expandedReplies.remove(commentId);
+    } else {
+      controller.loadingReplies.add(commentId);
+      controller.getCommentReplies(commentId: commentId).then((_) {
+        _syncReplyLikeStates(commentId);
+        controller.loadingReplies.remove(commentId);
+        controller.expandedReplies.add(commentId);
+      });
+    }
+  }
+
+  void _toggleNestedReplies(String replyId, bool isExpanded) {
+    if (isExpanded) {
+      controller.expandedNestedReplies.remove(replyId);
+    } else {
+      controller.loadingReplies.add(replyId);
+      controller.getCommentReplies(commentId: replyId).then((_) {
+        _syncReplyLikeStates(replyId);
+        controller.loadingReplies.remove(replyId);
+        controller.expandedNestedReplies.add(replyId);
+      });
+    }
+  }
+
+  // Sync like states/counts for all replies under a parent (reply or comment)
+  void _syncReplyLikeStates(String parentId) {
+    final replies =
+        controller.repliesModel[parentId]?.repliesData?.comments ?? [];
+    for (var reply in replies) {
+      final replyId = reply.id.toString();
+      commentLikeCounts[replyId] = reply.likesCount ?? 0;
+      commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
+      // Also sync nested replies if present
+      final nestedReplies =
+          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+      for (var nested in nestedReplies) {
+        final nestedId = nested.id.toString();
+        commentLikeCounts[nestedId] = nested.likesCount ?? 0;
+        commentLikeStates[nestedId] = (nested.likesCount ?? 0) > 0;
+      }
+    }
+    commentLikeCounts.refresh();
+    commentLikeStates.refresh();
   }
 
   String _formatCount(int count) {
@@ -467,7 +574,7 @@ class _CommentScreenState extends State<CommentScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: GestureDetector(
-                  onTap: () => controller.toggleReplies(commentId),
+                  onTap: () => _toggleReplies(commentId, isRepliesExpanded),
                   child: isLoadingReplies
                       ? const SizedBox(
                           height: 20,
@@ -504,11 +611,11 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget _buildComment(post_comments.Comment comment) {
     return Obx(() {
       final commentId = comment.id.toString();
-      final isExpanded = controller.expandedComments.contains(commentId);
+      final isExpanded = expandedComments.contains(commentId);
       final commentText = comment.text ?? '';
       final shouldShowMore = _shouldShowMoreButton(commentText);
-      final isLiked = comment.likesCount != null && comment.likesCount! > 0;
-      final likeCount = comment.likesCount ?? 0;
+      final isLiked = commentLikeStates[commentId] ?? false;
+      final likeCount = commentLikeCounts[commentId] ?? 0;
 
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -575,7 +682,13 @@ class _CommentScreenState extends State<CommentScreen> {
                 if (shouldShowMore) ...[
                   const SizedBox(height: 4),
                   GestureDetector(
-                    onTap: () => controller.toggleCommentExpansion(commentId),
+                    onTap: () {
+                      if (isExpanded) {
+                        expandedComments.remove(commentId);
+                      } else {
+                        expandedComments.add(commentId);
+                      }
+                    },
                     child: Text(
                       isExpanded ? 'Show less' : 'Show more',
                       style: const TextStyle(
@@ -590,8 +703,8 @@ class _CommentScreenState extends State<CommentScreen> {
                 Row(
                   children: [
                     GestureDetector(
-                      onTap: () => controller.toggleCommentLike(
-                          commentId, widget.postId),
+                      onTap: () =>
+                          _toggleCommentLike(commentId, likeCount, isLiked),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -641,17 +754,20 @@ class _CommentScreenState extends State<CommentScreen> {
     final replyId = reply.id.toString();
     final hasNestedReplies =
         reply.commentsCount != null && reply.commentsCount! > 0;
-    final isLiked = reply.likesCount != null && reply.likesCount! > 0;
-    final likeCount = reply.likesCount ?? 0;
-
+    // Initialize like state and count for reply
+    if (!commentLikeCounts.containsKey(replyId)) {
+      commentLikeCounts[replyId] = reply.likesCount ?? 0;
+      commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
+    }
     return Obx(() {
+      final nestedReplies =
+          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+      final isLiked = commentLikeStates[replyId] ?? false;
+      final likeCount = commentLikeCounts[replyId] ?? 0;
       final isNestedRepliesExpanded =
           controller.expandedNestedReplies.contains(replyId);
       final isLoadingNestedReplies =
           controller.loadingReplies.contains(replyId);
-      final nestedReplies =
-          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
-
       return Container(
         margin: const EdgeInsets.only(left: 40.0, bottom: 12),
         child: Column(
@@ -723,7 +839,9 @@ class _CommentScreenState extends State<CommentScreen> {
                       Row(
                         children: [
                           GestureDetector(
-                            onTap: () => controller.toggleReplyLike(replyId),
+                            onTap: () => _toggleReplyLike(
+                                replyId, likeCount, isLiked,
+                                parentCommentId: parentCommentId),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -774,7 +892,8 @@ class _CommentScreenState extends State<CommentScreen> {
               Padding(
                 padding: const EdgeInsets.only(left: 40.0),
                 child: GestureDetector(
-                  onTap: () => controller.toggleNestedReplies(replyId),
+                  onTap: () =>
+                      _toggleNestedReplies(replyId, isNestedRepliesExpanded),
                   child: isLoadingNestedReplies
                       ? const SizedBox(
                           height: 20,
@@ -812,123 +931,136 @@ class _CommentScreenState extends State<CommentScreen> {
   Widget _buildNestedReply(
       comment_replies.Comment nestedReply, String parentReplyId) {
     final replyId = nestedReply.id.toString();
-    final isLiked =
-        nestedReply.likesCount != null && nestedReply.likesCount! > 0;
-    final likeCount = nestedReply.likesCount ?? 0;
 
-    return Container(
-      margin: const EdgeInsets.only(left: 80.0, bottom: 12),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipOval(
-            child: nestedReply.user?.image != null
-                ? Image.network(
-                    nestedReply.user!.image!,
-                    height: 24,
-                    width: 24,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Assets.images.leaderProfile.image(
+    // Initialize like state and count for nested reply
+    if (!commentLikeCounts.containsKey(replyId)) {
+      commentLikeCounts[replyId] = nestedReply.likesCount ?? 0;
+      commentLikeStates[replyId] = (nestedReply.likesCount ?? 0) > 0;
+    }
+
+    return Obx(() {
+      final isLiked = commentLikeStates[replyId] ?? false;
+      final likeCount = commentLikeCounts[replyId] ?? 0;
+
+      return Container(
+        margin: const EdgeInsets.only(left: 80.0, bottom: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipOval(
+              child: nestedReply.user?.image != null
+                  ? Image.network(
+                      nestedReply.user!.image!,
+                      height: 24,
+                      width: 24,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Assets.images.leaderProfile.image(
+                        height: 24,
+                        width: 24,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Assets.images.leaderProfile.image(
                       height: 24,
                       width: 24,
                       fit: BoxFit.cover,
                     ),
-                  )
-                : Assets.images.leaderProfile.image(
-                    height: 24,
-                    width: 24,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        nestedReply.user?.fullName ?? 'Unknown',
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          nestedReply.user?.fullName ?? 'Unknown',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatDateTime(nestedReply.createdAt),
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
+                          color: Colors.grey,
+                          fontSize: 10,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatDateTime(nestedReply.createdAt),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 10,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  nestedReply.text ?? '',
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 12,
+                    ],
                   ),
-                ),
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    GestureDetector(
-                      onTap: () => controller.toggleReplyLike(replyId),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 12,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatCount(likeCount),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 10,
-                            ),
-                          ),
-                        ],
-                      ),
+                  const SizedBox(height: 4),
+                  Text(
+                    nestedReply.text ?? '',
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 12,
                     ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => _startReply(
-                        nestedReply.id.toString(),
-                        nestedReply.user?.fullName ?? 'Unknown',
-                        nestedReply.text ?? '',
-                        parentId: parentReplyId,
-                      ),
-                      child: const Text(
-                        'Reply',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
+                  ),
+                  const SizedBox(height: 6),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () => _toggleReplyLike(
+                          nestedReply.id.toString(),
+                          likeCount,
+                          isLiked,
+                          parentCommentId: parentReplyId,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.white,
+                              size: 12,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatCount(likeCount),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 10,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => _startReply(
+                          nestedReply.id.toString(),
+                          nestedReply.user?.fullName ?? 'Unknown',
+                          nestedReply.text ?? '',
+                          parentId: parentReplyId,
+                        ),
+                        child: const Text(
+                          'Reply',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      ),
-    );
+          ],
+        ),
+      );
+    });
   }
 
   Widget _buildInputSection() {

@@ -4,13 +4,13 @@ import 'package:app_links/app_links.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
-// import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:get/get.dart';
 
 class FeedPageController extends GetxController {
   FeedPageController({required this.remoteSource});
@@ -27,13 +27,26 @@ class FeedPageController extends GetxController {
   final Rx<TheStates> feedState = TheStates.initial.obs;
   final Rx<TheStates> feedMediaState = TheStates.initial.obs;
   final Rx<TheStates> createPostState = TheStates.initial.obs;
+  final Rx<TheStates> commentState = TheStates.initial.obs;
+  final Rx<TheStates> getRepliesState = TheStates.initial.obs;
 
   // Data
   final Rx<FeedPostsModel> feedPosts = const FeedPostsModel().obs;
   final RxList<String> selectedMedia = <String>[].obs;
-  final RxMap<String, String> selectedMediaTypes =
-      <String, String>{}.obs; // Track file types
+  final RxMap<String, String> selectedMediaTypes = <String, String>{}.obs;
   Rx<XFile?> selectedImage = Rx<XFile?>(null);
+
+  // Comment and reply data
+  final RxMap<String, PostCommentsModel> commentsModel =
+      <String, PostCommentsModel>{}.obs;
+  final RxMap<String, CommentRepliesModel> repliesModel =
+      <String, CommentRepliesModel>{}.obs;
+
+  // Expanded and loading states
+  final RxSet<String> expandedComments = <String>{}.obs;
+  final RxSet<String> expandedReplies = <String>{}.obs;
+  final RxSet<String> expandedNestedReplies = <String>{}.obs;
+  final RxSet<String> loadingReplies = <String>{}.obs;
 
   // Form controllers
   final TextEditingController postTextController = TextEditingController();
@@ -112,6 +125,16 @@ class FeedPageController extends GetxController {
     }
   }
 
+  // Add this method to toggle comment expansion
+  void toggleCommentExpansion(String commentId) {
+    if (expandedComments.contains(commentId)) {
+      expandedComments.remove(commentId);
+    } else {
+      expandedComments.add(commentId);
+    }
+    expandedComments.refresh();
+  }
+
   Future<void> loadSavedPosts() async {
     try {
       feedState.value = TheStates.loading;
@@ -153,7 +176,6 @@ class FeedPageController extends GetxController {
         (r) {
           feedMediaState.value = TheStates.success;
           feedMediaModel.value = r;
-          // print('Fetched medias: ${feedMediaModel.value.data?.length ?? 0}');
         },
       );
     } catch (e) {
@@ -163,12 +185,33 @@ class FeedPageController extends GetxController {
     }
   }
 
-  final RxMap<String, CommentRepliesModel> repliesModel =
-      <String, CommentRepliesModel>{}.obs;
-  Rx<TheStates> getRepliesState = TheStates.initial.obs;
+  Future<void> getPostComments({required String postId}) async {
+    try {
+      commentState.value = TheStates.loading;
+
+      final result = await remoteSource.getComments(postId: postId);
+
+      result.fold(
+        (l) {
+          commentState.value = TheStates.error;
+          feedError = l.message;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          commentState.value = TheStates.success;
+          commentsModel[postId] = r;
+          commentsModel.refresh();
+        },
+      );
+    } catch (e) {
+      commentState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
+    }
+  }
 
   Future<void> getCommentReplies({required String commentId}) async {
     try {
+      loadingReplies.add(commentId);
       getRepliesState.value = TheStates.loading;
 
       final result = await remoteSource.getCommentReplies(commentId: commentId);
@@ -176,17 +219,48 @@ class FeedPageController extends GetxController {
       result.fold(
         (l) {
           getRepliesState.value = TheStates.error;
+          loadingReplies.remove(commentId);
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
           getRepliesState.value = TheStates.success;
-          repliesModel[commentId] = r; // Store replies for this commentId
-          repliesModel.refresh(); // Notify UI of the change
+          repliesModel[commentId] = r;
+          loadingReplies.remove(commentId);
+          repliesModel.refresh();
         },
       );
     } catch (e) {
       getRepliesState.value = TheStates.error;
+      loadingReplies.remove(commentId);
       AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
+    } finally {
+      loadingReplies.refresh();
+    }
+  }
+
+  void toggleReplies(String commentId) {
+    if (expandedReplies.contains(commentId)) {
+      expandedReplies.remove(commentId);
+      expandedReplies.refresh();
+    } else {
+      Future.microtask(() async {
+        expandedReplies.add(commentId);
+        await getCommentReplies(commentId: commentId);
+        expandedReplies.refresh();
+      });
+    }
+  }
+
+  void toggleNestedReplies(String replyId) {
+    if (expandedNestedReplies.contains(replyId)) {
+      expandedNestedReplies.remove(replyId);
+      expandedNestedReplies.refresh();
+    } else {
+      Future.microtask(() async {
+        expandedNestedReplies.add(replyId);
+        await getCommentReplies(commentId: replyId);
+        expandedNestedReplies.refresh();
+      });
     }
   }
 
@@ -230,10 +304,8 @@ class FeedPageController extends GetxController {
             message: r.message ?? 'Post created successfully',
           );
           clearPostForm();
-          // Call TribeGroupController.loadPostDetails to update posts
           final tribeController = Get.find<TribeGroupController>();
           await tribeController.loadPostDetails(groupId);
-          // Optionally, fetch comments for the new post
           final newPost = tribeController.groupPostModel.value.data?.posts
               ?.firstWhereOrNull((post) => post.id == r.data?.post?.id);
           if (newPost != null) {
@@ -243,7 +315,7 @@ class FeedPageController extends GetxController {
             Navigator.pop(context);
           } else {
             print('Warning: Context is null, cannot pop screen');
-            Get.back(); // Fallback to Get.back
+            Get.back();
           }
         },
       );
@@ -278,47 +350,39 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> toggleCommentLike(String commentId) async {
+  Future<void> toggleCommentLike(String commentId, String postId) async {
     try {
-      posts.refresh();
-
       final result = await remoteSource.likeComment(commentId: commentId);
 
       result.fold(
         (error) {
-          posts.refresh();
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          // loadFeedPosts();
+          getPostComments(postId: postId);
         },
       );
     } catch (e) {
-      posts.refresh();
-      AppUtils.showErrorSnackbar(message: 'Failed to like post: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to like comment: $e');
     }
   }
 
   Future<void> toggleReplyLike(String commentId) async {
     try {
-      posts.refresh();
-
       final result = await remoteSource.likeComment(commentId: commentId);
 
       result.fold(
         (error) {
-          posts.refresh();
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          // loadFeedPosts();
+          getCommentReplies(commentId: commentId);
         },
       );
     } catch (e) {
-      posts.refresh();
-      AppUtils.showErrorSnackbar(message: 'Failed to like post: $e');
+      AppUtils.showErrorSnackbar(message: 'Failed to like reply: $e');
     }
   }
 
@@ -361,34 +425,6 @@ class FeedPageController extends GetxController {
     }
   }
 
-  final RxMap<String, PostCommentsModel> commentsModel =
-      <String, PostCommentsModel>{}.obs;
-  Rx<TheStates> commentState = TheStates.initial.obs;
-
-  Future<void> getPostComments({required String postId}) async {
-    try {
-      commentState.value = TheStates.loading;
-
-      final result = await remoteSource.getComments(postId: postId);
-
-      result.fold(
-        (l) {
-          commentState.value = TheStates.error;
-          feedError = l.message;
-          AppUtils.showErrorSnackbar(message: l.message);
-        },
-        (r) {
-          commentState.value = TheStates.success;
-          commentsModel[postId] = r;
-          commentsModel.refresh();
-        },
-      );
-    } catch (e) {
-      commentState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
-    }
-  }
-
   Future<void> commentOnPost(String postId, {String? customComment}) async {
     final comment = customComment ?? commentController.text.trim();
 
@@ -420,25 +456,11 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> likeComment(String commentId) async {
-    try {
-      final result = await remoteSource.likeComment(commentId: commentId);
-
-      result.fold(
-        (error) {
-          AppUtils.showErrorSnackbar(message: error.message);
-        },
-        (message) {
-          AppUtils.showSnackbar(message: message);
-          loadFeedPosts();
-        },
-      );
-    } catch (e) {
-      AppUtils.showErrorSnackbar(message: 'Failed to like comment: $e');
-    }
-  }
-
-  Future<void> replyToComment(String commentId, {String? customReply}) async {
+  Future<void> replyToComment(
+    String commentId, {
+    String? customReply,
+    String? refreshRepliesFor,
+  }) async {
     final reply = customReply ?? replyController.text.trim();
 
     if (reply.isEmpty) {
@@ -456,12 +478,21 @@ class FeedPageController extends GetxController {
         (error) {
           AppUtils.showErrorSnackbar(message: error.message);
         },
-        (message) {
+        (message) async {
           AppUtils.showSnackbar(message: message);
           if (customReply == null) {
             replyController.clear();
           }
-          loadFeedPosts();
+          // Refresh the parent comment's replies or the specified thread
+          if (refreshRepliesFor != null) {
+            await getCommentReplies(commentId: refreshRepliesFor);
+            // Ensure nested replies are also refreshed if expanded
+            if (expandedNestedReplies.contains(commentId)) {
+              await getCommentReplies(commentId: commentId);
+            }
+          } else {
+            await getCommentReplies(commentId: commentId);
+          }
         },
       );
     } catch (e) {
