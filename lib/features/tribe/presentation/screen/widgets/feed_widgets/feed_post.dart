@@ -68,7 +68,7 @@ class _FeedPostState extends State<FeedPost> {
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: AppColors.feedContainer,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(24),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -181,7 +181,7 @@ class _FeedPostState extends State<FeedPost> {
             TextButton(
               onPressed: () => setState(() => _expanded = !_expanded),
               child: Text(
-                _expanded ? 'See Less' : 'See More',
+                _expanded ? ' -   See Less' : ' +   See More',
                 style: const TextStyle(color: Colors.blue),
               ),
             ),
@@ -195,11 +195,9 @@ class _FeedPostState extends State<FeedPost> {
               // Like button
               GestureDetector(
                 onTap: _handleLikeToggle,
-                child: Icon(
-                  _isLiked ? Icons.favorite : Icons.favorite_border,
-                  color: _isLiked ? Colors.red : Colors.white,
-                  size: 20,
-                ),
+                child: _isLiked
+                    ? Assets.images.heartFilledPng.image(width: 24, height: 24)
+                    : Assets.images.heartPng.image(width: 24, height: 24),
               ),
               const SizedBox(width: 4),
               Text(
@@ -215,7 +213,7 @@ class _FeedPostState extends State<FeedPost> {
                   child: Row(
                     children: [
                       Assets.images.comment
-                          .svg(height: 20, width: 20, fit: BoxFit.cover),
+                          .svg(height: 24, width: 24, fit: BoxFit.cover),
                       const SizedBox(width: 4),
                       Text(
                         _formatCount(

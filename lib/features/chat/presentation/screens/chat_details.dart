@@ -41,8 +41,6 @@ class _ChatDetailsState extends State<ChatDetails> {
     );
   }
 
-  
-
   @override
   Widget build(BuildContext context) {
     return DraggableScrollableSheet(
@@ -124,7 +122,7 @@ class _ChatDetailsState extends State<ChatDetails> {
                                       });
                                     },
                                     child: Text(
-                                      isExpanded ? 'See Less' : 'See More',
+                                      isExpanded ? 'See Less' : 'See dsg',
                                       style: AppTextStyles.textBodyB3.copyWith(
                                         color: AppColors.primary500,
                                       ),

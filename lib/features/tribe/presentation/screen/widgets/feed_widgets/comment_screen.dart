@@ -591,7 +591,9 @@ class _CommentScreenState extends State<CommentScreen> {
                   children: [
                     GestureDetector(
                       onTap: () => controller.toggleCommentLike(
-                          commentId, widget.postId),
+                        commentId,
+                        widget.postId,
+                      ),
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [

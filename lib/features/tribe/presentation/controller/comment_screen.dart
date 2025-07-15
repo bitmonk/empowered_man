@@ -115,7 +115,6 @@ class _CommentScreenState extends State<CommentScreen> {
         controller.repliesModel.refresh();
         await controller.getPostComments(postId: widget.postId);
         await controller.getCommentReplies(commentId: targetId);
-        _syncReplyLikeStates(targetId);
         // Expand the relevant replies in controller
         if (parentReplyId != null) {
           controller.expandedNestedReplies.add(parentReplyId!);
@@ -151,8 +150,12 @@ class _CommentScreenState extends State<CommentScreen> {
     });
   }
 
-  void _toggleReplyLike(String replyId, int currentLikes, bool isLiked,
-      {String? parentCommentId}) {
+  void _toggleReplyLike(
+    String replyId,
+    int currentLikes,
+    bool isLiked, {
+    String? parentCommentId,
+  }) {
     // Optimistic UI update
     commentLikeStates[replyId] = !isLiked;
     commentLikeCounts[replyId] = isLiked ? currentLikes - 1 : currentLikes + 1;
@@ -162,7 +165,6 @@ class _CommentScreenState extends State<CommentScreen> {
     controller.toggleReplyLike(replyId).then((_) async {
       final parentId = parentCommentId ?? replyId;
       await controller.getCommentReplies(commentId: parentId);
-      _syncReplyLikeStates(parentId);
       controller.repliesModel.refresh();
     });
   }
@@ -173,7 +175,6 @@ class _CommentScreenState extends State<CommentScreen> {
     } else {
       controller.loadingReplies.add(commentId);
       controller.getCommentReplies(commentId: commentId).then((_) {
-        _syncReplyLikeStates(commentId);
         controller.loadingReplies.remove(commentId);
         controller.expandedReplies.add(commentId);
       });
@@ -186,32 +187,10 @@ class _CommentScreenState extends State<CommentScreen> {
     } else {
       controller.loadingReplies.add(replyId);
       controller.getCommentReplies(commentId: replyId).then((_) {
-        _syncReplyLikeStates(replyId);
         controller.loadingReplies.remove(replyId);
         controller.expandedNestedReplies.add(replyId);
       });
     }
-  }
-
-  // Sync like states/counts for all replies under a parent (reply or comment)
-  void _syncReplyLikeStates(String parentId) {
-    final replies =
-        controller.repliesModel[parentId]?.repliesData?.comments ?? [];
-    for (var reply in replies) {
-      final replyId = reply.id.toString();
-      commentLikeCounts[replyId] = reply.likesCount ?? 0;
-      commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
-      // Also sync nested replies if present
-      final nestedReplies =
-          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
-      for (var nested in nestedReplies) {
-        final nestedId = nested.id.toString();
-        commentLikeCounts[nestedId] = nested.likesCount ?? 0;
-        commentLikeStates[nestedId] = (nested.likesCount ?? 0) > 0;
-      }
-    }
-    commentLikeCounts.refresh();
-    commentLikeStates.refresh();
   }
 
   String _formatCount(int count) {
@@ -840,8 +819,11 @@ class _CommentScreenState extends State<CommentScreen> {
                         children: [
                           GestureDetector(
                             onTap: () => _toggleReplyLike(
-                                replyId, likeCount, isLiked,
-                                parentCommentId: parentCommentId),
+                              replyId,
+                              likeCount,
+                              isLiked,
+                              parentCommentId: parentCommentId,
+                            ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
