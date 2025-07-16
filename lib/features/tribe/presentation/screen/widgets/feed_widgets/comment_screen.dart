@@ -38,7 +38,6 @@ class CommentScreen extends StatefulWidget {
 }
 
 class _CommentScreenState extends State<CommentScreen> {
-  final RxInt replyLikeUpdateTrigger = 0.obs;
   final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
@@ -52,23 +51,51 @@ class _CommentScreenState extends State<CommentScreen> {
   final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
   final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
   final RxSet<String> expandedComments = <String>{}.obs;
+  final RxMap<String, int> visibleReplyCounts = <String, int>{}.obs;
+  final RxMap<String, bool> showViewMoreForReplies = <String, bool>{}.obs;
+  final RxMap<String, int> visibleNestedReplyCounts = <String, int>{}.obs;
+  final RxMap<String, bool> showViewMoreForNestedReplies = <String, bool>{}.obs;
 
   @override
   void initState() {
     super.initState();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
-    controller.getPostComments(postId: widget.postId).then((_) {
-      final comments =
-          controller.commentsModel[widget.postId]?.data?.comments ?? [];
-      for (var comment in comments) {
-        final commentId = comment.id.toString();
-        commentLikeCounts[commentId] = comment.likesCount ?? 0;
-        commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+    _initializeCommentData();
+  }
+
+  Future<void> _initializeCommentData() async {
+    await controller.getPostComments(postId: widget.postId);
+    final comments =
+        controller.commentsModel[widget.postId]?.data?.comments ?? [];
+
+    for (var comment in comments) {
+      final commentId = comment.id.toString();
+      commentLikeCounts[commentId] = comment.likesCount ?? 0;
+      commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+      visibleReplyCounts[commentId] = 2;
+      showViewMoreForReplies[commentId] = true;
+
+      if (controller.repliesModel.containsKey(commentId)) {
+        final replies =
+            controller.repliesModel[commentId]?.repliesData?.comments ?? [];
+        for (var reply in replies) {
+          final replyId = reply.id.toString();
+          commentLikeCounts[replyId] = reply.likesCount ?? 0;
+          commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
+          visibleNestedReplyCounts[replyId] = 2;
+          showViewMoreForNestedReplies[replyId] = true;
+        }
       }
-      commentLikeCounts.refresh();
-      commentLikeStates.refresh();
-    });
+    }
+  }
+
+  void _updateLikeDataForComments(List<dynamic> comments) {
+    for (var comment in comments) {
+      final commentId = comment.id.toString();
+      commentLikeCounts[commentId] = comment.likesCount ?? 0;
+      commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+    }
   }
 
   @override
@@ -101,39 +128,39 @@ class _CommentScreenState extends State<CommentScreen> {
     _inputFocusNode.unfocus();
   }
 
-  void _sendMessage() {
+  Future<void> _sendMessage() async {
     if (_inputController.text.trim().isEmpty) return;
 
     if (replyingToCommentId != null) {
-      controller
-          .replyToComment(
+      await controller.replyToComment(
         replyingToCommentId!,
         customReply: _inputController.text.trim(),
-      )
-          .then((_) async {
-        String targetId = parentReplyId ?? replyingToCommentId!;
-        controller.repliesModel.remove(targetId);
-        controller.repliesModel.refresh();
-        await controller.getPostComments(postId: widget.postId);
-        await controller.getCommentReplies(commentId: targetId);
-        if (parentReplyId != null) {
-          controller.expandedNestedReplies.add(parentReplyId!);
-        } else {
-          controller.expandedReplies.add(replyingToCommentId!);
-        }
-        _cancelReply();
-      });
+      );
+
+      String targetId = parentReplyId ?? replyingToCommentId!;
+      controller.repliesModel.remove(targetId);
+
+      await controller.getPostComments(postId: widget.postId);
+      await controller.getCommentReplies(commentId: targetId);
+
+      // Update like data for fetched replies
+      final replies =
+          controller.repliesModel[targetId]?.repliesData?.comments ?? [];
+      _updateLikeDataForComments(replies);
+
+      if (parentReplyId != null) {
+        controller.expandedNestedReplies.add(parentReplyId!);
+      } else {
+        controller.expandedReplies.add(replyingToCommentId!);
+      }
+      _cancelReply();
     } else {
-      controller
-          .commentOnPost(
+      await controller.commentOnPost(
         widget.postId,
         customComment: _inputController.text.trim(),
-      )
-          .then((_) async {
-        await controller.getPostComments(postId: widget.postId);
-        controller.commentsModel.refresh();
-        _inputController.clear();
-      });
+      );
+      await controller.getPostComments(postId: widget.postId);
+      _inputController.clear();
     }
   }
 
@@ -141,9 +168,6 @@ class _CommentScreenState extends State<CommentScreen> {
     commentLikeStates[commentId] = !isLiked;
     commentLikeCounts[commentId] =
         isLiked ? (currentLikes - 1) : (currentLikes + 1);
-    commentLikeStates.refresh();
-    commentLikeCounts.refresh();
-    replyLikeUpdateTrigger.value++;
     controller.toggleCommentLike(commentId, widget.postId);
   }
 
@@ -156,9 +180,6 @@ class _CommentScreenState extends State<CommentScreen> {
     commentLikeStates[replyId] = !isLiked;
     commentLikeCounts[replyId] =
         isLiked ? (currentLikes - 1) : (currentLikes + 1);
-    commentLikeStates.refresh();
-    commentLikeCounts.refresh();
-    replyLikeUpdateTrigger.value++;
     controller.toggleReplyLike(replyId);
   }
 
@@ -170,6 +191,11 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.getCommentReplies(commentId: commentId).then((_) {
         controller.loadingReplies.remove(commentId);
         controller.expandedReplies.add(commentId);
+
+        // Update like data for fetched replies
+        final replies =
+            controller.repliesModel[commentId]?.repliesData?.comments ?? [];
+        _updateLikeDataForComments(replies);
       });
     }
   }
@@ -182,6 +208,11 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.getCommentReplies(commentId: replyId).then((_) {
         controller.loadingReplies.remove(replyId);
         controller.expandedNestedReplies.add(replyId);
+
+        // Update like data for fetched nested replies
+        final nestedReplies =
+            controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+        _updateLikeDataForComments(nestedReplies);
       });
     }
   }
@@ -191,9 +222,8 @@ class _CommentScreenState extends State<CommentScreen> {
       return '${(count / 1000000).toStringAsFixed(1)}M';
     } else if (count >= 1000) {
       return '${(count / 1000).toStringAsFixed(1)}K';
-    } else {
-      return count.toString();
     }
+    return count.toString();
   }
 
   String _formatDateTime(DateTime? dateTime) {
@@ -268,8 +298,12 @@ class _CommentScreenState extends State<CommentScreen> {
                     controller.commentsModel[widget.postId]?.data?.comments ??
                         [];
                 return RefreshIndicator(
-                  onRefresh: () =>
-                      controller.getPostComments(postId: widget.postId),
+                  onRefresh: () async {
+                    expandedComments.clear();
+                    controller.expandedReplies.clear();
+                    controller.expandedNestedReplies.clear();
+                    await controller.getPostComments(postId: widget.postId);
+                  },
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
@@ -285,6 +319,149 @@ class _CommentScreenState extends State<CommentScreen> {
             _buildInputSection(),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildInputSection() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.feedContainer,
+        border: Border(
+          top: BorderSide(
+            color: Colors.grey.withOpacity(0.3),
+            width: 0.5,
+          ),
+        ),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (replyingToCommentId != null) ...[
+            Container(
+              padding: const EdgeInsets.all(12),
+              margin: const EdgeInsets.only(bottom: 12),
+              decoration: BoxDecoration(
+                color: AppColors.bgMedium.withOpacity(0.5),
+                borderRadius: BorderRadius.circular(8),
+                border: const Border(
+                  left: BorderSide(
+                    color: Colors.blue,
+                    width: 3,
+                  ),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Replying to $replyingToUserName',
+                          style: const TextStyle(
+                            color: Colors.blue,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          replyingToContent ?? '',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _cancelReply,
+                    child: Container(
+                      padding: const EdgeInsets.all(4),
+                      child: const Icon(
+                        Icons.close,
+                        color: Colors.white70,
+                        size: 18,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+          Row(
+            children: [
+              ClipOval(
+                child: controller.userProfile.isNotEmpty
+                    ? Image.network(
+                        controller.userProfile,
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        width: 40,
+                        height: 40,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  controller: _inputController,
+                  focusNode: _inputFocusNode,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    hintText: replyingToCommentId != null
+                        ? 'Write a reply...'
+                        : 'Write a comment...',
+                    hintStyle: const TextStyle(color: Colors.white54),
+                    filled: true,
+                    fillColor: AppColors.bgMedium,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                      borderSide: BorderSide.none,
+                    ),
+                  ),
+                  maxLines: null,
+                ),
+              ),
+              const SizedBox(width: 12),
+              GestureDetector(
+                onTap: _sendMessage,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: const BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -664,14 +841,18 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildCommentWithReplies(post_comments.Comment comment) {
+    final commentId = comment.id.toString();
+    final hasReplies =
+        comment.commentsCount != null && comment.commentsCount! > 0;
+
     return Obx(() {
-      final commentId = comment.id.toString();
-      final hasReplies =
-          comment.commentsCount != null && comment.commentsCount! > 0;
       final isRepliesExpanded = controller.expandedReplies.contains(commentId);
       final isLoadingReplies = controller.loadingReplies.contains(commentId);
       final replies =
           controller.repliesModel[commentId]?.repliesData?.comments ?? [];
+      final visibleReplies = showViewMoreForReplies[commentId] == true
+          ? replies.take(visibleReplyCounts[commentId] ?? 2).toList()
+          : replies;
 
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -708,9 +889,25 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
             ],
-            if (isRepliesExpanded && replies.isNotEmpty) ...[
+            if (isRepliesExpanded && visibleReplies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...replies.map((reply) => _buildReply(reply, commentId)),
+              ...visibleReplies.map((reply) => _buildReply(reply, commentId)),
+              if (showViewMoreForReplies[commentId] == true &&
+                  replies.length > (visibleReplyCounts[commentId] ?? 2))
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0, top: 8),
+                  child: GestureDetector(
+                    onTap: () => _loadMoreReplies(commentId, replies.length),
+                    child: Text(
+                      'View more replies (${replies.length - (visibleReplyCounts[commentId] ?? 2)} remaining)',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ],
         ),
@@ -719,10 +916,11 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildComment(post_comments.Comment comment) {
+    final commentId = comment.id.toString();
+    final commentText = comment.text ?? '';
+
     return Obx(() {
-      final commentId = comment.id.toString();
       final isExpanded = expandedComments.contains(commentId);
-      final commentText = comment.text ?? '';
       final shouldShowMore = _shouldShowMoreButton(commentText);
       final isLiked = commentLikeStates[commentId] ?? false;
       final likeCount = commentLikeCounts[commentId] ?? 0;
@@ -860,26 +1058,33 @@ class _CommentScreenState extends State<CommentScreen> {
     });
   }
 
+  void _loadMoreReplies(String commentId, int totalReplies) {
+    visibleReplyCounts[commentId] = (visibleReplyCounts[commentId] ?? 2) + 2;
+    if (visibleReplyCounts[commentId]! >= totalReplies) {
+      showViewMoreForReplies[commentId] = false;
+    }
+  }
+
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
     final replyId = reply.id.toString();
     final hasNestedReplies =
         reply.commentsCount != null && reply.commentsCount! > 0;
-    if (!commentLikeCounts.containsKey(replyId)) {
-      commentLikeCounts[replyId] = reply.likesCount ?? 0;
-      commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
-    }
+
     return Obx(() {
-      replyLikeUpdateTrigger.value;
       final nestedReplies =
           controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+      final visibleNestedReplies = showViewMoreForNestedReplies[replyId] == true
+          ? nestedReplies.take(visibleNestedReplyCounts[replyId] ?? 2).toList()
+          : nestedReplies;
       final isLiked = commentLikeStates[replyId] ?? false;
       final likeCount = commentLikeCounts[replyId] ?? 0;
       final isNestedRepliesExpanded =
           controller.expandedNestedReplies.contains(replyId);
       final isLoadingNestedReplies =
           controller.loadingReplies.contains(replyId);
+
       return Container(
-        margin: const EdgeInsets.only(left: 40.0, bottom: 12),
+        margin: const EdgeInsets.only(left: 40, bottom: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -958,13 +1163,16 @@ class _CommentScreenState extends State<CommentScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
-                                  isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isLiked ? Colors.red : Colors.white,
-                                  size: 14,
-                                ),
+                                if (isLiked)
+                                  Assets.images.heartFilledPng.image(
+                                    height: 14,
+                                    width: 14,
+                                  )
+                                else
+                                  Assets.images.heartPng.image(
+                                    height: 14,
+                                    width: 14,
+                                  ),
                                 const SizedBox(width: 4),
                                 Text(
                                   _formatCount(likeCount),
@@ -1030,10 +1238,28 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
             ],
-            if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
+            if (isNestedRepliesExpanded && visibleNestedReplies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...nestedReplies.map(
+              ...visibleNestedReplies.map(
                   (nestedReply) => _buildNestedReply(nestedReply, replyId)),
+              if (showViewMoreForNestedReplies[replyId] == true &&
+                  nestedReplies.length >
+                      (visibleNestedReplyCounts[replyId] ?? 2))
+                Padding(
+                  padding: const EdgeInsets.only(left: 80.0, top: 8),
+                  child: GestureDetector(
+                    onTap: () =>
+                        _loadMoreNestedReplies(replyId, nestedReplies.length),
+                    child: Text(
+                      'View more replies (${nestedReplies.length - (visibleNestedReplyCounts[replyId] ?? 2)} remaining)',
+                      style: const TextStyle(
+                        color: Colors.blue,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
             ],
           ],
         ),
@@ -1041,17 +1267,22 @@ class _CommentScreenState extends State<CommentScreen> {
     });
   }
 
+  void _loadMoreNestedReplies(String replyId, int totalNestedReplies) {
+    visibleNestedReplyCounts[replyId] =
+        (visibleNestedReplyCounts[replyId] ?? 2) + 2;
+    if (visibleNestedReplyCounts[replyId]! >= totalNestedReplies) {
+      showViewMoreForNestedReplies[replyId] = false;
+    }
+  }
+
   Widget _buildNestedReply(
       comment_replies.Comment nestedReply, String parentReplyId) {
     final replyId = nestedReply.id.toString();
-    if (!commentLikeCounts.containsKey(replyId)) {
-      commentLikeCounts[replyId] = nestedReply.likesCount ?? 0;
-      commentLikeStates[replyId] = (nestedReply.likesCount ?? 0) > 0;
-    }
+
     return Obx(() {
-      replyLikeUpdateTrigger.value;
       final isLiked = commentLikeStates[replyId] ?? false;
       final likeCount = commentLikeCounts[replyId] ?? 0;
+
       return Container(
         margin: const EdgeInsets.only(left: 80.0, bottom: 12),
         child: Row(
@@ -1171,148 +1402,5 @@ class _CommentScreenState extends State<CommentScreen> {
         ),
       );
     });
-  }
-
-  Widget _buildInputSection() {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.feedContainer,
-        border: Border(
-          top: BorderSide(
-            color: Colors.grey.withOpacity(0.3),
-            width: 0.5,
-          ),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (replyingToCommentId != null) ...[
-            Container(
-              padding: const EdgeInsets.all(12),
-              margin: const EdgeInsets.only(bottom: 12),
-              decoration: BoxDecoration(
-                color: AppColors.bgMedium.withOpacity(0.5),
-                borderRadius: BorderRadius.circular(8),
-                border: const Border(
-                  left: BorderSide(
-                    color: Colors.blue,
-                    width: 3,
-                  ),
-                ),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Replying to $replyingToUserName',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          replyingToContent ?? '',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 12,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
-                    ),
-                  ),
-                  GestureDetector(
-                    onTap: _cancelReply,
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      child: const Icon(
-                        Icons.close,
-                        color: Colors.white70,
-                        size: 18,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-          Row(
-            children: [
-              ClipOval(
-                child: controller.userProfile.isNotEmpty
-                    ? Image.network(
-                        controller.userProfile,
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Assets.images.leaderProfile.image(
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
-                      ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: TextField(
-                  controller: _inputController,
-                  focusNode: _inputFocusNode,
-                  style: const TextStyle(color: Colors.white),
-                  decoration: InputDecoration(
-                    hintText: replyingToCommentId != null
-                        ? 'Write a reply...'
-                        : 'Write a comment...',
-                    hintStyle: const TextStyle(color: Colors.white54),
-                    filled: true,
-                    fillColor: AppColors.bgMedium,
-                    contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      borderSide: BorderSide.none,
-                    ),
-                  ),
-                  maxLines: null,
-                ),
-              ),
-              const SizedBox(width: 12),
-              GestureDetector(
-                onTap: _sendMessage,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
   }
 }

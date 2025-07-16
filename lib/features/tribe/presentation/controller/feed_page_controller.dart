@@ -374,7 +374,8 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          getPostComments(postId: postId);
+          // Defer the refresh to avoid build conflicts
+          Future.microtask(() => getPostComments(postId: postId));
         },
       );
     } catch (e) {
@@ -392,7 +393,8 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          getCommentReplies(commentId: commentId);
+          // Defer the refresh to avoid build conflicts
+          Future.microtask(() => getCommentReplies(commentId: commentId));
         },
       );
     } catch (e) {
