@@ -36,7 +36,9 @@ class _DailyWidgetState extends State<DailyWidget> {
         homeController
           ..dailyMITlists()
           ..dashboardLevel()
-          ..dashboardHabit();
+          ..dashboardHabit()
+          ..getAMReflectionStatus()
+          ..getPMReflectionStatus();
       },
       child: Obx(
         () => SingleChildScrollView(
@@ -45,48 +47,52 @@ class _DailyWidgetState extends State<DailyWidget> {
               GestureDetector(
                 onTap: () {
                   controller.resetEditMode();
-                  if (period == 'am') {
-                    Get.to(
-                      const AmPmJournalScreen(
-                        reflectionType: 'am',
-                      ),
-                    );
-                  } else {
-                    AppUtils.showErrorSnackbar(
-                      message:
-                          'You can only access AM questions in the morning.',
-                    );
-                  }
+                  // if (period == 'am') {
+                  Get.to(
+                    const AmPmJournalScreen(
+                      reflectionType: 'am',
+                    ),
+                  );
+                  // } else {
+                  //   AppUtils.showErrorSnackbar(
+                  //     message:
+                  //         'You can only access AM questions in the morning.',
+                  //   );
+                  // }
                 },
                 child: HomeJournalWidget(
+                  fillWithColor: homeController.isAmCompleted.value == true,
                   image: Assets.images.stickynote.path,
                   title: 'AM Journal',
                   decription: _getJournalDescription('am'),
                 ),
               ),
-              const VerticalSpacing(20),
-              GestureDetector(
-                onTap: () {
-                  controller.resetEditMode();
-                  if (period == 'pm') {
+              if (homeController.isAmCompleted.value == true)
+                const VerticalSpacing(20),
+              if (homeController.isAmCompleted.value == true)
+                GestureDetector(
+                  onTap: () {
+                    controller.resetEditMode();
+                    // if (period == 'pm') {
                     Get.to(
                       const AmPmJournalScreen(
                         reflectionType: 'pm',
                       ),
                     );
-                  } else {
-                    AppUtils.showErrorSnackbar(
-                      message:
-                          'You can only access PM questions in the afternoon.',
-                    );
-                  }
-                },
-                child: HomeJournalWidget(
-                  image: Assets.images.journalPng.path,
-                  title: 'PM Journal',
-                  decription: _getJournalDescription('pm'),
+                    // } else {
+                    //   AppUtils.showErrorSnackbar(
+                    //     message:
+                    //         'You can only access PM questions in the afternoon.',
+                    //   );
+                    // }
+                  },
+                  child: HomeJournalWidget(
+                    fillWithColor: homeController.isPmCompleted.value == true,
+                    image: Assets.images.journalPng.path,
+                    title: 'PM Journal',
+                    decription: _getJournalDescription('pm'),
+                  ),
                 ),
-              ),
               const VerticalSpacing(20),
               ThemedContainer(
                 child: Column(

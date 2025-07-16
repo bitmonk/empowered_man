@@ -18,6 +18,43 @@ class HomeController extends GetxController {
     dailyMITlists();
     dashboardLevel();
     dashboardHabit();
+    getAMReflectionStatus();
+    getPMReflectionStatus();
+  }
+
+  Rx<TheStates> amCompletedState = TheStates.initial.obs;
+  RxnBool isAmCompleted = RxnBool();
+
+  Future<void> getAMReflectionStatus() async {
+    amCompletedState.value = TheStates.loading;
+    final result = await remoteSource.getReflectionStatusByType('am');
+    result.fold(
+      (l) {
+        amCompletedState.value = TheStates.error;
+      },
+      (r) {
+        isAmCompleted.value = r;
+        amCompletedState.value = TheStates.success;
+      },
+    );
+  }
+
+  Rx<TheStates> pmCompletedState = TheStates.initial.obs;
+  RxnBool isPmCompleted = RxnBool();
+
+  Future<void> getPMReflectionStatus() async {
+    pmCompletedState.value = TheStates.loading;
+    final result = await remoteSource.getReflectionStatusByType('pm');
+    result.fold(
+      (l) {
+        myMonthlyError.value = l.message;
+        pmCompletedState.value = TheStates.error;
+      },
+      (r) {
+        isPmCompleted.value = r;
+        pmCompletedState.value = TheStates.success;
+      },
+    );
   }
 
   // Reactive state for selected tab index
@@ -158,7 +195,8 @@ class HomeController extends GetxController {
         dashboardPowerStreakState.value = TheStates.error;
       },
       (r) {
-        dashboardPowerStreakData.value = r.data ?? const DashboardPowerStreakData();
+        dashboardPowerStreakData.value =
+            r.data ?? const DashboardPowerStreakData();
         dashboardPowerStreakState.value = TheStates.success;
       },
     );

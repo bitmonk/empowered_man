@@ -54,7 +54,6 @@ class AssesmentResult extends StatelessWidget {
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.primary500,
           colorText: AppColors.textColor50,
-          duration: const Duration(seconds: 3),
         );
       } catch (e) {
         // Hide loading dialog
@@ -63,11 +62,10 @@ class AssesmentResult extends StatelessWidget {
         // Show error message
         Get.snackbar(
           'Error',
-          'Failed to generate PDF: ${e.toString()}',
+          'Failed to generate PDF: $e',
           snackPosition: SnackPosition.BOTTOM,
           backgroundColor: AppColors.error500,
           colorText: AppColors.textColor50,
-          duration: const Duration(seconds: 3),
         );
       }
     }

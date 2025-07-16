@@ -54,6 +54,7 @@ class AppEndpoints {
 
   //Reflection Api
   static const String getReflectionByType = '/reflections/type';
+  static const String getReflectionStatusByType = '/reflections/type/status';
   static const String postReflectionAnswer = '/reflection-answers';
   static const String reflectionLibrary = '/reflections-library';
   static const String getUserReflectionBulkDetail = '/user-reflections/details';

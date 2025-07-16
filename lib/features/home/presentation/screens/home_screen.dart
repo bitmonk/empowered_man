@@ -14,13 +14,15 @@ class HomeScreen extends GetView<HomeController> {
       key: AppWidgetKey.home,
       bottom: false,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        padding: const EdgeInsets.symmetric(vertical: 16),
         child: Column(
           children: [
             Obx(
               () => controller.dashboardLevelState.value.showWidget(
-                  success: () {
-                    return HomeHeaderWidgets(
+                success: () {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: HomeHeaderWidgets(
                       level: controller.dashboardLevelData.value.currentLevel ??
                           '',
                       upcomingLevel:
@@ -32,24 +34,27 @@ class HomeScreen extends GetView<HomeController> {
                       userProgressbarPoints: controller
                               .dashboardLevelData.value.userProgressbarPoints ??
                           '',
-                    );
-                  },
-                  loading: () => const SizedBox.shrink(),
-                  error: () => Row(
-                        children: [
-                          Expanded(
-                            child: CustomErrorWidget(
-                              error: controller.dashboardLevelError.value,
-                            ),
-                          ),
-                          IconButton(
-                              onPressed: () {},
-                              icon: const Icon(
-                                Icons.refresh,
-                                color: AppColors.primary500,
-                              ),),
-                        ],
-                      ),),
+                    ),
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: () => Row(
+                  children: [
+                    Expanded(
+                      child: CustomErrorWidget(
+                        error: controller.dashboardLevelError.value,
+                      ),
+                    ),
+                    IconButton(
+                      onPressed: () {},
+                      icon: const Icon(
+                        Icons.refresh,
+                        color: AppColors.primary500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
             // Tab Buttons
             SingleChildScrollView(
@@ -67,14 +72,19 @@ class HomeScreen extends GetView<HomeController> {
             const VerticalSpacing(16),
 
             Expanded(
-              child: Obx(
-                () => IndexedStack(
-                  index: controller.selectedTabIndex.value,
-                  children: const [
-                    DailyWidget(),
-                    WeeklyWidget(),
-                    MonthlyWidget(),
-                  ],
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                ),
+                child: Obx(
+                  () => IndexedStack(
+                    index: controller.selectedTabIndex.value,
+                    children: const [
+                      DailyWidget(),
+                      WeeklyWidget(),
+                      MonthlyWidget(),
+                    ],
+                  ),
                 ),
               ),
             ),
