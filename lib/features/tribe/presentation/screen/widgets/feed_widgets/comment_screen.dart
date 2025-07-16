@@ -56,11 +56,15 @@ class _CommentScreenState extends State<CommentScreen> {
   final RxMap<String, int> visibleNestedReplyCounts = <String, int>{}.obs;
   final RxMap<String, bool> showViewMoreForNestedReplies = <String, bool>{}.obs;
 
+  late final ScrollController _scrollController;
+
   @override
   void initState() {
     super.initState();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
+    _scrollController = ScrollController();
+    _scrollController.addListener(_onScroll);
     _initializeCommentData();
   }
 
@@ -102,7 +106,22 @@ class _CommentScreenState extends State<CommentScreen> {
   void dispose() {
     _inputController.dispose();
     _inputFocusNode.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final threshold = 200.0;
+    if (_scrollController.position.extentAfter < threshold) {
+      // Try to load more comments if available
+      final hasMore = controller.hasMoreComments[widget.postId] ?? false;
+      final isLoading =
+          controller.isLoadingMoreComments[widget.postId] ?? false;
+      if (hasMore && !isLoading) {
+        controller.fetchNextCommentsPage(widget.postId);
+      }
+    }
   }
 
   void _startReply(String commentId, String userName, String content,
@@ -252,9 +271,10 @@ class _CommentScreenState extends State<CommentScreen> {
     return Padding(
       padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
       child: Scaffold(
-        backgroundColor: Color(0xFF132534),
+        backgroundColor: const Color(0xFF132534),
         appBar: AppBar(
-          backgroundColor: AppColors.bgMedium,
+          surfaceTintColor: const Color(0xFF132534),
+          backgroundColor: const Color(0xFF132534),
           elevation: 0,
           leading: IconButton(
             icon: const Icon(Icons.arrow_back, color: Colors.white),
@@ -346,38 +366,86 @@ class _CommentScreenState extends State<CommentScreen> {
                     expandedComments.clear();
                     controller.expandedReplies.clear();
                     controller.expandedNestedReplies.clear();
+                    controller.resetCommentPagination(widget.postId);
                     await controller.getPostComments(postId: widget.postId);
                   },
-                  child: ListView(
+                  child: ListView.builder(
+                    controller: _scrollController,
                     padding: const EdgeInsets.all(16),
-                    children: [
-                      if (widget.content.isNotEmpty) ...[
-                        Text(
-                          widget.content,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 15,
+                    itemCount: _getListItemCount(comments),
+                    itemBuilder: (context, index) {
+                      // First items: post content, media, actions, divider
+                      int offset = 0;
+                      if (widget.content.isNotEmpty) {
+                        if (index == offset) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                widget.content,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 15,
+                                ),
+                                maxLines: 10,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 16),
+                              const GreyDivider(),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        }
+                        offset++;
+                      }
+                      if (widget.media.isNotEmpty) {
+                        if (index == offset) {
+                          return Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildMedia(widget.media),
+                              const SizedBox(height: 16),
+                              const GreyDivider(),
+                              const SizedBox(height: 16),
+                            ],
+                          );
+                        }
+                        offset++;
+                      }
+                      if (index == offset) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildPostActions(),
+                            const SizedBox(height: 16),
+                            const GreyDivider(),
+                            const SizedBox(height: 16),
+                          ],
+                        );
+                      }
+                      offset++;
+                      // Comments
+                      final commentIndex = index - offset;
+                      if (commentIndex < comments.length) {
+                        return _buildCommentWithReplies(comments[commentIndex]);
+                      }
+                      // Loading indicator at the end
+                      final isLoadingMore =
+                          controller.isLoadingMoreComments[widget.postId] ??
+                              false;
+                      if (isLoadingMore) {
+                        return const Padding(
+                          padding: EdgeInsets.symmetric(vertical: 24),
+                          child: Center(
+                            child: CircularProgressIndicator(
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white),
+                            ),
                           ),
-                          maxLines: 10,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                        const SizedBox(height: 16),
-                        const GreyDivider(),
-                        const SizedBox(height: 16),
-                      ],
-                      if (widget.media.isNotEmpty) ...[
-                        _buildMedia(widget.media),
-                        const SizedBox(height: 16),
-                        const GreyDivider(),
-                        const SizedBox(height: 16),
-                        _buildPostActions(),
-                        const SizedBox(height: 16),
-                        const GreyDivider(),
-                        const SizedBox(height: 16),
-                      ],
-                      ...comments
-                          .map((comment) => _buildCommentWithReplies(comment)),
-                    ],
+                        );
+                      }
+                      return const SizedBox.shrink();
+                    },
                   ),
                 );
               }),
@@ -1242,7 +1310,7 @@ class _CommentScreenState extends State<CommentScreen> {
                             bottomRight: Radius.circular(14),
                           ),
                           border: Border.all(
-                            color: Color(0xFF1A2A3A),
+                            color: const Color(0xFF1A2A3A),
                             width: 1.1,
                           ),
                         ),
@@ -1458,7 +1526,7 @@ class _CommentScreenState extends State<CommentScreen> {
                         bottomRight: Radius.circular(14),
                       ),
                       border: Border.all(
-                        color: Color(0xFF1A2A3A),
+                        color: const Color(0xFF1A2A3A),
                         width: 1.1,
                       ),
                     ),
@@ -1606,5 +1674,18 @@ class _CommentScreenState extends State<CommentScreen> {
         ),
       ],
     );
+  }
+
+  // Helper to get total item count for ListView.builder
+  int _getListItemCount(List comments) {
+    int count = comments.length;
+    int offset = 1; // post actions
+    if (widget.content.isNotEmpty) offset++;
+    if (widget.media.isNotEmpty) offset++;
+    // Add 1 for loading indicator if needed
+    final isLoadingMore =
+        controller.isLoadingMoreComments[widget.postId] ?? false;
+    if (isLoadingMore) count++;
+    return count + offset;
   }
 }

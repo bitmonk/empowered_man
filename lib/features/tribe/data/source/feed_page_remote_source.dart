@@ -157,12 +157,16 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, PostCommentsModel>> getComments({
     required String postId,
+    int page = 1,
+    int limit = 5,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getPostComments,
         queryParameters: {
           'post_id': postId,
+          'page': page,
+          'per_page': limit,
         },
       );
       return right(PostCommentsModel.fromJson(response));
@@ -228,10 +232,16 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, CommentRepliesModel>> getCommentReplies({
     required String commentId,
+    int page = 1,
+    int limit = 5,
   }) async {
     try {
       final response = await _client.get(
         '${AppEndpoints.getCommentReplies}?comment_id=$commentId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
       );
       return right(CommentRepliesModel.fromJson(response));
     } catch (e) {

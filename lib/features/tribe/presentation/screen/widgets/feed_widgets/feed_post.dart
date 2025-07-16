@@ -209,24 +209,25 @@ class _FeedPostState extends State<FeedPost> {
                 style: const TextStyle(color: Colors.white),
               ),
               const SizedBox(width: 16),
-              Obx(
-                () => GestureDetector(
-                  onTap: _navigateToComments,
-                  child: Row(
-                    children: [
-                      Assets.images.comment
-                          .svg(height: 24, width: 24, fit: BoxFit.cover),
-                      const SizedBox(width: 4),
-                      Text(
-                        _formatCount(
-                          controller.commentsModel[widget.post.id?.toString()]
-                                  ?.data?.comments?.length ??
-                              0,
-                        ),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
+              GestureDetector(
+                onTap: _navigateToComments,
+                child: Row(
+                  children: [
+                    Assets.images.comment
+                        .svg(height: 24, width: 24, fit: BoxFit.cover),
+                    const SizedBox(width: 4),
+                    Text(
+                      _formatCount(widget.post.commentsCount
+                          // controller
+                          //     .commentsModel[widget.post.id?.toString()]
+                          //     ?.data
+                          //     ?.comments
+                          //     ?.length ??
+                          // 0,
+                          ),
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ],
                 ),
               ),
               const SizedBox(width: 16),

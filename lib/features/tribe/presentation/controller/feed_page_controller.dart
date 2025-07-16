@@ -64,6 +64,12 @@ class FeedPageController extends GetxController {
   final List<String> tabs = ['Post', 'About', 'Media', 'Saved'];
   final RxString currentGroupId = ''.obs;
 
+  // Pagination state for comments per post
+  final RxMap<String, int> commentCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreComments = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreComments = <String, bool>{}.obs;
+  final int commentsPerPage = 10;
+
   @override
   void onInit() {
     super.onInit();
@@ -199,28 +205,74 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> getPostComments({required String postId}) async {
+  // Reset pagination for a post
+  void resetCommentPagination(String postId) {
+    commentCurrentPage[postId] = 1;
+    hasMoreComments[postId] = true;
+  }
+
+  // Fetch comments for a post, with pagination and append option
+  Future<void> getPostComments({
+    required String postId,
+    bool append = false,
+  }) async {
     try {
-      commentState.value = TheStates.loading;
-
-      final result = await remoteSource.getComments(postId: postId);
-
+      if (!append) {
+        commentState.value = TheStates.loading;
+        resetCommentPagination(postId);
+      }
+      final page = commentCurrentPage[postId] ?? 1;
+      final result = await remoteSource.getComments(
+        postId: postId,
+        page: page,
+        limit: commentsPerPage,
+      );
       result.fold(
         (l) {
-          commentState.value = TheStates.error;
+          if (!append) commentState.value = TheStates.error;
           feedError = l.message;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
-          commentState.value = TheStates.success;
-          commentsModel[postId] = r;
+          if (!append) {
+            commentState.value = TheStates.success;
+            commentsModel[postId] = r;
+          } else {
+            // Append new comments to existing list
+            final existing = commentsModel[postId]?.data?.comments ?? [];
+            final newComments = r.data?.comments ?? [];
+            final allComments = [...existing, ...newComments];
+            final updatedModel = r.copyWith(
+              data: r.data?.copyWith(comments: allComments),
+            );
+            commentsModel[postId] = updatedModel;
+          }
           commentsModel.refresh();
+          // Update pagination state
+          final total = r.data?.meta?.total ?? 0;
+          final loaded = commentsModel[postId]?.data?.comments?.length ?? 0;
+          if (loaded >= total) {
+            hasMoreComments[postId] = false;
+          } else {
+            hasMoreComments[postId] = true;
+            commentCurrentPage[postId] = page + 1;
+          }
         },
       );
     } catch (e) {
-      commentState.value = TheStates.error;
+      if (!append) commentState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
+    } finally {
+      if (append) isLoadingMoreComments[postId] = false;
     }
+  }
+
+  // Fetch next page of comments for a post
+  Future<void> fetchNextCommentsPage(String postId) async {
+    if (isLoadingMoreComments[postId] == true ||
+        hasMoreComments[postId] == false) return;
+    isLoadingMoreComments[postId] = true;
+    await getPostComments(postId: postId, append: true);
   }
 
   Future<void> getCommentReplies({required String commentId}) async {
