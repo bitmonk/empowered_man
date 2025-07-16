@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
+import 'package:empowered/features/tribe/data/model/media.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
@@ -65,6 +66,12 @@ class _FeedPostState extends State<FeedPost> {
 
   @override
   Widget build(BuildContext context) {
+    print(
+        'SavedPost media:  >>>>>>>>>>>>>>>>>>>>> ${widget.post.media?.toJson()}');
+    print(
+        'SavedPost images: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.images}');
+    print(
+        'SavedPost videos: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.videos}');
     final content = widget.post.text ?? '';
     final textToShow = _expanded || content.length < 100
         ? content
@@ -336,6 +343,20 @@ class _FeedPostState extends State<FeedPost> {
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
+    // If only one media and it's an image or gif, center and expand it
+    if (allMedia.length == 1 &&
+        (allMedia[0]['type'] == 'image' || allMedia[0]['type'] == 'gif')) {
+      return Center(
+        child: AspectRatio(
+          aspectRatio: 16 / 9,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(12),
+            child: _buildSingleMedia(allMedia[0]),
+          ),
+        ),
+      );
+    }
+
     final additionalCount = allMedia.length > 3 ? allMedia.length - 3 : 0;
 
     return SizedBox(
@@ -418,12 +439,12 @@ class _FeedPostState extends State<FeedPost> {
 
     switch (type) {
       case 'image':
-      case 'gif':
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: CachedNetworkImage(
             imageUrl: url,
             fit: BoxFit.cover,
+            // Remove maxWidthDiskCache and maxHeightDiskCache to allow full quality
             placeholder: (context, url) => Container(
               color: Colors.grey[800],
               child: const Center(
@@ -442,6 +463,28 @@ class _FeedPostState extends State<FeedPost> {
                 ),
               ),
             ),
+            // Use high quality for images
+            memCacheHeight: null,
+            memCacheWidth: null,
+          ),
+        );
+      case 'gif':
+        // Debug print to check the GIF URL
+        print('GIF URL: ' + url);
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(
+            url,
+            fit: BoxFit.cover,
+            frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+              if (wasSynchronouslyLoaded || frame != null) {
+                return child;
+              } else {
+                return const Center(child: CircularProgressIndicator());
+              }
+            },
+            errorBuilder: (context, error, stackTrace) =>
+                const Icon(Icons.broken_image, color: Colors.white54, size: 40),
           ),
         );
       case 'document':

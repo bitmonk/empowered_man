@@ -252,7 +252,7 @@ class _CommentScreenState extends State<CommentScreen> {
     return Padding(
       padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
       child: Scaffold(
-        backgroundColor: AppColors.bgMedium,
+        backgroundColor: Color(0xFF132534),
         appBar: AppBar(
           backgroundColor: AppColors.bgMedium,
           elevation: 0,
@@ -260,9 +260,53 @@ class _CommentScreenState extends State<CommentScreen> {
             icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => Get.back(),
           ),
-          title: const Text(
-            'Comments',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+          title: Row(
+            children: [
+              ClipOval(
+                child: controller.userProfile.isNotEmpty
+                    ? Image.network(
+                        controller.userProfile,
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          width: 32,
+                          height: 32,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
+                        width: 32,
+                        height: 32,
+                        fit: BoxFit.cover,
+                      ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.userName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      widget.timeAgo,
+                      style: const TextStyle(color: Colors.grey, fontSize: 12),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
           centerTitle: false,
         ),
@@ -307,8 +351,30 @@ class _CommentScreenState extends State<CommentScreen> {
                   child: ListView(
                     padding: const EdgeInsets.all(16),
                     children: [
-                      _buildOriginalPost(),
-                      const SizedBox(height: 16),
+                      if (widget.content.isNotEmpty) ...[
+                        Text(
+                          widget.content,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                          maxLines: 10,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 16),
+                        const GreyDivider(),
+                        const SizedBox(height: 16),
+                      ],
+                      if (widget.media.isNotEmpty) ...[
+                        _buildMedia(widget.media),
+                        const SizedBox(height: 16),
+                        const GreyDivider(),
+                        const SizedBox(height: 16),
+                        _buildPostActions(),
+                        const SizedBox(height: 16),
+                        const GreyDivider(),
+                        const SizedBox(height: 16),
+                      ],
                       ...comments
                           .map((comment) => _buildCommentWithReplies(comment)),
                     ],
@@ -980,11 +1046,34 @@ class _CommentScreenState extends State<CommentScreen> {
                   ],
                 ),
                 const SizedBox(height: 4),
-                Text(
-                  isExpanded ? commentText : _getTruncatedText(commentText),
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF121E29),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(14),
+                        bottomLeft: Radius.circular(14),
+                        bottomRight: Radius.circular(14),
+                        // topLeft is not rounded
+                      ),
+                      border: Border.all(
+                        color: const Color(0xFF1A2A3A),
+                        width: 1.1,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
+                    child: Text(
+                      isExpanded ? commentText : _getTruncatedText(commentText),
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
                 if (shouldShowMore) ...[
@@ -1143,11 +1232,30 @@ class _CommentScreenState extends State<CommentScreen> {
                         ],
                       ),
                       const SizedBox(height: 4),
-                      Text(
-                        reply.text ?? '',
-                        style: const TextStyle(
-                          color: Colors.white70,
-                          fontSize: 13,
+                      Container(
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFF121E29),
+                          borderRadius: const BorderRadius.only(
+                            topRight: Radius.circular(14),
+                            bottomLeft: Radius.circular(14),
+                            bottomRight: Radius.circular(14),
+                          ),
+                          border: Border.all(
+                            color: Color(0xFF1A2A3A),
+                            width: 1.1,
+                          ),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                          horizontal: 14,
+                        ),
+                        child: Text(
+                          reply.text ?? '',
+                          style: const TextStyle(
+                            color: Colors.white70,
+                            fontSize: 13,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -1340,11 +1448,30 @@ class _CommentScreenState extends State<CommentScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    nestedReply.text ?? '',
-                    style: const TextStyle(
-                      color: Colors.white70,
-                      fontSize: 12,
+                  Container(
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF121E29),
+                      borderRadius: const BorderRadius.only(
+                        topRight: Radius.circular(14),
+                        bottomLeft: Radius.circular(14),
+                        bottomRight: Radius.circular(14),
+                      ),
+                      border: Border.all(
+                        color: Color(0xFF1A2A3A),
+                        width: 1.1,
+                      ),
+                    ),
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 10,
+                      horizontal: 12,
+                    ),
+                    child: Text(
+                      nestedReply.text ?? '',
+                      style: const TextStyle(
+                        color: Colors.white70,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 6),
@@ -1402,5 +1529,82 @@ class _CommentScreenState extends State<CommentScreen> {
         ),
       );
     });
+  }
+
+  Widget _buildPostActions() {
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            setState(() {
+              isPostLiked = !isPostLiked;
+              likesCount = isPostLiked ? likesCount + 1 : likesCount - 1;
+            });
+            controller.toggleLike(widget.postId);
+          },
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isPostLiked ? Icons.favorite : Icons.favorite_border,
+                color: isPostLiked ? Colors.red : Colors.white,
+                size: 20,
+              ),
+              const SizedBox(width: 4),
+              Text(
+                _formatCount(likesCount),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Assets.images.comment.svg(
+              height: 20,
+              width: 20,
+              fit: BoxFit.cover,
+            ),
+            const SizedBox(width: 4),
+            Obx(
+              () => Text(
+                _formatCount(
+                  controller.commentsModel[widget.postId]?.data?.meta?.total ??
+                      0,
+                ),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        GestureDetector(
+          onTap: () {
+            final post = controller.posts
+                .firstWhereOrNull((p) => p.id?.toString() == widget.postId);
+            if (post != null) {
+              controller.sharePost(post);
+            }
+          },
+          child: Assets.images.sharePop.image(
+            height: 20,
+            width: 20,
+            fit: BoxFit.cover,
+            color: Colors.white,
+          ),
+        ),
+        const Spacer(),
+        GestureDetector(
+          onTap: () => controller.toggleSave(widget.postId),
+          child: Assets.images.savePost.svg(
+            height: 20,
+            width: 20,
+            fit: BoxFit.cover,
+          ),
+        ),
+      ],
+    );
   }
 }
