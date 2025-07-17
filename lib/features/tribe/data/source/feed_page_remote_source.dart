@@ -4,7 +4,6 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
-// import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
 import 'package:empowered/features/tribe/data/model/create_post_response_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
@@ -18,10 +17,17 @@ class FeedPageRemoteSource {
 
   final DioApiClient _client;
 
-  Future<Either<AppError, FeedPostsModel>> getFeedPosts() async {
+  Future<Either<AppError, FeedPostsModel>> getFeedPosts({
+    int page = 1,
+    int limit = 5,
+  }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getFeedPosts,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
       );
       return right(FeedPostsModel.fromJson(response));
     } catch (e) {
@@ -64,7 +70,7 @@ class FeedPageRemoteSource {
   Future<Either<AppError, CreatePostResponseModel>> createPost({
     required String groupId,
     String? text,
-    List<Map<String, String>>? media, // Updated to accept path and type
+    List<Map<String, String>>? media,
   }) async {
     try {
       final formDataMap = FormData.fromMap({

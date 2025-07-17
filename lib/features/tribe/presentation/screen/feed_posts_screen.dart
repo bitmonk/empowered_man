@@ -14,6 +14,7 @@ class FeedPostsScreen extends StatefulWidget {
 class _FeedPostsScreenState extends State<FeedPostsScreen> {
   final FeedPageController controller = Get.find<FeedPageController>();
   final TribeGroupController tribeController = Get.find<TribeGroupController>();
+  final ScrollController _feedScrollController = ScrollController();
 
   @override
   void initState() {
@@ -26,6 +27,21 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
         controller.getPostComments(postId: post.id?.toString() ?? '');
       }
     });
+    _feedScrollController.addListener(_onFeedScroll);
+  }
+
+  @override
+  void dispose() {
+    _feedScrollController.dispose();
+    super.dispose();
+  }
+
+  void _onFeedScroll() {
+    if (!_feedScrollController.hasClients) return;
+    final threshold = 200.0;
+    if (_feedScrollController.position.extentAfter < threshold) {
+      controller.fetchNextFeedPostsPage();
+    }
   }
 
   @override
@@ -171,6 +187,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final posts = controller.posts.value;
       final state = controller.feedState.value;
+      final isLoadingMore = controller.isLoadingMorePosts.value;
+      final hasMore =
+          controller.currentFeedPage.value < controller.lastFeedPage.value;
 
       if (state == TheStates.loading && posts.isEmpty) {
         return const Center(
@@ -218,8 +237,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           }
         },
         child: ListView.builder(
+          controller: _feedScrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: posts.length + 1,
+          itemCount: posts.length + (hasMore || isLoadingMore ? 2 : 1),
           itemBuilder: (context, index) {
             if (index == 0) {
               return const Column(
@@ -228,10 +248,19 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                 ],
               );
             }
-
+            if (index == posts.length + 1 && (hasMore || isLoadingMore)) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              );
+            }
             final postIndex = index - 1;
+            if (postIndex >= posts.length) return const SizedBox.shrink();
             final post = posts[postIndex];
-
             return FeedPost(
               post: post,
             );

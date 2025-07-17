@@ -70,6 +70,12 @@ class FeedPageController extends GetxController {
   final RxMap<String, bool> hasMoreComments = <String, bool>{}.obs;
   final int commentsPerPage = 10;
 
+  // Pagination state for feed posts
+  final RxInt currentFeedPage = 1.obs;
+  final RxInt lastFeedPage = 1.obs;
+  final RxBool isLoadingMorePosts = false.obs;
+  final int feedPostsPerPage = 10;
+
   @override
   void onInit() {
     super.onInit();
@@ -104,31 +110,59 @@ class FeedPageController extends GetxController {
     selectedMediaTypes.clear();
   }
 
-  Future<void> loadFeedPosts() async {
+  Future<void> loadFeedPosts({
+    int page = 1,
+    bool append = false,
+  }) async {
     try {
-      feedState.value = TheStates.loading;
-      feedError = null;
+      if (!append) feedState.value = TheStates.loading;
+      if (!append) feedError = null;
+      if (!append) currentFeedPage.value = 1;
+      if (!append) lastFeedPage.value = 1;
+      if (append) isLoadingMorePosts.value = true;
 
-      final result = await remoteSource.getFeedPosts();
+      final result =
+          await remoteSource.getFeedPosts(page: page, limit: feedPostsPerPage);
 
       result.fold(
         (error) {
-          feedState.value = TheStates.error;
+          if (!append) feedState.value = TheStates.error;
           feedError = error.message;
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (postsModel) {
-          feedState.value = TheStates.success;
+          if (!append) feedState.value = TheStates.success;
           feedPosts.value = postsModel;
-          posts.value = postsModel.data?.posts ?? [];
-          print('Fetched posts: ${posts.length}');
+          final newPosts = postsModel.data?.posts ?? [];
+          if (append) {
+            posts.value = List<Post>.from(posts)..addAll(newPosts);
+          } else {
+            posts.value = List<Post>.from(newPosts);
+          }
+          // Update pagination
+          final meta = postsModel.data?.meta;
+          if (meta != null) {
+            currentFeedPage.value = meta.currentPage ?? page;
+            lastFeedPage.value = meta.lastPage ?? page;
+          } else {
+            currentFeedPage.value = page;
+            lastFeedPage.value = page;
+          }
         },
       );
     } catch (e) {
-      feedState.value = TheStates.error;
+      if (!append) feedState.value = TheStates.error;
       feedError = 'Failed to load feed posts: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    } finally {
+      if (append) isLoadingMorePosts.value = false;
     }
+  }
+
+  Future<void> fetchNextFeedPostsPage() async {
+    if (isLoadingMorePosts.value) return;
+    if (currentFeedPage.value >= lastFeedPage.value) return;
+    await loadFeedPosts(page: currentFeedPage.value + 1, append: true);
   }
 
   // Add this method to toggle comment expansion
