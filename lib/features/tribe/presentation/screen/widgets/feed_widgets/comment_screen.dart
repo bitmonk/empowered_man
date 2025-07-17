@@ -12,26 +12,29 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:intl/intl.dart';
 import 'package:get/get.dart';
 import 'package:flutter/material.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
     required this.userName,
-    required this.timeAgo,
+    required this.createdAt,
     required this.content,
     required this.media,
     required this.isLiked,
     required this.postId,
     required this.likesCount,
+    required this.commentsCount,
     super.key,
   });
 
   final String userName;
-  final String timeAgo;
+  final DateTime createdAt;
   final String content;
   final List<Map<String, dynamic>> media;
   final bool isLiked;
   final String postId;
   final int likesCount;
+  final int commentsCount;
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
@@ -318,7 +321,7 @@ class _CommentScreenState extends State<CommentScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      widget.timeAgo,
+                      timeago.format(widget.createdAt),
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -647,7 +650,7 @@ class _CommentScreenState extends State<CommentScreen> {
                       overflow: TextOverflow.ellipsis,
                     ),
                     Text(
-                      widget.timeAgo,
+                      timeago.format(widget.createdAt),
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
@@ -1103,7 +1106,9 @@ class _CommentScreenState extends State<CommentScreen> {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      _formatDateTime(comment.createdAt),
+                      comment.createdAt != null
+                          ? DateFormat.jm().format(comment.createdAt!.toLocal())
+                          : '',
                       style: const TextStyle(
                         color: Colors.grey,
                         fontSize: 12,
@@ -1289,7 +1294,10 @@ class _CommentScreenState extends State<CommentScreen> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            _formatDateTime(reply.createdAt),
+                            reply.createdAt != null
+                                ? DateFormat.jm()
+                                    .format(reply.createdAt!.toLocal())
+                                : '',
                             style: const TextStyle(
                               color: Colors.grey,
                               fontSize: 11,
@@ -1505,7 +1513,10 @@ class _CommentScreenState extends State<CommentScreen> {
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        _formatDateTime(nestedReply.createdAt),
+                        nestedReply.createdAt != null
+                            ? DateFormat.jm()
+                                .format(nestedReply.createdAt!.toLocal())
+                            : '',
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 10,
@@ -1636,14 +1647,9 @@ class _CommentScreenState extends State<CommentScreen> {
               fit: BoxFit.cover,
             ),
             const SizedBox(width: 4),
-            Obx(
-              () => Text(
-                _formatCount(
-                  controller.commentsModel[widget.postId]?.data?.meta?.total ??
-                      0,
-                ),
-                style: const TextStyle(color: Colors.white),
-              ),
+            Text(
+              _formatCount(widget.commentsCount),
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),

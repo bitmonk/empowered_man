@@ -1,3 +1,4 @@
+import 'package:empowered/features/tribe/data/model/media.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'feed_saved_posts_model.freezed.dart';
@@ -18,7 +19,7 @@ class FeedSavedPostsModel with _$FeedSavedPostsModel {
 @freezed
 class Data with _$Data {
   const factory Data({
-    @JsonKey(name: 'saved_posts') List<SavedPost>? savedPosts,
+    @JsonKey(name: 'saved_posts') List<Post>? savedPosts,
     @JsonKey(name: 'meta') Meta? meta,
   }) = _Data;
 
@@ -38,8 +39,8 @@ class Meta with _$Meta {
 }
 
 @freezed
-class SavedPost with _$SavedPost {
-  const factory SavedPost({
+class Post with _$Post {
+  const factory Post({
     @JsonKey(name: 'id') int? id,
     @JsonKey(name: 'text') String? text,
     @JsonKey(name: 'group_id') int? groupId,
@@ -54,10 +55,9 @@ class SavedPost with _$SavedPost {
     @JsonKey(name: 'tagged_users') List<dynamic>? taggedUsers,
     @JsonKey(name: 'created_at') DateTime? createdAt,
     @JsonKey(name: 'updated_at') DateTime? updatedAt,
-  }) = _SavedPost;
+  }) = _Post;
 
-  factory SavedPost.fromJson(Map<String, dynamic> json) =>
-      _$SavedPostFromJson(json);
+  factory Post.fromJson(Map<String, dynamic> json) => _$PostFromJson(json);
 }
 
 @freezed
@@ -79,15 +79,4 @@ class CreatedBy with _$CreatedBy {
 
   factory CreatedBy.fromJson(Map<String, dynamic> json) =>
       _$CreatedByFromJson(json);
-}
-
-@freezed
-class Media with _$Media {
-  const factory Media({
-    @JsonKey(name: 'images') List<String>? images,
-    @JsonKey(name: 'videos') List<dynamic>? videos,
-    @JsonKey(name: 'documents') List<dynamic>? documents,
-  }) = _Media;
-
-  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
 }

@@ -186,7 +186,9 @@ class _TribeScreenState extends State<TribeScreen> {
                   Column(
                     children: [
                       GestureDetector(
-                        onTap: () => Get.to(() => const FeedPostsScreen()),
+                        onTap: () => Get.to(
+                          () => const FeedPostsScreen(),
+                        ),
                         child: Row(
                           children: [
                             Assets.images.file.svg(width: 30, height: 30),

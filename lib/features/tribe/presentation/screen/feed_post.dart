@@ -516,16 +516,17 @@ class _FeedPostState extends State<FeedPost> {
     Get.to(
       () => CommentScreen(
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
-        timeAgo: formatDateTime(widget.post.createdAt),
+        createdAt: widget.post.createdAt,
         content: widget.post.text ?? '',
+        commentsCount: widget.post.commentsCount ?? 0,
         media: widget.post.media is Media
             ? widget.post.media.images ?? []
             : widget.post.media is List
                 ? List<String>.from(widget.post.media)
                 : [],
-        isLiked: _isLiked, // Use local state
+        isLiked: _isLiked,
         postId: widget.post.id?.toString() ?? '',
-        likesCount: _likesCount, // Use local state
+        likesCount: _likesCount,
       ),
     );
   }

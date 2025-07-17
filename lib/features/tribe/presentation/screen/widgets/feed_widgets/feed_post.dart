@@ -322,11 +322,17 @@ class _FeedPostState extends State<FeedPost> {
 
     List<Map<String, dynamic>> allMedia = [];
     if (media is Media) {
+      print(
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media runtimeType: \n  \t${media.runtimeType.toString()}');
+      print(
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media.images: \n  \t${media.images.toString()}');
       allMedia = [
-        ...(media.images?.map((url) => {
-                  'url': url,
-                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
-                }) ??
+        ...(media.images?.map(
+              (url) => {
+                'url': url,
+                'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
+              },
+            ) ??
             []),
         ...(media.documents?.map((url) => {'url': url, 'type': 'document'}) ??
             []),
@@ -341,6 +347,8 @@ class _FeedPostState extends State<FeedPost> {
               })
           .toList();
     }
+    print(
+        '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia');
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
@@ -646,8 +654,9 @@ class _FeedPostState extends State<FeedPost> {
     Get.to(
       () => CommentScreen(
         userName: widget.post.createdBy?.fullName ?? 'Unknown',
-        timeAgo: formatDateTime(widget.post.createdAt),
+        createdAt: widget.post.createdAt,
         content: widget.post.text ?? '',
+        commentsCount: widget.post.commentsCount ?? 0,
         media: allMedia,
         isLiked: _isLiked,
         postId: widget.post.id?.toString() ?? '',

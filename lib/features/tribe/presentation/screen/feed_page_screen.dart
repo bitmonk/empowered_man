@@ -22,6 +22,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
   @override
   void initState() {
     super.initState();
+    controller.currentTabIndex.value = 0; // Always reset to posts tab on entry
     tribeController
       ..loadPostDetails(widget.groupId).then((_) {
         // Fetch comments for all posts after loading post details
@@ -63,27 +64,33 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                         : null,
                   ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        groupDetails?.name ?? 'Group',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          groupDetails?.name ?? 'Group',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                      ),
-                      Text(
-                        groupDetails?.accessType ?? 'Open Discussion Group',
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
+                        Text(
+                          groupDetails?.accessType ?? 'Open Discussion Group',
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Spacer(),
+                  // const Spacer(),
                   if (controller.isUserCoach)
                     PopupMenuButton<String>(
                       color: const Color(0xFF1E293B),

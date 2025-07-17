@@ -243,7 +243,7 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Data {
   @JsonKey(name: 'saved_posts')
-  List<SavedPost>? get savedPosts => throw _privateConstructorUsedError;
+  List<Post>? get savedPosts => throw _privateConstructorUsedError;
   @JsonKey(name: 'meta')
   Meta? get meta => throw _privateConstructorUsedError;
 
@@ -262,7 +262,7 @@ abstract class $DataCopyWith<$Res> {
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'saved_posts') List<SavedPost>? savedPosts,
+      {@JsonKey(name: 'saved_posts') List<Post>? savedPosts,
       @JsonKey(name: 'meta') Meta? meta});
 
   $MetaCopyWith<$Res>? get meta;
@@ -290,7 +290,7 @@ class _$DataCopyWithImpl<$Res, $Val extends Data>
       savedPosts: freezed == savedPosts
           ? _value.savedPosts
           : savedPosts // ignore: cast_nullable_to_non_nullable
-              as List<SavedPost>?,
+              as List<Post>?,
       meta: freezed == meta
           ? _value.meta
           : meta // ignore: cast_nullable_to_non_nullable
@@ -321,7 +321,7 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'saved_posts') List<SavedPost>? savedPosts,
+      {@JsonKey(name: 'saved_posts') List<Post>? savedPosts,
       @JsonKey(name: 'meta') Meta? meta});
 
   @override
@@ -347,7 +347,7 @@ class __$$DataImplCopyWithImpl<$Res>
       savedPosts: freezed == savedPosts
           ? _value._savedPosts
           : savedPosts // ignore: cast_nullable_to_non_nullable
-              as List<SavedPost>?,
+              as List<Post>?,
       meta: freezed == meta
           ? _value.meta
           : meta // ignore: cast_nullable_to_non_nullable
@@ -360,17 +360,17 @@ class __$$DataImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$DataImpl implements _Data {
   const _$DataImpl(
-      {@JsonKey(name: 'saved_posts') final List<SavedPost>? savedPosts,
+      {@JsonKey(name: 'saved_posts') final List<Post>? savedPosts,
       @JsonKey(name: 'meta') this.meta})
       : _savedPosts = savedPosts;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
       _$$DataImplFromJson(json);
 
-  final List<SavedPost>? _savedPosts;
+  final List<Post>? _savedPosts;
   @override
   @JsonKey(name: 'saved_posts')
-  List<SavedPost>? get savedPosts {
+  List<Post>? get savedPosts {
     final value = _savedPosts;
     if (value == null) return null;
     if (_savedPosts is EqualUnmodifiableListView) return _savedPosts;
@@ -420,14 +420,14 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: 'saved_posts') final List<SavedPost>? savedPosts,
+      {@JsonKey(name: 'saved_posts') final List<Post>? savedPosts,
       @JsonKey(name: 'meta') final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
   @JsonKey(name: 'saved_posts')
-  List<SavedPost>? get savedPosts;
+  List<Post>? get savedPosts;
   @override
   @JsonKey(name: 'meta')
   Meta? get meta;
@@ -663,12 +663,12 @@ abstract class _Meta implements Meta {
       throw _privateConstructorUsedError;
 }
 
-SavedPost _$SavedPostFromJson(Map<String, dynamic> json) {
-  return _SavedPost.fromJson(json);
+Post _$PostFromJson(Map<String, dynamic> json) {
+  return _Post.fromJson(json);
 }
 
 /// @nodoc
-mixin _$SavedPost {
+mixin _$Post {
   @JsonKey(name: 'id')
   int? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'text')
@@ -698,20 +698,19 @@ mixin _$SavedPost {
   @JsonKey(name: 'updated_at')
   DateTime? get updatedAt => throw _privateConstructorUsedError;
 
-  /// Serializes this SavedPost to a JSON map.
+  /// Serializes this Post to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
-  $SavedPostCopyWith<SavedPost> get copyWith =>
-      throw _privateConstructorUsedError;
+  $PostCopyWith<Post> get copyWith => throw _privateConstructorUsedError;
 }
 
 /// @nodoc
-abstract class $SavedPostCopyWith<$Res> {
-  factory $SavedPostCopyWith(SavedPost value, $Res Function(SavedPost) then) =
-      _$SavedPostCopyWithImpl<$Res, SavedPost>;
+abstract class $PostCopyWith<$Res> {
+  factory $PostCopyWith(Post value, $Res Function(Post) then) =
+      _$PostCopyWithImpl<$Res, Post>;
   @useResult
   $Res call(
       {@JsonKey(name: 'id') int? id,
@@ -734,16 +733,16 @@ abstract class $SavedPostCopyWith<$Res> {
 }
 
 /// @nodoc
-class _$SavedPostCopyWithImpl<$Res, $Val extends SavedPost>
-    implements $SavedPostCopyWith<$Res> {
-  _$SavedPostCopyWithImpl(this._value, this._then);
+class _$PostCopyWithImpl<$Res, $Val extends Post>
+    implements $PostCopyWith<$Res> {
+  _$PostCopyWithImpl(this._value, this._then);
 
   // ignore: unused_field
   final $Val _value;
   // ignore: unused_field
   final $Res Function($Val) _then;
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -823,7 +822,7 @@ class _$SavedPostCopyWithImpl<$Res, $Val extends SavedPost>
     ) as $Val);
   }
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -837,7 +836,7 @@ class _$SavedPostCopyWithImpl<$Res, $Val extends SavedPost>
     });
   }
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @override
   @pragma('vm:prefer-inline')
@@ -853,11 +852,10 @@ class _$SavedPostCopyWithImpl<$Res, $Val extends SavedPost>
 }
 
 /// @nodoc
-abstract class _$$SavedPostImplCopyWith<$Res>
-    implements $SavedPostCopyWith<$Res> {
-  factory _$$SavedPostImplCopyWith(
-          _$SavedPostImpl value, $Res Function(_$SavedPostImpl) then) =
-      __$$SavedPostImplCopyWithImpl<$Res>;
+abstract class _$$PostImplCopyWith<$Res> implements $PostCopyWith<$Res> {
+  factory _$$PostImplCopyWith(
+          _$PostImpl value, $Res Function(_$PostImpl) then) =
+      __$$PostImplCopyWithImpl<$Res>;
   @override
   @useResult
   $Res call(
@@ -883,14 +881,13 @@ abstract class _$$SavedPostImplCopyWith<$Res>
 }
 
 /// @nodoc
-class __$$SavedPostImplCopyWithImpl<$Res>
-    extends _$SavedPostCopyWithImpl<$Res, _$SavedPostImpl>
-    implements _$$SavedPostImplCopyWith<$Res> {
-  __$$SavedPostImplCopyWithImpl(
-      _$SavedPostImpl _value, $Res Function(_$SavedPostImpl) _then)
+class __$$PostImplCopyWithImpl<$Res>
+    extends _$PostCopyWithImpl<$Res, _$PostImpl>
+    implements _$$PostImplCopyWith<$Res> {
+  __$$PostImplCopyWithImpl(_$PostImpl _value, $Res Function(_$PostImpl) _then)
       : super(_value, _then);
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @pragma('vm:prefer-inline')
   @override
@@ -910,7 +907,7 @@ class __$$SavedPostImplCopyWithImpl<$Res>
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
-    return _then(_$SavedPostImpl(
+    return _then(_$PostImpl(
       id: freezed == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -973,8 +970,8 @@ class __$$SavedPostImplCopyWithImpl<$Res>
 
 /// @nodoc
 @JsonSerializable()
-class _$SavedPostImpl implements _SavedPost {
-  const _$SavedPostImpl(
+class _$PostImpl implements _Post {
+  const _$PostImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'text') this.text,
       @JsonKey(name: 'group_id') this.groupId,
@@ -991,8 +988,8 @@ class _$SavedPostImpl implements _SavedPost {
       @JsonKey(name: 'updated_at') this.updatedAt})
       : _taggedUsers = taggedUsers;
 
-  factory _$SavedPostImpl.fromJson(Map<String, dynamic> json) =>
-      _$$SavedPostImplFromJson(json);
+  factory _$PostImpl.fromJson(Map<String, dynamic> json) =>
+      _$$PostImplFromJson(json);
 
   @override
   @JsonKey(name: 'id')
@@ -1047,14 +1044,14 @@ class _$SavedPostImpl implements _SavedPost {
 
   @override
   String toString() {
-    return 'SavedPost(id: $id, text: $text, groupId: $groupId, userId: $userId, createdBy: $createdBy, media: $media, likedByCurrentUser: $likedByCurrentUser, likesCount: $likesCount, commentsCount: $commentsCount, isBookmarked: $isBookmarked, isHidden: $isHidden, taggedUsers: $taggedUsers, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Post(id: $id, text: $text, groupId: $groupId, userId: $userId, createdBy: $createdBy, media: $media, likedByCurrentUser: $likedByCurrentUser, likesCount: $likesCount, commentsCount: $commentsCount, isBookmarked: $isBookmarked, isHidden: $isHidden, taggedUsers: $taggedUsers, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
   bool operator ==(Object other) {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
-            other is _$SavedPostImpl &&
+            other is _$PostImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.text, text) || other.text == text) &&
             (identical(other.groupId, groupId) || other.groupId == groupId) &&
@@ -1099,24 +1096,24 @@ class _$SavedPostImpl implements _SavedPost {
       createdAt,
       updatedAt);
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
   @pragma('vm:prefer-inline')
-  _$$SavedPostImplCopyWith<_$SavedPostImpl> get copyWith =>
-      __$$SavedPostImplCopyWithImpl<_$SavedPostImpl>(this, _$identity);
+  _$$PostImplCopyWith<_$PostImpl> get copyWith =>
+      __$$PostImplCopyWithImpl<_$PostImpl>(this, _$identity);
 
   @override
   Map<String, dynamic> toJson() {
-    return _$$SavedPostImplToJson(
+    return _$$PostImplToJson(
       this,
     );
   }
 }
 
-abstract class _SavedPost implements SavedPost {
-  const factory _SavedPost(
+abstract class _Post implements Post {
+  const factory _Post(
       {@JsonKey(name: 'id') final int? id,
       @JsonKey(name: 'text') final String? text,
       @JsonKey(name: 'group_id') final int? groupId,
@@ -1130,11 +1127,9 @@ abstract class _SavedPost implements SavedPost {
       @JsonKey(name: 'is_hidden') final bool? isHidden,
       @JsonKey(name: 'tagged_users') final List<dynamic>? taggedUsers,
       @JsonKey(name: 'created_at') final DateTime? createdAt,
-      @JsonKey(name: 'updated_at')
-      final DateTime? updatedAt}) = _$SavedPostImpl;
+      @JsonKey(name: 'updated_at') final DateTime? updatedAt}) = _$PostImpl;
 
-  factory _SavedPost.fromJson(Map<String, dynamic> json) =
-      _$SavedPostImpl.fromJson;
+  factory _Post.fromJson(Map<String, dynamic> json) = _$PostImpl.fromJson;
 
   @override
   @JsonKey(name: 'id')
@@ -1179,11 +1174,11 @@ abstract class _SavedPost implements SavedPost {
   @JsonKey(name: 'updated_at')
   DateTime? get updatedAt;
 
-  /// Create a copy of SavedPost
+  /// Create a copy of Post
   /// with the given fields replaced by the non-null parameter values.
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$SavedPostImplCopyWith<_$SavedPostImpl> get copyWith =>
+  _$$PostImplCopyWith<_$PostImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }
 
@@ -1613,235 +1608,5 @@ abstract class _CreatedBy implements CreatedBy {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$CreatedByImplCopyWith<_$CreatedByImpl> get copyWith =>
-      throw _privateConstructorUsedError;
-}
-
-Media _$MediaFromJson(Map<String, dynamic> json) {
-  return _Media.fromJson(json);
-}
-
-/// @nodoc
-mixin _$Media {
-  @JsonKey(name: 'images')
-  List<String>? get images => throw _privateConstructorUsedError;
-  @JsonKey(name: 'videos')
-  List<dynamic>? get videos => throw _privateConstructorUsedError;
-  @JsonKey(name: 'documents')
-  List<dynamic>? get documents => throw _privateConstructorUsedError;
-
-  /// Serializes this Media to a JSON map.
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-
-  /// Create a copy of Media
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  $MediaCopyWith<Media> get copyWith => throw _privateConstructorUsedError;
-}
-
-/// @nodoc
-abstract class $MediaCopyWith<$Res> {
-  factory $MediaCopyWith(Media value, $Res Function(Media) then) =
-      _$MediaCopyWithImpl<$Res, Media>;
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'images') List<String>? images,
-      @JsonKey(name: 'videos') List<dynamic>? videos,
-      @JsonKey(name: 'documents') List<dynamic>? documents});
-}
-
-/// @nodoc
-class _$MediaCopyWithImpl<$Res, $Val extends Media>
-    implements $MediaCopyWith<$Res> {
-  _$MediaCopyWithImpl(this._value, this._then);
-
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
-
-  /// Create a copy of Media
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? images = freezed,
-    Object? videos = freezed,
-    Object? documents = freezed,
-  }) {
-    return _then(_value.copyWith(
-      images: freezed == images
-          ? _value.images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      videos: freezed == videos
-          ? _value.videos
-          : videos // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
-      documents: freezed == documents
-          ? _value.documents
-          : documents // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
-    ) as $Val);
-  }
-}
-
-/// @nodoc
-abstract class _$$MediaImplCopyWith<$Res> implements $MediaCopyWith<$Res> {
-  factory _$$MediaImplCopyWith(
-          _$MediaImpl value, $Res Function(_$MediaImpl) then) =
-      __$$MediaImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'images') List<String>? images,
-      @JsonKey(name: 'videos') List<dynamic>? videos,
-      @JsonKey(name: 'documents') List<dynamic>? documents});
-}
-
-/// @nodoc
-class __$$MediaImplCopyWithImpl<$Res>
-    extends _$MediaCopyWithImpl<$Res, _$MediaImpl>
-    implements _$$MediaImplCopyWith<$Res> {
-  __$$MediaImplCopyWithImpl(
-      _$MediaImpl _value, $Res Function(_$MediaImpl) _then)
-      : super(_value, _then);
-
-  /// Create a copy of Media
-  /// with the given fields replaced by the non-null parameter values.
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? images = freezed,
-    Object? videos = freezed,
-    Object? documents = freezed,
-  }) {
-    return _then(_$MediaImpl(
-      images: freezed == images
-          ? _value._images
-          : images // ignore: cast_nullable_to_non_nullable
-              as List<String>?,
-      videos: freezed == videos
-          ? _value._videos
-          : videos // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
-      documents: freezed == documents
-          ? _value._documents
-          : documents // ignore: cast_nullable_to_non_nullable
-              as List<dynamic>?,
-    ));
-  }
-}
-
-/// @nodoc
-@JsonSerializable()
-class _$MediaImpl implements _Media {
-  const _$MediaImpl(
-      {@JsonKey(name: 'images') final List<String>? images,
-      @JsonKey(name: 'videos') final List<dynamic>? videos,
-      @JsonKey(name: 'documents') final List<dynamic>? documents})
-      : _images = images,
-        _videos = videos,
-        _documents = documents;
-
-  factory _$MediaImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MediaImplFromJson(json);
-
-  final List<String>? _images;
-  @override
-  @JsonKey(name: 'images')
-  List<String>? get images {
-    final value = _images;
-    if (value == null) return null;
-    if (_images is EqualUnmodifiableListView) return _images;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  final List<dynamic>? _videos;
-  @override
-  @JsonKey(name: 'videos')
-  List<dynamic>? get videos {
-    final value = _videos;
-    if (value == null) return null;
-    if (_videos is EqualUnmodifiableListView) return _videos;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  final List<dynamic>? _documents;
-  @override
-  @JsonKey(name: 'documents')
-  List<dynamic>? get documents {
-    final value = _documents;
-    if (value == null) return null;
-    if (_documents is EqualUnmodifiableListView) return _documents;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(value);
-  }
-
-  @override
-  String toString() {
-    return 'Media(images: $images, videos: $videos, documents: $documents)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MediaImpl &&
-            const DeepCollectionEquality().equals(other._images, _images) &&
-            const DeepCollectionEquality().equals(other._videos, _videos) &&
-            const DeepCollectionEquality()
-                .equals(other._documents, _documents));
-  }
-
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_images),
-      const DeepCollectionEquality().hash(_videos),
-      const DeepCollectionEquality().hash(_documents));
-
-  /// Create a copy of Media
-  /// with the given fields replaced by the non-null parameter values.
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$MediaImplCopyWith<_$MediaImpl> get copyWith =>
-      __$$MediaImplCopyWithImpl<_$MediaImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$MediaImplToJson(
-      this,
-    );
-  }
-}
-
-abstract class _Media implements Media {
-  const factory _Media(
-          {@JsonKey(name: 'images') final List<String>? images,
-          @JsonKey(name: 'videos') final List<dynamic>? videos,
-          @JsonKey(name: 'documents') final List<dynamic>? documents}) =
-      _$MediaImpl;
-
-  factory _Media.fromJson(Map<String, dynamic> json) = _$MediaImpl.fromJson;
-
-  @override
-  @JsonKey(name: 'images')
-  List<String>? get images;
-  @override
-  @JsonKey(name: 'videos')
-  List<dynamic>? get videos;
-  @override
-  @JsonKey(name: 'documents')
-  List<dynamic>? get documents;
-
-  /// Create a copy of Media
-  /// with the given fields replaced by the non-null parameter values.
-  @override
-  @JsonKey(includeFromJson: false, includeToJson: false)
-  _$$MediaImplCopyWith<_$MediaImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

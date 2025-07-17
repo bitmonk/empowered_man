@@ -56,7 +56,7 @@ class TribeGroupRemoteSource {
         AppEndpoints.createGroup,
         queryParameters: {
           if (search != null) 'search': search,
-          'show_post': showPost,
+          'show_group': showPost,
         },
       );
       return right(GroupListModel.fromJson(response));

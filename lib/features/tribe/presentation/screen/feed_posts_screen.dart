@@ -2,6 +2,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 
 class FeedPostsScreen extends StatefulWidget {
   const FeedPostsScreen({super.key});
@@ -17,9 +18,10 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
   @override
   void initState() {
     super.initState();
+    controller.currentTabIndex.value = 0; // Always reset to posts tab on entry
     controller.loadFeedPosts().then((_) {
       // Fetch comments for all posts after loading
-      final posts = controller.posts.value;
+      final posts = controller.posts;
       for (final post in posts) {
         controller.getPostComments(postId: post.id?.toString() ?? '');
       }
@@ -306,8 +308,22 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             final media = mediaItems[index];
             return GestureDetector(
               onTap: () {
-                // Optional: Add logic to view full-screen media or details
-                // For example, navigate to a media viewer screen
+                // Open MediaViewer with the full media list and tapped index
+                final mediaList = mediaItems
+                    .map(
+                      (item) => {
+                        'url': item.url,
+                        'type': item
+                            .type, // Ensure your model has a 'type' field (e.g., 'image', 'video', etc.)
+                      },
+                    )
+                    .toList();
+                Get.to(
+                  () => MediaViewer(
+                    mediaList: mediaList,
+                    initialIndex: index,
+                  ),
+                );
               },
               child: Container(
                 decoration: BoxDecoration(
@@ -331,6 +347,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final savedPosts =
           tribeController.feedSavedPostsModel.value.data?.savedPosts ?? [];
+
       final state = tribeController.getFeedSavedPostState.value;
 
       if (state == TheStates.initial) {

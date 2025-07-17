@@ -406,7 +406,7 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
+          // AppUtils.showSnackbar(message: message);
           loadFeedPosts();
         },
       );
@@ -645,7 +645,7 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> sharePost(Post post) async {
+  Future<void> sharePost(dynamic post) async {
     try {
       isSharing.value = true;
       final postId = post.id?.toString();

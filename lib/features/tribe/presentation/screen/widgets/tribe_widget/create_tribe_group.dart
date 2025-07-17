@@ -106,6 +106,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 labelText: 'Group Name',
                 controller: tribeController.groupNameController,
                 hintText: 'Enter Group Name',
+                maxLength: 40,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -214,6 +215,17 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                             member.fullName ?? 'Unknown',
                             style: const TextStyle(
                                 color: Colors.white, fontSize: 14),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close,
+                                color: Colors.red, size: 18),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              setState(() {
+                                members.remove(memberId);
+                              });
+                            },
                           ),
                         ],
                       );
