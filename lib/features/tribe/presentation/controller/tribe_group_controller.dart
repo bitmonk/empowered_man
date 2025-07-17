@@ -60,6 +60,11 @@ class TribeGroupController extends GetxController {
   Rx<TheStates> loadGroupState = TheStates.initial.obs;
   Rx<TheStates> savedPostState = TheStates.initial.obs;
 
+  final RxInt currentSavedPage = 1.obs;
+  final RxInt lastSavedPage = 1.obs;
+  final RxBool isLoadingMoreSaved = false.obs;
+  final int savedPostsPerPage = 10;
+
   late TextEditingController groupNameController;
   late TextEditingController groupDescriptionController;
   late TextEditingController accessTypeController;
@@ -396,17 +401,17 @@ class TribeGroupController extends GetxController {
   }
 
   Rx<TheStates> getFeedSavedPostState = TheStates.initial.obs;
-  Future<void> getFeedSavedPost({CancelToken? cancelToken}) async {
+  Future<void> getFeedSavedPost(
+      {int page = 1, bool append = false, CancelToken? cancelToken}) async {
+    if (isLoadingMoreSaved.value) return;
+    if (append) isLoadingMoreSaved.value = true;
     try {
       getFeedSavedPostState.value = TheStates.loading;
-
-      _cancelToken?.cancel();
-      _cancelToken = cancelToken ?? CancelToken();
-
       final result = await remoteSource.getFeedSavedPosts(
-        cancelToken: _cancelToken,
+        page: page,
+        limit: savedPostsPerPage,
+        cancelToken: cancelToken,
       );
-
       result.fold(
         (error) {
           getFeedSavedPostState.value = TheStates.error;
@@ -414,13 +419,42 @@ class TribeGroupController extends GetxController {
         },
         (r) {
           getFeedSavedPostState.value = TheStates.success;
-          feedSavedPostsModel.value = r;
+          final newPosts = r.data?.savedPosts ?? [];
+          if (append) {
+            feedSavedPostsModel.value = feedSavedPostsModel.value.copyWith(
+              data: feedSavedPostsModel.value.data?.copyWith(
+                savedPosts: [
+                  ...(feedSavedPostsModel.value.data?.savedPosts ?? []),
+                  ...newPosts,
+                ],
+              ),
+            );
+          } else {
+            feedSavedPostsModel.value = r;
+          }
+          // Update pagination
+          final meta = r.data?.meta;
+          if (meta != null) {
+            currentSavedPage.value = meta.currentPage ?? page;
+            lastSavedPage.value = meta.lastPage ?? page;
+          } else {
+            currentSavedPage.value = page;
+            lastSavedPage.value = page;
+          }
         },
       );
     } catch (e) {
       getFeedSavedPostState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
+    } finally {
+      if (append) isLoadingMoreSaved.value = false;
     }
+  }
+
+  Future<void> fetchNextSavedPostsPage() async {
+    if (isLoadingMoreSaved.value) return;
+    if (currentSavedPage.value >= lastSavedPage.value) return;
+    await getFeedSavedPost(page: currentSavedPage.value + 1, append: true);
   }
 
   Future<void> loadGroupDetails(String groupId) async {

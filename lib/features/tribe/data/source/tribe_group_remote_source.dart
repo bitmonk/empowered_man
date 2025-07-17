@@ -281,11 +281,19 @@ class TribeGroupRemoteSource {
 
   Future<Either<AppError, GroupMediaModel>> getGroupMedia({
     required String groupId,
+    int page = 1,
+    int limit = 12,
     CancelToken? cancelToken,
   }) async {
     try {
-      final response =
-          await _client.get('${AppEndpoints.getGroupMedia}$groupId');
+      final response = await _client.get(
+        '${AppEndpoints.getGroupMedia}$groupId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(GroupMediaModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -331,10 +339,19 @@ class TribeGroupRemoteSource {
   }
 
   Future<Either<AppError, FeedSavedPostsModel>> getFeedSavedPosts({
+    int page = 1,
+    int limit = 10,
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _client.get(AppEndpoints.getFeedSavedPost);
+      final response = await _client.get(
+        AppEndpoints.getFeedSavedPost,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(FeedSavedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {

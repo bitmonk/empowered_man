@@ -50,7 +50,7 @@ Map<String, dynamic> _$$MediaImplToJson(_$MediaImpl instance) =>
     };
 
 _$MetaImpl _$$MetaImplFromJson(Map<String, dynamic> json) => _$MetaImpl(
-      currentPage: (json['current_page'] as num?)?.toInt(),
+      currentPage: json['current_page'] as String?,
       total: (json['total'] as num?)?.toInt(),
       perPage: (json['per_page'] as num?)?.toInt(),
       lastPage: (json['last_page'] as num?)?.toInt(),

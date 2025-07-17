@@ -11,6 +11,7 @@ import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart'
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
+import 'package:dio/dio.dart';
 
 class FeedPageRemoteSource {
   const FeedPageRemoteSource(this._client);
@@ -39,10 +40,19 @@ class FeedPageRemoteSource {
     }
   }
 
-  Future<Either<AppError, FeedSavedPostsModel>> getSavedPost() async {
+  Future<Either<AppError, FeedSavedPostsModel>> getFeedSavedPosts({
+    int page = 1,
+    int limit = 10,
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getFeedSavedPost,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
       );
       return right(FeedSavedPostsModel.fromJson(response));
     } catch (e) {
@@ -54,9 +64,18 @@ class FeedPageRemoteSource {
     }
   }
 
-  Future<Either<AppError, FeedMediaModel>> getFeedMedia() async {
+  Future<Either<AppError, FeedMediaModel>> getFeedMedia({
+    int? page = 1,
+    int? limit = 21,
+  }) async {
     try {
-      final response = await _client.get(AppEndpoints.getFeedMedia);
+      final response = await _client.get(
+        AppEndpoints.getFeedMedia,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+      );
       return right(FeedMediaModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {

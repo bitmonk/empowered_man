@@ -15,6 +15,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
   final FeedPageController controller = Get.find<FeedPageController>();
   final TribeGroupController tribeController = Get.find<TribeGroupController>();
   final ScrollController _feedScrollController = ScrollController();
+  final ScrollController _savedScrollController = ScrollController();
 
   @override
   void initState() {
@@ -28,19 +29,29 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       }
     });
     _feedScrollController.addListener(_onFeedScroll);
+    _savedScrollController.addListener(_onSavedScroll);
   }
 
   @override
   void dispose() {
     _feedScrollController.dispose();
+    _savedScrollController.dispose();
     super.dispose();
   }
 
   void _onFeedScroll() {
     if (!_feedScrollController.hasClients) return;
-    final threshold = 200.0;
+    const threshold = 200.0;
     if (_feedScrollController.position.extentAfter < threshold) {
       controller.fetchNextFeedPostsPage();
+    }
+  }
+
+  void _onSavedScroll() {
+    if (!_savedScrollController.hasClients) return;
+    final threshold = 200.0;
+    if (_savedScrollController.position.extentAfter < threshold) {
+      tribeController.fetchNextSavedPostsPage();
     }
   }
 
@@ -376,8 +387,10 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final savedPosts =
           tribeController.feedSavedPostsModel.value.data?.savedPosts ?? [];
-
       final state = tribeController.getFeedSavedPostState.value;
+      final isLoadingMore = tribeController.isLoadingMoreSaved.value;
+      final hasMore = tribeController.currentSavedPage.value <
+          tribeController.lastSavedPage.value;
 
       if (state == TheStates.initial) {
         return const Center(
@@ -464,9 +477,21 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           }
         },
         child: ListView.builder(
+          controller: _savedScrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: savedPosts.length,
+          itemCount: savedPosts.length + (hasMore || isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == savedPosts.length && (hasMore || isLoadingMore)) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              );
+            }
+            if (index >= savedPosts.length) return const SizedBox.shrink();
             final post = savedPosts[index];
             return FeedPost(
               post: post,

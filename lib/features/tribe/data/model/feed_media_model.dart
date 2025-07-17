@@ -38,7 +38,7 @@ class Media with _$Media {
 @freezed
 class Meta with _$Meta {
   const factory Meta({
-    @JsonKey(name: 'current_page') int? currentPage,
+    @JsonKey(name: 'current_page') String? currentPage,
     @JsonKey(name: 'total') int? total,
     @JsonKey(name: 'per_page') int? perPage,
     @JsonKey(name: 'last_page') int? lastPage,

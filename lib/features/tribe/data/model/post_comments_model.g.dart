@@ -49,6 +49,7 @@ _$CommentImpl _$$CommentImplFromJson(Map<String, dynamic> json) =>
           : User.fromJson(json['user'] as Map<String, dynamic>),
       likesCount: (json['likes_count'] as num?)?.toInt(),
       commentsCount: (json['comments_count'] as num?)?.toInt(),
+      likedByCurrentUser: json['liked_by_current_user'] as bool?,
       replys: (json['replys'] as List<dynamic>?)
           ?.map((e) => Comment.fromJson(e as Map<String, dynamic>))
           .toList(),
@@ -68,6 +69,7 @@ Map<String, dynamic> _$$CommentImplToJson(_$CommentImpl instance) =>
       'user': instance.user,
       'likes_count': instance.likesCount,
       'comments_count': instance.commentsCount,
+      'liked_by_current_user': instance.likedByCurrentUser,
       'replys': instance.replys,
       'created_at': instance.createdAt?.toIso8601String(),
       'updated_at': instance.updatedAt?.toIso8601String(),

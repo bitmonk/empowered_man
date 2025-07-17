@@ -10,7 +10,6 @@ import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
 
 class FeedPageController extends GetxController {
   FeedPageController({required this.remoteSource});
@@ -135,7 +134,9 @@ class FeedPageController extends GetxController {
           feedPosts.value = postsModel;
           final newPosts = postsModel.data?.posts ?? [];
           if (append) {
-            posts.value = List<Post>.from(posts)..addAll(newPosts);
+            // Ensure posts is always mutable before adding
+            posts.value = List<Post>.from(posts);
+            posts.addAll(newPosts);
           } else {
             posts.value = List<Post>.from(newPosts);
           }
@@ -499,7 +500,7 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          loadFeedPosts();
+          // loadFeedPosts();
           loadSavedPosts();
         },
       );
