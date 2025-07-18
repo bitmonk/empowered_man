@@ -41,6 +41,13 @@ class CommentScreen extends StatefulWidget {
 }
 
 class _CommentScreenState extends State<CommentScreen> {
+  // Pagination state for replies and nested replies
+  final RxMap<String, int> replyCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreReplies = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreReplies = <String, bool>{}.obs;
+  final RxMap<String, int> nestedReplyCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreNestedReplies = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreNestedReplies = <String, bool>{}.obs;
   final FeedPageController controller = Get.find<FeedPageController>();
   final TextEditingController _inputController = TextEditingController();
   final FocusNode _inputFocusNode = FocusNode();
@@ -54,8 +61,8 @@ class _CommentScreenState extends State<CommentScreen> {
   final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
   final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
   final RxSet<String> expandedComments = <String>{}.obs;
-  final RxMap<String, int> visibleReplyCounts = <String, int>{}.obs;
-  final RxMap<String, bool> showViewMoreForReplies = <String, bool>{}.obs;
+  // final RxMap<String, int> visibleReplyCounts = <String, int>{}.obs;
+  // final RxMap<String, bool> showViewMoreForReplies = <String, bool>{}.obs;
   final RxMap<String, int> visibleNestedReplyCounts = <String, int>{}.obs;
   final RxMap<String, bool> showViewMoreForNestedReplies = <String, bool>{}.obs;
 
@@ -80,8 +87,6 @@ class _CommentScreenState extends State<CommentScreen> {
       final commentId = comment.id.toString();
       commentLikeCounts[commentId] = comment.likesCount ?? 0;
       commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
-      visibleReplyCounts[commentId] = 2;
-      showViewMoreForReplies[commentId] = true;
 
       if (controller.repliesModel.containsKey(commentId)) {
         final replies =
@@ -90,8 +95,9 @@ class _CommentScreenState extends State<CommentScreen> {
           final replyId = reply.id.toString();
           commentLikeCounts[replyId] = reply.likesCount ?? 0;
           commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
-          visibleNestedReplyCounts[replyId] = 2;
-          showViewMoreForNestedReplies[replyId] = true;
+          visibleNestedReplyCounts[replyId] = 2; // Keep for nested replies
+          showViewMoreForNestedReplies[replyId] =
+              true; // Keep for nested replies
         }
       }
     }
@@ -987,9 +993,12 @@ class _CommentScreenState extends State<CommentScreen> {
       final isLoadingReplies = controller.loadingReplies.contains(commentId);
       final replies =
           controller.repliesModel[commentId]?.repliesData?.comments ?? [];
-      final visibleReplies = showViewMoreForReplies[commentId] == true
-          ? replies.take(visibleReplyCounts[commentId] ?? 2).toList()
-          : replies;
+      final hasMore = controller.hasMoreReplies[commentId] ?? false;
+      final effectiveHasMore =
+          hasMore && replies.length < (comment.commentsCount ?? 0);
+
+      print(
+          'Comment $commentId: hasReplies=$hasReplies, repliesCount=${replies.length}, hasMore=$hasMore, effectiveHasMore=$effectiveHasMore');
 
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -1026,20 +1035,36 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
             ],
-            if (isRepliesExpanded && visibleReplies.isNotEmpty) ...[
+            if (isRepliesExpanded && replies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...visibleReplies.map((reply) => _buildReply(reply, commentId)),
-              if (showViewMoreForReplies[commentId] == true &&
-                  replies.length > (visibleReplyCounts[commentId] ?? 2))
+              ...replies.map((reply) => _buildReply(reply, commentId)),
+              if (effectiveHasMore)
                 Padding(
                   padding: const EdgeInsets.only(left: 40.0, top: 8),
-                  child: GestureDetector(
-                    onTap: () => _loadMoreReplies(commentId, replies.length),
-                    child: Text(
-                      'View more replies (${replies.length - (visibleReplyCounts[commentId] ?? 2)} remaining)',
-                      style: const TextStyle(
+                  child: TextButton(
+                    onPressed: () async {
+                      final nextPage =
+                          (controller.replyCurrentPage[commentId] ?? 1) + 1;
+                      print(
+                          'Loading more replies for comment $commentId, page $nextPage');
+                      await controller.getCommentRepliesPaginated(
+                        commentId: commentId,
+                        page: nextPage,
+                        append: true,
+                      );
+                      final newReplies = controller
+                              .repliesModel[commentId]?.repliesData?.comments ??
+                          [];
+                      _updateLikeDataForComments(newReplies);
+                    },
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.blue,
+                    ),
+                    child: const Text(
+                      'View More Replies',
+                      style: TextStyle(
                         color: Colors.blue,
-                        fontSize: 13,
+                        fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
@@ -1220,12 +1245,12 @@ class _CommentScreenState extends State<CommentScreen> {
     });
   }
 
-  void _loadMoreReplies(String commentId, int totalReplies) {
-    visibleReplyCounts[commentId] = (visibleReplyCounts[commentId] ?? 2) + 2;
-    if (visibleReplyCounts[commentId]! >= totalReplies) {
-      showViewMoreForReplies[commentId] = false;
-    }
-  }
+  // void _loadMoreReplies(String commentId, int totalReplies) {
+  //   visibleReplyCounts[commentId] = (visibleReplyCounts[commentId] ?? 2) + 2;
+  //   if (visibleReplyCounts[commentId]! >= totalReplies) {
+  //     showViewMoreForReplies[commentId] = false;
+  //   }
+  // }
 
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {
     final replyId = reply.id.toString();
@@ -1428,16 +1453,21 @@ class _CommentScreenState extends State<CommentScreen> {
                   (nestedReply) => _buildNestedReply(nestedReply, replyId)),
               if (showViewMoreForNestedReplies[replyId] == true &&
                   nestedReplies.length >
-                      (visibleNestedReplyCounts[replyId] ?? 2))
+                      (visibleNestedReplyCounts[replyId] ?? 2) &&
+                  (nestedReplies.length -
+                          (visibleNestedReplyCounts[replyId] ?? 2)) >
+                      0)
                 Padding(
                   padding: const EdgeInsets.only(left: 80.0, top: 8),
-                  child: GestureDetector(
-                    onTap: () =>
+                  child: TextButton(
+                    onPressed: () =>
                         _loadMoreNestedReplies(replyId, nestedReplies.length),
+                    style: TextButton.styleFrom(
+                      foregroundColor: Colors.blue,
+                    ),
                     child: Text(
                       'View more replies (${nestedReplies.length - (visibleNestedReplyCounts[replyId] ?? 2)} remaining)',
                       style: const TextStyle(
-                        color: Colors.blue,
                         fontSize: 12,
                         fontWeight: FontWeight.w500,
                       ),

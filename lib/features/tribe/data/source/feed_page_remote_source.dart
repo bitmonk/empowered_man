@@ -66,7 +66,7 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, FeedMediaModel>> getFeedMedia({
     int? page = 1,
-    int? limit = 21,
+    int? limit = 15,
   }) async {
     try {
       final response = await _client.get(

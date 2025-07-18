@@ -65,6 +65,77 @@ class TribeGroupController extends GetxController {
   final RxBool isLoadingMoreSaved = false.obs;
   final int savedPostsPerPage = 10;
 
+  // Pagination state for group feed posts
+  final RxInt currentGroupFeedPage = 1.obs;
+  final RxInt lastGroupFeedPage = 1.obs;
+  final RxBool isLoadingMoreGroupPosts = false.obs;
+  final int groupFeedPostsPerPage = 10;
+
+  // Pagination state for group media
+  final RxInt currentGroupMediaPage = 1.obs;
+  final RxInt lastGroupMediaPage = 1.obs;
+  final RxBool isLoadingMoreGroupMedia = false.obs;
+  final int groupMediaPerPage = 12;
+
+  Rx<TheStates> groupMediaState = TheStates.initial.obs;
+  Future<void> loadGroupMedia(String groupId,
+      {int page = 1, bool append = false}) async {
+    try {
+      if (!append) groupMediaState.value = TheStates.loading;
+      if (!append) currentGroupMediaPage.value = 1;
+      if (!append) lastGroupMediaPage.value = 1;
+      if (append) isLoadingMoreGroupMedia.value = true;
+      final result = await remoteSource.getGroupMedia(
+        groupId: groupId,
+        page: page,
+        limit: groupMediaPerPage,
+      );
+
+      result.fold(
+        (error) {
+          if (!append) groupMediaState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (r) {
+          if (!append) groupMediaState.value = TheStates.success;
+          final newMedia = r.data?.medias ?? [];
+          if (append) {
+            final currentMedia = groupMediaModel.value.data?.medias ?? [];
+            groupMediaModel.value = groupMediaModel.value.copyWith(
+              data: groupMediaModel.value.data?.copyWith(
+                medias: List.of(currentMedia)..addAll(newMedia),
+                meta: r.data?.meta,
+              ),
+            );
+          } else {
+            groupMediaModel.value = r;
+          }
+          final meta = r.data?.meta;
+          if (meta != null) {
+            final parsedCurrent = int.tryParse(meta.currentPage ?? '');
+            currentGroupMediaPage.value = parsedCurrent ?? page;
+            lastGroupMediaPage.value = meta.lastPage ?? page;
+          } else {
+            currentGroupMediaPage.value = page;
+            lastGroupMediaPage.value = page;
+          }
+        },
+      );
+    } catch (e) {
+      if (!append) groupMediaState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to load group media: $e');
+    } finally {
+      if (append) isLoadingMoreGroupMedia.value = false;
+    }
+  }
+
+  Future<void> fetchNextGroupMediaPage(String groupId) async {
+    if (isLoadingMoreGroupMedia.value) return;
+    if (currentGroupMediaPage.value >= lastGroupMediaPage.value) return;
+    await loadGroupMedia(groupId,
+        page: currentGroupMediaPage.value + 1, append: true);
+  }
+
   late TextEditingController groupNameController;
   late TextEditingController groupDescriptionController;
   late TextEditingController accessTypeController;
@@ -296,29 +367,65 @@ class TribeGroupController extends GetxController {
   }
 
   Rx<TheStates> postDetailState = TheStates.initial.obs;
-  Future<void> loadPostDetails(String groupId) async {
+  Future<void> loadPostDetails(String groupId,
+      {int page = 1, bool append = false}) async {
     try {
-      postDetailState.value = TheStates.loading;
-      final result = await remoteSource.getGroupPostById(groupId: groupId);
+      if (!append) postDetailState.value = TheStates.loading;
+      if (!append) currentGroupFeedPage.value = 1;
+      if (!append) lastGroupFeedPage.value = 1;
+      if (append) isLoadingMoreGroupPosts.value = true;
+      final result = await remoteSource.getGroupPostById(
+        groupId: groupId,
+        page: page,
+        limit: groupFeedPostsPerPage,
+      );
 
       result.fold(
         (error) {
-          postDetailState.value = TheStates.error;
+          if (!append) postDetailState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (r) {
-          postDetailState.value = TheStates.success;
-          groupPostModel.value = FeedPostsModel(
-            data: r.data,
-            message: r.message,
-            status: r.status,
-          ); // Always assign a new instance
+          if (!append) postDetailState.value = TheStates.success;
+          final newPosts = r.data?.posts ?? [];
+          if (append) {
+            final currentPosts = groupPostModel.value.data?.posts ?? [];
+            groupPostModel.value = groupPostModel.value.copyWith(
+              data: groupPostModel.value.data?.copyWith(
+                posts: List.of(currentPosts)..addAll(newPosts),
+                meta: r.data?.meta,
+              ),
+            );
+          } else {
+            groupPostModel.value = FeedPostsModel(
+              data: r.data,
+              message: r.message,
+              status: r.status,
+            );
+          }
+          final meta = r.data?.meta;
+          if (meta != null) {
+            currentGroupFeedPage.value = meta.currentPage ?? page;
+            lastGroupFeedPage.value = meta.lastPage ?? page;
+          } else {
+            currentGroupFeedPage.value = page;
+            lastGroupFeedPage.value = page;
+          }
         },
       );
     } catch (e) {
-      postDetailState.value = TheStates.error;
+      if (!append) postDetailState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
+    } finally {
+      if (append) isLoadingMoreGroupPosts.value = false;
     }
+  }
+
+  Future<void> fetchNextGroupFeedPostsPage(String groupId) async {
+    if (isLoadingMoreGroupPosts.value) return;
+    if (currentGroupFeedPage.value >= lastGroupFeedPage.value) return;
+    await loadPostDetails(groupId,
+        page: currentGroupFeedPage.value + 1, append: true);
   }
 
   Rx<TheStates> userPostState = TheStates.initial.obs;
@@ -348,56 +455,66 @@ class TribeGroupController extends GetxController {
     }
   }
 
-  Rx<TheStates> groupMediaState = TheStates.initial.obs;
-  Future<void> loadGroupMedia(String groupId) async {
+  Future<void> getSavedPosts(String groupId,
+      {int page = 1, bool append = false, CancelToken? cancelToken}) async {
     try {
-      groupMediaState.value = TheStates.loading;
-      final result = await remoteSource.getGroupMedia(groupId: groupId);
-
-      result.fold(
-        (error) {
-          groupMediaState.value = TheStates.error;
-          AppUtils.showErrorSnackbar(message: error.message);
-        },
-        (r) {
-          groupMediaState.value = TheStates.success;
-          groupMediaModel.value = r;
-        },
-      );
-    } catch (e) {
-      groupMediaState.value = TheStates.error;
-      AppUtils.showErrorSnackbar(message: 'Failed to load group posts: $e');
-    }
-  }
-
-  Future<void> getSavedPosts(String groupId, {CancelToken? cancelToken}) async {
-    try {
-      savedPostState.value = TheStates.loading;
+      if (!append) savedPostState.value = TheStates.loading;
+      if (!append) currentSavedPage.value = 1;
+      if (!append) lastSavedPage.value = 1;
+      if (append) isLoadingMoreSaved.value = true;
 
       _cancelToken?.cancel();
       _cancelToken = cancelToken ?? CancelToken();
 
       final result = await remoteSource.getSavedPosts(
         groupId: groupId,
+        page: page,
+        limit: savedPostsPerPage,
         cancelToken: _cancelToken,
       );
 
       result.fold(
         (error) {
-          savedPostState.value = TheStates.error;
+          if (!append) savedPostState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (r) {
-          savedPostState.value = TheStates.success;
-          savedPostsModel.value = r;
-          print(
-              'Saved Posts Media: >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.${r.data?.savedPosts?.map((post) => post.media?.toJson()).toList()}');
+          if (!append) savedPostState.value = TheStates.success;
+          final newPosts = r.data?.savedPosts ?? [];
+          if (append) {
+            final currentPosts = savedPostsModel.value.data?.savedPosts ?? [];
+            savedPostsModel.value = savedPostsModel.value.copyWith(
+              data: savedPostsModel.value.data?.copyWith(
+                savedPosts: List.of(currentPosts)..addAll(newPosts),
+                meta: r.data?.meta,
+              ),
+            );
+          } else {
+            savedPostsModel.value = r;
+          }
+          final meta = r.data?.meta;
+          if (meta != null) {
+            currentSavedPage.value = meta.currentPage ?? page;
+            lastSavedPage.value = meta.lastPage ?? page;
+          } else {
+            currentSavedPage.value = page;
+            lastSavedPage.value = page;
+          }
         },
       );
     } catch (e) {
-      savedPostState.value = TheStates.error;
+      if (!append) savedPostState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: 'Failed to load saved posts: $e');
+    } finally {
+      if (append) isLoadingMoreSaved.value = false;
     }
+  }
+
+  Future<void> fetchNextGroupSavedPostsPage(String groupId) async {
+    if (isLoadingMoreSaved.value) return;
+    if (currentSavedPage.value >= lastSavedPage.value) return;
+    await getSavedPosts(groupId,
+        page: currentSavedPage.value + 1, append: true);
   }
 
   Rx<TheStates> getFeedSavedPostState = TheStates.initial.obs;

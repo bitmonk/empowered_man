@@ -348,13 +348,12 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             final media = mediaItems[index];
             return GestureDetector(
               onTap: () {
-                // Open MediaViewer with the full media list and tapped index
+                // Always open MediaViewer, even for a single media item
                 final mediaList = mediaItems
                     .map(
                       (item) => {
                         'url': item.url,
-                        'type': item
-                            .type, // Ensure your model has a 'type' field (e.g., 'image', 'video', etc.)
+                        'type': item.type,
                       },
                     )
                     .toList();
@@ -371,7 +370,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   image: DecorationImage(
                     image: NetworkImage(
                       media.url ?? '',
-                    ), // Assuming media.url is the image URL
+                    ),
                     fit: BoxFit.cover,
                   ),
                 ),

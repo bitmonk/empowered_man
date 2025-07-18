@@ -24,7 +24,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     super.initState();
     controller.currentTabIndex.value = 0; // Always reset to posts tab on entry
     tribeController
-      ..loadPostDetails(widget.groupId).then((_) {
+      ..loadPostDetails(widget.groupId, page: 1, append: false).then((_) {
         // Fetch comments for all posts after loading post details
         final posts = tribeController.groupPostModel.value.data?.posts ?? [];
         for (final post in posts) {
@@ -216,6 +216,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     return Obx(() {
       final posts = tribeController.groupPostModel.value.data?.posts ?? [];
       final state = tribeController.postDetailState.value;
+      final isLoadingMore = tribeController.isLoadingMoreGroupPosts.value;
+      final hasMore = tribeController.currentGroupFeedPage.value <
+          tribeController.lastGroupFeedPage.value;
 
       if (state == TheStates.loading && posts.isEmpty) {
         return const Center(
@@ -262,35 +265,58 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () async {
-          await tribeController.loadPostDetails(widget.groupId);
-          final posts = tribeController.groupPostModel.value.data?.posts ?? [];
-          for (final post in posts) {
-            await controller.getPostComments(postId: post.id?.toString() ?? '');
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            tribeController.fetchNextGroupFeedPostsPage(widget.groupId);
           }
-          setState(() {}); // Force widget rebuild to reflect updated likes
+          return false;
         },
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: posts.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Column(
-                children: [
-                  _createPostInput(),
-                  const SizedBox(height: 12),
-                ],
-              );
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await tribeController.loadPostDetails(widget.groupId);
+            final posts =
+                tribeController.groupPostModel.value.data?.posts ?? [];
+            for (final post in posts) {
+              await controller.getPostComments(
+                  postId: post.id?.toString() ?? '');
             }
-
-            final postIndex = index - 1;
-            final post = posts[postIndex];
-
-            return FeedPost(
-              post: post,
-            );
+            setState(() {}); // Force widget rebuild to reflect updated likes
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: posts.length + 1 + (isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return Column(
+                  children: [
+                    _createPostInput(),
+                    const SizedBox(height: 12),
+                  ],
+                );
+              }
+              if (index == posts.length + 1 && isLoadingMore) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                );
+              }
+              final postIndex = index - 1;
+              if (postIndex < 0 || postIndex >= posts.length)
+                return const SizedBox.shrink();
+              final post = posts[postIndex];
+              return FeedPost(
+                post: post,
+              );
+            },
+          ),
         ),
       );
     });
@@ -355,6 +381,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       final savedPosts =
           tribeController.savedPostsModel.value.data?.savedPosts ?? [];
       final state = tribeController.savedPostState.value;
+      final isLoadingMore = tribeController.isLoadingMoreSaved.value;
+      final hasMore = tribeController.currentSavedPage.value <
+          tribeController.lastSavedPage.value;
 
       if (state == TheStates.initial) {
         return const Center(
@@ -431,24 +460,48 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () async {
-          await tribeController.getSavedPosts(widget.groupId);
-          final savedPosts =
-              tribeController.savedPostsModel.value.data?.savedPosts ?? [];
-          for (final post in savedPosts) {
-            await controller.getPostComments(postId: post.id?.toString() ?? '');
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            tribeController.fetchNextGroupSavedPostsPage(widget.groupId);
           }
+          return false;
         },
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: savedPosts.length,
-          itemBuilder: (context, index) {
-            final post = savedPosts[index];
-            return FeedPost(
-              post: post,
-            );
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await tribeController.getSavedPosts(widget.groupId);
+            final savedPosts =
+                tribeController.savedPostsModel.value.data?.savedPosts ?? [];
+            for (final post in savedPosts) {
+              await controller.getPostComments(
+                  postId: post.id?.toString() ?? '');
+            }
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: savedPosts.length + (isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == savedPosts.length && isLoadingMore) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                );
+              }
+              if (index < 0 || index >= savedPosts.length)
+                return const SizedBox.shrink();
+              final post = savedPosts[index];
+              return FeedPost(
+                post: post,
+              );
+            },
+          ),
         ),
       );
     });

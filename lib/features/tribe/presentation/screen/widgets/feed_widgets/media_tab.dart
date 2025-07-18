@@ -197,6 +197,9 @@ class _MediaTabState extends State<MediaTab> {
       final mediaData = controller.groupMediaModel.value.data;
       final isLoading = controller.groupMediaState.value == TheStates.loading;
       final hasError = controller.groupMediaState.value == TheStates.error;
+      final isLoadingMore = controller.isLoadingMoreGroupMedia.value;
+      final hasMore = controller.currentGroupMediaPage.value <
+          controller.lastGroupMediaPage.value;
 
       if (isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -232,28 +235,75 @@ class _MediaTabState extends State<MediaTab> {
               })
           .toList();
 
-      return ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            'Media ($totalMedia)',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (formattedMediaList.isEmpty)
-            const Center(
-              child: Text(
-                'No media available',
-                style: TextStyle(color: Colors.white60),
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            controller.fetchNextGroupMediaPage(widget.groupId);
+          }
+          return false;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.loadGroupMedia(widget.groupId,
+                page: 1, append: false);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                'Media ( $totalMedia)',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            )
-          else
-            _buildMedia(formattedMediaList),
-        ],
+              const SizedBox(height: 12),
+              if (formattedMediaList.isEmpty)
+                const Center(
+                  child: Text(
+                    'No media available',
+                    style: TextStyle(color: Colors.white54),
+                  ),
+                )
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount:
+                      formattedMediaList.length + (isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == formattedMediaList.length && isLoadingMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      );
+                    }
+                    if (index < 0 || index >= formattedMediaList.length)
+                      return const SizedBox.shrink();
+                    return GestureDetector(
+                      onTap: () => _openMediaViewer(formattedMediaList, index),
+                      child: _buildSingleMedia(formattedMediaList[index]),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
       );
     });
   }

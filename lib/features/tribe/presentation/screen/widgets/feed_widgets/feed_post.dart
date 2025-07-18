@@ -352,15 +352,18 @@ class _FeedPostState extends State<FeedPost> {
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
-    // If only one media and it's an image or gif, center and expand it
+    // If only one media and it's an image or gif, center and expand it, and make it tappable
     if (allMedia.length == 1 &&
         (allMedia[0]['type'] == 'image' || allMedia[0]['type'] == 'gif')) {
       return Center(
         child: AspectRatio(
           aspectRatio: 16 / 9,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(12),
-            child: _buildSingleMedia(allMedia[0]),
+          child: GestureDetector(
+            onTap: () => _openMediaViewer(allMedia, 0),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(12),
+              child: _buildSingleMedia(allMedia[0]),
+            ),
           ),
         ),
       );
@@ -501,24 +504,14 @@ class _FeedPostState extends State<FeedPost> {
           borderRadius: BorderRadius.circular(8),
           child: Container(
             color: Colors.grey[800],
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.picture_as_pdf,
-                  color: Colors.white,
-                  size: 40,
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 8),
-                  child: Text(
-                    url.split('/').last,
-                    style: const TextStyle(color: Colors.white, fontSize: 12),
-                    overflow: TextOverflow.ellipsis,
-                    textAlign: TextAlign.center,
-                  ),
-                ),
-              ],
+            width: double.infinity,
+            height: double.infinity,
+            child: const Center(
+              child: Icon(
+                Icons.picture_as_pdf,
+                color: Colors.white,
+                size: 80,
+              ),
             ),
           ),
         );

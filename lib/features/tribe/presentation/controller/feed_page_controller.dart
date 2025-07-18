@@ -12,6 +12,11 @@ import 'package:empowered/features/tribe/presentation/controller/tribe_group_con
 import 'package:share_plus/share_plus.dart';
 
 class FeedPageController extends GetxController {
+  // Pagination state for replies and nested replies
+  final RxMap<String, int> replyCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreReplies = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreReplies = <String, bool>{}.obs;
+  final int repliesPerPage = 5;
   FeedPageController({required this.remoteSource});
 
   final FeedPageRemoteSource remoteSource;
@@ -311,11 +316,24 @@ class FeedPageController extends GetxController {
   }
 
   Future<void> getCommentReplies({required String commentId}) async {
+    await getCommentRepliesPaginated(
+        commentId: commentId, page: 1, append: false);
+  }
+
+  Future<void> getCommentRepliesPaginated({
+    required String commentId,
+    int page = 1,
+    bool append = false,
+  }) async {
     try {
       loadingReplies.add(commentId);
       getRepliesState.value = TheStates.loading;
 
-      final result = await remoteSource.getCommentReplies(commentId: commentId);
+      final result = await remoteSource.getCommentReplies(
+        commentId: commentId,
+        page: page,
+        limit: repliesPerPage,
+      );
 
       result.fold(
         (l) {
@@ -325,7 +343,24 @@ class FeedPageController extends GetxController {
         },
         (r) {
           getRepliesState.value = TheStates.success;
-          repliesModel[commentId] = r;
+          if (append && repliesModel.containsKey(commentId)) {
+            // Merge new replies with existing
+            final existing = repliesModel[commentId];
+            final existingList = existing?.repliesData?.comments ?? [];
+            final newList = r.repliesData?.comments ?? [];
+            final merged = [...existingList, ...newList];
+            final updatedRepliesData =
+                r.repliesData?.copyWith(comments: merged);
+            repliesModel[commentId] =
+                r.copyWith(repliesData: updatedRepliesData);
+          } else {
+            repliesModel[commentId] = r;
+          }
+          // Update pagination state
+          replyCurrentPage[commentId] = page;
+          final total = r.repliesData?.meta?.total ?? 0;
+          final loaded = r.repliesData?.comments?.length ?? 0;
+          hasMoreReplies[commentId] = loaded < total;
           loadingReplies.remove(commentId);
           repliesModel.refresh();
         },
