@@ -58,6 +58,7 @@ class _CommentScreenState extends State<CommentScreen> {
   String? replyingToContent;
   String? parentReplyId;
 
+  // Like state for optimistic UI
   final RxMap<String, bool> commentLikeStates = <String, bool>{}.obs;
   final RxMap<String, int> commentLikeCounts = <String, int>{}.obs;
   final RxSet<String> expandedComments = <String>{}.obs;
@@ -71,6 +72,10 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   void initState() {
     super.initState();
+    // Collapse all comments and replies on init
+    expandedComments.clear();
+    controller.expandedReplies.clear();
+    controller.expandedNestedReplies.clear();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
     _scrollController = ScrollController();
@@ -86,7 +91,7 @@ class _CommentScreenState extends State<CommentScreen> {
     for (var comment in comments) {
       final commentId = comment.id.toString();
       commentLikeCounts[commentId] = comment.likesCount ?? 0;
-      commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+      commentLikeStates.remove(commentId); // Clear local like state on refresh
 
       if (controller.repliesModel.containsKey(commentId)) {
         final replies =
@@ -94,10 +99,8 @@ class _CommentScreenState extends State<CommentScreen> {
         for (var reply in replies) {
           final replyId = reply.id.toString();
           commentLikeCounts[replyId] = reply.likesCount ?? 0;
-          commentLikeStates[replyId] = (reply.likesCount ?? 0) > 0;
-          visibleNestedReplyCounts[replyId] = 2; // Keep for nested replies
-          showViewMoreForNestedReplies[replyId] =
-              true; // Keep for nested replies
+          commentLikeStates
+              .remove(replyId); // Clear local like state on refresh
         }
       }
     }
@@ -216,10 +219,10 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.expandedReplies.remove(commentId);
     } else {
       controller.loadingReplies.add(commentId);
+      // Always fetch latest replies from backend when expanding
       controller.getCommentReplies(commentId: commentId).then((_) {
         controller.loadingReplies.remove(commentId);
         controller.expandedReplies.add(commentId);
-
         // Update like data for fetched replies
         final replies =
             controller.repliesModel[commentId]?.repliesData?.comments ?? [];
@@ -233,16 +236,39 @@ class _CommentScreenState extends State<CommentScreen> {
       controller.expandedNestedReplies.remove(replyId);
     } else {
       controller.loadingReplies.add(replyId);
+      // Always fetch latest nested replies from backend when expanding
       controller.getCommentReplies(commentId: replyId).then((_) {
         controller.loadingReplies.remove(replyId);
         controller.expandedNestedReplies.add(replyId);
-
+        // Initialize pagination state for nested replies
+        nestedReplyCurrentPage[replyId] = 1;
+        final repliesModel = controller.repliesModel[replyId];
+        final total = repliesModel?.repliesData?.meta?.total ?? 0;
+        final loaded = repliesModel?.repliesData?.comments?.length ?? 0;
+        hasMoreNestedReplies[replyId] = loaded < total;
         // Update like data for fetched nested replies
         final nestedReplies =
             controller.repliesModel[replyId]?.repliesData?.comments ?? [];
         _updateLikeDataForComments(nestedReplies);
       });
     }
+  }
+
+  Future<void> _fetchNextNestedRepliesPage(String replyId) async {
+    final currentPage = nestedReplyCurrentPage[replyId] ?? 1;
+    isLoadingMoreNestedReplies[replyId] = true;
+    await controller.getCommentRepliesPaginated(
+      commentId: replyId,
+      page: currentPage + 1,
+      append: true,
+    );
+    // Update page and hasMore
+    final repliesModel = controller.repliesModel[replyId];
+    final total = repliesModel?.repliesData?.meta?.total ?? 0;
+    final loaded = repliesModel?.repliesData?.comments?.length ?? 0;
+    nestedReplyCurrentPage[replyId] = currentPage + 1;
+    hasMoreNestedReplies[replyId] = loaded < total;
+    isLoadingMoreNestedReplies[replyId] = false;
   }
 
   String _formatCount(int count) {
@@ -377,6 +403,25 @@ class _CommentScreenState extends State<CommentScreen> {
                     controller.expandedNestedReplies.clear();
                     controller.resetCommentPagination(widget.postId);
                     await controller.getPostComments(postId: widget.postId);
+                    // After refresh, update like state/count maps for comments and replies
+                    final comments = controller
+                            .commentsModel[widget.postId]?.data?.comments ??
+                        [];
+                    for (var comment in comments) {
+                      final commentId = comment.id.toString();
+                      commentLikeCounts[commentId] = comment.likesCount ?? 0;
+                      commentLikeStates.remove(commentId);
+                      if (controller.repliesModel.containsKey(commentId)) {
+                        final replies = controller.repliesModel[commentId]
+                                ?.repliesData?.comments ??
+                            [];
+                        for (var reply in replies) {
+                          final replyId = reply.id.toString();
+                          commentLikeCounts[replyId] = reply.likesCount ?? 0;
+                          commentLikeStates.remove(replyId);
+                        }
+                      }
+                    }
                   },
                   child: ListView.builder(
                     controller: _scrollController,
@@ -1084,8 +1129,11 @@ class _CommentScreenState extends State<CommentScreen> {
     return Obx(() {
       final isExpanded = expandedComments.contains(commentId);
       final shouldShowMore = _shouldShowMoreButton(commentText);
-      final isLiked = commentLikeStates[commentId] ?? false;
-      final likeCount = commentLikeCounts[commentId] ?? 0;
+      // Use local like state if present, else fallback to likedByCurrentUser
+      final isLiked = commentLikeStates.containsKey(commentId)
+          ? commentLikeStates[commentId]!
+          : (comment.likedByCurrentUser ?? false);
+      final likeCount = commentLikeCounts[commentId] ?? comment.likesCount ?? 0;
 
       return Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1260,15 +1308,16 @@ class _CommentScreenState extends State<CommentScreen> {
     return Obx(() {
       final nestedReplies =
           controller.repliesModel[replyId]?.repliesData?.comments ?? [];
-      final visibleNestedReplies = showViewMoreForNestedReplies[replyId] == true
-          ? nestedReplies.take(visibleNestedReplyCounts[replyId] ?? 2).toList()
-          : nestedReplies;
-      final isLiked = commentLikeStates[replyId] ?? false;
-      final likeCount = commentLikeCounts[replyId] ?? 0;
       final isNestedRepliesExpanded =
           controller.expandedNestedReplies.contains(replyId);
       final isLoadingNestedReplies =
           controller.loadingReplies.contains(replyId);
+      final hasMore = hasMoreNestedReplies[replyId] ?? false;
+      // Use local like state if present, else fallback to likedByCurrentUser
+      final isLiked = commentLikeStates.containsKey(replyId)
+          ? commentLikeStates[replyId]!
+          : (reply.likedByCurrentUser ?? false);
+      final likeCount = commentLikeCounts[replyId] ?? reply.likesCount ?? 0;
 
       return Container(
         margin: const EdgeInsets.only(left: 40, bottom: 12),
@@ -1372,16 +1421,13 @@ class _CommentScreenState extends State<CommentScreen> {
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                if (isLiked)
-                                  Assets.images.heartFilledPng.image(
-                                    height: 14,
-                                    width: 14,
-                                  )
-                                else
-                                  Assets.images.heartPng.image(
-                                    height: 14,
-                                    width: 14,
-                                  ),
+                                Icon(
+                                  isLiked
+                                      ? Icons.favorite
+                                      : Icons.favorite_border,
+                                  color: isLiked ? Colors.red : Colors.white,
+                                  size: 16,
+                                ),
                                 const SizedBox(width: 4),
                                 Text(
                                   _formatCount(likeCount),
@@ -1447,32 +1493,38 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
             ],
-            if (isNestedRepliesExpanded && visibleNestedReplies.isNotEmpty) ...[
+            if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...visibleNestedReplies.map(
+              ...nestedReplies.map(
                   (nestedReply) => _buildNestedReply(nestedReply, replyId)),
-              if (showViewMoreForNestedReplies[replyId] == true &&
-                  nestedReplies.length >
-                      (visibleNestedReplyCounts[replyId] ?? 2) &&
-                  (nestedReplies.length -
-                          (visibleNestedReplyCounts[replyId] ?? 2)) >
-                      0)
+              if (hasMore)
                 Padding(
-                  padding: const EdgeInsets.only(left: 80.0, top: 8),
-                  child: TextButton(
-                    onPressed: () =>
-                        _loadMoreNestedReplies(replyId, nestedReplies.length),
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.blue,
-                    ),
-                    child: Text(
-                      'View more replies (${nestedReplies.length - (visibleNestedReplyCounts[replyId] ?? 2)} remaining)',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
+                  padding: const EdgeInsets.only(
+                    left: 90,
                   ),
+                  child: Obx(() {
+                    final isLoading =
+                        isLoadingMoreNestedReplies[replyId] ?? false;
+                    return TextButton(
+                      onPressed: isLoading
+                          ? null
+                          : () => _fetchNextNestedRepliesPage(replyId),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text(
+                              'View more replies',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                    );
+                  }),
                 ),
             ],
           ],
@@ -1481,22 +1533,17 @@ class _CommentScreenState extends State<CommentScreen> {
     });
   }
 
-  void _loadMoreNestedReplies(String replyId, int totalNestedReplies) {
-    visibleNestedReplyCounts[replyId] =
-        (visibleNestedReplyCounts[replyId] ?? 2) + 2;
-    if (visibleNestedReplyCounts[replyId]! >= totalNestedReplies) {
-      showViewMoreForNestedReplies[replyId] = false;
-    }
-  }
-
   Widget _buildNestedReply(
       comment_replies.Comment nestedReply, String parentReplyId) {
     final replyId = nestedReply.id.toString();
 
     return Obx(() {
-      final isLiked = commentLikeStates[replyId] ?? false;
-      final likeCount = commentLikeCounts[replyId] ?? 0;
-
+      // Use local like state if present, else fallback to likedByCurrentUser
+      final isLiked = commentLikeStates.containsKey(replyId)
+          ? commentLikeStates[replyId]!
+          : (nestedReply.likedByCurrentUser ?? false);
+      final likeCount =
+          commentLikeCounts[replyId] ?? nestedReply.likesCount ?? 0;
       return Container(
         margin: const EdgeInsets.only(left: 80.0, bottom: 12),
         child: Row(
