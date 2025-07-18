@@ -110,7 +110,7 @@ class _CommentScreenState extends State<CommentScreen> {
     for (var comment in comments) {
       final commentId = comment.id.toString();
       commentLikeCounts[commentId] = comment.likesCount ?? 0;
-      commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
+      commentLikeStates[commentId] = comment.likedByCurrentUser ?? false;
     }
   }
 

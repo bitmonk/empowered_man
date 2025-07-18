@@ -497,7 +497,7 @@ class FeedPageController extends GetxController {
         (message) {
           AppUtils.showSnackbar(message: message);
           // Defer the refresh to avoid build conflicts
-          Future.microtask(() => getPostComments(postId: postId));
+          // Future.microtask(() => getPostComments(postId: postId));
         },
       );
     } catch (e) {
