@@ -80,6 +80,12 @@ class FeedPageController extends GetxController {
   final RxBool isLoadingMorePosts = false.obs;
   final int feedPostsPerPage = 10;
 
+  // Pagination state for feed media
+  final RxInt currentFeedMediaPage = 1.obs;
+  final RxInt lastFeedMediaPage = 1.obs;
+  final RxBool isLoadingMoreFeedMedia = false.obs;
+  // final int feedMediaPerPage = 15;
+
   @override
   void onInit() {
     super.onInit();
@@ -221,28 +227,73 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> getFeedMedia() async {
+  Future<void> getFeedMedia({int page = 1, bool append = false}) async {
+    print('[DEBUG] getFeedMedia called: page=$page, append=$append');
     try {
-      feedMediaState.value = TheStates.loading;
-      feedError = null;
+      if (!append) feedMediaState.value = TheStates.loading;
+      if (!append) feedError = null;
+      if (!append) currentFeedMediaPage.value = 1;
+      if (!append) lastFeedMediaPage.value = 1;
+      if (append) isLoadingMoreFeedMedia.value = true;
 
-      final result = await remoteSource.getFeedMedia();
+      final result = await remoteSource.getFeedMedia(page: page);
 
       result.fold(
         (l) {
-          feedMediaState.value = TheStates.error;
+          if (!append) feedMediaState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
-          feedMediaState.value = TheStates.success;
-          feedMediaModel.value = r;
+          if (!append) feedMediaState.value = TheStates.success;
+          if (append) {
+            // Append new media to existing list
+            final existing = feedMediaModel.value.data?.medias ?? [];
+            final newMedia = r.data?.medias ?? [];
+            print(
+                '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}');
+            final allMedia = [...existing, ...newMedia];
+            final updatedModel = r.copyWith(
+              data: r.data?.copyWith(medias: allMedia),
+            );
+            feedMediaModel.value = updatedModel;
+          } else {
+            print('[DEBUG] Setting media: new=${r.data?.medias?.length ?? 0}');
+            feedMediaModel.value = r;
+          }
+          // Update pagination
+          final meta = r.data?.meta;
+          if (meta != null) {
+            int _parseInt(dynamic v, int fallback) {
+              if (v is int) return v;
+              if (v is String) return int.tryParse(v) ?? fallback;
+              return fallback;
+            }
+
+            currentFeedMediaPage.value = _parseInt(meta.currentPage, page);
+            lastFeedMediaPage.value = _parseInt(meta.lastPage, page);
+            print(
+                '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}');
+          } else {
+            currentFeedMediaPage.value = page;
+            lastFeedMediaPage.value = page;
+          }
         },
       );
     } catch (e) {
-      feedMediaState.value = TheStates.error;
+      if (!append) feedMediaState.value = TheStates.error;
       feedError = 'Failed to load feed media: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    } finally {
+      if (append) isLoadingMoreFeedMedia.value = false;
     }
+  }
+
+  Future<void> fetchNextFeedMediaPage() async {
+    print(
+        '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}');
+    if (isLoadingMoreFeedMedia.value) return;
+    if (currentFeedMediaPage.value >= lastFeedMediaPage.value) return;
+    await getFeedMedia(page: currentFeedMediaPage.value + 1, append: true);
   }
 
   // Reset pagination for a post

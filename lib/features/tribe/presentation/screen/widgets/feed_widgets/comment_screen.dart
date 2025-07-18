@@ -24,6 +24,7 @@ class CommentScreen extends StatefulWidget {
     required this.postId,
     required this.likesCount,
     required this.commentsCount,
+    required this.isBookmarked,
     super.key,
   });
 
@@ -35,6 +36,7 @@ class CommentScreen extends StatefulWidget {
   final String postId;
   final int likesCount;
   final int commentsCount;
+  final bool isBookmarked;
 
   @override
   State<CommentScreen> createState() => _CommentScreenState();
@@ -53,6 +55,7 @@ class _CommentScreenState extends State<CommentScreen> {
   final FocusNode _inputFocusNode = FocusNode();
   late bool isPostLiked;
   late int likesCount;
+  late bool isPostBookmarked;
   String? replyingToCommentId;
   String? replyingToUserName;
   String? replyingToContent;
@@ -78,6 +81,7 @@ class _CommentScreenState extends State<CommentScreen> {
     controller.expandedNestedReplies.clear();
     isPostLiked = widget.isLiked;
     likesCount = widget.likesCount;
+    isPostBookmarked = widget.isBookmarked;
     _scrollController = ScrollController();
     _scrollController.addListener(_onScroll);
     _initializeCommentData();
@@ -840,12 +844,23 @@ class _CommentScreenState extends State<CommentScreen> {
               ),
               const Spacer(),
               GestureDetector(
-                onTap: () => controller.toggleSave(widget.postId),
-                child: Assets.images.savePost.svg(
-                  height: 20,
-                  width: 20,
-                  fit: BoxFit.cover,
-                ),
+                onTap: () async {
+                  setState(() {
+                    isPostBookmarked = !isPostBookmarked;
+                  });
+                  await controller.toggleSave(widget.postId);
+                },
+                child: isPostBookmarked
+                    ? Assets.images.savedPost.svg(
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.cover,
+                      )
+                    : Assets.images.savePost.svg(
+                        height: 20,
+                        width: 20,
+                        fit: BoxFit.cover,
+                      ),
               ),
             ],
           ),
@@ -1748,12 +1763,23 @@ class _CommentScreenState extends State<CommentScreen> {
         ),
         const Spacer(),
         GestureDetector(
-          onTap: () => controller.toggleSave(widget.postId),
-          child: Assets.images.savePost.svg(
-            height: 20,
-            width: 20,
-            fit: BoxFit.cover,
-          ),
+          onTap: () async {
+            setState(() {
+              isPostBookmarked = !isPostBookmarked;
+            });
+            await controller.toggleSave(widget.postId);
+          },
+          child: isPostBookmarked
+              ? Assets.images.savedPost.svg(
+                  height: 20,
+                  width: 20,
+                  fit: BoxFit.cover,
+                )
+              : Assets.images.savePost.svg(
+                  height: 20,
+                  width: 20,
+                  fit: BoxFit.cover,
+                ),
         ),
       ],
     );

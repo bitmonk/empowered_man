@@ -128,7 +128,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   }
                 } else if (index == 1) {
                   // Handle 'Media' tab (index 1)
-                  controller.getFeedMedia(); // Call to fetch media
+                  await controller.getFeedMedia(
+                      page: 1,
+                      append: false); // Always reset and load first page
                 } else if (index == 2) {
                   // Handle 'Saved' tab (index 2)
                   tribeController.getFeedSavedPost().then((_) async {
@@ -285,8 +287,12 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final mediaModel = controller.feedMediaModel.value;
       final state = controller.feedMediaState.value;
+      final isLoadingMore = controller.isLoadingMoreFeedMedia?.value ?? false;
+      final hasMore = (controller.currentFeedMediaPage?.value ?? 1) <
+          (controller.lastFeedMediaPage?.value ?? 1);
 
-      if (state == TheStates.loading) {
+      if (state == TheStates.loading &&
+          (mediaModel.data?.medias?.isEmpty ?? true)) {
         return const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -321,6 +327,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       }
 
       final mediaItems = mediaModel.data?.medias ?? [];
+      final totalMedia = mediaModel.data?.meta?.total ?? 0;
       if (mediaItems.isEmpty) {
         return const Center(
           child: Text(
@@ -334,49 +341,89 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () => controller.getFeedMedia(),
-        child: GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // 3 items per row
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: mediaItems.length,
-          itemBuilder: (context, index) {
-            final media = mediaItems[index];
-            return GestureDetector(
-              onTap: () {
-                // Always open MediaViewer, even for a single media item
-                final mediaList = mediaItems
-                    .map(
-                      (item) => {
-                        'url': item.url,
-                        'type': item.type,
-                      },
-                    )
-                    .toList();
-                Get.to(
-                  () => MediaViewer(
-                    mediaList: mediaList,
-                    initialIndex: index,
-                  ),
-                );
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      media.url ?? '',
-                    ),
-                    fit: BoxFit.cover,
-                  ),
+      final formattedMediaList = mediaItems
+          .map((item) => {
+                'url': item.url,
+                'type': item.type,
+              })
+          .toList();
+
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            controller.fetchNextFeedMediaPage();
+          }
+          return false;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getFeedMedia(page: 1, append: false);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                'Media ( $totalMedia )',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-            );
-          },
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 3 items per row
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: formattedMediaList.length + (isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == formattedMediaList.length && isLoadingMore) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8.0),
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  }
+                  if (index < 0 || index >= formattedMediaList.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final media = formattedMediaList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        () => MediaViewer(
+                          mediaList: formattedMediaList,
+                          initialIndex: index,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: NetworkImage(
+                            media['url'] ?? '',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       );
     });
