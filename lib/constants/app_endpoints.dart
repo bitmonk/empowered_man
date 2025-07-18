@@ -80,6 +80,7 @@ class AppEndpoints {
       '/user/habits-details?date=$date';
   static const String updateDashboardHabit = '/user/habits/update-status';
   static const String dashboardPowerStreak = '/user/weekly-details';
+  static const String getMyMemory = '/my-memory';
 
   //Chat
   static const String searchUser = '/agora/users/search';

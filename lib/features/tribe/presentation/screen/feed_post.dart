@@ -519,6 +519,7 @@ class _FeedPostState extends State<FeedPost> {
         createdAt: widget.post.createdAt,
         content: widget.post.text ?? '',
         commentsCount: widget.post.commentsCount ?? 0,
+        isBookmarked: widget.post.isBookmarked ?? false,
         media: widget.post.media is Media
             ? widget.post.media.images ?? []
             : widget.post.media is List

@@ -4,6 +4,7 @@ import 'package:empowered/features/home/data/model/dashboard_habit_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_level_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_power_streak_model.dart';
 import 'package:empowered/features/home/data/model/my_monthly_model.dart';
+import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/home/data/source/home_remote_source.dart';
 
 class HomeController extends GetxController {
@@ -158,8 +159,29 @@ class HomeController extends GetxController {
         dashboardPowerStreakState.value = TheStates.error;
       },
       (r) {
-        dashboardPowerStreakData.value = r.data ?? const DashboardPowerStreakData();
+        dashboardPowerStreakData.value =
+            r.data ?? const DashboardPowerStreakData();
         dashboardPowerStreakState.value = TheStates.success;
+      },
+    );
+  }
+
+  // --- MyMemory State Management ---
+  Rx<TheStates> myMemoryState = TheStates.initial.obs;
+  Rxn<MyMemoryModel> myMemoryData = Rxn<MyMemoryModel>();
+  RxnString myMemoryError = RxnString();
+
+  Future<void> getMyMemory() async {
+    myMemoryState.value = TheStates.loading;
+    final result = await remoteSource.getMyMemory();
+    result.fold(
+      (l) {
+        myMemoryError.value = l.message;
+        myMemoryState.value = TheStates.error;
+      },
+      (r) {
+        myMemoryData.value = r;
+        myMemoryState.value = TheStates.success;
       },
     );
   }

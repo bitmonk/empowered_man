@@ -415,6 +415,44 @@ class JournalChatController extends GetxController {
     return res;
   }
 
+  Future<bool?> getJournalWithQuestionsAndAnswersById(String journalId) async {
+    showBeginJournallButton.value = false;
+    final result =
+        await remoteSource.getJournalWithQuestionsAndAnswers(journalId);
+    var res = result.fold(
+      (l) {
+        journalChatConversationState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+        return false;
+      },
+      (r) {
+        journalChatConversationState.value = TheStates.success;
+        final previouslyCompleted =
+            journalWithQuestionsAndAnswers.value.data?.isCompleted ?? false;
+        journalWithQuestionsAndAnswers.value = r;
+        final currentlyCompleted = r.data?.isCompleted ?? false;
+        if (currentlyCompleted && !previouslyCompleted) {
+          isJustCompleted.value = true;
+          wasAlreadyCompleted.value = false;
+        } else if (currentlyCompleted && previouslyCompleted) {
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = true;
+        } else {
+          isJustCompleted.value = false;
+          wasAlreadyCompleted.value = false;
+        }
+        showBeginJournallButton.value = journalWithQuestionsAndAnswers
+                .value.data?.journal?.mainQuestions?[0].answered ==
+            false;
+        if (autoScrollEnabled.value && !isSendingMessage.value) {
+          _debouncedScrollToBottom();
+        }
+        return true;
+      },
+    );
+    return res;
+  }
+
   Future<void> handleYesNoSelection(String option, String questionId) async {
     yesNoAnswers[questionId] = option;
     _showThinking(message: option);
