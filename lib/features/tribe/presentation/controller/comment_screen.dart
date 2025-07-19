@@ -692,145 +692,194 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildComment(post_comments.Comment comment) {
-    return Obx(() {
-      final commentId = comment.id.toString();
-      final isExpanded = expandedComments.contains(commentId);
-      final commentText = comment.text ?? '';
-      final shouldShowMore = _shouldShowMoreButton(commentText);
-      final isLiked = commentLikeStates[commentId] ?? false;
-      final likeCount = commentLikeCounts[commentId] ?? 0;
+    final commentId = comment.id.toString();
+    final commentText = comment.text ?? '';
 
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipOval(
-            child: comment.user?.image != null
-                ? Image.network(
-                    comment.user!.image!,
-                    height: 32,
-                    width: 32,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Assets.images.leaderProfile.image(
+    return GestureDetector(
+      onLongPress: () => _showCommentOptions(context, comment),
+      child: Obx(() {
+        final isExpanded = expandedComments.contains(commentId);
+        final shouldShowMore = _shouldShowMoreButton(commentText);
+        final isLiked = commentLikeStates[commentId] ?? false;
+        final likeCount = commentLikeCounts[commentId] ?? 0;
+
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipOval(
+              child: comment.user?.image != null
+                  ? Image.network(
+                      comment.user!.image!,
+                      height: 32,
+                      width: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Assets.images.leaderProfile.image(
+                        height: 32,
+                        width: 32,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Assets.images.leaderProfile.image(
                       height: 32,
                       width: 32,
                       fit: BoxFit.cover,
                     ),
-                  )
-                : Assets.images.leaderProfile.image(
-                    height: 32,
-                    width: 32,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        comment.user?.fullName ?? 'Unknown',
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          comment.user?.fullName ?? 'Unknown',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _formatDateTime(comment.createdAt),
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      _formatDateTime(comment.createdAt),
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isExpanded ? commentText : _getTruncatedText(commentText),
-                  style: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                    ],
                   ),
-                ),
-                if (shouldShowMore) ...[
                   const SizedBox(height: 4),
-                  GestureDetector(
-                    onTap: () {
-                      if (isExpanded) {
-                        expandedComments.remove(commentId);
-                      } else {
-                        expandedComments.add(commentId);
-                      }
-                    },
-                    child: Text(
-                      isExpanded ? 'Show less' : 'Show more',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
-                      ),
+                  Text(
+                    isExpanded ? commentText : _getTruncatedText(commentText),
+                    style: const TextStyle(
+                      color: Colors.white70,
+                      fontSize: 14,
                     ),
                   ),
-                ],
-                const SizedBox(height: 8),
-                Row(
-                  children: [
+                  if (shouldShowMore) ...[
+                    const SizedBox(height: 4),
                     GestureDetector(
-                      onTap: () =>
-                          _toggleCommentLike(commentId, likeCount, isLiked),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatCount(likeCount),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => _startReply(
-                        commentId,
-                        comment.user?.fullName ?? 'Unknown',
-                        commentText,
-                      ),
-                      child: const Text(
-                        'Reply',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
+                      onTap: () {
+                        if (isExpanded) {
+                          expandedComments.remove(commentId);
+                        } else {
+                          expandedComments.add(commentId);
+                        }
+                      },
+                      child: Text(
+                        isExpanded ? 'Show less' : 'Show more',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () =>
+                            _toggleCommentLike(commentId, likeCount, isLiked),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatCount(likeCount),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => _startReply(
+                          commentId,
+                          comment.user?.fullName ?? 'Unknown',
+                          commentText,
+                        ),
+                        child: const Text(
+                          'Reply',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
+          ],
+        );
+      }),
+    );
+  }
+
+  void _showCommentOptions(
+      BuildContext context, post_comments.Comment comment) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditCommentDialog(comment);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDeleteComment(comment);
+                },
+              ),
+            ],
           ),
-        ],
-      );
-    });
+        );
+      },
+    );
+  }
+
+  void _showEditCommentDialog(post_comments.Comment comment) {
+    // Show a dialog or bottom sheet with a TextField to edit the comment
+    // Pre-fill with comment.text, and on submit, call your edit method
+  }
+
+  void _confirmDeleteComment(post_comments.Comment comment) {
+    // Show a confirmation dialog, and on confirm, call your delete method
   }
 
   Widget _buildReply(comment_replies.Comment reply, String parentCommentId) {

@@ -329,6 +329,23 @@ class TribeGroupRemoteSource {
     }
   }
 
+  Future<Either<AppError, String>> deleteGroup({
+    required String groupId,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response =
+          await _client.delete('${AppEndpoints.deleteGroup}$groupId');
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
   Future<Either<AppError, SavedPostsModel>> getSavedPosts({
     required String groupId,
     int page = 1,

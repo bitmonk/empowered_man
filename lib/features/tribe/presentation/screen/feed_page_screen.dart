@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
@@ -98,13 +100,22 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       icon: const Icon(Icons.settings, color: Colors.white),
-                      onSelected: (value) => showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) =>
-                            CustomiseGroup(groupId: widget.groupId),
-                      ),
+                      onSelected: (value) async {
+                        if (value == 'Customize Group') {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) =>
+                                CustomiseGroup(groupId: widget.groupId),
+                          );
+                        } else if (value == 'Delete Group') {
+                          // Dummy function: show a snackbar
+                          var success =
+                              await tribeController.deleteGroup(widget.groupId);
+                          if (success) Navigator.pop(context);
+                        }
+                      },
                       itemBuilder: (context) => [
                         const PopupMenuItem(
                           value: 'Customize Group',
@@ -112,6 +123,17 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                             children: [
                               Text(
                                 'Customize Group',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Delete Group', // Fixed value here
+                          child: Row(
+                            children: [
+                              Text(
+                                'Delete Group',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ],
@@ -132,7 +154,11 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           _buildTabs(controller),
           const SizedBox(height: 12),
           Expanded(child: _buildTabContent(controller)),
-          VerticalSpacing(MediaQuery.of(context).viewPadding.bottom + 16),
+          VerticalSpacing(
+            Platform.isAndroid
+                ? MediaQuery.of(context).viewPadding.bottom + 16
+                : 0,
+          ),
         ],
       ),
     );
@@ -495,7 +521,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                 );
               }
               if (index < 0 || index >= savedPosts.length)
-                return const SizedBox.shrink();
+                return SizedBox.shrink();
               final post = savedPosts[index];
               return FeedPost(
                 post: post,

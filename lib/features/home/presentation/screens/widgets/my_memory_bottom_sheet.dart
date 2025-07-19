@@ -1,6 +1,7 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/presentation/screens/widgets/full_memory_sheet.dart';
 import 'package:empowered/features/home/presentation/controllers/home_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:get/get.dart';
 import 'package:intl/intl.dart';
 import 'package:empowered/features/home/data/model/my_memory_model.dart';
@@ -178,6 +179,7 @@ class MyMemoryBottomSheet extends StatelessWidget {
                     children: [
                       InkWell(
                         onTap: () async {
+                          JournalChatInitializer.initialize();
                           final memory =
                               controller.myMemoryData.value?.data?.memory;
                           final journalId = memory?.journalId?.toString();
@@ -185,9 +187,11 @@ class MyMemoryBottomSheet extends StatelessWidget {
                             final chatController =
                                 Get.find<JournalChatController>();
                             chatController.resetEditMode();
-                            // You may want to clear previous data here if needed
+
                             await chatController
-                                .getJournalWithQuestionsAndAnswersById('1');
+                                .getJournalWithQuestionsAndAnswersById(
+                              journalId,
+                            );
                             Get.to(() => const JournalChatScreen());
                           }
                         },

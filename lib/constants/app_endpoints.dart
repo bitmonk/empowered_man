@@ -91,6 +91,7 @@ class AppEndpoints {
   static const String addMembers = '/user/add-members';
   static const String removeMembers = '/user/remove-member';
   static const String editGroups = '/user/tribe-group';
+  static const String deleteGroup = '/user/tribe-group/';
 
   //feed post
   static const String getFeedPosts = '/user/post-feed/posts';

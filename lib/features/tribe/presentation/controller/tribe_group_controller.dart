@@ -112,9 +112,11 @@ class TribeGroupController extends GetxController {
           }
           final meta = r.data?.meta;
           if (meta != null) {
-            final parsedCurrent = int.tryParse(meta.currentPage ?? '');
+            final parsedCurrent =
+                int.tryParse(meta.currentPage?.toString() ?? '');
             currentGroupMediaPage.value = parsedCurrent ?? page;
-            lastGroupMediaPage.value = meta.lastPage ?? page;
+            lastGroupMediaPage.value =
+                int.tryParse(meta.lastPage?.toString() ?? '') ?? page;
           } else {
             currentGroupMediaPage.value = page;
             lastGroupMediaPage.value = page;
@@ -364,6 +366,24 @@ class TribeGroupController extends GetxController {
     } finally {
       editGroupState.value = TheStates.initial;
     }
+  }
+
+  Rx<TheStates> deleteGroupState = TheStates.initial.obs;
+  Future<bool> deleteGroup(String groupId) async {
+    deleteGroupState.value = TheStates.loading;
+    final result = await remoteSource.deleteGroup(groupId: groupId);
+    return result.fold(
+      (l) {
+        deleteGroupState.value = TheStates.error;
+        AppUtils.showErrorSnackbar(message: l.message);
+        return false;
+      },
+      (r) {
+        deleteGroupState.value = TheStates.success;
+        AppUtils.showSnackbar(message: r);
+        return true;
+      },
+    );
   }
 
   Rx<TheStates> postDetailState = TheStates.initial.obs;
@@ -718,7 +738,9 @@ class TribeGroupController extends GetxController {
   }
 
   void navigateToFeedPage(String groupId) {
-    Get.to(() => FeedPageScreen(groupId: groupId));
+    Get.to(() => FeedPageScreen(groupId: groupId))?.then((_) {
+      refreshGroups();
+    });
   }
 
   void showManagePinGroupSheet(BuildContext context) {

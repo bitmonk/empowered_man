@@ -565,7 +565,7 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
+          // AppUtils.showSnackbar(message: message);
           // Defer the refresh to avoid build conflicts
           Future.microtask(() => getCommentReplies(commentId: commentId));
         },

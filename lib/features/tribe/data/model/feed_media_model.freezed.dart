@@ -618,7 +618,7 @@ Meta _$MetaFromJson(Map<String, dynamic> json) {
 /// @nodoc
 mixin _$Meta {
   @JsonKey(name: 'current_page')
-  String? get currentPage => throw _privateConstructorUsedError;
+  int? get currentPage => throw _privateConstructorUsedError;
   @JsonKey(name: 'total')
   int? get total => throw _privateConstructorUsedError;
   @JsonKey(name: 'per_page')
@@ -641,7 +641,7 @@ abstract class $MetaCopyWith<$Res> {
       _$MetaCopyWithImpl<$Res, Meta>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'current_page') String? currentPage,
+      {@JsonKey(name: 'current_page') int? currentPage,
       @JsonKey(name: 'total') int? total,
       @JsonKey(name: 'per_page') int? perPage,
       @JsonKey(name: 'last_page') int? lastPage});
@@ -671,7 +671,7 @@ class _$MetaCopyWithImpl<$Res, $Val extends Meta>
       currentPage: freezed == currentPage
           ? _value.currentPage
           : currentPage // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       total: freezed == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
@@ -696,7 +696,7 @@ abstract class _$$MetaImplCopyWith<$Res> implements $MetaCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'current_page') String? currentPage,
+      {@JsonKey(name: 'current_page') int? currentPage,
       @JsonKey(name: 'total') int? total,
       @JsonKey(name: 'per_page') int? perPage,
       @JsonKey(name: 'last_page') int? lastPage});
@@ -723,7 +723,7 @@ class __$$MetaImplCopyWithImpl<$Res>
       currentPage: freezed == currentPage
           ? _value.currentPage
           : currentPage // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as int?,
       total: freezed == total
           ? _value.total
           : total // ignore: cast_nullable_to_non_nullable
@@ -754,7 +754,7 @@ class _$MetaImpl implements _Meta {
 
   @override
   @JsonKey(name: 'current_page')
-  final String? currentPage;
+  final int? currentPage;
   @override
   @JsonKey(name: 'total')
   final int? total;
@@ -806,7 +806,7 @@ class _$MetaImpl implements _Meta {
 
 abstract class _Meta implements Meta {
   const factory _Meta(
-      {@JsonKey(name: 'current_page') final String? currentPage,
+      {@JsonKey(name: 'current_page') final int? currentPage,
       @JsonKey(name: 'total') final int? total,
       @JsonKey(name: 'per_page') final int? perPage,
       @JsonKey(name: 'last_page') final int? lastPage}) = _$MetaImpl;
@@ -815,7 +815,7 @@ abstract class _Meta implements Meta {
 
   @override
   @JsonKey(name: 'current_page')
-  String? get currentPage;
+  int? get currentPage;
   @override
   @JsonKey(name: 'total')
   int? get total;

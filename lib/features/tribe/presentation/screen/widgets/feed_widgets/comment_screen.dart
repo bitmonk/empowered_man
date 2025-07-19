@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -308,7 +310,9 @@ class _CommentScreenState extends State<CommentScreen> {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(bottom: context.devicePaddingBottom),
+      padding: EdgeInsets.only(
+        bottom: Platform.isAndroid ? context.devicePaddingBottom : 0,
+      ),
       child: Scaffold(
         backgroundColor: const Color(0xFF132534),
         appBar: AppBar(
@@ -1141,171 +1145,181 @@ class _CommentScreenState extends State<CommentScreen> {
     final commentId = comment.id.toString();
     final commentText = comment.text ?? '';
 
-    return Obx(() {
-      final isExpanded = expandedComments.contains(commentId);
-      final shouldShowMore = _shouldShowMoreButton(commentText);
-      // Use local like state if present, else fallback to likedByCurrentUser
-      final isLiked = commentLikeStates.containsKey(commentId)
-          ? commentLikeStates[commentId]!
-          : (comment.likedByCurrentUser ?? false);
-      final likeCount = commentLikeCounts[commentId] ?? comment.likesCount ?? 0;
+    return GestureDetector(
+      onLongPress: () {
+        // Show edit/delete popup for comment
+        _showCommentOptions(context, comment);
+      },
+      child: Obx(() {
+        final isExpanded = expandedComments.contains(commentId);
+        final shouldShowMore = _shouldShowMoreButton(commentText);
+        // Use local like state if present, else fallback to likedByCurrentUser
+        final isLiked = commentLikeStates.containsKey(commentId)
+            ? commentLikeStates[commentId]!
+            : (comment.likedByCurrentUser ?? false);
+        final likeCount =
+            commentLikeCounts[commentId] ?? comment.likesCount ?? 0;
 
-      return Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          ClipOval(
-            child: comment.user?.image != null
-                ? Image.network(
-                    comment.user!.image!,
-                    height: 32,
-                    width: 32,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        Assets.images.leaderProfile.image(
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            ClipOval(
+              child: comment.user?.image != null
+                  ? Image.network(
+                      comment.user!.image!,
+                      height: 32,
+                      width: 32,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          Assets.images.leaderProfile.image(
+                        height: 32,
+                        width: 32,
+                        fit: BoxFit.cover,
+                      ),
+                    )
+                  : Assets.images.leaderProfile.image(
                       height: 32,
                       width: 32,
                       fit: BoxFit.cover,
                     ),
-                  )
-                : Assets.images.leaderProfile.image(
-                    height: 32,
-                    width: 32,
-                    fit: BoxFit.cover,
-                  ),
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        comment.user?.fullName ?? 'Unknown',
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Text(
+                          comment.user?.fullName ?? 'Unknown',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        comment.createdAt != null
+                            ? DateFormat.jm()
+                                .format(comment.createdAt!.toLocal())
+                            : '',
                         style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 14,
+                          color: Colors.grey,
+                          fontSize: 12,
                         ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      comment.createdAt != null
-                          ? DateFormat.jm().format(comment.createdAt!.toLocal())
-                          : '',
-                      style: const TextStyle(
-                        color: Colors.grey,
-                        fontSize: 12,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF121E29),
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(14),
-                        bottomLeft: Radius.circular(14),
-                        bottomRight: Radius.circular(14),
-                        // topLeft is not rounded
-                      ),
-                      border: Border.all(
-                        color: const Color(0xFF1A2A3A),
-                        width: 1.1,
-                      ),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 16,
-                      horizontal: 16,
-                    ),
-                    child: Text(
-                      isExpanded ? commentText : _getTruncatedText(commentText),
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
+                    ],
                   ),
-                ),
-                if (shouldShowMore) ...[
                   const SizedBox(height: 4),
-                  GestureDetector(
-                    onTap: () {
-                      if (isExpanded) {
-                        expandedComments.remove(commentId);
-                      } else {
-                        expandedComments.add(commentId);
-                      }
-                    },
-                    child: Text(
-                      isExpanded ? 'Show less' : 'Show more',
-                      style: const TextStyle(
-                        color: Colors.blue,
-                        fontSize: 13,
-                        fontWeight: FontWeight.w500,
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF121E29),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(14),
+                          bottomLeft: Radius.circular(14),
+                          bottomRight: Radius.circular(14),
+                          // topLeft is not rounded
+                        ),
+                        border: Border.all(
+                          color: const Color(0xFF1A2A3A),
+                          width: 1.1,
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 16,
+                        horizontal: 16,
+                      ),
+                      child: Text(
+                        isExpanded
+                            ? commentText
+                            : _getTruncatedText(commentText),
+                        style: const TextStyle(
+                          color: Colors.white70,
+                          fontSize: 14,
+                        ),
                       ),
                     ),
                   ),
-                ],
-                const SizedBox(height: 8),
-                Row(
-                  children: [
+                  if (shouldShowMore) ...[
+                    const SizedBox(height: 4),
                     GestureDetector(
-                      onTap: () =>
-                          _toggleCommentLike(commentId, likeCount, isLiked),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            isLiked ? Icons.favorite : Icons.favorite_border,
-                            color: isLiked ? Colors.red : Colors.white,
-                            size: 16,
-                          ),
-                          const SizedBox(width: 4),
-                          Text(
-                            _formatCount(likeCount),
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: 16),
-                    GestureDetector(
-                      onTap: () => _startReply(
-                        commentId,
-                        comment.user?.fullName ?? 'Unknown',
-                        commentText,
-                      ),
-                      child: const Text(
-                        'Reply',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 12,
+                      onTap: () {
+                        if (isExpanded) {
+                          expandedComments.remove(commentId);
+                        } else {
+                          expandedComments.add(commentId);
+                        }
+                      },
+                      child: Text(
+                        isExpanded ? 'Show less' : 'Show more',
+                        style: const TextStyle(
+                          color: Colors.blue,
+                          fontSize: 13,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
                     ),
                   ],
-                ),
-              ],
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      GestureDetector(
+                        onTap: () =>
+                            _toggleCommentLike(commentId, likeCount, isLiked),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              isLiked ? Icons.favorite : Icons.favorite_border,
+                              color: isLiked ? Colors.red : Colors.white,
+                              size: 16,
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              _formatCount(likeCount),
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      GestureDetector(
+                        onTap: () => _startReply(
+                          commentId,
+                          comment.user?.fullName ?? 'Unknown',
+                          commentText,
+                        ),
+                        child: const Text(
+                          'Reply',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
-      );
-    });
+          ],
+        );
+      }),
+    );
   }
 
   // void _loadMoreReplies(String commentId, int totalReplies) {
@@ -1320,386 +1334,399 @@ class _CommentScreenState extends State<CommentScreen> {
     final hasNestedReplies =
         reply.commentsCount != null && reply.commentsCount! > 0;
 
-    return Obx(() {
-      final nestedReplies =
-          controller.repliesModel[replyId]?.repliesData?.comments ?? [];
-      final isNestedRepliesExpanded =
-          controller.expandedNestedReplies.contains(replyId);
-      final isLoadingNestedReplies =
-          controller.loadingReplies.contains(replyId);
-      final hasMore = hasMoreNestedReplies[replyId] ?? false;
-      // Use local like state if present, else fallback to likedByCurrentUser
-      final isLiked = commentLikeStates.containsKey(replyId)
-          ? commentLikeStates[replyId]!
-          : (reply.likedByCurrentUser ?? false);
-      final likeCount = commentLikeCounts[replyId] ?? reply.likesCount ?? 0;
+    return GestureDetector(
+      onLongPress: () {
+        _showReplyOptions(context, reply);
+      },
+      child: Obx(() {
+        final nestedReplies =
+            controller.repliesModel[replyId]?.repliesData?.comments ?? [];
+        final isNestedRepliesExpanded =
+            controller.expandedNestedReplies.contains(replyId);
+        final isLoadingNestedReplies =
+            controller.loadingReplies.contains(replyId);
+        final hasMore = hasMoreNestedReplies[replyId] ?? false;
+        // Use local like state if present, else fallback to likedByCurrentUser
+        final isLiked = commentLikeStates.containsKey(replyId)
+            ? commentLikeStates[replyId]!
+            : (reply.likedByCurrentUser ?? false);
+        final likeCount = commentLikeCounts[replyId] ?? reply.likesCount ?? 0;
 
-      return Container(
-        margin: const EdgeInsets.only(left: 40, bottom: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                ClipOval(
-                  child: reply.user?.image != null
-                      ? Image.network(
-                          reply.user!.image!,
-                          height: 28,
-                          width: 28,
-                          fit: BoxFit.cover,
-                          errorBuilder: (context, error, stackTrace) =>
-                              Assets.images.leaderProfile.image(
+        return Container(
+          margin: const EdgeInsets.only(left: 40, bottom: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipOval(
+                    child: reply.user?.image != null
+                        ? Image.network(
+                            reply.user!.image!,
+                            height: 28,
+                            width: 28,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) =>
+                                Assets.images.leaderProfile.image(
+                              height: 28,
+                              width: 28,
+                              fit: BoxFit.cover,
+                            ),
+                          )
+                        : Assets.images.leaderProfile.image(
                             height: 28,
                             width: 28,
                             fit: BoxFit.cover,
                           ),
-                        )
-                      : Assets.images.leaderProfile.image(
-                          height: 28,
-                          width: 28,
-                          fit: BoxFit.cover,
-                        ),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Expanded(
-                            child: Text(
-                              reply.user?.fullName ?? 'Unknown',
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                reply.user?.fullName ?? 'Unknown',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 13,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text(
+                              reply.createdAt != null
+                                  ? DateFormat.jm()
+                                      .format(reply.createdAt!.toLocal())
+                                  : '',
                               style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 13,
+                                color: Colors.grey,
+                                fontSize: 11,
                               ),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF121E29),
+                            borderRadius: const BorderRadius.only(
+                              topRight: Radius.circular(14),
+                              bottomLeft: Radius.circular(14),
+                              bottomRight: Radius.circular(14),
+                            ),
+                            border: Border.all(
+                              color: const Color(0xFF1A2A3A),
+                              width: 1.1,
+                            ),
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            reply.createdAt != null
-                                ? DateFormat.jm()
-                                    .format(reply.createdAt!.toLocal())
-                                : '',
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 12,
+                            horizontal: 14,
+                          ),
+                          child: Text(
+                            reply.text ?? '',
                             style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 11,
+                              color: Colors.white70,
+                              fontSize: 13,
                             ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 4),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF121E29),
-                          borderRadius: const BorderRadius.only(
-                            topRight: Radius.circular(14),
-                            bottomLeft: Radius.circular(14),
-                            bottomRight: Radius.circular(14),
-                          ),
-                          border: Border.all(
-                            color: const Color(0xFF1A2A3A),
-                            width: 1.1,
                           ),
                         ),
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                          horizontal: 14,
-                        ),
-                        child: Text(
-                          reply.text ?? '',
-                          style: const TextStyle(
-                            color: Colors.white70,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 6),
-                      Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _toggleReplyLike(
-                              replyId,
-                              likeCount,
-                              isLiked,
-                              parentCommentId: parentCommentId,
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Icon(
-                                  isLiked
-                                      ? Icons.favorite
-                                      : Icons.favorite_border,
-                                  color: isLiked ? Colors.red : Colors.white,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  _formatCount(likeCount),
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 11,
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => _toggleReplyLike(
+                                replyId,
+                                likeCount,
+                                isLiked,
+                                parentCommentId: parentCommentId,
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    isLiked
+                                        ? Icons.favorite
+                                        : Icons.favorite_border,
+                                    color: isLiked ? Colors.red : Colors.white,
+                                    size: 16,
                                   ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          GestureDetector(
-                            onTap: () => _startReply(
-                              reply.id.toString(),
-                              reply.user?.fullName ?? 'Unknown',
-                              reply.text ?? '',
-                              parentId: parentCommentId,
-                            ),
-                            child: const Text(
-                              'Reply',
-                              style: TextStyle(
-                                color: Colors.white70,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w500,
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    _formatCount(likeCount),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 11,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
+                            const SizedBox(width: 16),
+                            GestureDetector(
+                              onTap: () => _startReply(
+                                reply.id.toString(),
+                                reply.user?.fullName ?? 'Unknown',
+                                reply.text ?? '',
+                                parentId: parentCommentId,
+                              ),
+                              child: const Text(
+                                'Reply',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              if (hasNestedReplies) ...[
+                const SizedBox(height: 8),
+                Padding(
+                  padding: const EdgeInsets.only(left: 40.0),
+                  child: GestureDetector(
+                    onTap: () =>
+                        _toggleNestedReplies(replyId, isNestedRepliesExpanded),
+                    child: isLoadingNestedReplies
+                        ? const SizedBox(
+                            height: 20,
+                            width: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              valueColor:
+                                  AlwaysStoppedAnimation<Color>(Colors.white70),
+                            ),
+                          )
+                        : Text(
+                            isNestedRepliesExpanded
+                                ? 'Hide replies'
+                                : 'View ${reply.commentsCount} ${reply.commentsCount == 1 ? 'reply' : 'replies'}',
+                            style: const TextStyle(
+                              color: Colors.blue,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
-                        ],
-                      ),
-                    ],
                   ),
                 ),
               ],
-            ),
-            if (hasNestedReplies) ...[
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.only(left: 40.0),
-                child: GestureDetector(
-                  onTap: () =>
-                      _toggleNestedReplies(replyId, isNestedRepliesExpanded),
-                  child: isLoadingNestedReplies
-                      ? const SizedBox(
-                          height: 20,
-                          width: 20,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white70),
-                          ),
-                        )
-                      : Text(
-                          isNestedRepliesExpanded
-                              ? 'Hide replies'
-                              : 'View ${reply.commentsCount} ${reply.commentsCount == 1 ? 'reply' : 'replies'}',
-                          style: const TextStyle(
-                            color: Colors.blue,
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                          ),
-                        ),
-                ),
-              ),
-            ],
-            if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              ...nestedReplies.map(
-                  (nestedReply) => _buildNestedReply(nestedReply, replyId)),
-              if (hasMore)
-                Padding(
-                  padding: const EdgeInsets.only(
-                    left: 90,
-                  ),
-                  child: Obx(() {
-                    final isLoading =
-                        isLoadingMoreNestedReplies[replyId] ?? false;
-                    return TextButton(
-                      onPressed: isLoading
-                          ? null
-                          : () => _fetchNextNestedRepliesPage(replyId),
-                      child: isLoading
-                          ? const SizedBox(
-                              height: 16,
-                              width: 16,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            )
-                          : const Text(
-                              'View more replies',
-                              style: TextStyle(
-                                color: Colors.blue,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+              if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
+                const SizedBox(height: 8),
+                ...nestedReplies.map(
+                    (nestedReply) => _buildNestedReply(nestedReply, replyId)),
+                if (hasMore)
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      left: 90,
+                    ),
+                    child: Obx(() {
+                      final isLoading =
+                          isLoadingMoreNestedReplies[replyId] ?? false;
+                      return TextButton(
+                        onPressed: isLoading
+                            ? null
+                            : () => _fetchNextNestedRepliesPage(replyId),
+                        child: isLoading
+                            ? const SizedBox(
+                                height: 16,
+                                width: 16,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            : const Text(
+                                'View more replies',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
                               ),
-                            ),
-                    );
-                  }),
-                ),
+                      );
+                    }),
+                  ),
+              ],
             ],
-          ],
-        ),
-      );
-    });
+          ),
+        );
+      }),
+    );
   }
 
   Widget _buildNestedReply(
       comment_replies.Comment nestedReply, String parentReplyId) {
     final replyId = nestedReply.id.toString();
 
-    return Obx(() {
-      // Use local like state if present, else fallback to likedByCurrentUser
-      final isLiked = commentLikeStates.containsKey(replyId)
-          ? commentLikeStates[replyId]!
-          : (nestedReply.likedByCurrentUser ?? false);
-      final likeCount =
-          commentLikeCounts[replyId] ?? nestedReply.likesCount ?? 0;
-      return Container(
-        margin: const EdgeInsets.only(left: 80.0, bottom: 12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipOval(
-              child: nestedReply.user?.image != null
-                  ? Image.network(
-                      nestedReply.user!.image!,
-                      height: 24,
-                      width: 24,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Assets.images.leaderProfile.image(
+    return GestureDetector(
+      onLongPress: () {
+        _showNestedReplyOptions(context, nestedReply);
+      },
+      child: Obx(() {
+        // Use local like state if present, else fallback to likedByCurrentUser
+        final isLiked = commentLikeStates.containsKey(replyId)
+            ? commentLikeStates[replyId]!
+            : (nestedReply.likedByCurrentUser ?? false);
+        final likeCount =
+            commentLikeCounts[replyId] ?? nestedReply.likesCount ?? 0;
+        return Container(
+          margin: const EdgeInsets.only(left: 80.0, bottom: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              ClipOval(
+                child: nestedReply.user?.image != null
+                    ? Image.network(
+                        nestedReply.user!.image!,
+                        height: 24,
+                        width: 24,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            Assets.images.leaderProfile.image(
+                          height: 24,
+                          width: 24,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Assets.images.leaderProfile.image(
                         height: 24,
                         width: 24,
                         fit: BoxFit.cover,
                       ),
-                    )
-                  : Assets.images.leaderProfile.image(
-                      height: 24,
-                      width: 24,
-                      fit: BoxFit.cover,
-                    ),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          nestedReply.user?.fullName ?? 'Unknown',
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            nestedReply.user?.fullName ?? 'Unknown',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 12,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          nestedReply.createdAt != null
+                              ? DateFormat.jm()
+                                  .format(nestedReply.createdAt!.toLocal())
+                              : '',
                           style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
+                            color: Colors.grey,
+                            fontSize: 10,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                         ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF121E29),
+                        borderRadius: const BorderRadius.only(
+                          topRight: Radius.circular(14),
+                          bottomLeft: Radius.circular(14),
+                          bottomRight: Radius.circular(14),
+                        ),
+                        border: Border.all(
+                          color: const Color(0xFF1A2A3A),
+                          width: 1.1,
+                        ),
                       ),
-                      const SizedBox(width: 8),
-                      Text(
-                        nestedReply.createdAt != null
-                            ? DateFormat.jm()
-                                .format(nestedReply.createdAt!.toLocal())
-                            : '',
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 12,
+                      ),
+                      child: Text(
+                        nestedReply.text ?? '',
                         style: const TextStyle(
-                          color: Colors.grey,
-                          fontSize: 10,
+                          color: Colors.white70,
+                          fontSize: 12,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Container(
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF121E29),
-                      borderRadius: const BorderRadius.only(
-                        topRight: Radius.circular(14),
-                        bottomLeft: Radius.circular(14),
-                        bottomRight: Radius.circular(14),
-                      ),
-                      border: Border.all(
-                        color: const Color(0xFF1A2A3A),
-                        width: 1.1,
                       ),
                     ),
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 10,
-                      horizontal: 12,
-                    ),
-                    child: Text(
-                      nestedReply.text ?? '',
-                      style: const TextStyle(
-                        color: Colors.white70,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      GestureDetector(
-                        onTap: () => _toggleReplyLike(
-                          nestedReply.id.toString(),
-                          likeCount,
-                          isLiked,
-                          parentCommentId: parentReplyId,
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              isLiked ? Icons.favorite : Icons.favorite_border,
-                              color: isLiked ? Colors.red : Colors.white,
-                              size: 12,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              _formatCount(likeCount),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 10,
+                    const SizedBox(height: 6),
+                    Row(
+                      children: [
+                        GestureDetector(
+                          onTap: () => _toggleReplyLike(
+                            nestedReply.id.toString(),
+                            likeCount,
+                            isLiked,
+                            parentCommentId: parentReplyId,
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                isLiked
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: isLiked ? Colors.red : Colors.white,
+                                size: 12,
                               ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      GestureDetector(
-                        onTap: () => _startReply(
-                          nestedReply.id.toString(),
-                          nestedReply.user?.fullName ?? 'Unknown',
-                          nestedReply.text ?? '',
-                          parentId: parentReplyId,
-                        ),
-                        child: const Text(
-                          'Reply',
-                          style: TextStyle(
-                            color: Colors.white70,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w500,
+                              const SizedBox(width: 4),
+                              Text(
+                                _formatCount(likeCount),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 10,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        const SizedBox(width: 16),
+                        GestureDetector(
+                          onTap: () => _startReply(
+                            nestedReply.id.toString(),
+                            nestedReply.user?.fullName ?? 'Unknown',
+                            nestedReply.text ?? '',
+                            parentId: parentReplyId,
+                          ),
+                          child: const Text(
+                            'Reply',
+                            style: TextStyle(
+                              color: Colors.white70,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-      );
-    });
+            ],
+          ),
+        );
+      }),
+    );
   }
 
   Widget _buildPostActions() {
@@ -1796,5 +1823,328 @@ class _CommentScreenState extends State<CommentScreen> {
         controller.isLoadingMoreComments[widget.postId] ?? false;
     if (isLoadingMore) count++;
     return count + offset;
+  }
+
+  // Add this method to show edit/delete popup for replies
+  void _showReplyOptions(BuildContext context, comment_replies.Comment reply) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditReplyDialog(reply);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDeleteReply(reply);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Stub methods for reply edit/delete (implement as needed)
+  void _showEditReplyDialog(comment_replies.Comment reply) {
+    final TextEditingController editController =
+        TextEditingController(text: reply.text ?? '');
+    showDialog(
+      context: Get.context!, // Use Get.context! to access the current context
+      builder: (context) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.feedContainer,
+              title: const Text('Edit Reply',
+                  style: TextStyle(color: Colors.white)),
+              content: TextField(
+                controller: editController,
+                maxLines: null,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Edit your reply...',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: AppColors.bgMedium,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.white70)),
+                ),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final newText = editController.text.trim();
+                          if (newText.isEmpty || newText == reply.text) return;
+                          setState(() => isLoading = true);
+                          // TODO: Call update reply API here
+                          await Future.delayed(
+                              const Duration(seconds: 1)); // Simulate network
+                          setState(() => isLoading = false);
+                          Navigator.pop(context);
+                          // TODO: Refresh replies after update
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Save',
+                          style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteReply(comment_replies.Comment reply) {
+    // TODO: Implement delete reply confirmation
+  }
+
+  // Add this method to show edit/delete popup for comments
+  void _showCommentOptions(
+      BuildContext context, post_comments.Comment comment) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditCommentDialog(comment);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDeleteComment(comment);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // Stub methods for comment edit/delete (implement as needed)
+  void _showEditCommentDialog(post_comments.Comment comment) {
+    final TextEditingController editController =
+        TextEditingController(text: comment.text ?? '');
+    showDialog(
+      context: Get.context!, // Use Get.context! to access the current context
+      builder: (context) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.feedContainer,
+              title: const Text('Edit Comment',
+                  style: TextStyle(color: Colors.white)),
+              content: TextField(
+                controller: editController,
+                maxLines: null,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Edit your comment...',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: AppColors.bgMedium,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.white70)),
+                ),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final newText = editController.text.trim();
+                          if (newText.isEmpty || newText == comment.text)
+                            return;
+                          setState(() => isLoading = true);
+                          // TODO: Call update comment API here
+                          await Future.delayed(
+                              const Duration(seconds: 1)); // Simulate network
+                          setState(() => isLoading = false);
+                          Navigator.pop(context);
+                          // TODO: Refresh comments after update
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Save',
+                          style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteComment(post_comments.Comment comment) {
+    // TODO: Implement delete comment confirmation
+  }
+
+  void _showNestedReplyOptions(
+      BuildContext context, comment_replies.Comment nestedReply) {
+    showModalBottomSheet(
+      context: context,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.edit),
+                title: const Text('Edit'),
+                onTap: () {
+                  Navigator.pop(context);
+                  _showEditNestedReplyDialog(nestedReply);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.delete, color: Colors.red),
+                title:
+                    const Text('Delete', style: TextStyle(color: Colors.red)),
+                onTap: () {
+                  Navigator.pop(context);
+                  _confirmDeleteNestedReply(nestedReply);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showEditNestedReplyDialog(comment_replies.Comment nestedReply) {
+    final TextEditingController editController =
+        TextEditingController(text: nestedReply.text ?? '');
+    showDialog(
+      context: Get.context!, // Use Get.context! to access the current context
+      builder: (context) {
+        bool isLoading = false;
+        return StatefulBuilder(
+          builder: (context, setState) {
+            return AlertDialog(
+              backgroundColor: AppColors.feedContainer,
+              title: const Text('Edit Reply',
+                  style: TextStyle(color: Colors.white)),
+              content: TextField(
+                controller: editController,
+                maxLines: null,
+                style: const TextStyle(color: Colors.white),
+                decoration: const InputDecoration(
+                  hintText: 'Edit your reply...',
+                  hintStyle: TextStyle(color: Colors.white54),
+                  border: OutlineInputBorder(),
+                  filled: true,
+                  fillColor: AppColors.bgMedium,
+                ),
+              ),
+              actions: [
+                TextButton(
+                  onPressed: isLoading ? null : () => Navigator.pop(context),
+                  child: const Text('Cancel',
+                      style: TextStyle(color: Colors.white70)),
+                ),
+                ElevatedButton(
+                  onPressed: isLoading
+                      ? null
+                      : () async {
+                          final newText = editController.text.trim();
+                          if (newText.isEmpty || newText == nestedReply.text)
+                            return;
+                          setState(() => isLoading = true);
+                          // TODO: Call update nested reply API here
+                          await Future.delayed(
+                              const Duration(seconds: 1)); // Simulate network
+                          setState(() => isLoading = false);
+                          Navigator.pop(context);
+                          // TODO: Refresh nested replies after update
+                        },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                  ),
+                  child: isLoading
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.white),
+                        )
+                      : const Text('Save',
+                          style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _confirmDeleteNestedReply(comment_replies.Comment nestedReply) {
+    // TODO: Implement delete nested reply confirmation
   }
 }
