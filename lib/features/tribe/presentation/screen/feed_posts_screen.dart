@@ -178,21 +178,48 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
 
   Widget _buildTabContent(FeedPageController controller) {
     return Obx(() {
-      switch (controller.currentTabIndex.value) {
-        case 0:
-          return _buildPostTab();
-        case 1:
-          return _buildMediaTab(); // Updated Media tab content
-        case 2:
-          return _buildSavedTab();
-        default:
-          return const Center(
-            child: Text(
-              'Coming Soon...',
-              style: TextStyle(color: Colors.white70),
+      final isPostLoading = controller.feedState.value == TheStates.loading &&
+          controller.currentTabIndex.value == 0;
+      final isMediaLoading =
+          controller.feedMediaState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 1;
+      final isSavedLoading =
+          tribeController.getFeedSavedPostState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 2;
+      final isLoading = isPostLoading || isMediaLoading || isSavedLoading;
+      return Stack(
+        children: [
+          // Main tab content
+          Builder(
+            builder: (_) {
+              switch (controller.currentTabIndex.value) {
+                case 0:
+                  return _buildPostTab();
+                case 1:
+                  return _buildMediaTab(); // Updated Media tab content
+                case 2:
+                  return _buildSavedTab();
+                default:
+                  return const Center(
+                    child: Text(
+                      'Coming Soon...',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+              }
+            },
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
             ),
-          );
-      }
+        ],
+      );
     });
   }
 
@@ -275,6 +302,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             if (postIndex >= posts.length) return const SizedBox.shrink();
             final post = posts[postIndex];
             return FeedPost(
+              groupId: post.groupId.toString(),
               post: post,
             );
           },
@@ -540,6 +568,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             if (index >= savedPosts.length) return const SizedBox.shrink();
             final post = savedPosts[index];
             return FeedPost(
+              groupId: post.groupId.toString(),
               post: post,
             );
           },

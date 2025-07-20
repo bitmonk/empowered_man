@@ -290,7 +290,7 @@ class TribeGroupRemoteSource {
   Future<Either<AppError, GroupMediaModel>> getGroupMedia({
     required String groupId,
     int page = 1,
-    int limit = 15,
+    int limit = 20,
     CancelToken? cancelToken,
   }) async {
     try {

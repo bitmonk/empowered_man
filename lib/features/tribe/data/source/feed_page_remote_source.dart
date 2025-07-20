@@ -66,12 +66,14 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, FeedMediaModel>> getFeedMedia({
     int? page = 1,
+    int limit = 20,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getFeedMedia,
         queryParameters: {
           'page': page,
+          'per_page': limit,
         },
       );
       return right(FeedMediaModel.fromJson(response));
@@ -288,6 +290,23 @@ class FeedPageRemoteSource {
       final response = await _client.post(
         AppEndpoints.replyComment,
         body: formDataMap,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> deletePost({
+    required String postId,
+  }) async {
+    try {
+      final response = await _client.delete(
+        '${AppEndpoints.deletePost}$postId',
       );
       return right(response['message']);
     } catch (e) {

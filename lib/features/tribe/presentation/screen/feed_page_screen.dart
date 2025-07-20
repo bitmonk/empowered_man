@@ -10,8 +10,13 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
 
 class FeedPageScreen extends StatefulWidget {
-  const FeedPageScreen({required this.groupId, super.key});
+  const FeedPageScreen({
+    required this.groupId,
+    required this.isAdmin,
+    super.key,
+  });
   final String groupId;
+  final bool isAdmin;
 
   @override
   State<FeedPageScreen> createState() => _FeedPageScreenState();
@@ -170,8 +175,19 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(controller.tabs.length, (index) {
           return GestureDetector(
-            onTap: () {
+            onTap: () async {
               controller.changeTab(index);
+              // Refresh posts when Post tab is pressed
+              if (index == 0) {
+                await tribeController.loadPostDetails(widget.groupId);
+                final posts =
+                    tribeController.groupPostModel.value.data?.posts ?? [];
+                for (final post in posts) {
+                  await controller.getPostComments(
+                      postId: post.id?.toString() ?? '');
+                }
+                setState(() {}); // Force widget rebuild to reflect updated data
+              }
               // Fetch saved posts and their comments when Saved tab is pressed
               if (index == 3) {
                 tribeController.getSavedPosts(widget.groupId).then((_) {
@@ -218,23 +234,48 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _buildTabContent(FeedPageController controller) {
     return Obx(() {
-      switch (controller.currentTabIndex.value) {
-        case 0:
-          return _buildPostTab();
-        case 1:
-          return AboutTab(groupId: widget.groupId);
-        case 2:
-          return MediaTab(groupId: widget.groupId);
-        case 3:
-          return _buildSavedTab();
-        default:
-          return const Center(
-            child: Text(
-              'Coming Soon...',
-              style: TextStyle(color: Colors.white70),
+      final isPostLoading =
+          tribeController.postDetailState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 0;
+      final isSavedLoading =
+          tribeController.savedPostState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 3;
+      final isLoading = isPostLoading || isSavedLoading;
+      return Stack(
+        children: [
+          // Main tab content
+          Builder(
+            builder: (_) {
+              switch (controller.currentTabIndex.value) {
+                case 0:
+                  return _buildPostTab();
+                case 1:
+                  return AboutTab(groupId: widget.groupId);
+                case 2:
+                  return MediaTab(groupId: widget.groupId);
+                case 3:
+                  return _buildSavedTab();
+                default:
+                  return const Center(
+                    child: Text(
+                      'Coming Soon...',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+              }
+            },
+          ),
+          if (isLoading)
+            Container(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
             ),
-          );
-      }
+        ],
+      );
     });
   }
 
@@ -278,10 +319,11 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       if (posts.isEmpty) {
         return Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: _createPostInput(),
-            ),
+            if (widget.isAdmin)
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: _createPostInput(),
+              ),
             VerticalSpacing(Get.height * 0.25),
             const Text(
               'No posts yet',
@@ -317,12 +359,14 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
             itemCount: posts.length + 1 + (isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == 0) {
-                return Column(
-                  children: [
-                    _createPostInput(),
-                    const SizedBox(height: 12),
-                  ],
-                );
+                return widget.isAdmin
+                    ? Column(
+                        children: [
+                          _createPostInput(),
+                          const SizedBox(height: 12),
+                        ],
+                      )
+                    : const SizedBox.shrink();
               }
               if (index == posts.length + 1 && isLoadingMore) {
                 return const Padding(
@@ -340,6 +384,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
               final post = posts[postIndex];
               return FeedPost(
                 post: post,
+                groupId: widget.groupId,
               );
             },
           ),
@@ -525,6 +570,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
               final post = savedPosts[index];
               return FeedPost(
                 post: post,
+                groupId: widget.groupId,
               );
             },
           ),

@@ -10,15 +10,18 @@ import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
     required this.post,
+    required this.groupId,
     super.key,
   });
 
   final dynamic
       post; // Post from feed_posts_model.dart or saved_posts_model.dart
+  final String groupId;
 
   @override
   State<FeedPost> createState() => _FeedPostState();
@@ -170,6 +173,22 @@ class _FeedPostState extends State<FeedPost> {
                         Text(
                           'Hide Post',
                           style: TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.delete_outline,
+                          color: Colors.red,
+                        ),
+                        SizedBox(width: 8),
+                        Text(
+                          'Delete Post',
+                          style: TextStyle(color: Colors.red),
                         ),
                       ],
                     ),
@@ -595,6 +614,9 @@ class _FeedPostState extends State<FeedPost> {
       case 'hide':
         _showHideConfirmation();
         break;
+      case 'delete':
+        _showDeleteConfirmation();
+        break;
     }
   }
 
@@ -614,6 +636,31 @@ class _FeedPostState extends State<FeedPost> {
               controller.hidePost(widget.post.id?.toString() ?? '');
             },
             child: const Text('Hide'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDeleteConfirmation() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Delete Post'),
+        content: const Text(
+            'Are you sure you want to delete this post? This action cannot be undone.'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () async {
+              Get.back();
+              await controller.deletePost(widget.post.id?.toString() ?? '');
+              final tribeController = Get.find<TribeGroupController>();
+              await tribeController.loadPostDetails(widget.groupId);
+            },
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

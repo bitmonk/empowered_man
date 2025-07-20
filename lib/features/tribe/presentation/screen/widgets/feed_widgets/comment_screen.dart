@@ -967,10 +967,12 @@ class _CommentScreenState extends State<CommentScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.picture_as_pdf,
-                  color: Colors.white,
-                  size: 40,
+                const Center(
+                  child: Icon(
+                    Icons.picture_as_pdf,
+                    color: Colors.white,
+                    size: 40,
+                  ),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8),

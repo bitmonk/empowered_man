@@ -614,6 +614,23 @@ class FeedPageController extends GetxController {
     }
   }
 
+  Future<void> deletePost(String postId) async {
+    try {
+      final result = await remoteSource.deletePost(postId: postId);
+      result.fold(
+        (error) {
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (message) {
+          AppUtils.showSnackbar(message: message);
+          loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete post: $e');
+    }
+  }
+
   Future<void> commentOnPost(String postId, {String? customComment}) async {
     final comment = customComment ?? commentController.text.trim();
 

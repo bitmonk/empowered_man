@@ -737,8 +737,13 @@ class TribeGroupController extends GetxController {
     }
   }
 
-  void navigateToFeedPage(String groupId) {
-    Get.to(() => FeedPageScreen(groupId: groupId))?.then((_) {
+  void navigateToFeedPage(String groupId, bool isAdmin) {
+    Get.to(
+      () => FeedPageScreen(
+        groupId: groupId,
+        isAdmin: isAdmin,
+      ),
+    )?.then((_) {
       refreshGroups();
     });
   }
