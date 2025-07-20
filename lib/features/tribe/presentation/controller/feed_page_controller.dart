@@ -631,6 +631,154 @@ class FeedPageController extends GetxController {
     }
   }
 
+  Rx<TheStates> deleteCommentState = TheStates.initial.obs;
+  Rx<TheStates> deleteReplyState = TheStates.initial.obs;
+  Rx<TheStates> deleteNestedReplyState = TheStates.initial.obs;
+  Rx<TheStates> editCommentState = TheStates.initial.obs;
+  Rx<TheStates> editReplyState = TheStates.initial.obs;
+  Rx<TheStates> editNestedReplyState = TheStates.initial.obs;
+
+  Future<void> deleteComment(String commentId) async {
+    try {
+      deleteCommentState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: commentId);
+      result.fold(
+        (l) {
+          deleteCommentState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          deleteCommentState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete post: $e');
+    }
+  }
+
+  Future<void> deleteReply(String replyId, String parentCommentId) async {
+    try {
+      deleteReplyState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: replyId);
+      result.fold(
+        (l) {
+          deleteReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          deleteReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          // Refresh replies for the parent comment
+          await getCommentReplies(commentId: parentCommentId);
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete reply: $e');
+    }
+  }
+
+  Future<void> deleteNestedReply(
+      String nestedReplyId, String parentReplyId) async {
+    try {
+      deleteNestedReplyState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: nestedReplyId);
+      result.fold(
+        (l) {
+          deleteNestedReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          deleteNestedReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          // Refresh nested replies for the parent reply
+          await getCommentReplies(commentId: parentReplyId);
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete nested reply: $e');
+    }
+  }
+
+  Future<void> editComment({
+    required String commentId,
+    required String text,
+    required String postId,
+  }) async {
+    try {
+      editCommentState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: commentId, text: text);
+      result.fold(
+        (l) {
+          editCommentState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editCommentState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getPostComments(postId: postId);
+        },
+      );
+    } catch (e) {
+      editCommentState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit comment: $e');
+    }
+  }
+
+  Future<void> editReply({
+    required String replyId,
+    required String text,
+    required String parentCommentId,
+  }) async {
+    try {
+      editReplyState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: replyId, text: text);
+      result.fold(
+        (l) {
+          editReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getCommentReplies(commentId: parentCommentId);
+        },
+      );
+    } catch (e) {
+      editReplyState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit reply: $e');
+    }
+  }
+
+  Future<void> editNestedReply({
+    required String nestedReplyId,
+    required String text,
+    required String parentReplyId,
+  }) async {
+    try {
+      editNestedReplyState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: nestedReplyId, text: text);
+      result.fold(
+        (l) {
+          editNestedReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editNestedReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getCommentReplies(commentId: parentReplyId);
+        },
+      );
+    } catch (e) {
+      editNestedReplyState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit nested reply: $e');
+    }
+  }
+
   Future<void> commentOnPost(String postId, {String? customComment}) async {
     final comment = customComment ?? commentController.text.trim();
 

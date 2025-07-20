@@ -26,6 +26,7 @@ class TribeGroupController extends GetxController {
   final RxList<String> accessTypes = <String>[].obs; // Added for access types
   final Rx<TheStates> accessTypesState =
       TheStates.initial.obs; // Added for access types state
+  final RxDouble uploadProgress = 0.0.obs;
 
   Map<String, List<GroupModel>> filteredGroups = {
     'all': [],

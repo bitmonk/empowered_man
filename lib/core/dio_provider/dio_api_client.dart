@@ -7,6 +7,7 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
 import 'package:empowered/core/routes/app_routes.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/utlis/app_widget_key.dart';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart' as getx;
@@ -96,6 +97,10 @@ class DioApiClient {
         queryParameters: queryParameters,
         data: body,
         cancelToken: cancelToken,
+        onSendProgress: (int sent, int total) {
+          getx.Get.find<TribeGroupController>().uploadProgress.value =
+              sent / total;
+        },
       ),
     );
   }

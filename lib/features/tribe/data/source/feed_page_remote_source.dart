@@ -301,12 +301,51 @@ class FeedPageRemoteSource {
     }
   }
 
+  Future<Either<AppError, String>> deleteComment({
+    required String commentId,
+  }) async {
+    try {
+      final response = await _client.delete(
+        '${AppEndpoints.deleteComment}$commentId',
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
   Future<Either<AppError, String>> deletePost({
     required String postId,
   }) async {
     try {
       final response = await _client.delete(
         '${AppEndpoints.deletePost}$postId',
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> editCommet({
+    required String commentId,
+    required String text,
+  }) async {
+    try {
+      final response = await _client.post(
+        AppEndpoints.editComment,
+        body: {
+          'comment_id': commentId,
+          'text': text,
+        },
       );
       return right(response['message']);
     } catch (e) {

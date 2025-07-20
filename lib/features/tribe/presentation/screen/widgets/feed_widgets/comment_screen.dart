@@ -72,6 +72,9 @@ class _CommentScreenState extends State<CommentScreen> {
   final RxMap<String, int> visibleNestedReplyCounts = <String, int>{}.obs;
   final RxMap<String, bool> showViewMoreForNestedReplies = <String, bool>{}.obs;
 
+  // Add a local RxBool to track sending state
+  final RxBool _isSending = false.obs;
+
   late final ScrollController _scrollController;
 
   @override
@@ -167,37 +170,44 @@ class _CommentScreenState extends State<CommentScreen> {
 
   Future<void> _sendMessage() async {
     if (_inputController.text.trim().isEmpty) return;
+    if (_isSending.value ||
+        controller.commentState.value == TheStates.loading ||
+        controller.getRepliesState.value == TheStates.loading) return;
+    _isSending.value = true;
+    try {
+      if (replyingToCommentId != null) {
+        await controller.replyToComment(
+          replyingToCommentId!,
+          customReply: _inputController.text.trim(),
+        );
 
-    if (replyingToCommentId != null) {
-      await controller.replyToComment(
-        replyingToCommentId!,
-        customReply: _inputController.text.trim(),
-      );
+        String targetId = parentReplyId ?? replyingToCommentId!;
+        controller.repliesModel.remove(targetId);
 
-      String targetId = parentReplyId ?? replyingToCommentId!;
-      controller.repliesModel.remove(targetId);
+        await controller.getPostComments(postId: widget.postId);
+        await controller.getCommentReplies(commentId: targetId);
 
-      await controller.getPostComments(postId: widget.postId);
-      await controller.getCommentReplies(commentId: targetId);
+        // Update like data for fetched replies
+        final replies =
+            controller.repliesModel[targetId]?.repliesData?.comments ?? [];
+        _updateLikeDataForComments(replies);
 
-      // Update like data for fetched replies
-      final replies =
-          controller.repliesModel[targetId]?.repliesData?.comments ?? [];
-      _updateLikeDataForComments(replies);
-
-      if (parentReplyId != null) {
-        controller.expandedNestedReplies.add(parentReplyId!);
+        if (parentReplyId != null) {
+          controller.expandedNestedReplies.add(parentReplyId!);
+        } else {
+          controller.expandedReplies.add(replyingToCommentId!);
+        }
+        _cancelReply();
       } else {
-        controller.expandedReplies.add(replyingToCommentId!);
+        await controller.commentOnPost(
+          widget.postId,
+          customComment: _inputController.text.trim(),
+        );
+        await controller.getPostComments(postId: widget.postId);
+        _inputController.clear();
       }
-      _cancelReply();
-    } else {
-      await controller.commentOnPost(
-        widget.postId,
-        customComment: _inputController.text.trim(),
-      );
-      await controller.getPostComments(postId: widget.postId);
-      _inputController.clear();
+    } finally {
+      _isSending.value = false;
     }
   }
 
@@ -390,20 +400,88 @@ class _CommentScreenState extends State<CommentScreen> {
                       style: TextStyle(color: Colors.white),
                     ),
                   );
-                } else if (controller.commentsModel[widget.postId]?.data
-                        ?.comments?.isEmpty ??
-                    true) {
-                  return const Center(
-                    child: Text(
-                      'No comments yet',
-                      style: TextStyle(color: Colors.white),
+                }
+
+                // Always show post content and media at the top
+                final List<Widget> topWidgets = [];
+                if (widget.content.isNotEmpty) {
+                  topWidgets.add(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          widget.content,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 15,
+                          ),
+                          maxLines: 10,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 16),
+                        const GreyDivider(),
+                        const SizedBox(height: 16),
+                      ],
                     ),
                   );
                 }
+                if (widget.media.isNotEmpty) {
+                  topWidgets.add(
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _buildMedia(widget.media),
+                        const SizedBox(height: 16),
+                        const GreyDivider(),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  );
+                }
+                topWidgets.add(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      _buildPostActions(),
+                      const SizedBox(height: 16),
+                      const GreyDivider(),
+                      const SizedBox(height: 16),
+                    ],
+                  ),
+                );
 
                 final comments =
                     controller.commentsModel[widget.postId]?.data?.comments ??
                         [];
+                final isLoadingMore =
+                    controller.isLoadingMoreComments[widget.postId] ?? false;
+
+                // If there are no comments, show the top widgets and a message
+                if (comments.isEmpty) {
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      return ListView(
+                        padding: const EdgeInsets.all(16),
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        children: [
+                          ...topWidgets,
+                          SizedBox(
+                            height: constraints.maxHeight -
+                                (topWidgets.length * 0), // Ensures min height
+                            child: const Center(
+                              child: Text(
+                                'No comments yet',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                }
+
+                // If there are comments, show the top widgets and the comments list
                 return RefreshIndicator(
                   onRefresh: () async {
                     expandedComments.clear();
@@ -434,9 +512,9 @@ class _CommentScreenState extends State<CommentScreen> {
                   child: ListView.builder(
                     controller: _scrollController,
                     padding: const EdgeInsets.all(16),
+                    physics: const AlwaysScrollableScrollPhysics(),
                     itemCount: _getListItemCount(comments),
                     itemBuilder: (context, index) {
-                      // First items: post content, media, actions, divider
                       int offset = 0;
                       if (widget.content.isNotEmpty) {
                         if (index == offset) {
@@ -486,15 +564,10 @@ class _CommentScreenState extends State<CommentScreen> {
                         );
                       }
                       offset++;
-                      // Comments
                       final commentIndex = index - offset;
                       if (commentIndex < comments.length) {
                         return _buildCommentWithReplies(comments[commentIndex]);
                       }
-                      // Loading indicator at the end
-                      final isLoadingMore =
-                          controller.isLoadingMoreComments[widget.postId] ??
-                              false;
                       if (isLoadingMore) {
                         return const Padding(
                           padding: EdgeInsets.symmetric(vertical: 24),
@@ -640,21 +713,38 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              GestureDetector(
-                onTap: _sendMessage,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: const BoxDecoration(
-                    color: Colors.blue,
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Icon(
-                    Icons.send,
-                    color: Colors.white,
-                    size: 20,
-                  ),
-                ),
-              ),
+              Obx(() => GestureDetector(
+                    onTap: (_isSending.value ||
+                            controller.commentState.value ==
+                                TheStates.loading ||
+                            controller.getRepliesState.value ==
+                                TheStates.loading)
+                        ? null
+                        : _sendMessage,
+                    child: Container(
+                      padding: const EdgeInsets.all(8),
+                      decoration: const BoxDecoration(
+                        color: Colors.blue,
+                        shape: BoxShape.circle,
+                      ),
+                      child: _isSending.value ||
+                              controller.commentState.value ==
+                                  TheStates.loading ||
+                              controller.getRepliesState.value ==
+                                  TheStates.loading
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.white),
+                            )
+                          : const Icon(
+                              Icons.send,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                    ),
+                  )),
             ],
           ),
         ],
@@ -1103,7 +1193,7 @@ class _CommentScreenState extends State<CommentScreen> {
             ],
             if (isRepliesExpanded && replies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...replies.map((reply) => _buildReply(reply, commentId)),
+              ...replies.reversed.map((reply) => _buildReply(reply, commentId)),
               if (effectiveHasMore)
                 Padding(
                   padding: const EdgeInsets.only(left: 40.0, top: 8),
@@ -1338,7 +1428,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
     return GestureDetector(
       onLongPress: () {
-        _showReplyOptions(context, reply);
+        _showReplyOptions(context, reply, parentCommentId: parentCommentId);
       },
       child: Obx(() {
         final nestedReplies =
@@ -1530,7 +1620,7 @@ class _CommentScreenState extends State<CommentScreen> {
               ],
               if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                ...nestedReplies.map(
+                ...nestedReplies.reversed.map(
                     (nestedReply) => _buildNestedReply(nestedReply, replyId)),
                 if (hasMore)
                   Padding(
@@ -1576,7 +1666,8 @@ class _CommentScreenState extends State<CommentScreen> {
 
     return GestureDetector(
       onLongPress: () {
-        _showNestedReplyOptions(context, nestedReply);
+        _showNestedReplyOptions(context, nestedReply,
+            parentReplyId: parentReplyId);
       },
       child: Obx(() {
         // Use local like state if present, else fallback to likedByCurrentUser
@@ -1828,7 +1919,8 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   // Add this method to show edit/delete popup for replies
-  void _showReplyOptions(BuildContext context, comment_replies.Comment reply) {
+  void _showReplyOptions(BuildContext context, comment_replies.Comment reply,
+      {required String parentCommentId}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -1844,7 +1936,7 @@ class _CommentScreenState extends State<CommentScreen> {
                 title: const Text('Edit'),
                 onTap: () {
                   Navigator.pop(context);
-                  _showEditReplyDialog(reply);
+                  _showEditReplyDialog(reply, parentCommentId: parentCommentId);
                 },
               ),
               ListTile(
@@ -1853,7 +1945,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     const Text('Delete', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  _confirmDeleteReply(reply);
+                  _confirmDeleteReply(reply, parentCommentId: parentCommentId);
                 },
               ),
             ],
@@ -1864,74 +1956,125 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   // Stub methods for reply edit/delete (implement as needed)
-  void _showEditReplyDialog(comment_replies.Comment reply) {
+  void _showEditReplyDialog(comment_replies.Comment reply,
+      {required String parentCommentId}) {
     final TextEditingController editController =
         TextEditingController(text: reply.text ?? '');
     showDialog(
-      context: Get.context!, // Use Get.context! to access the current context
+      context: Get.context!,
       builder: (context) {
-        bool isLoading = false;
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: AppColors.feedContainer,
-              title: const Text('Edit Reply',
-                  style: TextStyle(color: Colors.white)),
-              content: TextField(
-                controller: editController,
-                maxLines: null,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Edit your reply...',
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: AppColors.bgMedium,
-                ),
+        return Obx(() {
+          final isLoading =
+              controller.editReplyState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title:
+                const Text('Edit Reply', style: TextStyle(color: Colors.white)),
+            content: TextField(
+              controller: editController,
+              maxLines: null,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Edit your reply...',
+                hintStyle: TextStyle(color: Colors.white54),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: AppColors.bgMedium,
               ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.white70)),
-                ),
-                ElevatedButton(
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          final newText = editController.text.trim();
-                          if (newText.isEmpty || newText == reply.text) return;
-                          setState(() => isLoading = true);
-                          // TODO: Call update reply API here
-                          await Future.delayed(
-                              const Duration(seconds: 1)); // Simulate network
-                          setState(() => isLoading = false);
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        final newText = editController.text.trim();
+                        if (newText.isEmpty || newText == reply.text) return;
+                        await controller.editReply(
+                          replyId: reply.id.toString(),
+                          text: newText,
+                          parentCommentId: parentCommentId,
+                        );
+                        if (controller.editReplyState.value ==
+                            TheStates.success) {
                           Navigator.pop(context);
-                          // TODO: Refresh replies after update
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Save',
-                          style: TextStyle(color: Colors.white)),
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
                 ),
-              ],
-            );
-          },
-        );
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Save', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
       },
     );
   }
 
-  void _confirmDeleteReply(comment_replies.Comment reply) {
-    // TODO: Implement delete reply confirmation
+  void _confirmDeleteReply(comment_replies.Comment reply,
+      {required String parentCommentId}) {
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (context) {
+        return Obx(() {
+          final isLoading =
+              controller.deleteReplyState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title: const Text('Delete Reply',
+                style: TextStyle(color: Colors.white)),
+            content: const Text(
+              'Are you sure you want to delete this reply? This action cannot be undone.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        await controller.deleteReply(
+                            reply.id.toString(), parentCommentId);
+                        if (controller.deleteReplyState.value ==
+                            TheStates.success) {
+                          Navigator.pop(context);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Delete',
+                        style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   // Add this method to show edit/delete popup for comments
@@ -1978,73 +2121,124 @@ class _CommentScreenState extends State<CommentScreen> {
     showDialog(
       context: Get.context!, // Use Get.context! to access the current context
       builder: (context) {
-        bool isLoading = false;
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: AppColors.feedContainer,
-              title: const Text('Edit Comment',
-                  style: TextStyle(color: Colors.white)),
-              content: TextField(
-                controller: editController,
-                maxLines: null,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Edit your comment...',
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: AppColors.bgMedium,
-                ),
+        return Obx(() {
+          final isLoading =
+              controller.editCommentState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title: const Text('Edit Comment',
+                style: TextStyle(color: Colors.white)),
+            content: TextField(
+              controller: editController,
+              maxLines: null,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Edit your comment...',
+                hintStyle: TextStyle(color: Colors.white54),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: AppColors.bgMedium,
               ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.white70)),
-                ),
-                ElevatedButton(
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          final newText = editController.text.trim();
-                          if (newText.isEmpty || newText == comment.text)
-                            return;
-                          setState(() => isLoading = true);
-                          // TODO: Call update comment API here
-                          await Future.delayed(
-                              const Duration(seconds: 1)); // Simulate network
-                          setState(() => isLoading = false);
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        final newText = editController.text.trim();
+                        if (newText.isEmpty || newText == comment.text) return;
+                        await controller.editComment(
+                          commentId: comment.id.toString(),
+                          text: newText,
+                          postId: widget.postId,
+                        );
+                        if (controller.editCommentState.value ==
+                            TheStates.success) {
                           Navigator.pop(context);
-                          // TODO: Refresh comments after update
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Save',
-                          style: TextStyle(color: Colors.white)),
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
                 ),
-              ],
-            );
-          },
-        );
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Save', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
       },
     );
   }
 
   void _confirmDeleteComment(post_comments.Comment comment) {
-    // TODO: Implement delete comment confirmation
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (context) {
+        return Obx(() {
+          final isLoading =
+              controller.deleteCommentState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title: const Text('Delete Comment',
+                style: TextStyle(color: Colors.white)),
+            content: const Text(
+              'Are you sure you want to delete this comment? This action cannot be undone.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        await controller.deleteComment(comment.id.toString());
+                        if (controller.deleteCommentState.value ==
+                            TheStates.success) {
+                          Navigator.pop(context);
+                          // Refresh comments after delete
+                          await controller.getPostComments(
+                              postId: widget.postId);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Delete',
+                        style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 
   void _showNestedReplyOptions(
-      BuildContext context, comment_replies.Comment nestedReply) {
+      BuildContext context, comment_replies.Comment nestedReply,
+      {required String parentReplyId}) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -2060,7 +2254,8 @@ class _CommentScreenState extends State<CommentScreen> {
                 title: const Text('Edit'),
                 onTap: () {
                   Navigator.pop(context);
-                  _showEditNestedReplyDialog(nestedReply);
+                  _showEditNestedReplyDialog(nestedReply,
+                      parentReplyId: parentReplyId);
                 },
               ),
               ListTile(
@@ -2069,7 +2264,8 @@ class _CommentScreenState extends State<CommentScreen> {
                     const Text('Delete', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  _confirmDeleteNestedReply(nestedReply);
+                  _confirmDeleteNestedReply(nestedReply,
+                      parentReplyId: parentReplyId);
                 },
               ),
             ],
@@ -2079,74 +2275,125 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  void _showEditNestedReplyDialog(comment_replies.Comment nestedReply) {
+  void _showEditNestedReplyDialog(comment_replies.Comment nestedReply,
+      {required String parentReplyId}) {
     final TextEditingController editController =
         TextEditingController(text: nestedReply.text ?? '');
     showDialog(
-      context: Get.context!, // Use Get.context! to access the current context
+      context: Get.context!,
       builder: (context) {
-        bool isLoading = false;
-        return StatefulBuilder(
-          builder: (context, setState) {
-            return AlertDialog(
-              backgroundColor: AppColors.feedContainer,
-              title: const Text('Edit Reply',
-                  style: TextStyle(color: Colors.white)),
-              content: TextField(
-                controller: editController,
-                maxLines: null,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  hintText: 'Edit your reply...',
-                  hintStyle: TextStyle(color: Colors.white54),
-                  border: OutlineInputBorder(),
-                  filled: true,
-                  fillColor: AppColors.bgMedium,
-                ),
+        return Obx(() {
+          final isLoading =
+              controller.editNestedReplyState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title:
+                const Text('Edit Reply', style: TextStyle(color: Colors.white)),
+            content: TextField(
+              controller: editController,
+              maxLines: null,
+              style: const TextStyle(color: Colors.white),
+              decoration: const InputDecoration(
+                hintText: 'Edit your reply...',
+                hintStyle: TextStyle(color: Colors.white54),
+                border: OutlineInputBorder(),
+                filled: true,
+                fillColor: AppColors.bgMedium,
               ),
-              actions: [
-                TextButton(
-                  onPressed: isLoading ? null : () => Navigator.pop(context),
-                  child: const Text('Cancel',
-                      style: TextStyle(color: Colors.white70)),
-                ),
-                ElevatedButton(
-                  onPressed: isLoading
-                      ? null
-                      : () async {
-                          final newText = editController.text.trim();
-                          if (newText.isEmpty || newText == nestedReply.text)
-                            return;
-                          setState(() => isLoading = true);
-                          // TODO: Call update nested reply API here
-                          await Future.delayed(
-                              const Duration(seconds: 1)); // Simulate network
-                          setState(() => isLoading = false);
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        final newText = editController.text.trim();
+                        if (newText.isEmpty || newText == nestedReply.text)
+                          return;
+                        await controller.editNestedReply(
+                          nestedReplyId: nestedReply.id.toString(),
+                          text: newText,
+                          parentReplyId: parentReplyId,
+                        );
+                        if (controller.editNestedReplyState.value ==
+                            TheStates.success) {
                           Navigator.pop(context);
-                          // TODO: Refresh nested replies after update
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.blue,
-                  ),
-                  child: isLoading
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                              strokeWidth: 2, color: Colors.white),
-                        )
-                      : const Text('Save',
-                          style: TextStyle(color: Colors.white)),
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
                 ),
-              ],
-            );
-          },
-        );
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Save', style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
       },
     );
   }
 
-  void _confirmDeleteNestedReply(comment_replies.Comment nestedReply) {
-    // TODO: Implement delete nested reply confirmation
+  void _confirmDeleteNestedReply(comment_replies.Comment nestedReply,
+      {required String parentReplyId}) {
+    showDialog(
+      context: Get.context!,
+      barrierDismissible: false,
+      builder: (context) {
+        return Obx(() {
+          final isLoading =
+              controller.deleteNestedReplyState.value == TheStates.loading;
+          return AlertDialog(
+            backgroundColor: AppColors.feedContainer,
+            title: const Text('Delete Reply',
+                style: TextStyle(color: Colors.white)),
+            content: const Text(
+              'Are you sure you want to delete this reply? This action cannot be undone.',
+              style: TextStyle(color: Colors.white70),
+            ),
+            actions: [
+              TextButton(
+                onPressed: isLoading ? null : () => Navigator.pop(context),
+                child: const Text('Cancel',
+                    style: TextStyle(color: Colors.white70)),
+              ),
+              ElevatedButton(
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        await controller.deleteNestedReply(
+                            nestedReply.id.toString(), parentReplyId);
+                        if (controller.deleteNestedReplyState.value ==
+                            TheStates.success) {
+                          Navigator.pop(context);
+                        }
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                ),
+                child: isLoading
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(
+                            strokeWidth: 2, color: Colors.white),
+                      )
+                    : const Text('Delete',
+                        style: TextStyle(color: Colors.white)),
+              ),
+            ],
+          );
+        });
+      },
+    );
   }
 }
