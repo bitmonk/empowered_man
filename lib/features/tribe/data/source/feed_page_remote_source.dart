@@ -90,6 +90,7 @@ class FeedPageRemoteSource {
     required String groupId,
     String? text,
     List<Map<String, String>>? media,
+    ProgressCallback? onSendProgress,
   }) async {
     try {
       final formDataMap = FormData.fromMap({
@@ -129,6 +130,7 @@ class FeedPageRemoteSource {
       final response = await _client.post(
         AppEndpoints.createPost,
         body: formDataMap,
+        onSendProgress: onSendProgress,
       );
       return right(CreatePostResponseModel.fromJson(response));
     } catch (e) {

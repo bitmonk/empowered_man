@@ -580,14 +580,17 @@ class TribeGroupController extends GetxController {
     }
   }
 
-  void navigateToFeedPage(String groupId, bool isAdmin) {
+  void navigateToFeedPage(String groupId, bool isAdmin, String accessType) {
     final FeedPageController feedPageController =
         Get.find<FeedPageController>();
     feedPageController.currentTabIndex.value = 0; // Reset to posts tab
-    Get.to(() => FeedPageScreen(
-          groupId: groupId,
-          isAdmin: isAdmin,
-        ));
+    Get.to(
+      () => FeedPageScreen(
+        groupId: groupId,
+        isAdmin: isAdmin,
+        accessType: accessType,
+      ),
+    );
   }
 
   void showManagePinGroupSheet(BuildContext context) {

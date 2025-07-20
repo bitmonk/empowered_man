@@ -90,6 +90,7 @@ class DioApiClient {
     Map<String, dynamic>? queryParameters,
     dynamic body,
     CancelToken? cancelToken, // Add CancelToken as a parameter
+    ProgressCallback? onSendProgress,
   }) async {
     return _request(
       () => _dio.post(
@@ -97,10 +98,7 @@ class DioApiClient {
         queryParameters: queryParameters,
         data: body,
         cancelToken: cancelToken,
-        onSendProgress: (int sent, int total) {
-          getx.Get.find<TribeGroupController>().uploadProgress.value =
-              sent / total;
-        },
+        onSendProgress: onSendProgress,
       ),
     );
   }

@@ -34,6 +34,7 @@ class _TribeScreenState extends State<TribeScreen> {
         locked: _isGroupLocked(group),
         createdByYou: _isCreatedByCurrentUser(group),
         isAdmin: group.isAdmin ?? false,
+        accessType: group.accessType.toString(),
       );
     }).toList();
   }
@@ -49,6 +50,7 @@ class _TribeScreenState extends State<TribeScreen> {
         locked: _isGroupLocked(group),
         createdByYou: _isCreatedByCurrentUser(group),
         isAdmin: group.isAdmin ?? false,
+        accessType: group.accessType.toString(),
       );
     }).toList();
   }
@@ -409,13 +411,14 @@ class _TribeScreenState extends State<TribeScreen> {
     required int memberCount,
     required String lastActivity,
     required bool isAdmin,
+    required String accessType,
     bool pinned = false,
     bool locked = false,
     bool createdByYou = false,
   }) {
     return GestureDetector(
       onTap: () {
-        controller.navigateToFeedPage(groupId, isAdmin);
+        controller.navigateToFeedPage(groupId, isAdmin, accessType);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),

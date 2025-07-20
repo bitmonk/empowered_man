@@ -13,10 +13,12 @@ class FeedPageScreen extends StatefulWidget {
   const FeedPageScreen({
     required this.groupId,
     required this.isAdmin,
+    required this.accessType,
     super.key,
   });
   final String groupId;
   final bool isAdmin;
+  final String accessType;
 
   @override
   State<FeedPageScreen> createState() => _FeedPageScreenState();
@@ -319,7 +321,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       if (posts.isEmpty) {
         return Column(
           children: [
-            if (widget.isAdmin)
+            if (widget.accessType == 'Open Discussion')
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: _createPostInput(),
@@ -359,7 +361,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
             itemCount: posts.length + 1 + (isLoadingMore ? 1 : 0),
             itemBuilder: (context, index) {
               if (index == 0) {
-                return widget.isAdmin
+                return widget.accessType == 'Open Discussion'
                     ? Column(
                         children: [
                           _createPostInput(),

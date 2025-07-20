@@ -80,6 +80,9 @@ class FeedPageController extends GetxController {
   final RxBool isLoadingMorePosts = false.obs;
   final int feedPostsPerPage = 10;
 
+  // Upload progress for post creation
+  final RxDouble uploadProgress = 0.0.obs;
+
   // Pagination state for feed media
   final RxInt currentFeedMediaPage = 1.obs;
   final RxInt lastFeedMediaPage = 1.obs;
@@ -466,6 +469,12 @@ class FeedPageController extends GetxController {
       createPostState.value = TheStates.loading;
       createPostError = null;
 
+      // Show persistent upload progress overlay
+      if (context != null) {
+        AppUtils.showUploadProgress(context, uploadProgress);
+      }
+      uploadProgress.value = 0.0;
+
       final mediaWithTypes = media.map((path) {
         return {
           'path': path,
@@ -477,19 +486,30 @@ class FeedPageController extends GetxController {
         groupId: groupId,
         text: text.isNotEmpty ? text : null,
         media: media.isNotEmpty ? mediaWithTypes : null,
+        onSendProgress: (sent, total) {
+          if (total > 0) {
+            uploadProgress.value = sent / total;
+          }
+        },
       );
+
+      if (context != null) {
+        AppUtils.hideUploadProgress();
+      }
 
       result.fold(
         (l) {
           createPostState.value = TheStates.error;
           createPostError = l.message;
           AppUtils.showErrorSnackbar(message: l.message);
+          uploadProgress.value = 0.0;
         },
         (r) async {
           createPostState.value = TheStates.success;
           AppUtils.showSnackbar(
             message: r.message ?? 'Post created successfully',
           );
+          uploadProgress.value = 0.0;
           clearPostForm();
           final tribeController = Get.find<TribeGroupController>();
           await tribeController.loadPostDetails(groupId);
@@ -500,16 +520,15 @@ class FeedPageController extends GetxController {
           }
           if (context != null) {
             Navigator.pop(context);
-          } else {
-            print('Warning: Context is null, cannot pop screen');
-            Get.back();
           }
         },
       );
     } catch (e) {
+      AppUtils.hideUploadProgress();
       createPostState.value = TheStates.error;
       createPostError = 'Failed to create post: $e';
       AppUtils.showErrorSnackbar(message: createPostError!);
+      uploadProgress.value = 0.0;
     } finally {
       createPostState.value = TheStates.initial;
     }

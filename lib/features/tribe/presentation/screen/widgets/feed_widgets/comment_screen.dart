@@ -1923,6 +1923,7 @@ class _CommentScreenState extends State<CommentScreen> {
       {required String parentCommentId}) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.bgMedium,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -1932,8 +1933,9 @@ class _CommentScreenState extends State<CommentScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit'),
+                leading: const Icon(Icons.edit, color: AppColors.primary500),
+                title: const Text('Edit',
+                    style: TextStyle(color: AppColors.white)),
                 onTap: () {
                   Navigator.pop(context);
                   _showEditReplyDialog(reply, parentCommentId: parentCommentId);
@@ -2082,6 +2084,7 @@ class _CommentScreenState extends State<CommentScreen> {
       BuildContext context, post_comments.Comment comment) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.bgMedium,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -2091,8 +2094,9 @@ class _CommentScreenState extends State<CommentScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit'),
+                leading: const Icon(Icons.edit, color: AppColors.primary500),
+                title: const Text('Edit',
+                    style: TextStyle(color: AppColors.white)),
                 onTap: () {
                   Navigator.pop(context);
                   _showEditCommentDialog(comment);
@@ -2241,6 +2245,7 @@ class _CommentScreenState extends State<CommentScreen> {
       {required String parentReplyId}) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: AppColors.bgMedium,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
@@ -2250,8 +2255,9 @@ class _CommentScreenState extends State<CommentScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               ListTile(
-                leading: const Icon(Icons.edit),
-                title: const Text('Edit'),
+                leading: const Icon(Icons.edit, color: AppColors.primary500),
+                title: const Text('Edit',
+                    style: TextStyle(color: AppColors.white)),
                 onTap: () {
                   Navigator.pop(context);
                   _showEditNestedReplyDialog(nestedReply,

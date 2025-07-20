@@ -56,6 +56,7 @@ class CreatePostScreen extends StatelessWidget {
                                       message: 'Please add some text to post');
                                   return;
                                 }
+                                Navigator.pop(context);
                                 controller.createPost(
                                   context: context,
                                   groupId: groupId,

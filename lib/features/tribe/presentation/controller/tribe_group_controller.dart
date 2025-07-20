@@ -59,7 +59,6 @@ class TribeGroupController extends GetxController {
   final Rx<TheStates> groupDetailsState = TheStates.initial.obs;
   Rx<TheStates> loadGroupState = TheStates.initial.obs;
   Rx<TheStates> savedPostState = TheStates.initial.obs;
-  final RxDouble uploadProgress = 0.0.obs;
 
   final RxInt currentSavedPage = 1.obs;
   final RxInt lastSavedPage = 1.obs;
@@ -738,11 +737,12 @@ class TribeGroupController extends GetxController {
     }
   }
 
-  void navigateToFeedPage(String groupId, bool isAdmin) {
+  void navigateToFeedPage(String groupId, bool isAdmin, String accessType) {
     Get.to(
       () => FeedPageScreen(
         groupId: groupId,
         isAdmin: isAdmin,
+        accessType: accessType,
       ),
     )?.then((_) {
       refreshGroups();
