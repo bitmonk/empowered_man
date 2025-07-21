@@ -122,6 +122,22 @@ class MainDrawer extends GetView<MainController> {
                           DrawerItemEnum.chat,
                     ),
                     DrawerTile(
+                      onTap: () {
+                        FeedPageInitializer.destroy();
+                        FeedPageInitializer.initialize();
+                        TribeGroupInitializer.destroy();
+                        TribeGroupInitializer.initialize();
+                        // final deepLinkService = DeepLinkService();
+                        // deepLinkService.init();
+                        Navigator.pop(context);
+                        Get.to(() => const TribeScreen());
+                      },
+                      title: 'Tribe',
+                      image: Assets.images.tribe.path,
+                      isSelected: controller.selectedDrawerItem.value ==
+                          DrawerItemEnum.tribe,
+                    ),
+                    DrawerTile(
                       onTap: () async {
                         Navigator.pop(context);
 
@@ -223,22 +239,6 @@ class MainDrawer extends GetView<MainController> {
                       image: Assets.images.setting.path,
                       isSelected: controller.selectedDrawerItem.value ==
                           DrawerItemEnum.settings,
-                    ),
-                    DrawerTile(
-                      onTap: () {
-                        FeedPageInitializer.destroy();
-                        FeedPageInitializer.initialize();
-                        TribeGroupInitializer.destroy();
-                        TribeGroupInitializer.initialize();
-                        // final deepLinkService = DeepLinkService();
-                        // deepLinkService.init();
-                        Navigator.pop(context);
-                        Get.to(() => const TribeScreen());
-                      },
-                      title: 'Tribe',
-                      image: Assets.images.tribe.path,
-                      isSelected: controller.selectedDrawerItem.value ==
-                          DrawerItemEnum.tribe,
                     ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),

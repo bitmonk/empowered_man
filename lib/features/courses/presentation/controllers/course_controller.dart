@@ -172,7 +172,8 @@ class CourseController extends GetxController {
       },
       (r) async {
         getChapters();
-        Get.back();
+        getModules();
+        // Get.back();
         // AppUtils.showSnackbar(message: r);
         markChapterCompletedState.value = TheStates.success;
         return true;

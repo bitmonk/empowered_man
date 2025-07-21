@@ -58,113 +58,119 @@ class _AssessmentCardState extends State<AssessmentCard> {
               color: AppColors.primary600,
             ),
           ),
-          child: ExpansionTile(
-            tilePadding: EdgeInsets.zero,
-            showTrailingIcon: false,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-            onExpansionChanged: (expanded) {
-              _isExpanded.value = expanded;
-            },
-            title: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      AppCachedImage(
-                        imgUrl: widget.iconPath,
-                        width: 28,
-                        height: 28,
-                        errorWid: const Icon(
-                          Icons.image_not_supported,
-                          size: 20,
-                          color: AppColors.primary500,
+          child: Theme(
+            data: Theme.of(context).copyWith(
+              splashColor: Colors.transparent,
+              highlightColor: Colors.transparent,
+              hoverColor: Colors.transparent,
+            ),
+            child: ExpansionTile(
+              tilePadding: EdgeInsets.zero,
+              showTrailingIcon: false,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),),
+              onExpansionChanged: (expanded) {
+                _isExpanded.value = expanded;
+              },
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        AppCachedImage(
+                          imgUrl: widget.iconPath,
+                          width: 28,
+                          height: 28,
+                          errorWid: const Icon(
+                            Icons.image_not_supported,
+                            size: 20,
+                            color: AppColors.primary500,
+                          ),
+                          // color: AppColors.primary500,
                         ),
-                        // color: AppColors.primary500,
-                      ),
-                      const HorizontalSpacing(12),
-                      Expanded(
-                        child: Text(
-                          widget.title,
-                          maxLines: 2,
-                          style: const TextStyle(
-                            overflow: TextOverflow.ellipsis,
-                            color: AppColors.textColor50,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w600,
+                        const HorizontalSpacing(12),
+                        Expanded(
+                          child: Text(
+                            widget.title,
+                            style: const TextStyle(
+                              color: AppColors.textColor50,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      AppOutlinedButton(
-                        height: 36,
-                        width: 110,
-                        text: widget.status,
-                        textStyle: AppTextStyles.textBodyB3,
-                        onPressed: () async {
-                          if (widget.status != 'Completed') {
-                            controller.startAssessment(widget.id);
+                        AppOutlinedButton(
+                          height: 36,
+                          width: 110,
+                          text: widget.status,
+                          textStyle: AppTextStyles.textBodyB3,
+                          onPressed: () async {
+                            if (widget.status != 'Completed') {
+                              controller.startAssessment(widget.id);
 
-                            // var totalDimensions = controller.userAssessmentModel
-                            //     .value.data?.userAssessment?.questions?.length;
-                            Get.to(
-                              () => AssesmentTrailer(
-                                id: widget.id,
-                                // userAssessmentData:
-                                //     controller.userAssessmentModel.value.data,
-                                // totalDimensions: totalDimensions ?? 0,
-                                title: widget.title,
-                              ),
-                            );
-                          }
-                        },
-                      ),
-                    ],
+                              // var totalDimensions = controller.userAssessmentModel
+                              //     .value.data?.userAssessment?.questions?.length;
+                              Get.to(
+                                () => AssesmentTrailer(
+                                  id: widget.id,
+                                  // userAssessmentData:
+                                  //     controller.userAssessmentModel.value.data,
+                                  // totalDimensions: totalDimensions ?? 0,
+                                  title: widget.title,
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const Padding(
-                  padding: EdgeInsets.symmetric(vertical: 8),
-                  child: AppDivider(
-                    color: AppColors.primary600,
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                    child: AppDivider(
+                      color: AppColors.primary600,
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Row(
-                    children: [
-                      const Text(
-                        'Current Score',
-                        style: AppTextStyles.textBodyB2,
-                      ),
-                      const HorizontalSpacing(4),
-                      Text(
-                        widget.score,
-                        style: AppTextStyles.textBodyB2
-                            .copyWith(fontWeight: FontWeight.w600),
-                      ),
-                      const Spacer(),
-                      RotatedBox(
-                        quarterTurns: isExpanded ? 3 : 0,
-                        child: Assets.images.arrowDown.svg(
-                          width: 18,
-                          colorFilter: const ColorFilter.mode(
-                            AppColors.textColor50,
-                            BlendMode.srcIn,
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Row(
+                      children: [
+                        const Text(
+                          'Current Score',
+                          style: AppTextStyles.textBodyB2,
+                        ),
+                        const HorizontalSpacing(4),
+                        Text(
+                          widget.score,
+                          style: AppTextStyles.textBodyB2
+                              .copyWith(fontWeight: FontWeight.w600),
+                        ),
+                        const Spacer(),
+                        RotatedBox(
+                          quarterTurns: isExpanded ? 3 : 0,
+                          child: Assets.images.arrowDown.svg(
+                            width: 18,
+                            colorFilter: const ColorFilter.mode(
+                              AppColors.textColor50,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
+                ],
+              ),
+              children: [
+                AssessmentGraph(
+                  scoreHistory: widget.scoreHistory ?? [],
+                  totalScore: widget.totalScore,
                 ),
               ],
             ),
-            children: [
-              AssessmentGraph(
-                scoreHistory: widget.scoreHistory ?? [],
-                totalScore: widget.totalScore,
-              ),
-            ],
           ),
         );
       },

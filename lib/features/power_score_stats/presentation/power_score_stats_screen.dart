@@ -298,11 +298,11 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
       mainAxisSpacing: 16,
       childAspectRatio: 1.2,
       children: [
-        _scoreCard(
-          'Power Score',
-          '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
-          Assets.images.powerLine.path,
-        ),
+        // _scoreCard(
+        //   'Power Score',
+        //   '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
+        //   Assets.images.powerLine.path,
+        // ),
         _scoreCard(
           'Journal',
           '${powerController.powerScoreResponse.value.userJournals}/${powerController.powerScoreResponse.value.totalJournals}',
@@ -323,11 +323,11 @@ class _PowerScoreStatsScreenState extends State<PowerScoreStatsScreen> {
           '${powerController.powerScoreResponse.value.userTotalGoals}/${powerController.powerScoreResponse.value.totalGoals}',
           Assets.images.powerLine.path,
         ),
-        _scoreCard(
-          'Assessment',
-          '${powerController.powerScoreResponse.value.userAssessments}/${powerController.powerScoreResponse.value.totalAssessments}',
-          Assets.images.powerTasks.path,
-        ),
+        // _scoreCard(
+        //   'Assessment',
+        //   '${powerController.powerScoreResponse.value.userAssessments}/${powerController.powerScoreResponse.value.totalAssessments}',
+        //   Assets.images.powerTasks.path,
+        // ),
       ],
     );
   }

@@ -52,8 +52,8 @@ class GoalsRemoteSource {
   }
 
   Future<Either<AppError, GoalsUpdatedAnswerModel>> markOnTrack({
-    String? id,
-    bool? onTrack,
+    required String id,
+    required bool onTrack,
     CancelToken? cancelToken,
   }) async {
     try {
@@ -75,12 +75,12 @@ class GoalsRemoteSource {
   }
 
   Future<Either<AppError, GoalsUpdatedAnswerModel>> completeGoal({
-    String? id,
-    bool? complateGoal,
+    required String id,
+    required bool complateGoal,
     CancelToken? cancelToken,
   }) async {
     try {
-      var complateGoalId = complateGoal == false ? 1 : 0;
+      var complateGoalId = complateGoal == true ? 1 : 0;
       final response = await _client.patch(
         '${AppEndpoints.postMarkOnTrackUrl}/$id/complete',
         queryParameters: {'is_complete': complateGoalId},

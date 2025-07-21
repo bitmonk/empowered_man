@@ -54,7 +54,8 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     try {
       if (shouldShowWonQuestion) {
         // For won/lost scenario
-        await goalsController.completeGoal(goalAnswerId: goalAnswerId);
+        await goalsController.completeGoal(
+            id: goalAnswerId, complateGoal: onTrack,);
 
         // Show success message based on the action
         if (onTrack) {
@@ -68,7 +69,7 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
         }
       } else {
         // For on track/off track scenario
-        await goalsController.markOnTrack(goalAnswerId: goalAnswerId);
+        await goalsController.markOnTrack(id: goalAnswerId, onTrack: onTrack);
 
         // Show success message based on the action
         if (onTrack) {
@@ -238,7 +239,33 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
     return ThemedContainer(
       margin: const EdgeInsets.symmetric(vertical: 12),
       border: Border.all(
-        color: AppColors.primary600,
+        color: (shouldShowWonQuestion &&
+                    goalsController.getIsWon(
+                          widget.selectedGoalIndex,
+                          widget.timePeriod,
+                        ) ==
+                        false) ||
+                (!shouldShowWonQuestion &&
+                    goalsController.getIsOnTrack(
+                          widget.selectedGoalIndex,
+                          widget.timePeriod,
+                        ) ==
+                        false)
+            ? AppColors.appRed
+            : (shouldShowWonQuestion &&
+                        goalsController.getIsWon(
+                              widget.selectedGoalIndex,
+                              widget.timePeriod,
+                            ) ==
+                            true) ||
+                    (!shouldShowWonQuestion &&
+                        goalsController.getIsOnTrack(
+                              widget.selectedGoalIndex,
+                              widget.timePeriod,
+                            ) ==
+                            true)
+                ? AppColors.appGreen
+                : AppColors.primary600,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -301,100 +328,130 @@ class _ProgressGoalWidgetState extends State<ProgressGoalWidget> {
           const VerticalSpacing(16),
 
           // Progress section - wrap only this section in Obx for progress updates
-          Obx(() => Row(
-                children: [
-                  const Text(
-                    'Targets',
-                    style: TextStyle(
-                      fontSize: 28,
-                      color: AppColors.textColor50,
-                      fontWeight: FontWeight.w500,
-                    ),
+          Obx(
+            () => Row(
+              children: [
+                const Text(
+                  'Targets',
+                  style: TextStyle(
+                    fontSize: 28,
+                    color: AppColors.textColor50,
+                    fontWeight: FontWeight.w500,
                   ),
-                  const Spacer(),
-                  SizedBox(
-                    width: 120.w,
-                    child: LinearProgressIndicator(
-                      borderRadius: BorderRadius.circular(20),
-                      minHeight: 8,
-                      color: AppColors.colorF5CA41,
-                      value: _getProgressValue(),
-                    ),
+                ),
+                const Spacer(),
+                SizedBox(
+                  width: 120.w,
+                  child: LinearProgressIndicator(
+                    borderRadius: BorderRadius.circular(20),
+                    minHeight: 8,
+                    color: AppColors.colorF5CA41,
+                    value: _getProgressValue(),
                   ),
-                  const HorizontalSpacing(8),
-                  Text(
-                    _getProgressString(),
-                    style: AppTextStyles.textBodyB3,
-                  ),
-                ],
-              ),),
+                ),
+                const HorizontalSpacing(8),
+                Text(
+                  _getProgressString(),
+                  style: AppTextStyles.textBodyB3,
+                ),
+              ],
+            ),
+          ),
 
           VerticalSpacing(showButtons ? 8 : 4),
 
           // Goals list section - wrap only this in Obx for target updates
-          Obx(() => Column(
-                mainAxisSize: MainAxisSize.min,
-                children: _buildUserGoalsList(),
-              ),),
+          Obx(
+            () => Column(
+              mainAxisSize: MainAxisSize.min,
+              children: _buildUserGoalsList(),
+            ),
+          ),
 
-          if (showButtons) const VerticalSpacing(16),
+          const VerticalSpacing(16),
 
           // Action buttons - no Obx needed, using local state
-          if (showButtons)
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              child: Row(
-                children: [
-                  // Positive Button (On Track / Won)
-                  Expanded(
-                    child: _buildActionButton(
-                      onTap: () => selectTrack(true),
-                      isLoading: shouldShowWonQuestion
-                          ? _isWonButtonLoading
-                          : _isTrackButtonLoading,
-                      icon: Icons.check,
-                      text: shouldShowWonQuestion ? 'Won' : 'On Track',
-                      backgroundColor: shouldShowWonQuestion
-                          ? AppColors.primary500
-                          : AppColors.bgBorder,
-                    ),
+          // if (showButtons)
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4),
+            child: Row(
+              children: [
+                // Positive Button (On Track / Won)
+                Expanded(
+                  child: _buildActionButton(
+                    onTap: () => selectTrack(true),
+                    isLoading: shouldShowWonQuestion
+                        ? _isWonButtonLoading
+                        : _isTrackButtonLoading,
+                    icon: Icons.check,
+                    text: shouldShowWonQuestion ? 'Won' : 'On Track',
+                    backgroundColor: (shouldShowWonQuestion &&
+                                goalsController.getIsWon(
+                                      widget.selectedGoalIndex,
+                                      widget.timePeriod,
+                                    ) ==
+                                    true) ||
+                            (!shouldShowWonQuestion &&
+                                goalsController.getIsOnTrack(
+                                      widget.selectedGoalIndex,
+                                      widget.timePeriod,
+                                    ) ==
+                                    true)
+                        ? AppColors.primary500
+                        : AppColors.bgBorder,
                   ),
-                  const HorizontalSpacing(16),
-                  // Negative Button (Off Track / Lost)
-                  Expanded(
-                    child: _buildActionButton(
-                      onTap: () => selectTrack(false),
-                      isLoading: false, // Only positive button shows loading
-                      icon: Icons.close,
-                      text: shouldShowWonQuestion ? 'Lost' : 'Off Track',
-                      backgroundColor: AppColors.bgBorder,
-                    ),
+                ),
+                const HorizontalSpacing(16),
+                // Negative Button (Off Track / Lost)
+                Expanded(
+                  child: _buildActionButton(
+                    onTap: () => selectTrack(false),
+                    isLoading: false, // Only positive button shows loading
+                    icon: Icons.close,
+                    text: shouldShowWonQuestion ? 'Lost' : 'Off Track',
+                    backgroundColor: (shouldShowWonQuestion &&
+                                goalsController.getIsWon(
+                                      widget.selectedGoalIndex,
+                                      widget.timePeriod,
+                                    ) ==
+                                    false) ||
+                            (!shouldShowWonQuestion &&
+                                goalsController.getIsOnTrack(
+                                      widget.selectedGoalIndex,
+                                      widget.timePeriod,
+                                    ) ==
+                                    false)
+                        ? AppColors.primary500
+                        : AppColors.bgBorder,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
+          ),
 
           // Error messages - wrap in Obx only for error updates
-          Obx(() => Column(
-                children: [
-                  if (goalsController.markOnTrackError.value != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        goalsController.markOnTrackError.value!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
+          Obx(
+            () => Column(
+              children: [
+                if (goalsController.markOnTrackError.value != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      goalsController.markOnTrackError.value!,
+                      style: const TextStyle(color: Colors.red),
                     ),
-                  if (goalsController.completeGoalError.value != null)
-                    Padding(
-                      padding: const EdgeInsets.only(top: 8),
-                      child: Text(
-                        goalsController.completeGoalError.value!,
-                        style: const TextStyle(color: Colors.red),
-                      ),
+                  ),
+                if (goalsController.completeGoalError.value != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 8),
+                    child: Text(
+                      goalsController.completeGoalError.value!,
+                      style: const TextStyle(color: Colors.red),
                     ),
-                ],
-              ),),
+                  ),
+              ],
+            ),
+          ),
         ],
       ),
     );

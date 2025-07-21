@@ -33,6 +33,23 @@ class HomeRemoteSource {
     }
   }
 
+  Future<Either<AppError, bool>> getReflectionStatusByType(String type) async {
+    try {
+      var res = await _client.get(AppEndpoints.getReflectionStatusByType,
+          queryParameters: {'reflection_type': type},);
+
+      return right(
+        res['is_completed'],
+      );
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
   Future<Either<AppError, List<DailyMIT>>> dailyMITlists() async {
     try {
       var date = DateFormat('yyyy-MM-dd').format(DateTime.now());

@@ -81,40 +81,41 @@ class _AssessmentListScreenState extends State<AssessmentListScreen> {
         Expanded(
           child: Obx(
             () => controller.getAssessmentState.value.showWidget(
-                error: () => Center(
-                      child: CustomErrorWidget(
-                        error: controller.getAssessmentError.value,
-                        onPressed: () {
-                          controller.getAssessment();
-                        },
-                      ),
-                    ),
-                loading: () {
-                  return const LoadingWidget();
-                },
-                success: () {
-                  final model = controller.getAssessmentModel.value;
-                  final isGrowthEmpty =
-                      model.data?.assessments?.growth?.isEmpty ?? true;
-                  final isWealthEmpty =
-                      model.data?.assessments?.wealth?.isEmpty ?? true;
+              error: () => Center(
+                child: CustomErrorWidget(
+                  error: controller.getAssessmentError.value,
+                  onPressed: () {
+                    controller.getAssessment();
+                  },
+                ),
+              ),
+              loading: () {
+                return const LoadingWidget();
+              },
+              success: () {
+                final model = controller.getAssessmentModel.value;
+                final isGrowthEmpty =
+                    model.data?.assessments?.growth?.isEmpty ?? true;
+                final isWealthEmpty =
+                    model.data?.assessments?.wealth?.isEmpty ?? true;
 
-                  if (model.data == null || (isGrowthEmpty && isWealthEmpty)) {
-                    return CustomErrorWidget(
-                      error: 'No data found.',
-                      onPressed: () {
-                        searchController.clear();
-                        controller.getAssessment();
-                      },
-                    );
-                  }
+                if (model.data == null || (isGrowthEmpty && isWealthEmpty)) {
+                  return CustomErrorWidget(
+                    error: 'No data found.',
+                    onPressed: () {
+                      searchController.clear();
+                      controller.getAssessment();
+                    },
+                  );
+                }
 
-                  // Create list items first
-                  var listItems = <Widget>[];
+                // Create list items first
+                var listItems = <Widget>[];
 
-                  // Growth section
-                  if (!isGrowthEmpty) {
-                    listItems..add(_buildSectionTitle('The Growth Assessments'))
+                // Growth section
+                if (!isGrowthEmpty) {
+                  listItems
+                    ..add(_buildSectionTitle('The Growth Assessments'))
                     ..addAll(
                       model.data!.assessments!.growth!.map(
                         (growth) => AssessmentCard(
@@ -131,11 +132,12 @@ class _AssessmentListScreenState extends State<AssessmentListScreen> {
                       ),
                     )
                     ..add(const SizedBox(height: 16));
-                  }
+                }
 
-                  // Wealth section
-                  if (!isWealthEmpty) {
-                    listItems..add(_buildSectionTitle('The Wealth Assessments'))
+                // Wealth section
+                if (!isWealthEmpty) {
+                  listItems
+                    ..add(_buildSectionTitle('The Wealth Assessments'))
                     ..addAll(
                       model.data!.assessments!.wealth!.map(
                         (wealth) => AssessmentCard(
@@ -151,24 +153,25 @@ class _AssessmentListScreenState extends State<AssessmentListScreen> {
                         ),
                       ),
                     );
-                  }
+                }
 
-                  // Add bottom spacing
-                  listItems.add(const BottomSpacing());
+                // Add bottom spacing
+                listItems.add(const BottomSpacing());
 
-                  return RefreshIndicator(
-                    onRefresh: () async {
-                      searchController.clear();
-                      await controller.getAssessment();
-                    },
-                    child: ListView(
-                      controller: scrollController,
-                      physics: const AlwaysScrollableScrollPhysics(),
-                      padding: const EdgeInsets.only(top: 12),
-                      children: listItems,
-                    ),
-                  );
-                },),
+                return RefreshIndicator(
+                  onRefresh: () async {
+                    searchController.clear();
+                    await controller.getAssessment();
+                  },
+                  child: ListView(
+                    controller: scrollController,
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: const EdgeInsets.only(top: 12),
+                    children: listItems,
+                  ),
+                );
+              },
+            ),
           ),
         ),
       ],

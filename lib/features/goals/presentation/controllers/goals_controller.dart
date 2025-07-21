@@ -46,7 +46,7 @@ class GoalsController extends GetxController {
   void resetValue() {
     fromDate.value = _getMonday(DateTime.now());
     toDate = fromDate.value.add(const Duration(days: 6)).obs;
-   // selectedGoalIndex.value = 0;
+    // selectedGoalIndex.value = 0;
     getGoals();
   }
 
@@ -124,14 +124,18 @@ class GoalsController extends GetxController {
     );
   }
 
-  Future<void> markOnTrack({required String goalAnswerId}) async {
+  Future<void> markOnTrack({
+    required String id,
+    required bool onTrack,
+  }) async {
     markOnTrackState.value = TheStates.loading;
     markOnTrackError.value = null;
 
     _cancelToken = CancelToken();
 
     final result = await remoteSource.markOnTrack(
-      id: goalAnswerId,
+      id: id,
+      onTrack: onTrack,
       cancelToken: _cancelToken,
     );
 
@@ -149,14 +153,18 @@ class GoalsController extends GetxController {
     );
   }
 
-  Future<void> completeGoal({required String goalAnswerId}) async {
+  Future<void> completeGoal({
+    required String id,
+    required bool complateGoal,
+  }) async {
     completeGoalState.value = TheStates.loading;
     completeGoalError.value = null;
 
     _cancelToken = CancelToken();
 
     final result = await remoteSource.completeGoal(
-      id: goalAnswerId,
+      id: id,
+      complateGoal: complateGoal,
       cancelToken: _cancelToken,
     );
 
@@ -406,6 +414,70 @@ class GoalsController extends GetxController {
     return false;
   }
 
+  bool? isWon(int goalIndex, String timePeriod) {
+    final goals = availableGoals;
+    if (goalIndex < 0 || goalIndex >= goals.length) return null;
+
+    final goal = goals[goalIndex];
+    final targetDetails = goal.details
+        ?.where(
+          (detail) =>
+              detail.type == 'target' && detail.timePeriod == timePeriod,
+        )
+        .toList();
+
+    if (targetDetails == null || targetDetails.isEmpty) return null;
+
+    for (final detail in targetDetails) {
+      if (detail.userGoals != null) {
+        for (final userGoal in detail.userGoals!) {
+          if (userGoal.isOntrack == null && userGoal.isComplete == true) {
+            return true;
+          } else if (userGoal.isOntrack == null &&
+              userGoal.isComplete == false) {
+            return false;
+          } else {
+            return null;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
+  bool? isOnTrack(int goalIndex, String timePeriod) {
+    final goals = availableGoals;
+    if (goalIndex < 0 || goalIndex >= goals.length) return null;
+
+    final goal = goals[goalIndex];
+    final targetDetails = goal.details
+        ?.where(
+          (detail) =>
+              detail.type == 'target' && detail.timePeriod == timePeriod,
+        )
+        .toList();
+
+    if (targetDetails == null || targetDetails.isEmpty) return null;
+
+    for (final detail in targetDetails) {
+      if (detail.userGoals != null) {
+        for (final userGoal in detail.userGoals!) {
+          if (userGoal.isComplete == null && userGoal.isOntrack == true) {
+            return true;
+          } else if (userGoal.isComplete == null &&
+              userGoal.isOntrack == false) {
+            return false;
+          } else {
+            return null;
+          }
+        }
+      }
+    }
+
+    return null;
+  }
+
   bool shouldShowWonQuestionButton(int goalIndex, String timePeriod) {
     return shouldShowActionButtons(goalIndex, timePeriod);
   }
@@ -414,8 +486,15 @@ class GoalsController extends GetxController {
     return shouldShowActionButtons(goalIndex, timePeriod);
   }
 
+  bool? getIsWon(int goalIndex, String timePeriod) {
+    return isWon(goalIndex, timePeriod);
+  }
+
+  bool? getIsOnTrack(int goalIndex, String timePeriod) {
+    return isOnTrack(goalIndex, timePeriod);
+  }
+
   void changeWeek(int weekOffset) {
-   
     fromDate.value = fromDate.value.add(Duration(days: 7 * weekOffset));
     toDate.value = fromDate.value.add(const Duration(days: 6));
     getGoalsError.value = null;

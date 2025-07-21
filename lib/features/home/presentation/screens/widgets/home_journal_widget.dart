@@ -5,18 +5,20 @@ class HomeJournalWidget extends StatelessWidget {
     required this.image,
     required this.title,
     required this.decription,
-    super.key,
+    required this.fillWithColor, super.key,
   });
   final String image;
   final String title;
   final String decription;
+  final bool fillWithColor;
 
   @override
   Widget build(BuildContext context) {
-      var period = DateTime.now().hour < 12 ? 'am' : 'pm';
+    var period = DateTime.now().hour < 12 ? 'am' : 'pm';
 
     return ThemedContainer(
       width: double.infinity,
+      color: fillWithColor ? AppColors.primary500 : AppColors.bgMedium,
       border: !title.toLowerCase().contains(period)
           ? null
           : Border.all(

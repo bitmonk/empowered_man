@@ -194,8 +194,10 @@ class _ChapterListScreenState extends State<ChapterListScreen> {
                     controller.selectedChapter.value = chapter;
                     Get.to(
                       () => ChapterDetailScreen(
-                        chapterIndex: index,
-                      ),
+                          chapterIndex: index,
+                          pop: index ==
+                              (controller.chapterData.value.chapters!.length -
+                                  1),),
                     );
                   } else {
                     AppUtils.showErrorSnackbar(

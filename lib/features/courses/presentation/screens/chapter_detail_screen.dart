@@ -4,8 +4,10 @@ import 'package:empowered/features/courses/presentation/controllers/course_contr
 import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 
 class ChapterDetailScreen extends StatefulWidget {
-  const ChapterDetailScreen({required this.chapterIndex, super.key});
+  const ChapterDetailScreen(
+      {required this.chapterIndex, super.key, this.pop = false,});
   final int chapterIndex;
+  final bool pop;
   @override
   State<ChapterDetailScreen> createState() => _ChapterDetailScreenState();
 }
@@ -136,6 +138,9 @@ class _ChapterDetailScreenState extends State<ChapterDetailScreen> {
                 );
               } else {
                 AppUtils.showErrorSnackbar(message: 'Please watch full video');
+              }
+              if (widget.pop) {
+                Get.close(2);
               }
             }
           },

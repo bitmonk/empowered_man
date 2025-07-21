@@ -1,11 +1,12 @@
 import 'dart:io';
+
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:empowered/features/assesments/data/model/score_question_model.dart';
 import 'package:empowered/features/assesments/data/model/user_assessment_model.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:device_info_plus/device_info_plus.dart';
 
 class AssessmentPdfService {
   static Future<void> generateAndDownloadPdf({
@@ -75,7 +76,6 @@ class AssessmentPdfService {
         border: pw.Border.all(color: PdfColors.blue300),
       ),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.Text(
             '$assessmentName Results',
@@ -121,7 +121,6 @@ class AssessmentPdfService {
         border: pw.Border.all(color: PdfColors.green300),
       ),
       child: pw.Column(
-        crossAxisAlignment: pw.CrossAxisAlignment.center,
         children: [
           pw.Text(
             'Your Score',
@@ -188,7 +187,7 @@ class AssessmentPdfService {
                       color: PdfColors.green700,
                     ),
                   ),
-                )),
+                ),),
           ],
         ],
       ),
@@ -261,7 +260,7 @@ class AssessmentPdfService {
                             pw.SizedBox(height: 5),
                             pw.Text(
                               _truncateText(
-                                  question.title ?? 'Unknown question', 100),
+                                  question.title ?? 'Unknown question', 100,),
                               style: const pw.TextStyle(
                                 fontSize: 14,
                                 color: PdfColors.black,
@@ -283,7 +282,7 @@ class AssessmentPdfService {
                       ),
                       pw.Container(
                         padding: const pw.EdgeInsets.symmetric(
-                            horizontal: 12, vertical: 6),
+                            horizontal: 12, vertical: 6,),
                         decoration: pw.BoxDecoration(
                           color: PdfColors.blue600,
                           borderRadius: pw.BorderRadius.circular(15),
@@ -318,7 +317,7 @@ class AssessmentPdfService {
       final hasPermission = await _requestStoragePermission();
       if (!hasPermission) {
         throw Exception(
-            'Storage permission denied. Please enable storage access in settings.');
+            'Storage permission denied. Please enable storage access in settings.',);
       }
 
       // Get the appropriate directory
@@ -332,10 +331,7 @@ class AssessmentPdfService {
           if (!await targetDir.exists()) {
             // If Downloads doesn't exist, try external storage
             targetDir = await getExternalStorageDirectory();
-            if (targetDir == null) {
-              // Fall back to app documents directory
-              targetDir = await getApplicationDocumentsDirectory();
-            }
+            targetDir ??= await getApplicationDocumentsDirectory();
           }
         } catch (e) {
           print('Error accessing external storage: $e');

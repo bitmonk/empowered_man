@@ -15,21 +15,23 @@ class TasksController extends GetxController {
 
   RxList<String> taskCategoryTitle = <String>[].obs;
   List<String> getTaskCategoryTitle(String level) {
-    var level0 = level.toLowerCase();
-    print(level0);
-    if (level0.contains('done')) {
-      level0 = 'done list';
-    } else if (level0.contains('achieved')) {
-      level0 = 'achieved list';
-    }
-    // Forward mapping
+    final normalizedLevel = level.toLowerCase();
+
+    // Normalize input to consistent keys
+    final levelKey = normalizedLevel.contains('done')
+        ? 'done list'
+        : normalizedLevel.contains('achieved')
+            ? 'achieved list'
+            : normalizedLevel;
+
+    // Forward relationships
     final forward = <String, List<String>>{
       'hit list': ['Mit List', 'Do List'],
       'mit list': ['Achieved List'],
       'do list': ['Done List'],
     };
 
-    // Reverse mapping
+    // Reverse relationships
     final reverse = <String, List<String>>{
       'mit list': ['Hit List'],
       'do list': ['Hit List'],
@@ -37,18 +39,19 @@ class TasksController extends GetxController {
       'done list': ['Do List'],
     };
 
-    // Combine both forward and reverse
-    var combined = <String>[
-      ...(forward[level0] ?? []),
-      ...(reverse[level0] ?? []),
-    ];
+    // Combined mapping
+    final combined = <String>{
+      ...?forward[levelKey],
+      ...?reverse[levelKey],
+    }.toList();
 
-    if (combined.isEmpty) {
-      taskCategoryTitle.clear();
-    } else {
-      taskCategoryTitle.assignAll(combined);
-    }
-    print(taskCategoryTitle);
+    taskCategoryTitle
+      ..clear()
+      ..addAll(combined);
+
+    print('Normalized Level: $levelKey');
+    print('Task Categories: $taskCategoryTitle');
+
     return taskCategoryTitle;
   }
 
