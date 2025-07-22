@@ -38,12 +38,14 @@ class _HabitsContainerState extends State<HabitsContainer> {
             AppCachedImage(
               imgUrl: widget.habit.logo ?? '',
               width: 20,
-              color: widget.habit.status == 1 ? AppColors.white : null,
+              // color: widget.habit.status == 1 ? AppColors.white : null,
               height: 20,
-              errorWid: const Icon(
+              errorWid: Icon(
                 Icons.image_not_supported,
                 size: 20,
-                color: AppColors.primary500,
+                color: widget.habit.status == 1
+                    ? AppColors.white
+                    : AppColors.primary500,
               ),
             ),
             const VerticalSpacing(16),

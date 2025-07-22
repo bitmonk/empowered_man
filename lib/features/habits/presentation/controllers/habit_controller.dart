@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/habits/data/model/habit_model.dart';
 import 'package:empowered/features/habits/data/source/habit_remote_source.dart';
+import 'package:empowered/features/home/presentation/controllers/home_controller.dart';
 import 'package:intl/intl.dart';
 
 class HabitController extends GetxController {
@@ -96,6 +97,7 @@ class HabitController extends GetxController {
       (r) async {
         updateHabitState.value = TheStates.success;
         getHabit();
+        Get.find<HomeController>().dashboardHabit();
         return true;
       },
     );

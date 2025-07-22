@@ -1,4 +1,5 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/habits/presentation/controllers/habit_controller.dart';
 import 'package:empowered/features/home/data/model/daily_mit_list_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_habit_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_level_model.dart';
@@ -178,6 +179,7 @@ class HomeController extends GetxController {
       (r) {
         updateDashboardHabitData.value = r;
         dashboardHabit();
+        Get.find<HabitController>().getHabit();
         updateDashboardHabitState.value = TheStates.success;
       },
     );

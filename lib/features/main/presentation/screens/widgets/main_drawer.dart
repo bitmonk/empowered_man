@@ -253,7 +253,7 @@ class MainDrawer extends GetView<MainController> {
                         final deviceId = await getUniqueDeviceId();
                         controller.logout(deviceId);
 
-                        await ChatClient.getInstance.logout();
+                        // await ChatClient.getInstance.logout();
                         await Get.find<AppSharedPref>().removeAll();
                         Get.offAllNamed(AppRoutes.landingScreen);
                       },

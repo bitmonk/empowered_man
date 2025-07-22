@@ -143,6 +143,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
               const VerticalSpacing(12),
               OutlinedButton.icon(
                 onPressed: () {
+                  context.hideKeyboard();
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

@@ -17,8 +17,8 @@ class LogoutController extends GetxController {
 
     try {
       // Log out from Agora Chat SDK
-      await ChatClient.getInstance.logout(); // true to clear local data
-      print('Agora Chat SDK logged out successfully');
+      // await ChatClient.getInstance.logout(); // true to clear local data
+      // print('Agora Chat SDK logged out successfully');
 
       // Reset ProfileController's userProfile
       final profileController = Get.find<ProfileController>();

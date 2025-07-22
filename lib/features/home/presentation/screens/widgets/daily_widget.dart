@@ -25,8 +25,8 @@ class _DailyWidgetState extends State<DailyWidget> {
   @override
   void initState() {
     super.initState();
-    period = DateTime.now().hour >= 12 ? 'pm' : 'am';
-    controller.getReflectionWithQuestionAnswers(period);
+    // period = DateTime.now().hour >= 12 ? 'pm' : 'am';
+    controller.getReflectionWithQuestionAnswers('am');
   }
 
   @override
@@ -41,181 +41,178 @@ class _DailyWidgetState extends State<DailyWidget> {
           ..getPMReflectionStatus();
       },
       child: Obx(
-        () => SingleChildScrollView(
-          child: Column(
-            children: [
+        () => ListView(
+          children: [
+            GestureDetector(
+              onTap: () {
+                controller.resetEditMode();
+                // if (period == 'am') {
+                Get.to(
+                  const AmPmJournalScreen(
+                    reflectionType: 'am',
+                  ),
+                );
+                // } else {
+                //   AppUtils.showErrorSnackbar(
+                //     message:
+                //         'You can only access AM questions in the morning.',
+                //   );
+                // }
+              },
+              child: HomeJournalWidget(
+                fillWithColor: homeController.isAmCompleted.value == true,
+                image: Assets.images.stickynote.path,
+                title: 'AM Journal',
+                decription: _getJournalDescription('am'),
+              ),
+            ),
+            if (homeController.isAmCompleted.value == true)
+              const VerticalSpacing(20),
+            if (homeController.isAmCompleted.value == true)
               GestureDetector(
                 onTap: () {
                   controller.resetEditMode();
-                  // if (period == 'am') {
+                  // if (period == 'pm') {
                   Get.to(
                     const AmPmJournalScreen(
-                      reflectionType: 'am',
+                      reflectionType: 'pm',
                     ),
                   );
                   // } else {
                   //   AppUtils.showErrorSnackbar(
                   //     message:
-                  //         'You can only access AM questions in the morning.',
+                  //         'You can only access PM questions in the afternoon.',
                   //   );
                   // }
                 },
                 child: HomeJournalWidget(
-                  fillWithColor: homeController.isAmCompleted.value == true,
-                  image: Assets.images.stickynote.path,
-                  title: 'AM Journal',
-                  decription: _getJournalDescription('am'),
+                  fillWithColor: homeController.isPmCompleted.value == true,
+                  image: Assets.images.journalPng.path,
+                  title: 'PM Journal',
+                  decription: _getJournalDescription('pm'),
                 ),
               ),
-              if (homeController.isAmCompleted.value == true)
-                const VerticalSpacing(20),
-              if (homeController.isAmCompleted.value == true)
-                GestureDetector(
-                  onTap: () {
-                    controller.resetEditMode();
-                    // if (period == 'pm') {
-                    Get.to(
-                      const AmPmJournalScreen(
-                        reflectionType: 'pm',
+            const VerticalSpacing(20),
+            ThemedContainer(
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      const Text(
+                        'My Memory',
+                        style: AppTextStyles.textBodyB1,
                       ),
-                    );
-                    // } else {
-                    //   AppUtils.showErrorSnackbar(
-                    //     message:
-                    //         'You can only access PM questions in the afternoon.',
-                    //   );
-                    // }
-                  },
-                  child: HomeJournalWidget(
-                    fillWithColor: homeController.isPmCompleted.value == true,
-                    image: Assets.images.journalPng.path,
-                    title: 'PM Journal',
-                    decription: _getJournalDescription('pm'),
-                  ),
-                ),
-              const VerticalSpacing(20),
-              ThemedContainer(
-                child: Column(
-                  children: [
-                    Row(
-                      children: [
-                        const Text(
-                          'My Memory',
-                          style: AppTextStyles.textBodyB1,
-                        ),
-                        const Spacer(),
-                        InkWell(
-                          onTap: () {
-                            _showMemoryBottomSheet(context);
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              vertical: 4,
-                              horizontal: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16),
-                              color: AppColors.primary500,
-                            ),
-                            child: const Text(
-                              'View all memory',
-                              style: TextStyle(
-                                fontSize: 12,
-                                color: AppColors.textColor50,
-                              ),
+                      const Spacer(),
+                      InkWell(
+                        onTap: () {
+                          _showMemoryBottomSheet(context);
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 4,
+                            horizontal: 12,
+                          ),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: AppColors.primary500,
+                          ),
+                          child: const Text(
+                            'View all memory',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textColor50,
                             ),
                           ),
                         ),
-                      ],
-                    ),
-                    const VerticalSpacing(14),
-                    Text(
-                      'View a random journal memory and take a moment to reflect on your thoughts and experiences.',
-                      style: AppTextStyles.textBodyB2
-                          .copyWith(color: AppColors.textColor100),
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                  const VerticalSpacing(14),
+                  Text(
+                    'View a random journal memory and take a moment to reflect on your thoughts and experiences.',
+                    style: AppTextStyles.textBodyB2
+                        .copyWith(color: AppColors.textColor100),
+                  ),
+                ],
               ),
+            ),
+            const VerticalSpacing(20),
+            homeController.dashboardHabitlState.value.showWidget(
+              // loading: () => LoadingWidget(),
+              error: () => Row(
+                children: [
+                  Expanded(
+                    child: CustomErrorWidget(
+                      error: homeController.dashboardHabitlError.value,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.refresh,
+                      color: AppColors.primary500,
+                    ),
+                  ),
+                ],
+              ),
+              orElse: () => homeController.dashboardHabitlData.isNotEmpty
+                  ? ThemedContainer(
+                      width: double.infinity,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Habits',
+                            style: AppTextStyles.textBodyB1,
+                          ),
+                          const VerticalSpacing(6),
+                          ...homeController.dashboardHabitlData.map((e) {
+                            if (e.habits?.isNotEmpty ?? false) {
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 12),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      e.category?.capitalize ?? '',
+                                      style: AppTextStyles.textBodyB3,
+                                    ),
+                                    const VerticalSpacing(12),
+                                    GridView.builder(
+                                      padding: EdgeInsets.zero,
+                                      shrinkWrap: true,
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      gridDelegate:
+                                          const SliverGridDelegateWithFixedCrossAxisCount(
+                                        mainAxisSpacing: 16,
+                                        crossAxisSpacing: 16,
+                                        crossAxisCount: 2,
+                                      ),
+                                      itemCount: e.habits?.length,
+                                      itemBuilder: (context, i) {
+                                        return HabitsContainer(
+                                          habit: e.habits![i],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              );
+                            } else {
+                              return const SizedBox.shrink();
+                            }
+                          }),
+                        ],
+                      ),
+                    )
+                  : const SizedBox.shrink(),
+            ),
+            if (homeController.dashboardHabitlData.isNotEmpty)
               const VerticalSpacing(20),
-              homeController.dashboardHabitlState.value.showWidget(
-                // loading: () => LoadingWidget(),
-                error: () => Row(
-                  children: [
-                    Expanded(
-                      child: CustomErrorWidget(
-                        error: homeController.dashboardHabitlError.value,
-                      ),
-                    ),
-                    IconButton(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.refresh,
-                        color: AppColors.primary500,
-                      ),
-                    ),
-                  ],
-                ),
-                orElse: () => homeController.dashboardHabitlData.isNotEmpty
-                    ? ThemedContainer(
-                        width: double.infinity,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Text(
-                              'Habits',
-                              style: AppTextStyles.textBodyB1,
-                            ),
-                            const VerticalSpacing(6),
-                            ...homeController.dashboardHabitlData.map((e) {
-                              if (e.habits?.isNotEmpty ?? false) {
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 12),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        e.category?.capitalize ?? '',
-                                        style: AppTextStyles.textBodyB3,
-                                      ),
-                                      const VerticalSpacing(12),
-                                      GridView.builder(
-                                        padding: EdgeInsets.zero,
-                                        shrinkWrap: true,
-                                        physics:
-                                            const NeverScrollableScrollPhysics(),
-                                        gridDelegate:
-                                            const SliverGridDelegateWithFixedCrossAxisCount(
-                                          mainAxisSpacing: 16,
-                                          crossAxisSpacing: 16,
-                                          crossAxisCount: 2,
-                                        ),
-                                        itemCount: e.habits?.length,
-                                        itemBuilder: (context, i) {
-                                          return HabitsContainer(
-                                            habit: e.habits![i],
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                );
-                              } else {
-                                return const SizedBox.shrink();
-                              }
-                            }),
-                          ],
-                        ),
-                      )
-                    : const SizedBox.shrink(),
-              ),
-              if (homeController.dashboardHabitlData.isNotEmpty)
-                const VerticalSpacing(20),
-              const ImportantTasksWidget(),
-              const VerticalSpacing(120),
-            ],
-          ),
+            const ImportantTasksWidget(),
+            const VerticalSpacing(120),
+          ],
         ),
       ),
     );

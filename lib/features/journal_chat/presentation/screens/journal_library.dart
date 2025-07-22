@@ -172,6 +172,24 @@ class _JournalLibraryState extends State<JournalLibrary> {
                       ),
                     ),
                   ),
+                  if (_controller.selectedEmotion.value != null)
+                    const SizedBox(width: 12),
+                  if (_controller.selectedEmotion.value != null)
+                    GestureDetector(
+                      onTap: () async {
+                        setState(() {
+                          _controller.selectedEmotion.value = null;
+                        });
+                        await _fetchEmotionNames();
+                        _controller.getJournalLibrary(
+                          isInitialLoad: true,
+                        );
+                      },
+                      child: Icon(
+                        Icons.restore_outlined,
+                        color: AppColors.textFieldGrey,
+                      ),
+                    ),
                   const SizedBox(width: 12),
                   GestureDetector(
                     onTap: () async {

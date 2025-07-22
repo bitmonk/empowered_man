@@ -183,6 +183,7 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                 const VerticalSpacing(20),
                 OutlinedButton.icon(
                   onPressed: () {
+                    context.hideKeyboard();
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
