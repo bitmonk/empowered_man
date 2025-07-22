@@ -14,7 +14,7 @@ android {
         }
         production {
             dimension "flavor-type"
-            applicationId "com.empoweredman.empoweredman.au"
+            applicationId "com.trainerize.empowered"
             resValue "string", "app_name", "Empowered Man"
         }
     }

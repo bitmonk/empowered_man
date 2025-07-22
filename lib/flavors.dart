@@ -19,5 +19,4 @@ class F {
         return 'Empowered Man';
     }
   }
-
 }

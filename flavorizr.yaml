@@ -20,6 +20,6 @@ flavors:
     app:
       name: "Empowered Man"
     android:
-      applicationId: "com.empoweredman.empoweredman.au"
+      applicationId: "com.trainerize.empowered"
     ios:
-      bundleId: "com.empoweredman.empoweredman.au"
+      bundleId: "com.trainerize.empowered"
