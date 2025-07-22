@@ -15,3 +15,11 @@ flavors:
       applicationId: "com.empoweredman.empoweredman.api"
     ios:
       bundleId: "com.empoweredman.empoweredman.api"
+
+  production:
+    app:
+      name: "Empowered Man"
+    android:
+      applicationId: "com.empoweredman.empoweredman.au"
+    ios:
+      bundleId: "com.empoweredman.empoweredman.au"

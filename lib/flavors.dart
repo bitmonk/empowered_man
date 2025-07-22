@@ -1,6 +1,7 @@
 enum Flavor {
   di,
   api,
+  production,
 }
 
 class F {
@@ -14,6 +15,8 @@ class F {
         return 'Empowered Man DI';
       case Flavor.api:
         return 'Empowered Man API';
+      case Flavor.production:
+        return 'Empowered Man';
     }
   }
 

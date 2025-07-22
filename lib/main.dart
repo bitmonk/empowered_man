@@ -27,7 +27,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 }
 
 
-// flutter run --debug --flavor=api
+// flutter run --debug --flavor=production
 // flutter run --release --flavor=api
 // flutter build apk --release --flavor api
 // flutter build appbundle --release --flavor api

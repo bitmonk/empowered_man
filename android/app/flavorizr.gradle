@@ -12,5 +12,10 @@ android {
             applicationId "com.empoweredman.empoweredman.api"
             resValue "string", "app_name", "Empowered Man API"
         }
+        production {
+            dimension "flavor-type"
+            applicationId "com.empoweredman.empoweredman.au"
+            resValue "string", "app_name", "Empowered Man"
+        }
     }
 }
