@@ -2,10 +2,6 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 
 class AppProfileAvatar extends StatelessWidget {
-  final String? imageUrl;
-  final double size;
-  final BoxBorder? border;
-  final Color? backgroundColor;
 
   const AppProfileAvatar({
     Key? key,
@@ -14,6 +10,10 @@ class AppProfileAvatar extends StatelessWidget {
     this.border,
     this.backgroundColor,
   }) : super(key: key);
+  final String? imageUrl;
+  final double size;
+  final BoxBorder? border;
+  final Color? backgroundColor;
 
   @override
   Widget build(BuildContext context) {

@@ -639,6 +639,24 @@ class FeedPageController extends GetxController {
     }
   }
 
+  Future<void> unhidePost(String postId) async {
+    try {
+      final result = await remoteSource.unhidePost(postId: postId);
+
+      result.fold(
+        (error) {
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (message) {
+          AppUtils.showSnackbar(message: message);
+          loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to unhide post: $e');
+    }
+  }
+
   Future<void> deletePost(String postId) async {
     try {
       final result = await remoteSource.deletePost(postId: postId);

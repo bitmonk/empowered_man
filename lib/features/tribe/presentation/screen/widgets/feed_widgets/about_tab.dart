@@ -207,7 +207,7 @@ class _AboutTabState extends State<AboutTab> {
                                 radius: 20,
                                 backgroundColor: Colors.grey,
                                 child: Icon(
-                                  Icons.account_circle,
+                                  Icons.cabin,
                                   color: Colors.white54,
                                   size: 40,
                                 ),

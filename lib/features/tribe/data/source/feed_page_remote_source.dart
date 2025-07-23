@@ -239,6 +239,23 @@ class FeedPageRemoteSource {
     }
   }
 
+  Future<Either<AppError, String>> unhidePost({
+    required String postId,
+  }) async {
+    try {
+      final response = await _client.post(
+        '${AppEndpoints.unhidePost}?id=$postId',
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
   Future<Either<AppError, String>> likeComment({
     required String commentId,
   }) async {

@@ -438,28 +438,23 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
           ...options.map((item) => ListTile(
                 leading: Icon(item.icon, color: item.color),
                 title: Text(item.label,
-                    style: const TextStyle(color: Colors.white)),
+                    style: const TextStyle(color: Colors.white),),
                 onTap: () {
                   if (_isUploading) return;
                   switch (item.label) {
                     case 'Photo':
                       pickImage(context);
-                      break;
                     case 'Video':
                       _pickVideo(context);
-                      break;
                     case 'Attachment':
                       _pickPDF(context);
-                      break;
                     case 'Camera':
                       _takePicture(context);
-                      break;
                     case 'GIF':
                       _pickGIF(context);
-                      break;
                   }
                 },
-              )),
+              ),),
           const SizedBox(height: 16),
         ],
       ),

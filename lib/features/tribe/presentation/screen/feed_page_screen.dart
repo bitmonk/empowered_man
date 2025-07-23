@@ -68,7 +68,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                     CircleAvatar(
                       radius: 18,
                       backgroundImage: NetworkImage(groupDetails!.image!),
-                      onBackgroundImageError: (_, __) => null,
+                      onBackgroundImageError: (_, __) {},
                     )
                   else
                     const CircleAvatar(
@@ -328,7 +328,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       if (posts.isEmpty) {
         return Column(
           children: [
-            if (widget.accessType == 'Open Discussion')
+            if (widget.accessType == 'Open Discussion' || widget.isAdmin)
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: _createPostInput(),

@@ -8,8 +8,8 @@ import 'package:empowered/features/tribe/presentation/controller/tribe_group_con
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -164,17 +164,21 @@ class _FeedPostState extends State<FeedPost> {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'hide',
                     child: Row(
                       children: [
                         Icon(
-                          Icons.visibility_off_outlined,
+                          widget.post.isHidden == true
+                              ? Icons.visibility
+                              : Icons.visibility_off_outlined,
                           color: Colors.white,
                         ),
                         SizedBox(width: 8),
                         Text(
-                          'Hide Post',
+                          widget.post.isHidden == true
+                              ? 'Unhide Post'
+                              : 'Hide Post',
                           style: TextStyle(color: Colors.white),
                         ),
                       ],
@@ -241,12 +245,6 @@ class _FeedPostState extends State<FeedPost> {
                     Text(
                       _formatCount(
                         widget.post.commentsCount,
-                        // controller
-                        //     .commentsModel[widget.post.id?.toString()]
-                        //     ?.data
-                        //     ?.comments
-                        //     ?.length ??
-                        // 0,
                       ),
                       style: const TextStyle(color: Colors.white),
                     ),
@@ -256,9 +254,6 @@ class _FeedPostState extends State<FeedPost> {
               const SizedBox(width: 16),
               Obx(
                 () => GestureDetector(
-                  // onTap: controller.isSharing.value
-                  //     ? null
-                  //     : () => controller.sharePost(widget.post),
                   child: controller.isSharing.value
                       ? const SizedBox(
                           height: 20,
@@ -374,13 +369,9 @@ class _FeedPostState extends State<FeedPost> {
           )
           .toList();
     }
-    print(
-      '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia',
-    );
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
-    // If only one media and it's an image or gif, center and expand it, and make it tappable
     if (allMedia.length == 1 &&
         (allMedia[0]['type'] == 'image' || allMedia[0]['type'] == 'gif')) {
       return Center(
@@ -486,7 +477,6 @@ class _FeedPostState extends State<FeedPost> {
           child: CachedNetworkImage(
             imageUrl: url,
             fit: BoxFit.cover,
-            // Remove maxWidthDiskCache and maxHeightDiskCache to allow full quality
             placeholder: (context, url) => Container(
               color: Colors.grey[800],
               child: const Center(
@@ -508,7 +498,6 @@ class _FeedPostState extends State<FeedPost> {
           ),
         );
       case 'gif':
-        // Debug print to check the GIF URL
         print('GIF URL: $url');
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
@@ -616,14 +605,43 @@ class _FeedPostState extends State<FeedPost> {
     }
   }
 
+  void _showUnhideConfirmation() {
+    Get.dialog(
+      AlertDialog(
+        title: const Text('Unhide Post'),
+        content: const Text('Are you sure you want to unhide this post?'),
+        actions: [
+          TextButton(
+            onPressed: () => Get.back(),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              Get.back();
+              controller.unhidePost(widget.post.id?.toString() ?? '');
+            },
+            child: const Text('Unhide'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _handleMenuAction(String action) {
     switch (action) {
       case 'save':
         _handleSaveToggle();
+        break;
       case 'hide':
-        _showHideConfirmation();
+        if (widget.post.isHidden == true) {
+          _showUnhideConfirmation();
+        } else {
+          _showHideConfirmation();
+        }
+        break;
       case 'delete':
         _showDeleteConfirmation();
+        break;
     }
   }
 
@@ -638,9 +656,18 @@ class _FeedPostState extends State<FeedPost> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
+            onPressed: () async {
               Get.back();
-              controller.hidePost(widget.post.id?.toString() ?? '');
+              await controller.hidePost(widget.post.id?.toString() ?? '');
+              // Refresh posts and comments after hiding
+              final tribeController = Get.find<TribeGroupController>();
+              await tribeController.loadPostDetails(widget.groupId);
+              final posts =
+                  tribeController.groupPostModel.value.data?.posts ?? [];
+              for (final post in posts) {
+                await controller.getPostComments(
+                    postId: post.id?.toString() ?? '');
+              }
             },
             child: const Text('Hide'),
           ),
@@ -678,6 +705,7 @@ class _FeedPostState extends State<FeedPost> {
   void _navigateToComments() {
     var allMedia = <Map<String, dynamic>>[];
     final media = widget.post.media;
+
     if (media is Media) {
       allMedia = [
         ...(media.images?.map(

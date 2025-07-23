@@ -1,12 +1,27 @@
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/home/presentation/controllers/home_controller.dart';
+import 'package:empowered/features/journal_chat/data/model/journal_emotion_names_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
+import 'package:empowered/features/journal_chat/presentation/controllers/journal_emotion_name_bindings.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
+import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
 
 class MyMemoryBottomSheet extends StatelessWidget {
+  List<String> extractTextList(dynamic list) {
+    if (list == null) return [];
+    return List<String>.from(
+      (list as List).map((item) {
+        if (item is String) return item;
+        if (item is Tion) return item.text ?? '';
+        if (item is Map<String, dynamic>) return item['text'] ?? '';
+        return '';
+      }),
+    ).where((e) => e.isNotEmpty).toList();
+  }
+
   const MyMemoryBottomSheet({super.key});
 
   @override
@@ -124,31 +139,13 @@ class MyMemoryBottomSheet extends StatelessWidget {
                 children: [
                   _memorySection(
                     'Your Lesson',
-                    (answers?.lesson
-                                ?.cast<String?>()
-                                .whereType<String>()
-                                .toList() ??
-                            []) +
-                        (answers?.lesson
-                                ?.whereType<Tion>()
-                                .map((e) => e.text ?? '')
-                                .toList() ??
-                            []),
+                    extractTextList(answers?.lesson),
                     AppColors.primary500,
                     false,
                   ),
                   _memorySection(
                     'Your Story',
-                    (answers?.story
-                                ?.cast<String?>()
-                                .whereType<String>()
-                                .toList() ??
-                            []) +
-                        (answers?.story
-                                ?.whereType<Tion>()
-                                .map((e) => e.text ?? '')
-                                .toList() ??
-                            []),
+                    extractTextList(answers?.story),
                     null,
                     true,
                   ),
@@ -181,16 +178,30 @@ class MyMemoryBottomSheet extends StatelessWidget {
                           final memory =
                               controller.myMemoryData.value?.data?.memory;
                           final journalId = memory?.journalId?.toString();
-                          if (journalId != null) {
+                          final emotionName = memory?.emotionName;
+                          if (journalId != null && emotionName != null) {
                             final chatController =
                                 Get.find<JournalChatController>();
                             chatController.resetEditMode();
-
+                            // Set selectedEmotion to avoid null access in UI
+                            chatController.selectedEmotion.value = EmotionName(
+                              id: int.tryParse(
+                                  journalId), // Convert journalId to int
+                              emotionName: emotionName,
+                            );
                             await chatController
                                 .getJournalWithQuestionsAndAnswersById(
-                              journalId,
-                            );
-                            Get.to(() => const JournalChatScreen());
+                                    journalId);
+                            JournalChatInitializer.destroy();
+                            JournalChatInitializer.initialize();
+                            JournalEmotionNameInitializer.destroy();
+                            JournalEmotionNameInitializer.initialize();
+                            Navigator.pop(context);
+                            Get.to(
+                                () => JournalChatScreen(journalId: journalId));
+                          } else {
+                            AppUtils.showErrorSnackbar(
+                                message: 'Unable to load journal');
                           }
                         },
                         child: Container(
@@ -280,9 +291,9 @@ class MyMemoryBottomSheet extends StatelessWidget {
                       ),
                       const HorizontalSpacing(4),
                       Expanded(
-                        child: Text(
+                        child: HtmlWidget(
                           text,
-                          style: AppTextStyles.textBodyB2
+                          textStyle: AppTextStyles.textBodyB2
                               .copyWith(color: AppColors.white),
                         ),
                       ),

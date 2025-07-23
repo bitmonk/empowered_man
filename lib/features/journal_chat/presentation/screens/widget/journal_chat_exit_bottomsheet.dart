@@ -151,6 +151,7 @@ class ReflectionExitBottomsheet extends StatelessWidget {
               // isLoading:
               //     controller.chatController.value == TheStates.loading,
               onPressed: () {
+                
                 onPressed?.call();
                 Navigator.pop(context);
                 AppWidgetKey.mainScaffold.currentState?.openEndDrawer();

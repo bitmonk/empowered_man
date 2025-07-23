@@ -107,6 +107,7 @@ class AppEndpoints {
   static const String getCommentReplies = '/user/comment/replies';
   static const String savePost = '/user/post/save';
   static const String hidePost = '/user/post/hide';
+  static const String unhidePost = '/user/post/unhide';
   static const String deletePost = '/user/delete-post/';
   static const String getFeedSavedPost = '/user/post-feed/saved-posts';
 

@@ -10,9 +10,11 @@ class JournalChatScreen extends StatefulWidget {
   const JournalChatScreen({
     super.key,
     this.isFromGoals = false,
+    this.journalId,
   });
 
   final bool isFromGoals;
+  final String? journalId; // Add journalId parameter
 
   @override
   State<JournalChatScreen> createState() => _JournalChatScreenState();
@@ -39,9 +41,18 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
   void _initializeController() {
     controller.chatController.clear();
-    controller
-      ..resetEditMode()
-      ..getJournalWithQuestionsAndAnswers();
+    controller.resetEditMode();
+    if (widget.journalId != null) {
+      // Initialize with journalId if provided
+      controller.getJournalWithQuestionsAndAnswersById(widget.journalId!);
+    } else if (controller.selectedEmotion.value != null) {
+      // Fallback to selectedEmotion if no journalId
+      controller.getJournalWithQuestionsAndAnswers();
+    } else {
+      // Handle error case
+      controller.journalChatConversationState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'No emotion or journal selected');
+    }
   }
 
   void _onFocusChange() {
@@ -89,7 +100,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
         final isCompleted =
             controller.journalWithQuestionsAndAnswers.value.data?.isCompleted ??
                 false;
-        if (!isCompleted && controller.selectedEmotion.value != null) {
+        if (!isCompleted &&
+            (controller.selectedEmotion.value != null ||
+                widget.journalId != null)) {
           await showModalBottomSheet(
             isScrollControlled: true,
             useRootNavigator: true,
@@ -117,7 +130,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
             final isCompleted = controller
                     .journalWithQuestionsAndAnswers.value.data?.isCompleted ??
                 false;
-            if (!isCompleted && controller.selectedEmotion.value != null) {
+            if (!isCompleted &&
+                (controller.selectedEmotion.value != null ||
+                    widget.journalId != null)) {
               await showModalBottomSheet(
                 isScrollControlled: true,
                 useRootNavigator: true,
@@ -135,7 +150,7 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
               Get.back();
             }
           },
-          title: controller.selectedEmotion.value?.emotionName ?? '',
+          title: controller.selectedEmotion.value?.emotionName ?? 'Journal',
         ),
         body: KeyboardVisibilityBuilder(
           builder: (context, isKeyboardVisible) {
@@ -151,13 +166,14 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                   error: () => Center(
                     child: CustomErrorWidget(
                       onPressed: () {
-                        controller.getJournalWithQuestionsAndAnswers();
+                        _initializeController(); // Retry initialization
                       },
                     ),
                   ),
                   success: () => Column(
                     children: [
-                      if (controller.selectedEmotion.value == null)
+                      if (controller.selectedEmotion.value == null &&
+                          widget.journalId == null)
                         const CustomErrorWidget(
                           error: 'Not found',
                         )
@@ -178,7 +194,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                               }
 
                               return Obx(() {
-                                // Use controller's buildCompleteMessageList method
                                 final items = controller
                                     .buildCompleteMessageList(journal);
                                 final questionIds =
@@ -237,8 +252,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             isJournal: true,
                                             message: messageItem.message,
                                             isMine: messageItem.isMine,
-                                            // timeStamp:
-                                            //     messageItem.timestamp ?? '',
                                             onLike: () {},
                                             images: messageItem.images,
                                             videos: messageItem.videos,
@@ -252,7 +265,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                             onYesNoOptionSelected: (option) {
                                               if (messageItem.isYesNoQuestion &&
                                                   followupQuestionId != null) {
-                                                // Use controller's method
                                                 controller.handleYesNoSelection(
                                                   option,
                                                   followupQuestionId,
@@ -306,7 +318,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                                   );
                                                 }
                                               } else {
-                                                // For regular text messages, enter text edit mode
                                                 controller.chatController.text =
                                                     messageItem.message;
                                                 if (messageItem.answerId !=
@@ -379,7 +390,8 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                             },
                           ),
                         ),
-                      if (controller.selectedEmotion.value != null)
+                      if (controller.selectedEmotion.value != null ||
+                          widget.journalId != null)
                         Obx(() {
                           final journalCompleted = controller
                                   .journalWithQuestionsAndAnswers
@@ -407,12 +419,6 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
                                 buttonTitle: 'Go to Journal Library',
                               );
                             }
-                            // else if (controller.wasAlreadyCompleted.value) {
-                            //   return JournalAlreadyCompletedWidget(
-                            //     onContinuePressed:
-                            //         controller.navigateToJournalLibrary,
-                            //   );
-                            // }
                           }
                           if (!controller.showBeginJournallButton.value) {
                             if ((journalCompleted == false &&
