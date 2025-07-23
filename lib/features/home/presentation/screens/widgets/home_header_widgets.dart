@@ -49,33 +49,33 @@ class HomeHeaderWidgets extends StatelessWidget {
                   ),
                 ),
                 const HorizontalSpacing(16),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Hi',
-                      style: AppTextStyles.textBodyB3,
-                    ),
-                    const VerticalSpacing(2),
-                    Obx(
-                      () {
-                        final fullName = Get.find<ProfileController>()
-                            .userProfile
-                            .value
-                            .fullName;
-                        return Text(
-                          (fullName != null && fullName.length > 12)
-                              ? fullName.split(' ').first
-                              : fullName ?? '',
-                          style: AppTextStyles.textBodyB3
-                              .copyWith(color: AppColors.white),
-                          maxLines: 2,
-                        );
-                      },
-                    ),
-                  ],
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Hi',
+                        style: AppTextStyles.textBodyB3,
+                      ),
+                      const VerticalSpacing(2),
+                      Obx(
+                        () {
+                          final fullName = Get.find<ProfileController>()
+                              .userProfile
+                              .value
+                              .fullName;
+                          return Text(
+                            fullName?.split(' ').first ?? '',
+                            style: AppTextStyles.textBodyB3.copyWith(
+                                color: AppColors.white,
+                                overflow: TextOverflow.ellipsis,),
+                            maxLines: 1,
+                          );
+                        },
+                      ),
+                    ],
+                  ),
                 ),
-                const Spacer(),
                 InkWell(
                   onTap: () {},
                   child: Assets.images.homeSearch.svg(width: 40),
@@ -142,7 +142,7 @@ class HomeHeaderWidgets extends StatelessWidget {
   double _calculateProgressValue() {
     final points = int.tryParse(userProgressbarPoints) ?? 0;
     final total = int.tryParse(totalPointsProgressBar) ?? 100;
-    
+
     if (total == 0) return 0;
     return points / total;
   }

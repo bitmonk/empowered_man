@@ -10,10 +10,14 @@ import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:empowered/features/tribe/data/source/feed_page_remote_source.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:get/get.dart';
 
 class FeedPageController extends GetxController {
   FeedPageController({required this.remoteSource});
+  // Pagination state for replies and nested replies
+  final RxMap<String, int> replyCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreReplies = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreReplies = <String, bool>{}.obs;
+  final int repliesPerPage = 5;
 
   final FeedPageRemoteSource remoteSource;
 
@@ -64,6 +68,27 @@ class FeedPageController extends GetxController {
   final List<String> tabs = ['Post', 'About', 'Media', 'Saved'];
   final RxString currentGroupId = ''.obs;
 
+  // Pagination state for comments per post
+  final RxMap<String, int> commentCurrentPage = <String, int>{}.obs;
+  final RxMap<String, bool> isLoadingMoreComments = <String, bool>{}.obs;
+  final RxMap<String, bool> hasMoreComments = <String, bool>{}.obs;
+  final int commentsPerPage = 10;
+
+  // Pagination state for feed posts
+  final RxInt currentFeedPage = 1.obs;
+  final RxInt lastFeedPage = 1.obs;
+  final RxBool isLoadingMorePosts = false.obs;
+  final int feedPostsPerPage = 10;
+
+  // Upload progress for post creation
+  final RxDouble uploadProgress = 0.0.obs;
+
+  // Pagination state for feed media
+  final RxInt currentFeedMediaPage = 1.obs;
+  final RxInt lastFeedMediaPage = 1.obs;
+  final RxBool isLoadingMoreFeedMedia = false.obs;
+  // final int feedMediaPerPage = 15;
+
   @override
   void onInit() {
     super.onInit();
@@ -98,31 +123,61 @@ class FeedPageController extends GetxController {
     selectedMediaTypes.clear();
   }
 
-  Future<void> loadFeedPosts() async {
+  Future<void> loadFeedPosts({
+    int page = 1,
+    bool append = false,
+  }) async {
     try {
-      feedState.value = TheStates.loading;
-      feedError = null;
+      if (!append) feedState.value = TheStates.loading;
+      if (!append) feedError = null;
+      if (!append) currentFeedPage.value = 1;
+      if (!append) lastFeedPage.value = 1;
+      if (append) isLoadingMorePosts.value = true;
 
-      final result = await remoteSource.getFeedPosts();
+      final result =
+          await remoteSource.getFeedPosts(page: page, limit: feedPostsPerPage);
 
       result.fold(
         (error) {
-          feedState.value = TheStates.error;
+          if (!append) feedState.value = TheStates.error;
           feedError = error.message;
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (postsModel) {
-          feedState.value = TheStates.success;
+          if (!append) feedState.value = TheStates.success;
           feedPosts.value = postsModel;
-          posts.value = postsModel.data?.posts ?? [];
-          print('Fetched posts: ${posts.length}');
+          final newPosts = postsModel.data?.posts ?? [];
+          if (append) {
+            // Ensure posts is always mutable before adding
+            posts.value = List<Post>.from(posts);
+            posts.addAll(newPosts);
+          } else {
+            posts.value = List<Post>.from(newPosts);
+          }
+          // Update pagination
+          final meta = postsModel.data?.meta;
+          if (meta != null) {
+            currentFeedPage.value = meta.currentPage ?? page;
+            lastFeedPage.value = meta.lastPage ?? page;
+          } else {
+            currentFeedPage.value = page;
+            lastFeedPage.value = page;
+          }
         },
       );
     } catch (e) {
-      feedState.value = TheStates.error;
+      if (!append) feedState.value = TheStates.error;
       feedError = 'Failed to load feed posts: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    } finally {
+      if (append) isLoadingMorePosts.value = false;
     }
+  }
+
+  Future<void> fetchNextFeedPostsPage() async {
+    if (isLoadingMorePosts.value) return;
+    if (currentFeedPage.value >= lastFeedPage.value) return;
+    await loadFeedPosts(page: currentFeedPage.value + 1, append: true);
   }
 
   // Add this method to toggle comment expansion
@@ -175,60 +230,170 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> getFeedMedia() async {
+  Future<void> getFeedMedia({int page = 1, bool append = false}) async {
+    print('[DEBUG] getFeedMedia called: page=$page, append=$append');
     try {
-      feedMediaState.value = TheStates.loading;
-      feedError = null;
+      if (!append) feedMediaState.value = TheStates.loading;
+      if (!append) feedError = null;
+      if (!append) currentFeedMediaPage.value = 1;
+      if (!append) lastFeedMediaPage.value = 1;
+      if (append) isLoadingMoreFeedMedia.value = true;
 
-      final result = await remoteSource.getFeedMedia();
+      final result = await remoteSource.getFeedMedia(page: page);
 
       result.fold(
         (l) {
-          feedMediaState.value = TheStates.error;
+          if (!append) feedMediaState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
-          feedMediaState.value = TheStates.success;
-          feedMediaModel.value = r;
+          if (!append) feedMediaState.value = TheStates.success;
+          if (append) {
+            // Append new media to existing list
+            final existing = feedMediaModel.value.data?.medias ?? [];
+            final newMedia = r.data?.medias ?? [];
+            print(
+              '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}',
+            );
+            final allMedia = [...existing, ...newMedia];
+            final updatedModel = r.copyWith(
+              data: r.data?.copyWith(medias: allMedia),
+            );
+            feedMediaModel.value = updatedModel;
+          } else {
+            print('[DEBUG] Setting media: new=${r.data?.medias?.length ?? 0}');
+            feedMediaModel.value = r;
+          }
+          // Update pagination
+          final meta = r.data?.meta;
+          if (meta != null) {
+            int parseInt(dynamic v, int fallback) {
+              if (v is int) return v;
+              if (v is String) return int.tryParse(v) ?? fallback;
+              return fallback;
+            }
+
+            currentFeedMediaPage.value = parseInt(meta.currentPage, page);
+            lastFeedMediaPage.value = parseInt(meta.lastPage, page);
+            print(
+              '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}',
+            );
+          } else {
+            currentFeedMediaPage.value = page;
+            lastFeedMediaPage.value = page;
+          }
         },
       );
     } catch (e) {
-      feedMediaState.value = TheStates.error;
+      if (!append) feedMediaState.value = TheStates.error;
       feedError = 'Failed to load feed media: $e';
       AppUtils.showErrorSnackbar(message: feedError!);
+    } finally {
+      if (append) isLoadingMoreFeedMedia.value = false;
     }
   }
 
-  Future<void> getPostComments({required String postId}) async {
+  Future<void> fetchNextFeedMediaPage() async {
+    print(
+      '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}',
+    );
+    if (isLoadingMoreFeedMedia.value) return;
+    if (currentFeedMediaPage.value >= lastFeedMediaPage.value) return;
+    await getFeedMedia(page: currentFeedMediaPage.value + 1, append: true);
+  }
+
+  // Reset pagination for a post
+  void resetCommentPagination(String postId) {
+    commentCurrentPage[postId] = 1;
+    hasMoreComments[postId] = true;
+  }
+
+  // Fetch comments for a post, with pagination and append option
+  Future<void> getPostComments({
+    required String postId,
+    bool append = false,
+  }) async {
     try {
-      commentState.value = TheStates.loading;
-
-      final result = await remoteSource.getComments(postId: postId);
-
+      if (!append) {
+        commentState.value = TheStates.loading;
+        resetCommentPagination(postId);
+      }
+      final page = commentCurrentPage[postId] ?? 1;
+      final result = await remoteSource.getComments(
+        postId: postId,
+        page: page,
+        limit: commentsPerPage,
+      );
       result.fold(
         (l) {
-          commentState.value = TheStates.error;
+          if (!append) commentState.value = TheStates.error;
           feedError = l.message;
           AppUtils.showErrorSnackbar(message: l.message);
         },
         (r) {
-          commentState.value = TheStates.success;
-          commentsModel[postId] = r;
+          if (!append) {
+            commentState.value = TheStates.success;
+            commentsModel[postId] = r;
+          } else {
+            // Append new comments to existing list
+            final existing = commentsModel[postId]?.data?.comments ?? [];
+            final newComments = r.data?.comments ?? [];
+            final allComments = [...existing, ...newComments];
+            final updatedModel = r.copyWith(
+              data: r.data?.copyWith(comments: allComments),
+            );
+            commentsModel[postId] = updatedModel;
+          }
           commentsModel.refresh();
+          // Update pagination state
+          final total = r.data?.meta?.total ?? 0;
+          final loaded = commentsModel[postId]?.data?.comments?.length ?? 0;
+          if (loaded >= total) {
+            hasMoreComments[postId] = false;
+          } else {
+            hasMoreComments[postId] = true;
+            commentCurrentPage[postId] = page + 1;
+          }
         },
       );
     } catch (e) {
-      commentState.value = TheStates.error;
+      if (!append) commentState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: feedError ?? 'An error occurred');
+    } finally {
+      if (append) isLoadingMoreComments[postId] = false;
     }
   }
 
+  // Fetch next page of comments for a post
+  Future<void> fetchNextCommentsPage(String postId) async {
+    if (isLoadingMoreComments[postId] == true ||
+        hasMoreComments[postId] == false) {
+      return;
+    }
+    isLoadingMoreComments[postId] = true;
+    await getPostComments(postId: postId, append: true);
+  }
+
   Future<void> getCommentReplies({required String commentId}) async {
+    await getCommentRepliesPaginated(
+      commentId: commentId,
+    );
+  }
+
+  Future<void> getCommentRepliesPaginated({
+    required String commentId,
+    int page = 1,
+    bool append = false,
+  }) async {
     try {
       loadingReplies.add(commentId);
       getRepliesState.value = TheStates.loading;
 
-      final result = await remoteSource.getCommentReplies(commentId: commentId);
+      final result = await remoteSource.getCommentReplies(
+        commentId: commentId,
+        page: page,
+        limit: repliesPerPage,
+      );
 
       result.fold(
         (l) {
@@ -238,7 +403,24 @@ class FeedPageController extends GetxController {
         },
         (r) {
           getRepliesState.value = TheStates.success;
-          repliesModel[commentId] = r;
+          if (append && repliesModel.containsKey(commentId)) {
+            // Merge new replies with existing
+            final existing = repliesModel[commentId];
+            final existingList = existing?.repliesData?.comments ?? [];
+            final newList = r.repliesData?.comments ?? [];
+            final merged = [...existingList, ...newList];
+            final updatedRepliesData =
+                r.repliesData?.copyWith(comments: merged);
+            repliesModel[commentId] =
+                r.copyWith(repliesData: updatedRepliesData);
+          } else {
+            repliesModel[commentId] = r;
+          }
+          // Update pagination state
+          replyCurrentPage[commentId] = page;
+          final total = r.repliesData?.meta?.total ?? 0;
+          final loaded = r.repliesData?.comments?.length ?? 0;
+          hasMoreReplies[commentId] = loaded < total;
           loadingReplies.remove(commentId);
           repliesModel.refresh();
         },
@@ -293,6 +475,12 @@ class FeedPageController extends GetxController {
       createPostState.value = TheStates.loading;
       createPostError = null;
 
+      // Show persistent upload progress overlay
+      if (context != null) {
+        AppUtils.showUploadProgress(context, uploadProgress);
+      }
+      uploadProgress.value = 0.0;
+
       final mediaWithTypes = media.map((path) {
         return {
           'path': path,
@@ -304,19 +492,30 @@ class FeedPageController extends GetxController {
         groupId: groupId,
         text: text.isNotEmpty ? text : null,
         media: media.isNotEmpty ? mediaWithTypes : null,
+        onSendProgress: (sent, total) {
+          if (total > 0) {
+            uploadProgress.value = sent / total;
+          }
+        },
       );
+
+      if (context != null) {
+        AppUtils.hideUploadProgress();
+      }
 
       result.fold(
         (l) {
           createPostState.value = TheStates.error;
           createPostError = l.message;
           AppUtils.showErrorSnackbar(message: l.message);
+          uploadProgress.value = 0.0;
         },
         (r) async {
           createPostState.value = TheStates.success;
           AppUtils.showSnackbar(
             message: r.message ?? 'Post created successfully',
           );
+          uploadProgress.value = 0.0;
           clearPostForm();
           final tribeController = Get.find<TribeGroupController>();
           await tribeController.loadPostDetails(groupId);
@@ -327,16 +526,15 @@ class FeedPageController extends GetxController {
           }
           if (context != null) {
             Navigator.pop(context);
-          } else {
-            print('Warning: Context is null, cannot pop screen');
-            Get.back();
           }
         },
       );
     } catch (e) {
+      AppUtils.hideUploadProgress();
       createPostState.value = TheStates.error;
       createPostError = 'Failed to create post: $e';
       AppUtils.showErrorSnackbar(message: createPostError!);
+      uploadProgress.value = 0.0;
     } finally {
       createPostState.value = TheStates.initial;
     }
@@ -354,7 +552,7 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
+          // AppUtils.showSnackbar(message: message);
           loadFeedPosts();
         },
       );
@@ -373,8 +571,9 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
-          getPostComments(postId: postId);
+          // AppUtils.showSnackbar(message: message);
+          // Defer the refresh to avoid build conflicts
+          // Future.microtask(() => getPostComments(postId: postId));
         },
       );
     } catch (e) {
@@ -391,8 +590,9 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
-          getCommentReplies(commentId: commentId);
+          // AppUtils.showSnackbar(message: message);
+          // Defer the refresh to avoid build conflicts
+          Future.microtask(() => getCommentReplies(commentId: commentId));
         },
       );
     } catch (e) {
@@ -411,7 +611,7 @@ class FeedPageController extends GetxController {
         },
         (message) {
           AppUtils.showSnackbar(message: message);
-          loadFeedPosts();
+          // loadFeedPosts();
           loadSavedPosts();
         },
       );
@@ -436,6 +636,173 @@ class FeedPageController extends GetxController {
       );
     } catch (e) {
       AppUtils.showErrorSnackbar(message: 'Failed to hide post: $e');
+    }
+  }
+
+  Future<void> deletePost(String postId) async {
+    try {
+      final result = await remoteSource.deletePost(postId: postId);
+      result.fold(
+        (error) {
+          AppUtils.showErrorSnackbar(message: error.message);
+        },
+        (message) {
+          AppUtils.showSnackbar(message: message);
+          loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete post: $e');
+    }
+  }
+
+  Rx<TheStates> deleteCommentState = TheStates.initial.obs;
+  Rx<TheStates> deleteReplyState = TheStates.initial.obs;
+  Rx<TheStates> deleteNestedReplyState = TheStates.initial.obs;
+  Rx<TheStates> editCommentState = TheStates.initial.obs;
+  Rx<TheStates> editReplyState = TheStates.initial.obs;
+  Rx<TheStates> editNestedReplyState = TheStates.initial.obs;
+
+  Future<void> deleteComment(String commentId) async {
+    try {
+      deleteCommentState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: commentId);
+      result.fold(
+        (l) {
+          deleteCommentState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) {
+          deleteCommentState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          loadFeedPosts();
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete post: $e');
+    }
+  }
+
+  Future<void> deleteReply(String replyId, String parentCommentId) async {
+    try {
+      deleteReplyState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: replyId);
+      result.fold(
+        (l) {
+          deleteReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          deleteReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          // Refresh replies for the parent comment
+          await getCommentReplies(commentId: parentCommentId);
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete reply: $e');
+    }
+  }
+
+  Future<void> deleteNestedReply(
+    String nestedReplyId,
+    String parentReplyId,
+  ) async {
+    try {
+      deleteNestedReplyState.value = TheStates.loading;
+      final result = await remoteSource.deleteComment(commentId: nestedReplyId);
+      result.fold(
+        (l) {
+          deleteNestedReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          deleteNestedReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          // Refresh nested replies for the parent reply
+          await getCommentReplies(commentId: parentReplyId);
+        },
+      );
+    } catch (e) {
+      AppUtils.showErrorSnackbar(message: 'Failed to delete nested reply: $e');
+    }
+  }
+
+  Future<void> editComment({
+    required String commentId,
+    required String text,
+    required String postId,
+  }) async {
+    try {
+      editCommentState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: commentId, text: text);
+      result.fold(
+        (l) {
+          editCommentState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editCommentState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getPostComments(postId: postId);
+        },
+      );
+    } catch (e) {
+      editCommentState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit comment: $e');
+    }
+  }
+
+  Future<void> editReply({
+    required String replyId,
+    required String text,
+    required String parentCommentId,
+  }) async {
+    try {
+      editReplyState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: replyId, text: text);
+      result.fold(
+        (l) {
+          editReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getCommentReplies(commentId: parentCommentId);
+        },
+      );
+    } catch (e) {
+      editReplyState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit reply: $e');
+    }
+  }
+
+  Future<void> editNestedReply({
+    required String nestedReplyId,
+    required String text,
+    required String parentReplyId,
+  }) async {
+    try {
+      editNestedReplyState.value = TheStates.loading;
+      final result =
+          await remoteSource.editCommet(commentId: nestedReplyId, text: text);
+      result.fold(
+        (l) {
+          editNestedReplyState.value = TheStates.error;
+          AppUtils.showErrorSnackbar(message: l.message);
+        },
+        (r) async {
+          editNestedReplyState.value = TheStates.success;
+          AppUtils.showSnackbar(message: r);
+          await getCommentReplies(commentId: parentReplyId);
+        },
+      );
+    } catch (e) {
+      editNestedReplyState.value = TheStates.error;
+      AppUtils.showErrorSnackbar(message: 'Failed to edit nested reply: $e');
     }
   }
 
@@ -591,7 +958,7 @@ class FeedPageController extends GetxController {
     }
   }
 
-  Future<void> sharePost(Post post) async {
+  Future<void> sharePost(dynamic post) async {
     try {
       isSharing.value = true;
       final postId = post.id?.toString();

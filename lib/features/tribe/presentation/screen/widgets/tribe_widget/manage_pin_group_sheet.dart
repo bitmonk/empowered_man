@@ -105,7 +105,7 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
             child: Obx(() {
               final pinnedGroups = controller.pinnedGroups;
               final unpinnedGroups = controller.unpinnedGroups;
-              
+
               return SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
@@ -189,7 +189,7 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: _saveChanges,
+                    onPressed: () => Navigator.pop(context),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blue,
                       foregroundColor: Colors.white,
@@ -292,28 +292,34 @@ class _ManagePinGroupSheetState extends State<ManagePinGroupSheet> {
             ),
           ),
         ),
-        trailing: Obx(() => TextButton.icon(
-          onPressed: controller.isPinUnpinLoading.value 
-              ? null 
-              : () => controller.toggleGroupPin(group.id.toString()),
-          icon: Icon(
-            pinned ? Icons.push_pin : Icons.push_pin_outlined,
-            size: 16,
-            color: controller.isPinUnpinLoading.value ? Colors.grey : Colors.blue,
-          ),
-          label: Text(
-            pinned ? 'Unpin Group' : 'Pin Group',
-            style: TextStyle(
-              color: controller.isPinUnpinLoading.value ? Colors.grey : Colors.blue,
-              fontSize: 13,
+        trailing: Obx(
+          () => TextButton.icon(
+            onPressed: controller.isPinUnpinLoading.value
+                ? null
+                : () => controller.toggleGroupPin(group.id.toString()),
+            icon: Icon(
+              pinned ? Icons.push_pin : Icons.push_pin_outlined,
+              size: 16,
+              color: controller.isPinUnpinLoading.value
+                  ? Colors.grey
+                  : Colors.blue,
+            ),
+            label: Text(
+              pinned ? 'Unpin Group' : 'Pin Group',
+              style: TextStyle(
+                color: controller.isPinUnpinLoading.value
+                    ? Colors.grey
+                    : Colors.blue,
+                fontSize: 13,
+              ),
+            ),
+            style: TextButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
             ),
           ),
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-            minimumSize: Size.zero,
-            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-          ),
-        ),),
+        ),
       ),
     );
   }

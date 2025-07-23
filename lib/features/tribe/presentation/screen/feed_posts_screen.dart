@@ -2,6 +2,7 @@ import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 
 class FeedPostsScreen extends StatefulWidget {
   const FeedPostsScreen({super.key});
@@ -13,17 +14,45 @@ class FeedPostsScreen extends StatefulWidget {
 class _FeedPostsScreenState extends State<FeedPostsScreen> {
   final FeedPageController controller = Get.find<FeedPageController>();
   final TribeGroupController tribeController = Get.find<TribeGroupController>();
+  final ScrollController _feedScrollController = ScrollController();
+  final ScrollController _savedScrollController = ScrollController();
 
   @override
   void initState() {
     super.initState();
+    controller.currentTabIndex.value = 0; // Always reset to posts tab on entry
     controller.loadFeedPosts().then((_) {
       // Fetch comments for all posts after loading
-      final posts = controller.posts.value;
+      final posts = controller.posts;
       for (final post in posts) {
         controller.getPostComments(postId: post.id?.toString() ?? '');
       }
     });
+    _feedScrollController.addListener(_onFeedScroll);
+    _savedScrollController.addListener(_onSavedScroll);
+  }
+
+  @override
+  void dispose() {
+    _feedScrollController.dispose();
+    _savedScrollController.dispose();
+    super.dispose();
+  }
+
+  void _onFeedScroll() {
+    if (!_feedScrollController.hasClients) return;
+    const threshold = 200.0;
+    if (_feedScrollController.position.extentAfter < threshold) {
+      controller.fetchNextFeedPostsPage();
+    }
+  }
+
+  void _onSavedScroll() {
+    if (!_savedScrollController.hasClients) return;
+    const threshold = 200.0;
+    if (_savedScrollController.position.extentAfter < threshold) {
+      tribeController.fetchNextSavedPostsPage();
+    }
   }
 
   @override
@@ -33,6 +62,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
+          surfaceTintColor: AppColors.bgMedium,
           backgroundColor: AppColors.bgMedium,
           elevation: 0,
           leading: IconButton(
@@ -95,11 +125,13 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   final posts = controller.posts;
                   for (final post in posts) {
                     await controller.getPostComments(
-                        postId: post.id?.toString() ?? '');
+                      postId: post.id?.toString() ?? '',
+                    );
                   }
                 } else if (index == 1) {
                   // Handle 'Media' tab (index 1)
-                  controller.getFeedMedia(); // Call to fetch media
+                  await controller
+                      .getFeedMedia(); // Always reset and load first page
                 } else if (index == 2) {
                   // Handle 'Saved' tab (index 2)
                   tribeController.getFeedSavedPost().then((_) async {
@@ -147,21 +179,48 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
 
   Widget _buildTabContent(FeedPageController controller) {
     return Obx(() {
-      switch (controller.currentTabIndex.value) {
-        case 0:
-          return _buildPostTab();
-        case 1:
-          return _buildMediaTab(); // Updated Media tab content
-        case 2:
-          return _buildSavedTab();
-        default:
-          return const Center(
-            child: Text(
-              'Coming Soon...',
-              style: TextStyle(color: Colors.white70),
+      final isPostLoading = controller.feedState.value == TheStates.loading &&
+          controller.currentTabIndex.value == 0;
+      final isMediaLoading =
+          controller.feedMediaState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 1;
+      final isSavedLoading =
+          tribeController.getFeedSavedPostState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 2;
+      final isLoading = isPostLoading || isMediaLoading || isSavedLoading;
+      return Stack(
+        children: [
+          // Main tab content
+          Builder(
+            builder: (_) {
+              switch (controller.currentTabIndex.value) {
+                case 0:
+                  return _buildPostTab();
+                case 1:
+                  return _buildMediaTab(); // Updated Media tab content
+                case 2:
+                  return _buildSavedTab();
+                default:
+                  return const Center(
+                    child: Text(
+                      'Coming Soon...',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+              }
+            },
+          ),
+          if (isLoading)
+            ColoredBox(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
             ),
-          );
-      }
+        ],
+      );
     });
   }
 
@@ -169,6 +228,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final posts = controller.posts.value;
       final state = controller.feedState.value;
+      final isLoadingMore = controller.isLoadingMorePosts.value;
+      final hasMore =
+          controller.currentFeedPage.value < controller.lastFeedPage.value;
 
       if (state == TheStates.loading && posts.isEmpty) {
         return const Center(
@@ -216,8 +278,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           }
         },
         child: ListView.builder(
+          controller: _feedScrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: posts.length + 1,
+          itemCount: posts.length + (hasMore || isLoadingMore ? 2 : 1),
           itemBuilder: (context, index) {
             if (index == 0) {
               return const Column(
@@ -226,11 +289,21 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                 ],
               );
             }
-
+            if (index == posts.length + 1 && (hasMore || isLoadingMore)) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              );
+            }
             final postIndex = index - 1;
+            if (postIndex >= posts.length) return const SizedBox.shrink();
             final post = posts[postIndex];
-
             return FeedPost(
+              groupId: post.groupId.toString(),
               post: post,
             );
           },
@@ -243,8 +316,12 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final mediaModel = controller.feedMediaModel.value;
       final state = controller.feedMediaState.value;
+      final isLoadingMore = controller.isLoadingMoreFeedMedia.value ?? false;
+      final hasMore = (controller.currentFeedMediaPage.value ?? 1) <
+          (controller.lastFeedMediaPage.value ?? 1);
 
-      if (state == TheStates.loading) {
+      if (state == TheStates.loading &&
+          (mediaModel.data?.medias?.isEmpty ?? true)) {
         return const Center(
           child: CircularProgressIndicator(
             valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -279,6 +356,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       }
 
       final mediaItems = mediaModel.data?.medias ?? [];
+      final totalMedia = mediaModel.data?.meta?.total ?? 0;
       if (mediaItems.isEmpty) {
         return const Center(
           child: Text(
@@ -292,36 +370,91 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () => controller.getFeedMedia(),
-        child: GridView.builder(
-          padding: const EdgeInsets.all(16),
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3, // 3 items per row
-            crossAxisSpacing: 8,
-            mainAxisSpacing: 8,
-          ),
-          itemCount: mediaItems.length,
-          itemBuilder: (context, index) {
-            final media = mediaItems[index];
-            return GestureDetector(
-              onTap: () {
-                // Optional: Add logic to view full-screen media or details
-                // For example, navigate to a media viewer screen
-              },
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  image: DecorationImage(
-                    image: NetworkImage(
-                      media.url ?? '',
-                    ), // Assuming media.url is the image URL
-                    fit: BoxFit.cover,
-                  ),
+      final formattedMediaList = mediaItems
+          .map(
+            (item) => {
+              'url': item.url,
+              'type': item.type,
+            },
+          )
+          .toList();
+
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            controller.fetchNextFeedMediaPage();
+          }
+          return false;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.getFeedMedia();
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                'Media ( $totalMedia )',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
               ),
-            );
-          },
+              const SizedBox(height: 12),
+              GridView.builder(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 3, // 3 items per row
+                  crossAxisSpacing: 8,
+                  mainAxisSpacing: 8,
+                ),
+                itemCount: formattedMediaList.length + (isLoadingMore ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (index == formattedMediaList.length && isLoadingMore) {
+                    return const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(8),
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  }
+                  if (index < 0 || index >= formattedMediaList.length) {
+                    return const SizedBox.shrink();
+                  }
+                  final media = formattedMediaList[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Get.to(
+                        () => MediaViewer(
+                          mediaList: formattedMediaList,
+                          initialIndex: index,
+                        ),
+                      );
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        image: DecorationImage(
+                          image: NetworkImage(
+                            media['url'] ?? '',
+                          ),
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ],
+          ),
         ),
       );
     });
@@ -332,6 +465,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       final savedPosts =
           tribeController.feedSavedPostsModel.value.data?.savedPosts ?? [];
       final state = tribeController.getFeedSavedPostState.value;
+      final isLoadingMore = tribeController.isLoadingMoreSaved.value;
+      final hasMore = tribeController.currentSavedPage.value <
+          tribeController.lastSavedPage.value;
 
       if (state == TheStates.initial) {
         return const Center(
@@ -418,11 +554,24 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           }
         },
         child: ListView.builder(
+          controller: _savedScrollController,
           padding: const EdgeInsets.all(16),
-          itemCount: savedPosts.length,
+          itemCount: savedPosts.length + (hasMore || isLoadingMore ? 1 : 0),
           itemBuilder: (context, index) {
+            if (index == savedPosts.length && (hasMore || isLoadingMore)) {
+              return const Padding(
+                padding: EdgeInsets.symmetric(vertical: 16),
+                child: Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  ),
+                ),
+              );
+            }
+            if (index >= savedPosts.length) return const SizedBox.shrink();
             final post = savedPosts[index];
             return FeedPost(
+              groupId: post.groupId.toString(),
               post: post,
             );
           },

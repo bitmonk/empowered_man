@@ -1,8 +1,7 @@
+import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/data/model/add_members_model.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
-import 'package:dio/dio.dart';
-import 'package:get/get.dart';
 
 class AddTribeMember extends StatefulWidget {
   const AddTribeMember({
@@ -122,13 +121,17 @@ class _AddTribeMemberState extends State<AddTribeMember> {
                                   height: 30,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
-                                      Assets.images.profilePic.image(
-                                          width: 30,
-                                          height: 30,
-                                          fit: BoxFit.cover),
+                                      const Icon(
+                                    Icons.account_circle,
+                                    size: 30,
+                                    color: Colors.white54,
+                                  ),
                                 )
-                              : Assets.images.profilePic.image(
-                                  width: 30, height: 30, fit: BoxFit.cover),
+                              : const Icon(
+                                  Icons.account_circle,
+                                  size: 30,
+                                  color: Colors.white54,
+                                ),
                         ),
                         const HorizontalSpacing(4),
                         Text(
@@ -180,11 +183,17 @@ class _AddTribeMemberState extends State<AddTribeMember> {
                               height: 40,
                               fit: BoxFit.cover,
                               errorBuilder: (context, error, stackTrace) =>
-                                  Assets.images.profilePic.image(
-                                      width: 40, height: 40, fit: BoxFit.cover),
+                                  const Icon(
+                                Icons.account_circle,
+                                size: 40,
+                                color: Colors.white54,
+                              ),
                             )
-                          : Assets.images.profilePic
-                              .image(width: 40, height: 40, fit: BoxFit.cover),
+                          : const Icon(
+                              Icons.account_circle,
+                              size: 40,
+                              color: Colors.white54,
+                            ),
                     ),
                     title: Row(
                       children: [

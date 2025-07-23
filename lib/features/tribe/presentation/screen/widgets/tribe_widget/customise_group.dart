@@ -23,7 +23,8 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
   List<String> members = [];
 
   Future<void> _pickImageFromGallery(
-      TribeGroupController tribeController,) async {
+    TribeGroupController tribeController,
+  ) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -34,7 +35,10 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
       );
 
       if (image != null) {
-        tribeController.setGroupImage(image.path);
+        setState(() {
+          // Ensure UI updates instantly
+          tribeController.setGroupImage(image.path);
+        });
       }
     } catch (e) {
       print('Error picking image: $e');
@@ -45,6 +49,8 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
   @override
   void initState() {
     super.initState();
+    tribeController
+        .fetchAccessTypes(); // Fetch access types like in create group
     // Load group details when the widget is initialized
     tribeController.loadGroupDetails(widget.groupId).then((_) {
       setState(() {
@@ -177,6 +183,7 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                 const VerticalSpacing(20),
                 OutlinedButton.icon(
                   onPressed: () {
+                    context.hideKeyboard();
                     showModalBottomSheet(
                       context: context,
                       isScrollControlled: true,
@@ -286,11 +293,67 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                 ),
                 const SizedBox(height: 16),
                 // Access Type
-                AppTextFormField(
-                  labelText: 'Access Type',
-                  controller: tribeController.accessTypeController,
-                  hintText: 'Enter Access Type',
-                  floatingLabelBehavior: FloatingLabelBehavior.always,
+                // AppTextFormField(
+                //   labelText: 'Access Type',
+                //   controller: tribeController.accessTypeController,
+                //   hintText: 'Enter Access Type',
+                //   floatingLabelBehavior: FloatingLabelBehavior.always,
+                // ),
+                Obx(
+                  () => DropdownButtonFormField<String>(
+                    decoration: InputDecoration(
+                      labelText: 'Access Type',
+                      labelStyle: const TextStyle(color: Colors.white),
+                      hintText: 'Select Access Type',
+                      hintStyle: const TextStyle(color: Colors.white54),
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white30),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.white30),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: const BorderSide(color: Colors.blue),
+                      ),
+                    ),
+                    value: tribeController.accessTypeController.text.isNotEmpty
+                        ? tribeController.accessTypeController.text
+                        : null,
+                    hint: const Text(
+                      'Select Access Type',
+                      style: TextStyle(color: Colors.white54),
+                    ),
+                    items: tribeController.accessTypes
+                        .map(
+                          (type) => DropdownMenuItem<String>(
+                            value: type,
+                            child: Text(
+                              type,
+                              style: const TextStyle(color: Colors.white),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) {
+                        tribeController.accessTypeController.text = value;
+                      }
+                    },
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Access type is required';
+                      }
+                      return null;
+                    },
+                    dropdownColor: const Color(0xFF0D1B2A),
+                    icon:
+                        const Icon(Icons.arrow_drop_down, color: Colors.white),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 // Buttons
@@ -301,6 +364,16 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                         text: 'Save',
                         onPressed: () {
                           print(tribeController.accessTypeController.text);
+                          final currentMembers = members.isNotEmpty
+                              ? members
+                              : (tribeController.groupDetailModel.value.data
+                                      ?.about?.members
+                                      ?.map(
+                                        (member) =>
+                                            member.user?.id.toString() ?? '',
+                                      )
+                                      .toList() ??
+                                  []);
                           tribeController
                               .editGroup(
                             groupId: tribeController
@@ -317,7 +390,7 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                                             .startsWith('http')
                                     ? tribeController.groupImagePath
                                     : null,
-                            membersId: members,
+                            membersId: currentMembers,
                           )
                               .then((_) {
                             if (tribeController.editGroupState.value ==

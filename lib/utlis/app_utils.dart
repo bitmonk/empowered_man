@@ -20,6 +20,7 @@ class AppUtils {
   }
 
   static OverlayEntry? _overlayEntry;
+  static OverlayEntry? _progressOverlayEntry;
 
   static void showLoadingDialog(BuildContext context) {
     if (_overlayEntry != null) return;
@@ -46,7 +47,7 @@ class AppUtils {
     _overlayEntry = null;
   }
 
-  static void showSnackbar({required String message}) {
+  static void showSnackbar({required String message, Duration? duration}) {
     if (!Get.isSnackbarOpen) {
       Get.showSnackbar(
         GetSnackBar(
@@ -80,7 +81,7 @@ class AppUtils {
             colors: [Colors.green, Colors.lightGreen],
           ),
           snackPosition: SnackPosition.TOP,
-          duration: const Duration(seconds: 5),
+          duration: duration ?? const Duration(seconds: 5),
         ),
       );
     }
@@ -202,6 +203,80 @@ class AppUtils {
         ),
       );
     }
+  }
+
+  static void showUploadProgress(BuildContext context, RxDouble progress) {
+    if (_progressOverlayEntry != null) return;
+    _progressOverlayEntry = OverlayEntry(
+      builder: (_) => Obx(() => Align(
+            alignment: Alignment.topCenter,
+            child: SafeArea(
+              child: Material(
+                color: Colors.transparent,
+                child: Container(
+                  margin:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: AppColors.bgMedium,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.white.withAlpha(100),
+                      width: 2,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.08),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  width: 340,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('Uploading...',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,),),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: LinearProgressIndicator(
+                              value: progress.value,
+                              minHeight: 6,
+                              backgroundColor: Colors.white24,
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                AppColors.primary500,
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            '${(progress.value * 100).toStringAsFixed(0)}%',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w500,),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),),
+    );
+    Overlay.of(context).insert(_progressOverlayEntry!);
+  }
+
+  static void hideUploadProgress() {
+    _progressOverlayEntry?.remove();
+    _progressOverlayEntry = null;
   }
 
   static Future<XFile?> pickImage(BuildContext context) async {

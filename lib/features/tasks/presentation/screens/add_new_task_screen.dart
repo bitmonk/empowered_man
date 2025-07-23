@@ -109,17 +109,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // AppTextFormField(
-                  //   enabledBorderSide:
-                  //       const BorderSide(color: AppColors.color354451),
-                  //   labelText: 'Description',
-                  //   controller: descriptionController,
-                  //   validator: ValidationBuilder().required().build(),
-                  //   onChanged: (v) {
-                  //     addTaskRequestModel.description = v;
-                  //   },
-                  // ),
-                  // const SizedBox(height: 16),
+
                   Row(
                     children: [
                       Expanded(

@@ -1,7 +1,12 @@
+import 'dart:typed_data';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/enum/the_states.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
+import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class MediaTab extends StatefulWidget {
   const MediaTab({required this.groupId, super.key});
@@ -17,8 +22,172 @@ class _MediaTabState extends State<MediaTab> {
   @override
   void initState() {
     super.initState();
-    // Load group media when the widget is initialized
     controller.loadGroupMedia(widget.groupId);
+  }
+
+  String _getMediaType(String url) {
+    final extension = url.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+      case 'png':
+      case 'webp':
+        return 'image';
+      case 'gif':
+        return 'gif';
+      case 'mp4':
+      case 'mov':
+      case 'avi':
+      case 'mkv':
+        return 'video';
+      case 'pdf':
+        return 'document';
+      default:
+        return 'image';
+    }
+  }
+
+  Widget _buildMedia(List<Map<String, dynamic>> mediaList) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 8,
+        mainAxisSpacing: 8,
+      ),
+      itemCount: mediaList.length,
+      itemBuilder: (context, index) {
+        return GestureDetector(
+          onTap: () => _openMediaViewer(mediaList, index),
+          child: _buildSingleMedia(mediaList[index]),
+        );
+      },
+    );
+  }
+
+  void _openMediaViewer(
+      List<Map<String, dynamic>> mediaList, int initialIndex,) {
+    Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
+  }
+
+  Widget _buildSingleMedia(Map<String, dynamic> item) {
+    final url = item['url'] as String;
+    final type = item['type'] as String;
+
+    switch (type) {
+      case 'image':
+      case 'gif':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: CachedNetworkImage(
+            imageUrl: url,
+            fit: BoxFit.cover,
+            placeholder: (context, url) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
+            ),
+            errorWidget: (context, url, error) => Container(
+              color: Colors.grey[800],
+              child: const Center(
+                child: Icon(
+                  Icons.broken_image,
+                  color: Colors.white54,
+                  size: 40,
+                ),
+              ),
+            ),
+          ),
+        );
+      case 'document':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Container(
+            color: Colors.grey[800],
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.picture_as_pdf,
+                  color: Colors.white,
+                  size: 40,
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 8),
+                  child: Text(
+                    url.split('/').last,
+                    style: const TextStyle(color: Colors.white, fontSize: 12),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      case 'video':
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              FutureBuilder<Uint8List?>(
+                future: VideoThumbnail.thumbnailData(
+                  video: url,
+                  maxWidth: 400,
+                  quality: 60,
+                ),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const ColoredBox(
+                      color: Colors.black,
+                      child: Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                    );
+                  } else if (snapshot.hasData && snapshot.data != null) {
+                    return Image.memory(
+                      snapshot.data!,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                    );
+                  } else {
+                    return const ColoredBox(
+                      color: Colors.black,
+                      child: Center(
+                        child: Icon(Icons.videocam,
+                            color: Colors.white38, size: 48,),
+                      ),
+                    );
+                  }
+                },
+              ),
+              const Icon(Icons.play_circle_fill, color: Colors.white, size: 48),
+              Positioned(
+                bottom: 8,
+                left: 0,
+                right: 0,
+                child: Text(
+                  url.split('/').last,
+                  style: const TextStyle(color: Colors.white, fontSize: 12),
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ],
+          ),
+        );
+      default:
+        return const SizedBox.shrink();
+    }
   }
 
   @override
@@ -27,6 +196,9 @@ class _MediaTabState extends State<MediaTab> {
       final mediaData = controller.groupMediaModel.value.data;
       final isLoading = controller.groupMediaState.value == TheStates.loading;
       final hasError = controller.groupMediaState.value == TheStates.error;
+      final isLoadingMore = controller.isLoadingMoreGroupMedia.value;
+      final hasMore = controller.currentGroupMediaPage.value <
+          controller.lastGroupMediaPage.value;
 
       if (isLoading) {
         return const Center(child: CircularProgressIndicator());
@@ -54,57 +226,82 @@ class _MediaTabState extends State<MediaTab> {
       final mediaList = mediaData.medias ?? [];
       final totalMedia = mediaData.meta?.total ?? 0;
 
-      return ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Text(
-            'Media ($totalMedia)', // Dynamic count from meta.total
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (mediaList.isEmpty)
-            const Center(
-              child: Text(
-                'No media available',
-                style: TextStyle(color: Colors.white60),
+      // Convert mediaList to a list of maps with URL and type
+      final formattedMediaList = mediaList
+          .map((media) => {
+                'url': media.url,
+                'type': _getMediaType(media.url!),
+              },)
+          .toList();
+
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            controller.fetchNextGroupMediaPage(widget.groupId);
+          }
+          return false;
+        },
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await controller.loadGroupMedia(widget.groupId,);
+          },
+          child: ListView(
+            padding: const EdgeInsets.all(16),
+            children: [
+              Text(
+                'Media ( $totalMedia)',
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-            )
-          else
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: mediaList.length,
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 3,
-                crossAxisSpacing: 8,
-                mainAxisSpacing: 8,
-              ),
-              itemBuilder: (context, index) {
-                final mediaUrl = mediaList[index];
-                return ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    mediaUrl.url!,
-                    fit: BoxFit.cover,
-                    loadingBuilder: (context, child, loadingProgress) {
-                      if (loadingProgress == null) return child;
-                      return const Center(child: CircularProgressIndicator());
-                    },
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        color: Colors.grey[300],
-                        child: const Icon(Icons.error, color: Colors.red),
-                      );
-                    },
+              const SizedBox(height: 12),
+              if (formattedMediaList.isEmpty)
+                const Center(
+                  child: Text(
+                    'No media available',
+                    style: TextStyle(color: Colors.white54),
                   ),
-                );
-              },
-            ),
-        ],
+                )
+              else
+                GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 3,
+                    crossAxisSpacing: 8,
+                    mainAxisSpacing: 8,
+                  ),
+                  itemCount:
+                      formattedMediaList.length + (isLoadingMore ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == formattedMediaList.length && isLoadingMore) {
+                      return const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(8),
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                      );
+                    }
+                    if (index < 0 || index >= formattedMediaList.length) {
+                      return const SizedBox.shrink();
+                    }
+                    return GestureDetector(
+                      onTap: () => _openMediaViewer(formattedMediaList, index),
+                      child: _buildSingleMedia(formattedMediaList[index]),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
       );
     });
   }

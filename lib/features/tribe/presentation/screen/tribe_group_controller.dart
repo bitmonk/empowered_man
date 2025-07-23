@@ -9,6 +9,7 @@ import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
+import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/manage_pin_group_sheet.dart';
 
@@ -25,6 +26,7 @@ class TribeGroupController extends GetxController {
   final RxList<String> accessTypes = <String>[].obs; // Added for access types
   final Rx<TheStates> accessTypesState =
       TheStates.initial.obs; // Added for access types state
+  final RxDouble uploadProgress = 0.0.obs;
 
   Map<String, List<GroupModel>> filteredGroups = {
     'all': [],
@@ -183,10 +185,24 @@ class TribeGroupController extends GetxController {
   }
 
   List<GroupModel> get pinnedGroups {
+    if (selectedFilters.value == 'Admin_only') {
+      return currentGroups
+          .where((group) =>
+              group.isPinned == true &&
+              (group.accessType?.toLowerCase() == 'admin_only'),)
+          .toList();
+    }
     return currentGroups.where((group) => group.isPinned == true).toList();
   }
 
   List<GroupModel> get unpinnedGroups {
+    if (selectedFilters.value == 'Admin_only') {
+      return currentGroups
+          .where((group) =>
+              group.isPinned != true &&
+              (group.accessType?.toLowerCase() == 'admin_only'),)
+          .toList();
+    }
     return currentGroups.where((group) => group.isPinned != true).toList();
   }
 
@@ -564,8 +580,17 @@ class TribeGroupController extends GetxController {
     }
   }
 
-  void navigateToFeedPage(String groupId) {
-    Get.to(() => FeedPageScreen(groupId: groupId));
+  void navigateToFeedPage(String groupId, bool isAdmin, String accessType) {
+    final feedPageController =
+        Get.find<FeedPageController>();
+    feedPageController.currentTabIndex.value = 0; // Reset to posts tab
+    Get.to(
+      () => FeedPageScreen(
+        groupId: groupId,
+        isAdmin: isAdmin,
+        accessType: accessType,
+      ),
+    );
   }
 
   void showManagePinGroupSheet(BuildContext context) {

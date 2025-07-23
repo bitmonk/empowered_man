@@ -36,18 +36,23 @@ class AppScaffold extends StatelessWidget {
   final Widget? endDrawer;
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      
-      endDrawer: endDrawer,
-      backgroundColor: backgroundColor,
-      key: key,
-      drawer: drawer,
-      appBar: appBar,
-      floatingActionButton: floatingActionButton,
-      body: body,
-      bottomNavigationBar: bottomNavigationBar,
-      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
-      floatingActionButtonLocation: floatingActionButtonLocation,
+    return GestureDetector(
+      onTap: () {
+        context.hideKeyboard();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Scaffold(
+        endDrawer: endDrawer,
+        backgroundColor: backgroundColor,
+        key: key,
+        drawer: drawer,
+        appBar: appBar,
+        floatingActionButton: floatingActionButton,
+        body: body,
+        bottomNavigationBar: bottomNavigationBar,
+        resizeToAvoidBottomInset: resizeToAvoidBottomInset,
+        floatingActionButtonLocation: floatingActionButtonLocation,
+      ),
     );
   }
 }

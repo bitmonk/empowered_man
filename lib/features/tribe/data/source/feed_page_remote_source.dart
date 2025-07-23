@@ -4,7 +4,6 @@ import 'package:empowered/core/dio_provider/api_error.dart';
 import 'package:empowered/core/dio_provider/api_response.dart';
 import 'package:empowered/core/dio_provider/dio_api_client.dart';
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
-// import 'package:empowered/features/tribe/data/model/comment_replies_model.dart';
 import 'package:empowered/features/tribe/data/model/create_post_response_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_media_model.dart';
 import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
@@ -18,10 +17,17 @@ class FeedPageRemoteSource {
 
   final DioApiClient _client;
 
-  Future<Either<AppError, FeedPostsModel>> getFeedPosts() async {
+  Future<Either<AppError, FeedPostsModel>> getFeedPosts({
+    int page = 1,
+    int limit = 5,
+  }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getFeedPosts,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
       );
       return right(FeedPostsModel.fromJson(response));
     } catch (e) {
@@ -33,10 +39,19 @@ class FeedPageRemoteSource {
     }
   }
 
-  Future<Either<AppError, FeedSavedPostsModel>> getSavedPost() async {
+  Future<Either<AppError, FeedSavedPostsModel>> getFeedSavedPosts({
+    int page = 1,
+    int limit = 10,
+    CancelToken? cancelToken,
+  }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getFeedSavedPost,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
       );
       return right(FeedSavedPostsModel.fromJson(response));
     } catch (e) {
@@ -48,9 +63,18 @@ class FeedPageRemoteSource {
     }
   }
 
-  Future<Either<AppError, FeedMediaModel>> getFeedMedia() async {
+  Future<Either<AppError, FeedMediaModel>> getFeedMedia({
+    int? page = 1,
+    int limit = 20,
+  }) async {
     try {
-      final response = await _client.get(AppEndpoints.getFeedMedia);
+      final response = await _client.get(
+        AppEndpoints.getFeedMedia,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+      );
       return right(FeedMediaModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -64,7 +88,8 @@ class FeedPageRemoteSource {
   Future<Either<AppError, CreatePostResponseModel>> createPost({
     required String groupId,
     String? text,
-    List<Map<String, String>>? media, // Updated to accept path and type
+    List<Map<String, String>>? media,
+    ProgressCallback? onSendProgress,
   }) async {
     try {
       final formDataMap = FormData.fromMap({
@@ -104,6 +129,7 @@ class FeedPageRemoteSource {
       final response = await _client.post(
         AppEndpoints.createPost,
         body: formDataMap,
+        onSendProgress: onSendProgress,
       );
       return right(CreatePostResponseModel.fromJson(response));
     } catch (e) {
@@ -157,12 +183,16 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, PostCommentsModel>> getComments({
     required String postId,
+    int page = 1,
+    int limit = 5,
   }) async {
     try {
       final response = await _client.get(
         AppEndpoints.getPostComments,
         queryParameters: {
           'post_id': postId,
+          'page': page,
+          'per_page': limit,
         },
       );
       return right(PostCommentsModel.fromJson(response));
@@ -228,10 +258,16 @@ class FeedPageRemoteSource {
 
   Future<Either<AppError, CommentRepliesModel>> getCommentReplies({
     required String commentId,
+    int page = 1,
+    int limit = 5,
   }) async {
     try {
       final response = await _client.get(
         '${AppEndpoints.getCommentReplies}?comment_id=$commentId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
       );
       return right(CommentRepliesModel.fromJson(response));
     } catch (e) {
@@ -255,6 +291,62 @@ class FeedPageRemoteSource {
       final response = await _client.post(
         AppEndpoints.replyComment,
         body: formDataMap,
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> deleteComment({
+    required String commentId,
+  }) async {
+    try {
+      final response = await _client.delete(
+        '${AppEndpoints.deleteComment}$commentId',
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> deletePost({
+    required String postId,
+  }) async {
+    try {
+      final response = await _client.delete(
+        '${AppEndpoints.deletePost}$postId',
+      );
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, String>> editCommet({
+    required String commentId,
+    required String text,
+  }) async {
+    try {
+      final response = await _client.post(
+        AppEndpoints.editComment,
+        body: {
+          'comment_id': commentId,
+          'text': text,
+        },
       );
       return right(response['message']);
     } catch (e) {

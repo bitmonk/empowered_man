@@ -11,13 +11,15 @@ class GroupListModel with _$GroupListModel {
     @JsonKey(name: 'data') Data? data,
   }) = _GroupListModel;
 
-  factory GroupListModel.fromJson(Map<String, dynamic> json) => _$GroupListModelFromJson(json);
+  factory GroupListModel.fromJson(Map<String, dynamic> json) =>
+      _$GroupListModelFromJson(json);
 }
 
 @freezed
 class Data with _$Data {
   const factory Data({
     @JsonKey(name: 'groups') List<GroupModel>? groups,
+    @JsonKey(name: 'meta') Meta? meta,
   }) = _Data;
 
   factory Data.fromJson(Map<String, dynamic> json) => _$DataFromJson(json);
@@ -33,10 +35,13 @@ class GroupModel with _$GroupModel {
     @JsonKey(name: 'image') String? image,
     @JsonKey(name: 'member_count') int? memberCount,
     @JsonKey(name: 'is_pinned') bool? isPinned,
+    @JsonKey(name: 'latest_post_time') String? latestPostTime,
+    @JsonKey(name: 'is_admin') bool? isAdmin,
     @JsonKey(name: 'members') List<Member>? members,
   }) = _GroupModel;
 
-  factory GroupModel.fromJson(Map<String, dynamic> json) => _$GroupModelFromJson(json);
+  factory GroupModel.fromJson(Map<String, dynamic> json) =>
+      _$GroupModelFromJson(json);
 }
 
 @freezed
@@ -58,13 +63,25 @@ class User with _$User {
     @JsonKey(name: 'email') String? email,
     @JsonKey(name: 'phone_number') String? phoneNumber,
     @JsonKey(name: 'occupation') String? occupation,
-    @JsonKey(name: 'image') String? image,
+    @JsonKey(name: 'image') dynamic image,
     @JsonKey(name: 'is_coach') bool? isCoach,
-    @JsonKey(name: 'created_at') String? createdAt,
-    @JsonKey(name: 'updated_at') String? updatedAt,
+    @JsonKey(name: 'created_at') DateTime? createdAt,
+    @JsonKey(name: 'updated_at') DateTime? updatedAt,
     @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
     @JsonKey(name: 'agora_user_token') String? agoraUserToken,
   }) = _User;
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+}
+
+@freezed
+class Meta with _$Meta {
+  const factory Meta({
+    @JsonKey(name: 'current_page') int? currentPage,
+    @JsonKey(name: 'total') int? total,
+    @JsonKey(name: 'per_page') int? perPage,
+    @JsonKey(name: 'last_page') int? lastPage,
+  }) = _Meta;
+
+  factory Meta.fromJson(Map<String, dynamic> json) => _$MetaFromJson(json);
 }

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
@@ -8,8 +10,15 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/customise_group.dart';
 
 class FeedPageScreen extends StatefulWidget {
-  const FeedPageScreen({required this.groupId, super.key});
+  const FeedPageScreen({
+    required this.groupId,
+    required this.isAdmin,
+    required this.accessType,
+    super.key,
+  });
   final String groupId;
+  final bool isAdmin;
+  final String accessType;
 
   @override
   State<FeedPageScreen> createState() => _FeedPageScreenState();
@@ -22,6 +31,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
   @override
   void initState() {
     super.initState();
+    controller.currentTabIndex.value = 0; // Always reset to posts tab on entry
     tribeController
       ..loadPostDetails(widget.groupId).then((_) {
         // Fetch comments for all posts after loading post details
@@ -40,6 +50,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
+          surfaceTintColor: AppColors.bgMedium,
           backgroundColor: AppColors.bgMedium,
           elevation: 0,
           leading: IconButton(
@@ -53,37 +64,50 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                   tribeController.groupDetailModel.value.data?.about;
               return Row(
                 children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: groupDetails?.image != null
-                        ? NetworkImage(groupDetails!.image!)
-                        : Assets.images.chatUserPicOne.provider(),
-                    onBackgroundImageError: groupDetails?.image != null
-                        ? (_, __) => Assets.images.chatUserPicOne.provider()
-                        : null,
-                  ),
+                  if (groupDetails?.image != null)
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(groupDetails!.image!),
+                      onBackgroundImageError: (_, __) => null,
+                    )
+                  else
+                    const CircleAvatar(
+                      // radius: 18,
+                      backgroundColor: Colors.white24,
+                      child: Icon(
+                        Icons.group,
+                        color: Colors.white54,
+                        size: 28,
+                      ),
+                    ),
                   const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        groupDetails?.name ?? 'Group',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          groupDetails?.name ?? 'Group',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                      ),
-                      Text(
-                        groupDetails?.accessType ?? 'Open Discussion Group',
-                        style: const TextStyle(
-                          color: Colors.white54,
-                          fontSize: 12,
+                        Text(
+                          '${groupDetails?.accessType} Group',
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const Spacer(),
+                  // const Spacer(),
                   if (controller.isUserCoach)
                     PopupMenuButton<String>(
                       color: const Color(0xFF1E293B),
@@ -91,13 +115,22 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                         borderRadius: BorderRadius.circular(12),
                       ),
                       icon: const Icon(Icons.settings, color: Colors.white),
-                      onSelected: (value) => showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (context) =>
-                            CustomiseGroup(groupId: widget.groupId),
-                      ),
+                      onSelected: (value) async {
+                        if (value == 'Customize Group') {
+                          showModalBottomSheet(
+                            context: context,
+                            isScrollControlled: true,
+                            backgroundColor: Colors.transparent,
+                            builder: (context) =>
+                                CustomiseGroup(groupId: widget.groupId),
+                          );
+                        } else if (value == 'Delete Group') {
+                          // Dummy function: show a snackbar
+                          var success =
+                              await tribeController.deleteGroup(widget.groupId);
+                          if (success) Navigator.pop(context);
+                        }
+                      },
                       itemBuilder: (context) => [
                         const PopupMenuItem(
                           value: 'Customize Group',
@@ -105,6 +138,17 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                             children: [
                               Text(
                                 'Customize Group',
+                                style: TextStyle(color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ),
+                        const PopupMenuItem(
+                          value: 'Delete Group', // Fixed value here
+                          child: Row(
+                            children: [
+                              Text(
+                                'Delete Group',
                                 style: TextStyle(color: Colors.white),
                               ),
                             ],
@@ -125,7 +169,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           _buildTabs(controller),
           const SizedBox(height: 12),
           Expanded(child: _buildTabContent(controller)),
-          VerticalSpacing(MediaQuery.of(context).viewPadding.bottom + 16),
+          VerticalSpacing(
+            Platform.isAndroid ? context.devicePaddingBottom : 0,
+          ),
         ],
       ),
     );
@@ -137,8 +183,20 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: List.generate(controller.tabs.length, (index) {
           return GestureDetector(
-            onTap: () {
+            onTap: () async {
               controller.changeTab(index);
+              // Refresh posts when Post tab is pressed
+              if (index == 0) {
+                await tribeController.loadPostDetails(widget.groupId);
+                final posts =
+                    tribeController.groupPostModel.value.data?.posts ?? [];
+                for (final post in posts) {
+                  await controller.getPostComments(
+                    postId: post.id?.toString() ?? '',
+                  );
+                }
+                setState(() {}); // Force widget rebuild to reflect updated data
+              }
               // Fetch saved posts and their comments when Saved tab is pressed
               if (index == 3) {
                 tribeController.getSavedPosts(widget.groupId).then((_) {
@@ -185,23 +243,48 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
 
   Widget _buildTabContent(FeedPageController controller) {
     return Obx(() {
-      switch (controller.currentTabIndex.value) {
-        case 0:
-          return _buildPostTab();
-        case 1:
-          return AboutTab(groupId: widget.groupId);
-        case 2:
-          return MediaTab(groupId: widget.groupId);
-        case 3:
-          return _buildSavedTab();
-        default:
-          return const Center(
-            child: Text(
-              'Coming Soon...',
-              style: TextStyle(color: Colors.white70),
+      final isPostLoading =
+          tribeController.postDetailState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 0;
+      final isSavedLoading =
+          tribeController.savedPostState.value == TheStates.loading &&
+              controller.currentTabIndex.value == 3;
+      final isLoading = isPostLoading || isSavedLoading;
+      return Stack(
+        children: [
+          // Main tab content
+          Builder(
+            builder: (_) {
+              switch (controller.currentTabIndex.value) {
+                case 0:
+                  return _buildPostTab();
+                case 1:
+                  return AboutTab(groupId: widget.groupId);
+                case 2:
+                  return MediaTab(groupId: widget.groupId);
+                case 3:
+                  return _buildSavedTab();
+                default:
+                  return const Center(
+                    child: Text(
+                      'Coming Soon...',
+                      style: TextStyle(color: Colors.white70),
+                    ),
+                  );
+              }
+            },
+          ),
+          if (isLoading)
+            ColoredBox(
+              color: Colors.black.withOpacity(0.3),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                ),
+              ),
             ),
-          );
-      }
+        ],
+      );
     });
   }
 
@@ -209,6 +292,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
     return Obx(() {
       final posts = tribeController.groupPostModel.value.data?.posts ?? [];
       final state = tribeController.postDetailState.value;
+      final isLoadingMore = tribeController.isLoadingMoreGroupPosts.value;
+      final hasMore = tribeController.currentGroupFeedPage.value <
+          tribeController.lastGroupFeedPage.value;
 
       if (state == TheStates.loading && posts.isEmpty) {
         return const Center(
@@ -242,10 +328,11 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       if (posts.isEmpty) {
         return Column(
           children: [
-            Padding(
-              padding: const EdgeInsets.all(16),
-              child: _createPostInput(),
-            ),
+            if (widget.accessType == 'Open Discussion')
+              Padding(
+                padding: const EdgeInsets.all(16),
+                child: _createPostInput(),
+              ),
             VerticalSpacing(Get.height * 0.25),
             const Text(
               'No posts yet',
@@ -255,35 +342,63 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () async {
-          await tribeController.loadPostDetails(widget.groupId);
-          final posts = tribeController.groupPostModel.value.data?.posts ?? [];
-          for (final post in posts) {
-            await controller.getPostComments(postId: post.id?.toString() ?? '');
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            tribeController.fetchNextGroupFeedPostsPage(widget.groupId);
           }
-          setState(() {}); // Force widget rebuild to reflect updated likes
+          return false;
         },
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: posts.length + 1,
-          itemBuilder: (context, index) {
-            if (index == 0) {
-              return Column(
-                children: [
-                  _createPostInput(),
-                  const SizedBox(height: 12),
-                ],
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await tribeController.loadPostDetails(widget.groupId);
+            final posts =
+                tribeController.groupPostModel.value.data?.posts ?? [];
+            for (final post in posts) {
+              await controller.getPostComments(
+                postId: post.id?.toString() ?? '',
               );
             }
-
-            final postIndex = index - 1;
-            final post = posts[postIndex];
-
-            return FeedPost(
-              post: post,
-            );
+            setState(() {}); // Force widget rebuild to reflect updated likes
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: posts.length + 1 + (isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == 0) {
+                return widget.accessType == 'Open Discussion'
+                    ? Column(
+                        children: [
+                          _createPostInput(),
+                          const SizedBox(height: 12),
+                        ],
+                      )
+                    : const SizedBox.shrink();
+              }
+              if (index == posts.length + 1 && isLoadingMore) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                );
+              }
+              final postIndex = index - 1;
+              if (postIndex < 0 || postIndex >= posts.length) {
+                return const SizedBox.shrink();
+              }
+              final post = posts[postIndex];
+              return FeedPost(
+                post: post,
+                groupId: widget.groupId,
+              );
+            },
+          ),
         ),
       );
     });
@@ -313,17 +428,16 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Assets.images.leaderProfile.image(
-                        height: 40,
-                        width: 40,
-                        fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: Colors.white54,
                       ),
                     )
-                  : Assets.images.leaderProfile.image(
-                      height: 40,
-                      width: 40,
-                      fit: BoxFit.cover,
+                  : const Icon(
+                      Icons.account_circle,
+                      size: 40,
+                      color: Colors.white54,
                     ),
             ),
             const SizedBox(width: 12),
@@ -348,6 +462,9 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       final savedPosts =
           tribeController.savedPostsModel.value.data?.savedPosts ?? [];
       final state = tribeController.savedPostState.value;
+      final isLoadingMore = tribeController.isLoadingMoreSaved.value;
+      final hasMore = tribeController.currentSavedPage.value <
+          tribeController.lastSavedPage.value;
 
       if (state == TheStates.initial) {
         return const Center(
@@ -424,24 +541,51 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
         );
       }
 
-      return RefreshIndicator(
-        onRefresh: () async {
-          await tribeController.getSavedPosts(widget.groupId);
-          final savedPosts =
-              tribeController.savedPostsModel.value.data?.savedPosts ?? [];
-          for (final post in savedPosts) {
-            await controller.getPostComments(postId: post.id?.toString() ?? '');
+      return NotificationListener<ScrollNotification>(
+        onNotification: (ScrollNotification scrollInfo) {
+          if (!isLoadingMore &&
+              hasMore &&
+              scrollInfo.metrics.pixels >=
+                  scrollInfo.metrics.maxScrollExtent - 200) {
+            tribeController.fetchNextGroupSavedPostsPage(widget.groupId);
           }
+          return false;
         },
-        child: ListView.builder(
-          padding: const EdgeInsets.all(16),
-          itemCount: savedPosts.length,
-          itemBuilder: (context, index) {
-            final post = savedPosts[index];
-            return FeedPost(
-              post: post,
-            );
+        child: RefreshIndicator(
+          onRefresh: () async {
+            await tribeController.getSavedPosts(widget.groupId);
+            final savedPosts =
+                tribeController.savedPostsModel.value.data?.savedPosts ?? [];
+            for (final post in savedPosts) {
+              await controller.getPostComments(
+                postId: post.id?.toString() ?? '',
+              );
+            }
           },
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: savedPosts.length + (isLoadingMore ? 1 : 0),
+            itemBuilder: (context, index) {
+              if (index == savedPosts.length && isLoadingMore) {
+                return const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                    ),
+                  ),
+                );
+              }
+              if (index < 0 || index >= savedPosts.length) {
+                return const SizedBox.shrink();
+              }
+              final post = savedPosts[index];
+              return FeedPost(
+                post: post,
+                groupId: widget.groupId,
+              );
+            },
+          ),
         ),
       );
     });

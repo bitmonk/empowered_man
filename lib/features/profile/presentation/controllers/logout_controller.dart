@@ -1,4 +1,3 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/data/model/user_profile_model.dart';
@@ -17,8 +16,8 @@ class LogoutController extends GetxController {
 
     try {
       // Log out from Agora Chat SDK
-      await ChatClient.getInstance.logout(); // true to clear local data
-      print('Agora Chat SDK logged out successfully');
+      // await ChatClient.getInstance.logout(); // true to clear local data
+      // print('Agora Chat SDK logged out successfully');
 
       // Reset ProfileController's userProfile
       final profileController = Get.find<ProfileController>();

@@ -5,8 +5,11 @@ import 'package:empowered/features/tribe/presentation/controller/tribe_group_con
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/feed_post.dart';
 
 class UserFeedPageScreen extends StatefulWidget {
-  const UserFeedPageScreen(
-      {required this.group, required this.member, super.key,});
+  const UserFeedPageScreen({
+    required this.group,
+    required this.member,
+    super.key,
+  });
   final GroupAboutModel group;
   final Member member;
   @override
@@ -20,8 +23,10 @@ class _UserFeedPageScreenState extends State<UserFeedPageScreen> {
   @override
   void initState() {
     super.initState();
-    tribeController.loadUserPost(widget.group.data!.about!.id.toString(),
-        widget.member.user!.id.toString(),);
+    tribeController.loadUserPost(
+      widget.group.data!.about!.id.toString(),
+      widget.member.user!.id.toString(),
+    );
   }
 
   @override
@@ -39,53 +44,54 @@ class _UserFeedPageScreenState extends State<UserFeedPageScreen> {
             onPressed: () => Get.back(),
           ),
           title: Padding(
-              padding: const EdgeInsets.only(top: 16),
-              child: Row(
-                children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: groupDetails.image != null
-                        ? NetworkImage(groupDetails.image!)
-                        : Assets.images.chatUserPicOne.provider(),
-                    onBackgroundImageError: groupDetails.image != null
-                        ? (_, __) => Assets.images.chatUserPicOne.provider()
-                        : null,
-                  ),
-                  const SizedBox(width: 12),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        widget.member.user?.fullName ?? 'User',
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+            padding: const EdgeInsets.only(top: 16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 18,
+                  backgroundImage: groupDetails.image != null
+                      ? NetworkImage(groupDetails.image!)
+                      : Assets.images.chatUserPicOne.provider(),
+                  onBackgroundImageError: groupDetails.image != null
+                      ? (_, __) => Assets.images.chatUserPicOne.provider()
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.member.user?.fullName ?? 'User',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          groupDetails.name ?? 'Group',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
                         ),
-                      ),
-                      Row(
-                        children: [
-                          Text(
-                            groupDetails.name ?? 'Group',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
+                        Text(
+                          ' (${groupDetails.accessType ?? 'Open Discussion Group'})',
+                          style: const TextStyle(
+                            color: Colors.white54,
+                            fontSize: 12,
                           ),
-                          Text(
-                            ' (${groupDetails.accessType ?? 'Open Discussion Group'})',
-                            style: const TextStyle(
-                              color: Colors.white54,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
           centerTitle: false,
         ),
       ),
@@ -153,8 +159,9 @@ class _UserFeedPageScreenState extends State<UserFeedPageScreen> {
               const SizedBox(height: 8),
               TextButton(
                 onPressed: () => tribeController.loadUserPost(
-                    widget.group.data!.about!.id.toString(),
-                    widget.member.user!.id.toString(),),
+                  widget.group.data!.about!.id.toString(),
+                  widget.member.user!.id.toString(),
+                ),
                 child:
                     const Text('Retry', style: TextStyle(color: Colors.blue)),
               ),
@@ -184,8 +191,9 @@ class _UserFeedPageScreenState extends State<UserFeedPageScreen> {
       return RefreshIndicator(
         onRefresh: () async {
           await tribeController.loadUserPost(
-              widget.group.data!.about!.id.toString(),
-              widget.member.user!.id.toString(),);
+            widget.group.data!.about!.id.toString(),
+            widget.member.user!.id.toString(),
+          );
           final posts = tribeController.userPostModel.value.data?.posts ?? [];
           for (final post in posts) {
             await controller.getPostComments(postId: post.id?.toString() ?? '');
@@ -208,6 +216,7 @@ class _UserFeedPageScreenState extends State<UserFeedPageScreen> {
             final post = posts[postIndex];
 
             return FeedPost(
+              groupId: post.groupId.toString(),
               post: post,
             );
           },

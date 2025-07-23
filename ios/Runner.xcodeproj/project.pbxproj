@@ -10,11 +10,13 @@
 		04FCE2ECEFBFA10C158F9009 /* diDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		2BA14A236FAE38CBFD9C3D5D /* Pods_RunnerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 24487FE41B1B69F928E7EE4C /* Pods_RunnerTests.framework */; };
-		2D6CCCF12D9BDB900042A37C /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 2D6CCCF02D9BDB900042A37C /* GoogleService-Info.plist */; };
+		2FD8E4696AD32028882234EA /* productionDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */; };
 		331C808B294A63AB00263BE5 /* RunnerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 331C807B294A618700263BE5 /* RunnerTests.swift */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		47F661DD1B6D0FCC2ED3A847 /* apiRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */; };
 		56D6887D6CE48F5AF4CF24B2 /* apiDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 323404CABB16041368404E54 /* apiDebug.xcconfig */; };
+		588323462E3087720047D641 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 588323452E3087720047D641 /* GoogleService-Info.plist */; };
+		5C2C5C24FBBB81CA090784AC /* productionRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */; };
 		6444BEB0280BCFE0895ACB43 /* diProfile.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */; };
 		6600EB182258AC54993EC2A8 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA11BC4D80C1C031FCD39116 /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
@@ -25,6 +27,8 @@
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		98B2AF69EE8EFDF9522A77F7 /* diRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */; };
+		ABE5E88AC13680BA4451B30A /* productionLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 64A7EA15023DB76E6221CDB4 /* productionLaunchScreen.storyboard */; };
+		ACA2F6FB748FE7DFFB0D7F06 /* productionProfile.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,25 +59,33 @@
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		24487FE41B1B69F928E7EE4C /* Pods_RunnerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_RunnerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		2D34C16FB0C40F4557FED88D /* Pods-RunnerTests.debug-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-production.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-production.xcconfig"; sourceTree = "<group>"; };
 		2D6CCCEF2D9BDB1E0042A37C /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
-		2D6CCCF02D9BDB900042A37C /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		2E1577645EB600A6BC6D72F7 /* Pods-RunnerTests.profile-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-di.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-di.xcconfig"; sourceTree = "<group>"; };
+		312A452934C890B21C2F5CDF /* Pods-Runner.profile-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-production.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-production.xcconfig"; sourceTree = "<group>"; };
 		323404CABB16041368404E54 /* apiDebug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = apiDebug.xcconfig; path = Flutter/apiDebug.xcconfig; sourceTree = "<group>"; };
 		331C807B294A618700263BE5 /* RunnerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RunnerTests.swift; sourceTree = "<group>"; };
 		331C8081294A63A400263BE5 /* RunnerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = RunnerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		3403E96530C6C961ED443E69 /* diProfile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = diProfile.xcconfig; path = Flutter/diProfile.xcconfig; sourceTree = "<group>"; };
+		341D44314FDCCA4E138899F3 /* Pods-Runner.debug-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-production.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-production.xcconfig"; sourceTree = "<group>"; };
 		3567ED0F52E35994AEE3FAD5 /* Pods-Runner.debug-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-di.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-di.xcconfig"; sourceTree = "<group>"; };
 		384B43C4866C0061A875A248 /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
+		3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = productionRelease.xcconfig; path = Flutter/productionRelease.xcconfig; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
+		3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = productionDebug.xcconfig; path = Flutter/productionDebug.xcconfig; sourceTree = "<group>"; };
 		3EA33418EA6D2430C0F9B277 /* Pods-RunnerTests.release-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-di.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-di.xcconfig"; sourceTree = "<group>"; };
 		494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = apiProfile.xcconfig; path = Flutter/apiProfile.xcconfig; sourceTree = "<group>"; };
+		588323452E3087720047D641 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		64A7EA15023DB76E6221CDB4 /* productionLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = productionLaunchScreen.storyboard; path = Runner/productionLaunchScreen.storyboard; sourceTree = "<group>"; };
 		6F2C1BE98E8B8929D10D1EEE /* Pods-RunnerTests.debug-api.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-api.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-api.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		767249BE3506AC5C4C47E97A /* Pods-Runner.release-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.release-production.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.release-production.xcconfig"; sourceTree = "<group>"; };
 		77D2E10A733B631591FC131D /* Pods-RunnerTests.release-api.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-api.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-api.xcconfig"; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		7F7B8886EB739665D05641DE /* Pods-Runner.profile-api.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-api.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-api.xcconfig"; sourceTree = "<group>"; };
 		8190CDBA2A98B37C0358437E /* diRelease.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = diRelease.xcconfig; path = Flutter/diRelease.xcconfig; sourceTree = "<group>"; };
+		8CA22F6EE903D2D978B6BA06 /* Pods-RunnerTests.profile-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.profile-production.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.profile-production.xcconfig"; sourceTree = "<group>"; };
 		9740EEB21CF90195004384FC /* Debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Debug.xcconfig; path = Flutter/Debug.xcconfig; sourceTree = "<group>"; };
 		9740EEB31CF90195004384FC /* Generated.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; name = Generated.xcconfig; path = Flutter/Generated.xcconfig; sourceTree = "<group>"; };
 		97C146EE1CF9000F007C117D /* Runner.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Runner.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -86,6 +98,7 @@
 		9F840E555EEC7B8740938808 /* Pods-Runner.profile-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile-di.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile-di.xcconfig"; sourceTree = "<group>"; };
 		ABC04CE1EE759F068CF3B960 /* Pods-RunnerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug.xcconfig"; sourceTree = "<group>"; };
 		B56847C65526B3385E8DFC41 /* apiLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = apiLaunchScreen.storyboard; path = Runner/apiLaunchScreen.storyboard; sourceTree = "<group>"; };
+		B5763B7CEDE5E65BE4977FDA /* Pods-RunnerTests.release-production.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-production.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-production.xcconfig"; sourceTree = "<group>"; };
 		BB516B89544C0ED6734DCF2B /* Pods-RunnerTests.debug-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-di.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-di.xcconfig"; sourceTree = "<group>"; };
 		C8913F2993D6BFFD2C2CF424 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
 		CAB4F241E55C686E1E89A0D6 /* Pods-Runner.debug-api.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug-api.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug-api.xcconfig"; sourceTree = "<group>"; };
@@ -96,6 +109,7 @@
 		E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = diDebug.xcconfig; path = Flutter/diDebug.xcconfig; sourceTree = "<group>"; };
 		EA11BC4D80C1C031FCD39116 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = apiRelease.xcconfig; path = Flutter/apiRelease.xcconfig; sourceTree = "<group>"; };
+		ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = productionProfile.xcconfig; path = Flutter/productionProfile.xcconfig; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -139,6 +153,12 @@
 				6F2C1BE98E8B8929D10D1EEE /* Pods-RunnerTests.debug-api.xcconfig */,
 				E481BDE7675083AACC69C9FB /* Pods-RunnerTests.profile-api.xcconfig */,
 				77D2E10A733B631591FC131D /* Pods-RunnerTests.release-api.xcconfig */,
+				341D44314FDCCA4E138899F3 /* Pods-Runner.debug-production.xcconfig */,
+				312A452934C890B21C2F5CDF /* Pods-Runner.profile-production.xcconfig */,
+				767249BE3506AC5C4C47E97A /* Pods-Runner.release-production.xcconfig */,
+				2D34C16FB0C40F4557FED88D /* Pods-RunnerTests.debug-production.xcconfig */,
+				8CA22F6EE903D2D978B6BA06 /* Pods-RunnerTests.profile-production.xcconfig */,
+				B5763B7CEDE5E65BE4977FDA /* Pods-RunnerTests.release-production.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -164,6 +184,9 @@
 				323404CABB16041368404E54 /* apiDebug.xcconfig */,
 				494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */,
 				ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */,
+				3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */,
+				ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */,
+				3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */,
 			);
 			name = Flutter;
 			sourceTree = "<group>";
@@ -179,6 +202,7 @@
 				CA993D1FF6DD3E5B7C3AA0BD /* Frameworks */,
 				9866B6205A2DC31D0363640B /* diLaunchScreen.storyboard */,
 				B56847C65526B3385E8DFC41 /* apiLaunchScreen.storyboard */,
+				64A7EA15023DB76E6221CDB4 /* productionLaunchScreen.storyboard */,
 			);
 			sourceTree = "<group>";
 		};
@@ -194,7 +218,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				2D6CCCF02D9BDB900042A37C /* GoogleService-Info.plist */,
+				588323452E3087720047D641 /* GoogleService-Info.plist */,
 				2D6CCCEF2D9BDB1E0042A37C /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -315,7 +339,6 @@
 			files = (
 				97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */,
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
-				2D6CCCF12D9BDB900042A37C /* GoogleService-Info.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
 				04FCE2ECEFBFA10C158F9009 /* diDebug.xcconfig in Resources */,
@@ -326,6 +349,11 @@
 				47F661DD1B6D0FCC2ED3A847 /* apiRelease.xcconfig in Resources */,
 				7737694CAFCC8B70BAFFD219 /* diLaunchScreen.storyboard in Resources */,
 				9630DDED797EAF0296B197E6 /* apiLaunchScreen.storyboard in Resources */,
+				588323462E3087720047D641 /* GoogleService-Info.plist in Resources */,
+				2FD8E4696AD32028882234EA /* productionDebug.xcconfig in Resources */,
+				ACA2F6FB748FE7DFFB0D7F06 /* productionProfile.xcconfig in Resources */,
+				5C2C5C24FBBB81CA090784AC /* productionRelease.xcconfig in Resources */,
+				ABE5E88AC13680BA4451B30A /* productionLaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -496,7 +524,7 @@
 			baseConfigurationReference = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -567,11 +595,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-api";
@@ -580,7 +605,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -638,13 +663,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -751,15 +777,87 @@
 			};
 			name = Profile;
 		};
+		35DE606E748154F78DBC82AA /* Debug-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
+				SDKROOT = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = "Debug-production";
+		};
 		4075467649D9DBF81F132946 /* Release-di */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-di";
@@ -768,34 +866,135 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 323404CABB16041368404E54 /* apiDebug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-api";
+		};
+		4A52EAECA8743BE687D06927 /* Release-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Release-production";
+		};
+		58624AEB2E2F8A97007831B1 /* Debug-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 2D34C16FB0C40F4557FED88D /* Pods-RunnerTests.debug-production.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = RunnerTests;
+			};
+			name = "Debug-production";
+		};
+		58624AEC2E2F8A97007831B1 /* Profile-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8CA22F6EE903D2D978B6BA06 /* Pods-RunnerTests.profile-production.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = RunnerTests;
+			};
+			name = "Profile-production";
+		};
+		58624AED2E2F8A97007831B1 /* Release-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = B5763B7CEDE5E65BE4977FDA /* Pods-RunnerTests.release-production.xcconfig */;
+			buildSettings = {
+				PRODUCT_NAME = RunnerTests;
+			};
+			name = "Release-production";
 		};
 		690B68C2CE126D3C122D427F /* Debug-di */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-di";
+		};
+		80E39C8A0A343842E2C7728C /* Debug-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Debug-production";
 		};
 		8C37734620015EC7580B1E20 /* Release-api */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -867,8 +1066,8 @@
 			baseConfigurationReference = 494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -931,6 +1130,28 @@
 				VALIDATE_PRODUCT = YES;
 			};
 			name = "Profile-api";
+		};
+		93AAFF2782AA303B94047432 /* Profile-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Profile-production";
+		};
+		967627CF37422E77E5A2D223 /* Release-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */;
+			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = "Release-production";
 		};
 		97C147031CF9000F007C117D /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -1053,13 +1274,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1079,13 +1301,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1094,13 +1317,83 @@
 			};
 			name = Release;
 		};
+		B546017EC49B09F83C3AAA7C /* Profile-production */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				INFOPLIST_FILE = Runner/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)/Flutter",
+				);
+				MTL_ENABLE_DEBUG_INFO = NO;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
+				SDKROOT = iphoneos;
+				SUPPORTED_PLATFORMS = iphoneos;
+				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = "Profile-production";
+		};
 		C981622D611433B734A6A7A4 /* Profile-di */ = {
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1169,7 +1462,7 @@
 			baseConfigurationReference = 323404CABB16041368404E54 /* apiDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1243,11 +1536,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman.api;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-api";
@@ -1256,11 +1546,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
-				DEVELOPMENT_TEAM = 9UBUKGL69H;
-				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
-				MARKETING_VERSION = 1.1;
-				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-di";
@@ -1270,7 +1557,7 @@
 			baseConfigurationReference = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1355,6 +1642,9 @@
 				2DB3CBC92D9E825000EF734B /* Debug-api */,
 				2DB3CBCA2D9E825000EF734B /* Profile-api */,
 				2DB3CBCB2D9E825000EF734B /* Release-api */,
+				58624AEB2E2F8A97007831B1 /* Debug-production */,
+				58624AEC2E2F8A97007831B1 /* Profile-production */,
+				58624AED2E2F8A97007831B1 /* Release-production */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1371,6 +1661,9 @@
 				CFA5ED62DCB960BC6AD90F50 /* Debug-api */,
 				939AFB12573FD17B888AA5A4 /* Profile-api */,
 				8C37734620015EC7580B1E20 /* Release-api */,
+				35DE606E748154F78DBC82AA /* Debug-production */,
+				B546017EC49B09F83C3AAA7C /* Profile-production */,
+				4A52EAECA8743BE687D06927 /* Release-production */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
@@ -1387,6 +1680,9 @@
 				4770937607EEEE58FB1EA7F3 /* Debug-api */,
 				0DD234E4D7F15233368E316A /* Profile-api */,
 				E2D0EB83D6F0D5F1CD1BF08A /* Release-api */,
+				80E39C8A0A343842E2C7728C /* Debug-production */,
+				93AAFF2782AA303B94047432 /* Profile-production */,
+				967627CF37422E77E5A2D223 /* Release-production */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

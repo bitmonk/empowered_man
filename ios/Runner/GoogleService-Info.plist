@@ -9,7 +9,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.empoweredman.empoweredman</string>
+	<string>com.trainerize.tonibody.empoweredman</string>
 	<key>PROJECT_ID</key>
 	<string>empoweredman-40f5b</string>
 	<key>STORAGE_BUCKET</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:5996932463:ios:cd9936ee191351106ecc9a</string>
+	<string>1:5996932463:ios:352159fc3cb8fe7f6ecc9a</string>
 </dict>
 </plist>

@@ -26,7 +26,7 @@ Map<String, dynamic> _$$FeedSavedPostsModelImplToJson(
 
 _$DataImpl _$$DataImplFromJson(Map<String, dynamic> json) => _$DataImpl(
       savedPosts: (json['saved_posts'] as List<dynamic>?)
-          ?.map((e) => SavedPost.fromJson(e as Map<String, dynamic>))
+          ?.map((e) => Post.fromJson(e as Map<String, dynamic>))
           .toList(),
       meta: json['meta'] == null
           ? null
@@ -54,8 +54,7 @@ Map<String, dynamic> _$$MetaImplToJson(_$MetaImpl instance) =>
       'last_page': instance.lastPage,
     };
 
-_$SavedPostImpl _$$SavedPostImplFromJson(Map<String, dynamic> json) =>
-    _$SavedPostImpl(
+_$PostImpl _$$PostImplFromJson(Map<String, dynamic> json) => _$PostImpl(
       id: (json['id'] as num?)?.toInt(),
       text: json['text'] as String?,
       groupId: (json['group_id'] as num?)?.toInt(),
@@ -80,7 +79,7 @@ _$SavedPostImpl _$$SavedPostImplFromJson(Map<String, dynamic> json) =>
           : DateTime.parse(json['updated_at'] as String),
     );
 
-Map<String, dynamic> _$$SavedPostImplToJson(_$SavedPostImpl instance) =>
+Map<String, dynamic> _$$PostImplToJson(_$PostImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'text': instance.text,
@@ -132,18 +131,4 @@ Map<String, dynamic> _$$CreatedByImplToJson(_$CreatedByImpl instance) =>
       'updated_at': instance.updatedAt?.toIso8601String(),
       'agora_chat_token': instance.agoraChatToken,
       'agora_user_token': instance.agoraUserToken,
-    };
-
-_$MediaImpl _$$MediaImplFromJson(Map<String, dynamic> json) => _$MediaImpl(
-      images:
-          (json['images'] as List<dynamic>?)?.map((e) => e as String).toList(),
-      videos: json['videos'] as List<dynamic>?,
-      documents: json['documents'] as List<dynamic>?,
-    );
-
-Map<String, dynamic> _$$MediaImplToJson(_$MediaImpl instance) =>
-    <String, dynamic>{
-      'images': instance.images,
-      'videos': instance.videos,
-      'documents': instance.documents,
     };

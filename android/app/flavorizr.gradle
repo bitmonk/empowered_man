@@ -12,5 +12,10 @@ android {
             applicationId "com.empoweredman.empoweredman.api"
             resValue "string", "app_name", "Empowered Man API"
         }
+        production {
+            dimension "flavor-type"
+            applicationId "com.trainerize.tonibody.empoweredman"
+            resValue "string", "app_name", "Empowered Man"
+        }
     }
 }

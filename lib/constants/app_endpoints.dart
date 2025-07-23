@@ -54,6 +54,7 @@ class AppEndpoints {
 
   //Reflection Api
   static const String getReflectionByType = '/reflections/type';
+  static const String getReflectionStatusByType = '/reflections/type/status';
   static const String postReflectionAnswer = '/reflection-answers';
   static const String reflectionLibrary = '/reflections-library';
   static const String getUserReflectionBulkDetail = '/user-reflections/details';
@@ -80,6 +81,7 @@ class AppEndpoints {
       '/user/habits-details?date=$date';
   static const String updateDashboardHabit = '/user/habits/update-status';
   static const String dashboardPowerStreak = '/user/weekly-details';
+  static const String getMyMemory = '/my-memory';
 
   //Chat
   static const String searchUser = '/agora/users/search';
@@ -90,6 +92,7 @@ class AppEndpoints {
   static const String addMembers = '/user/add-members';
   static const String removeMembers = '/user/remove-member';
   static const String editGroups = '/user/tribe-group';
+  static const String deleteGroup = '/user/tribe-group/';
 
   //feed post
   static const String getFeedPosts = '/user/post-feed/posts';
@@ -99,9 +102,12 @@ class AppEndpoints {
   static const String commentPost = '/user/post/comment';
   static const String likeComment = '/user/comment/like';
   static const String replyComment = '/user/comment/reply';
+  static const String deleteComment = '/user/delete-comment/';
+  static const String editComment = '/user/comment/edit';
   static const String getCommentReplies = '/user/comment/replies';
   static const String savePost = '/user/post/save';
   static const String hidePost = '/user/post/hide';
+  static const String deletePost = '/user/delete-post/';
   static const String getFeedSavedPost = '/user/post-feed/saved-posts';
 
   //group section

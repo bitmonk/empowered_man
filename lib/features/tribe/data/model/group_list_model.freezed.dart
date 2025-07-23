@@ -20,11 +20,11 @@ GroupListModel _$GroupListModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GroupListModel {
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   bool? get status => throw _privateConstructorUsedError;
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   String? get message => throw _privateConstructorUsedError;
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   Data? get data => throw _privateConstructorUsedError;
 
   /// Serializes this GroupListModel to a JSON map.
@@ -44,9 +44,9 @@ abstract class $GroupListModelCopyWith<$Res> {
       _$GroupListModelCopyWithImpl<$Res, GroupListModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') bool? status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') Data? data});
+      {@JsonKey(name: "status") bool? status,
+      @JsonKey(name: "message") String? message,
+      @JsonKey(name: "data") Data? data});
 
   $DataCopyWith<$Res>? get data;
 }
@@ -110,9 +110,9 @@ abstract class _$$GroupListModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'status') bool? status,
-      @JsonKey(name: 'message') String? message,
-      @JsonKey(name: 'data') Data? data});
+      {@JsonKey(name: "status") bool? status,
+      @JsonKey(name: "message") String? message,
+      @JsonKey(name: "data") Data? data});
 
   @override
   $DataCopyWith<$Res>? get data;
@@ -156,21 +156,21 @@ class __$$GroupListModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupListModelImpl implements _GroupListModel {
   const _$GroupListModelImpl(
-      {@JsonKey(name: 'status') this.status,
-      @JsonKey(name: 'message') this.message,
-      @JsonKey(name: 'data') this.data});
+      {@JsonKey(name: "status") this.status,
+      @JsonKey(name: "message") this.message,
+      @JsonKey(name: "data") this.data});
 
   factory _$GroupListModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupListModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   final bool? status;
   @override
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   final String? message;
   @override
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   final Data? data;
 
   @override
@@ -211,21 +211,21 @@ class _$GroupListModelImpl implements _GroupListModel {
 
 abstract class _GroupListModel implements GroupListModel {
   const factory _GroupListModel(
-      {@JsonKey(name: 'status') final bool? status,
-      @JsonKey(name: 'message') final String? message,
-      @JsonKey(name: 'data') final Data? data}) = _$GroupListModelImpl;
+      {@JsonKey(name: "status") final bool? status,
+      @JsonKey(name: "message") final String? message,
+      @JsonKey(name: "data") final Data? data}) = _$GroupListModelImpl;
 
   factory _GroupListModel.fromJson(Map<String, dynamic> json) =
       _$GroupListModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'status')
+  @JsonKey(name: "status")
   bool? get status;
   @override
-  @JsonKey(name: 'message')
+  @JsonKey(name: "message")
   String? get message;
   @override
-  @JsonKey(name: 'data')
+  @JsonKey(name: "data")
   Data? get data;
 
   /// Create a copy of GroupListModel
@@ -242,8 +242,10 @@ Data _$DataFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Data {
-  @JsonKey(name: 'groups')
+  @JsonKey(name: "groups")
   List<GroupModel>? get groups => throw _privateConstructorUsedError;
+  @JsonKey(name: "meta")
+  Meta? get meta => throw _privateConstructorUsedError;
 
   /// Serializes this Data to a JSON map.
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
@@ -259,7 +261,11 @@ abstract class $DataCopyWith<$Res> {
   factory $DataCopyWith(Data value, $Res Function(Data) then) =
       _$DataCopyWithImpl<$Res, Data>;
   @useResult
-  $Res call({@JsonKey(name: 'groups') List<GroupModel>? groups});
+  $Res call(
+      {@JsonKey(name: "groups") List<GroupModel>? groups,
+      @JsonKey(name: "meta") Meta? meta});
+
+  $MetaCopyWith<$Res>? get meta;
 }
 
 /// @nodoc
@@ -278,13 +284,32 @@ class _$DataCopyWithImpl<$Res, $Val extends Data>
   @override
   $Res call({
     Object? groups = freezed,
+    Object? meta = freezed,
   }) {
     return _then(_value.copyWith(
       groups: freezed == groups
           ? _value.groups
           : groups // ignore: cast_nullable_to_non_nullable
               as List<GroupModel>?,
+      meta: freezed == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as Meta?,
     ) as $Val);
+  }
+
+  /// Create a copy of Data
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @pragma('vm:prefer-inline')
+  $MetaCopyWith<$Res>? get meta {
+    if (_value.meta == null) {
+      return null;
+    }
+
+    return $MetaCopyWith<$Res>(_value.meta!, (value) {
+      return _then(_value.copyWith(meta: value) as $Val);
+    });
   }
 }
 
@@ -295,7 +320,12 @@ abstract class _$$DataImplCopyWith<$Res> implements $DataCopyWith<$Res> {
       __$$DataImplCopyWithImpl<$Res>;
   @override
   @useResult
-  $Res call({@JsonKey(name: 'groups') List<GroupModel>? groups});
+  $Res call(
+      {@JsonKey(name: "groups") List<GroupModel>? groups,
+      @JsonKey(name: "meta") Meta? meta});
+
+  @override
+  $MetaCopyWith<$Res>? get meta;
 }
 
 /// @nodoc
@@ -311,12 +341,17 @@ class __$$DataImplCopyWithImpl<$Res>
   @override
   $Res call({
     Object? groups = freezed,
+    Object? meta = freezed,
   }) {
     return _then(_$DataImpl(
       groups: freezed == groups
           ? _value._groups
           : groups // ignore: cast_nullable_to_non_nullable
               as List<GroupModel>?,
+      meta: freezed == meta
+          ? _value.meta
+          : meta // ignore: cast_nullable_to_non_nullable
+              as Meta?,
     ));
   }
 }
@@ -324,7 +359,9 @@ class __$$DataImplCopyWithImpl<$Res>
 /// @nodoc
 @JsonSerializable()
 class _$DataImpl implements _Data {
-  const _$DataImpl({@JsonKey(name: 'groups') final List<GroupModel>? groups})
+  const _$DataImpl(
+      {@JsonKey(name: "groups") final List<GroupModel>? groups,
+      @JsonKey(name: "meta") this.meta})
       : _groups = groups;
 
   factory _$DataImpl.fromJson(Map<String, dynamic> json) =>
@@ -332,7 +369,7 @@ class _$DataImpl implements _Data {
 
   final List<GroupModel>? _groups;
   @override
-  @JsonKey(name: 'groups')
+  @JsonKey(name: "groups")
   List<GroupModel>? get groups {
     final value = _groups;
     if (value == null) return null;
@@ -342,8 +379,12 @@ class _$DataImpl implements _Data {
   }
 
   @override
+  @JsonKey(name: "meta")
+  final Meta? meta;
+
+  @override
   String toString() {
-    return 'Data(groups: $groups)';
+    return 'Data(groups: $groups, meta: $meta)';
   }
 
   @override
@@ -351,13 +392,14 @@ class _$DataImpl implements _Data {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$DataImpl &&
-            const DeepCollectionEquality().equals(other._groups, _groups));
+            const DeepCollectionEquality().equals(other._groups, _groups) &&
+            (identical(other.meta, meta) || other.meta == meta));
   }
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode =>
-      Object.hash(runtimeType, const DeepCollectionEquality().hash(_groups));
+  int get hashCode => Object.hash(
+      runtimeType, const DeepCollectionEquality().hash(_groups), meta);
 
   /// Create a copy of Data
   /// with the given fields replaced by the non-null parameter values.
@@ -377,13 +419,17 @@ class _$DataImpl implements _Data {
 
 abstract class _Data implements Data {
   const factory _Data(
-      {@JsonKey(name: 'groups') final List<GroupModel>? groups}) = _$DataImpl;
+      {@JsonKey(name: "groups") final List<GroupModel>? groups,
+      @JsonKey(name: "meta") final Meta? meta}) = _$DataImpl;
 
   factory _Data.fromJson(Map<String, dynamic> json) = _$DataImpl.fromJson;
 
   @override
-  @JsonKey(name: 'groups')
+  @JsonKey(name: "groups")
   List<GroupModel>? get groups;
+  @override
+  @JsonKey(name: "meta")
+  Meta? get meta;
 
   /// Create a copy of Data
   /// with the given fields replaced by the non-null parameter values.
@@ -399,21 +445,25 @@ GroupModel _$GroupModelFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$GroupModel {
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'name')
+  @JsonKey(name: "name")
   String? get name => throw _privateConstructorUsedError;
-  @JsonKey(name: 'about')
+  @JsonKey(name: "about")
   String? get about => throw _privateConstructorUsedError;
-  @JsonKey(name: 'access_type')
+  @JsonKey(name: "access_type")
   String? get accessType => throw _privateConstructorUsedError;
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   String? get image => throw _privateConstructorUsedError;
-  @JsonKey(name: 'member_count')
+  @JsonKey(name: "member_count")
   int? get memberCount => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_pinned')
+  @JsonKey(name: "is_pinned")
   bool? get isPinned => throw _privateConstructorUsedError;
-  @JsonKey(name: 'members')
+  @JsonKey(name: "latest_post_time")
+  String? get latestPostTime => throw _privateConstructorUsedError;
+  @JsonKey(name: "is_admin")
+  bool? get isAdmin => throw _privateConstructorUsedError;
+  @JsonKey(name: "members")
   List<Member>? get members => throw _privateConstructorUsedError;
 
   /// Serializes this GroupModel to a JSON map.
@@ -433,14 +483,16 @@ abstract class $GroupModelCopyWith<$Res> {
       _$GroupModelCopyWithImpl<$Res, GroupModel>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'name') String? name,
-      @JsonKey(name: 'about') String? about,
-      @JsonKey(name: 'access_type') String? accessType,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'member_count') int? memberCount,
-      @JsonKey(name: 'is_pinned') bool? isPinned,
-      @JsonKey(name: 'members') List<Member>? members});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "name") String? name,
+      @JsonKey(name: "about") String? about,
+      @JsonKey(name: "access_type") String? accessType,
+      @JsonKey(name: "image") String? image,
+      @JsonKey(name: "member_count") int? memberCount,
+      @JsonKey(name: "is_pinned") bool? isPinned,
+      @JsonKey(name: "latest_post_time") String? latestPostTime,
+      @JsonKey(name: "is_admin") bool? isAdmin,
+      @JsonKey(name: "members") List<Member>? members});
 }
 
 /// @nodoc
@@ -465,6 +517,8 @@ class _$GroupModelCopyWithImpl<$Res, $Val extends GroupModel>
     Object? image = freezed,
     Object? memberCount = freezed,
     Object? isPinned = freezed,
+    Object? latestPostTime = freezed,
+    Object? isAdmin = freezed,
     Object? members = freezed,
   }) {
     return _then(_value.copyWith(
@@ -496,6 +550,14 @@ class _$GroupModelCopyWithImpl<$Res, $Val extends GroupModel>
           ? _value.isPinned
           : isPinned // ignore: cast_nullable_to_non_nullable
               as bool?,
+      latestPostTime: freezed == latestPostTime
+          ? _value.latestPostTime
+          : latestPostTime // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isAdmin: freezed == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
+              as bool?,
       members: freezed == members
           ? _value.members
           : members // ignore: cast_nullable_to_non_nullable
@@ -513,14 +575,16 @@ abstract class _$$GroupModelImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'name') String? name,
-      @JsonKey(name: 'about') String? about,
-      @JsonKey(name: 'access_type') String? accessType,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'member_count') int? memberCount,
-      @JsonKey(name: 'is_pinned') bool? isPinned,
-      @JsonKey(name: 'members') List<Member>? members});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "name") String? name,
+      @JsonKey(name: "about") String? about,
+      @JsonKey(name: "access_type") String? accessType,
+      @JsonKey(name: "image") String? image,
+      @JsonKey(name: "member_count") int? memberCount,
+      @JsonKey(name: "is_pinned") bool? isPinned,
+      @JsonKey(name: "latest_post_time") String? latestPostTime,
+      @JsonKey(name: "is_admin") bool? isAdmin,
+      @JsonKey(name: "members") List<Member>? members});
 }
 
 /// @nodoc
@@ -543,6 +607,8 @@ class __$$GroupModelImplCopyWithImpl<$Res>
     Object? image = freezed,
     Object? memberCount = freezed,
     Object? isPinned = freezed,
+    Object? latestPostTime = freezed,
+    Object? isAdmin = freezed,
     Object? members = freezed,
   }) {
     return _then(_$GroupModelImpl(
@@ -574,6 +640,14 @@ class __$$GroupModelImplCopyWithImpl<$Res>
           ? _value.isPinned
           : isPinned // ignore: cast_nullable_to_non_nullable
               as bool?,
+      latestPostTime: freezed == latestPostTime
+          ? _value.latestPostTime
+          : latestPostTime // ignore: cast_nullable_to_non_nullable
+              as String?,
+      isAdmin: freezed == isAdmin
+          ? _value.isAdmin
+          : isAdmin // ignore: cast_nullable_to_non_nullable
+              as bool?,
       members: freezed == members
           ? _value._members
           : members // ignore: cast_nullable_to_non_nullable
@@ -586,43 +660,51 @@ class __$$GroupModelImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$GroupModelImpl implements _GroupModel {
   const _$GroupModelImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'name') this.name,
-      @JsonKey(name: 'about') this.about,
-      @JsonKey(name: 'access_type') this.accessType,
-      @JsonKey(name: 'image') this.image,
-      @JsonKey(name: 'member_count') this.memberCount,
-      @JsonKey(name: 'is_pinned') this.isPinned,
-      @JsonKey(name: 'members') final List<Member>? members})
+      {@JsonKey(name: "id") this.id,
+      @JsonKey(name: "name") this.name,
+      @JsonKey(name: "about") this.about,
+      @JsonKey(name: "access_type") this.accessType,
+      @JsonKey(name: "image") this.image,
+      @JsonKey(name: "member_count") this.memberCount,
+      @JsonKey(name: "is_pinned") this.isPinned,
+      @JsonKey(name: "latest_post_time") this.latestPostTime,
+      @JsonKey(name: "is_admin") this.isAdmin,
+      @JsonKey(name: "members") final List<Member>? members})
       : _members = members;
 
   factory _$GroupModelImpl.fromJson(Map<String, dynamic> json) =>
       _$$GroupModelImplFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final int? id;
   @override
-  @JsonKey(name: 'name')
+  @JsonKey(name: "name")
   final String? name;
   @override
-  @JsonKey(name: 'about')
+  @JsonKey(name: "about")
   final String? about;
   @override
-  @JsonKey(name: 'access_type')
+  @JsonKey(name: "access_type")
   final String? accessType;
   @override
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   final String? image;
   @override
-  @JsonKey(name: 'member_count')
+  @JsonKey(name: "member_count")
   final int? memberCount;
   @override
-  @JsonKey(name: 'is_pinned')
+  @JsonKey(name: "is_pinned")
   final bool? isPinned;
+  @override
+  @JsonKey(name: "latest_post_time")
+  final String? latestPostTime;
+  @override
+  @JsonKey(name: "is_admin")
+  final bool? isAdmin;
   final List<Member>? _members;
   @override
-  @JsonKey(name: 'members')
+  @JsonKey(name: "members")
   List<Member>? get members {
     final value = _members;
     if (value == null) return null;
@@ -633,7 +715,7 @@ class _$GroupModelImpl implements _GroupModel {
 
   @override
   String toString() {
-    return 'GroupModel(id: $id, name: $name, about: $about, accessType: $accessType, image: $image, memberCount: $memberCount, isPinned: $isPinned, members: $members)';
+    return 'GroupModel(id: $id, name: $name, about: $about, accessType: $accessType, image: $image, memberCount: $memberCount, isPinned: $isPinned, latestPostTime: $latestPostTime, isAdmin: $isAdmin, members: $members)';
   }
 
   @override
@@ -651,6 +733,9 @@ class _$GroupModelImpl implements _GroupModel {
                 other.memberCount == memberCount) &&
             (identical(other.isPinned, isPinned) ||
                 other.isPinned == isPinned) &&
+            (identical(other.latestPostTime, latestPostTime) ||
+                other.latestPostTime == latestPostTime) &&
+            (identical(other.isAdmin, isAdmin) || other.isAdmin == isAdmin) &&
             const DeepCollectionEquality().equals(other._members, _members));
   }
 
@@ -665,6 +750,8 @@ class _$GroupModelImpl implements _GroupModel {
       image,
       memberCount,
       isPinned,
+      latestPostTime,
+      isAdmin,
       const DeepCollectionEquality().hash(_members));
 
   /// Create a copy of GroupModel
@@ -685,42 +772,50 @@ class _$GroupModelImpl implements _GroupModel {
 
 abstract class _GroupModel implements GroupModel {
   const factory _GroupModel(
-          {@JsonKey(name: 'id') final int? id,
-          @JsonKey(name: 'name') final String? name,
-          @JsonKey(name: 'about') final String? about,
-          @JsonKey(name: 'access_type') final String? accessType,
-          @JsonKey(name: 'image') final String? image,
-          @JsonKey(name: 'member_count') final int? memberCount,
-          @JsonKey(name: 'is_pinned') final bool? isPinned,
-          @JsonKey(name: 'members') final List<Member>? members}) =
+          {@JsonKey(name: "id") final int? id,
+          @JsonKey(name: "name") final String? name,
+          @JsonKey(name: "about") final String? about,
+          @JsonKey(name: "access_type") final String? accessType,
+          @JsonKey(name: "image") final String? image,
+          @JsonKey(name: "member_count") final int? memberCount,
+          @JsonKey(name: "is_pinned") final bool? isPinned,
+          @JsonKey(name: "latest_post_time") final String? latestPostTime,
+          @JsonKey(name: "is_admin") final bool? isAdmin,
+          @JsonKey(name: "members") final List<Member>? members}) =
       _$GroupModelImpl;
 
   factory _GroupModel.fromJson(Map<String, dynamic> json) =
       _$GroupModelImpl.fromJson;
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id;
   @override
-  @JsonKey(name: 'name')
+  @JsonKey(name: "name")
   String? get name;
   @override
-  @JsonKey(name: 'about')
+  @JsonKey(name: "about")
   String? get about;
   @override
-  @JsonKey(name: 'access_type')
+  @JsonKey(name: "access_type")
   String? get accessType;
   @override
-  @JsonKey(name: 'image')
+  @JsonKey(name: "image")
   String? get image;
   @override
-  @JsonKey(name: 'member_count')
+  @JsonKey(name: "member_count")
   int? get memberCount;
   @override
-  @JsonKey(name: 'is_pinned')
+  @JsonKey(name: "is_pinned")
   bool? get isPinned;
   @override
-  @JsonKey(name: 'members')
+  @JsonKey(name: "latest_post_time")
+  String? get latestPostTime;
+  @override
+  @JsonKey(name: "is_admin")
+  bool? get isAdmin;
+  @override
+  @JsonKey(name: "members")
   List<Member>? get members;
 
   /// Create a copy of GroupModel
@@ -737,9 +832,9 @@ Member _$MemberFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$Member {
-  @JsonKey(name: 'role')
+  @JsonKey(name: "role")
   String? get role => throw _privateConstructorUsedError;
-  @JsonKey(name: 'user')
+  @JsonKey(name: "user")
   User? get user => throw _privateConstructorUsedError;
 
   /// Serializes this Member to a JSON map.
@@ -757,7 +852,7 @@ abstract class $MemberCopyWith<$Res> {
       _$MemberCopyWithImpl<$Res, Member>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'role') String? role, @JsonKey(name: 'user') User? user});
+      {@JsonKey(name: "role") String? role, @JsonKey(name: "user") User? user});
 
   $UserCopyWith<$Res>? get user;
 }
@@ -815,7 +910,7 @@ abstract class _$$MemberImplCopyWith<$Res> implements $MemberCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'role') String? role, @JsonKey(name: 'user') User? user});
+      {@JsonKey(name: "role") String? role, @JsonKey(name: "user") User? user});
 
   @override
   $UserCopyWith<$Res>? get user;
@@ -854,16 +949,16 @@ class __$$MemberImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$MemberImpl implements _Member {
   const _$MemberImpl(
-      {@JsonKey(name: 'role') this.role, @JsonKey(name: 'user') this.user});
+      {@JsonKey(name: "role") this.role, @JsonKey(name: "user") this.user});
 
   factory _$MemberImpl.fromJson(Map<String, dynamic> json) =>
       _$$MemberImplFromJson(json);
 
   @override
-  @JsonKey(name: 'role')
+  @JsonKey(name: "role")
   final String? role;
   @override
-  @JsonKey(name: 'user')
+  @JsonKey(name: "user")
   final User? user;
 
   @override
@@ -902,16 +997,16 @@ class _$MemberImpl implements _Member {
 
 abstract class _Member implements Member {
   const factory _Member(
-      {@JsonKey(name: 'role') final String? role,
-      @JsonKey(name: 'user') final User? user}) = _$MemberImpl;
+      {@JsonKey(name: "role") final String? role,
+      @JsonKey(name: "user") final User? user}) = _$MemberImpl;
 
   factory _Member.fromJson(Map<String, dynamic> json) = _$MemberImpl.fromJson;
 
   @override
-  @JsonKey(name: 'role')
+  @JsonKey(name: "role")
   String? get role;
   @override
-  @JsonKey(name: 'user')
+  @JsonKey(name: "user")
   User? get user;
 
   /// Create a copy of Member
@@ -928,29 +1023,29 @@ User _$UserFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$User {
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id => throw _privateConstructorUsedError;
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   String? get fullName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   String? get slug => throw _privateConstructorUsedError;
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   String? get email => throw _privateConstructorUsedError;
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   String? get phoneNumber => throw _privateConstructorUsedError;
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   String? get occupation => throw _privateConstructorUsedError;
-  @JsonKey(name: 'image')
-  String? get image => throw _privateConstructorUsedError;
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "image")
+  dynamic get image => throw _privateConstructorUsedError;
+  @JsonKey(name: "is_coach")
   bool? get isCoach => throw _privateConstructorUsedError;
-  @JsonKey(name: 'created_at')
-  String? get createdAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt => throw _privateConstructorUsedError;
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt => throw _privateConstructorUsedError;
+  @JsonKey(name: "agora_chat_token")
   String? get agoraChatToken => throw _privateConstructorUsedError;
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   String? get agoraUserToken => throw _privateConstructorUsedError;
 
   /// Serializes this User to a JSON map.
@@ -968,18 +1063,18 @@ abstract class $UserCopyWith<$Res> {
       _$UserCopyWithImpl<$Res, User>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'slug') String? slug,
-      @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      @JsonKey(name: 'occupation') String? occupation,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'is_coach') bool? isCoach,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt,
-      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
-      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "full_name") String? fullName,
+      @JsonKey(name: "slug") String? slug,
+      @JsonKey(name: "email") String? email,
+      @JsonKey(name: "phone_number") String? phoneNumber,
+      @JsonKey(name: "occupation") String? occupation,
+      @JsonKey(name: "image") dynamic image,
+      @JsonKey(name: "is_coach") bool? isCoach,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt,
+      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
+      @JsonKey(name: "agora_user_token") String? agoraUserToken});
 }
 
 /// @nodoc
@@ -1038,7 +1133,7 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       isCoach: freezed == isCoach
           ? _value.isCoach
           : isCoach // ignore: cast_nullable_to_non_nullable
@@ -1046,11 +1141,11 @@ class _$UserCopyWithImpl<$Res, $Val extends User>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       agoraChatToken: freezed == agoraChatToken
           ? _value.agoraChatToken
           : agoraChatToken // ignore: cast_nullable_to_non_nullable
@@ -1071,18 +1166,18 @@ abstract class _$$UserImplCopyWith<$Res> implements $UserCopyWith<$Res> {
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'id') int? id,
-      @JsonKey(name: 'full_name') String? fullName,
-      @JsonKey(name: 'slug') String? slug,
-      @JsonKey(name: 'email') String? email,
-      @JsonKey(name: 'phone_number') String? phoneNumber,
-      @JsonKey(name: 'occupation') String? occupation,
-      @JsonKey(name: 'image') String? image,
-      @JsonKey(name: 'is_coach') bool? isCoach,
-      @JsonKey(name: 'created_at') String? createdAt,
-      @JsonKey(name: 'updated_at') String? updatedAt,
-      @JsonKey(name: 'agora_chat_token') String? agoraChatToken,
-      @JsonKey(name: 'agora_user_token') String? agoraUserToken});
+      {@JsonKey(name: "id") int? id,
+      @JsonKey(name: "full_name") String? fullName,
+      @JsonKey(name: "slug") String? slug,
+      @JsonKey(name: "email") String? email,
+      @JsonKey(name: "phone_number") String? phoneNumber,
+      @JsonKey(name: "occupation") String? occupation,
+      @JsonKey(name: "image") dynamic image,
+      @JsonKey(name: "is_coach") bool? isCoach,
+      @JsonKey(name: "created_at") DateTime? createdAt,
+      @JsonKey(name: "updated_at") DateTime? updatedAt,
+      @JsonKey(name: "agora_chat_token") String? agoraChatToken,
+      @JsonKey(name: "agora_user_token") String? agoraUserToken});
 }
 
 /// @nodoc
@@ -1138,7 +1233,7 @@ class __$$UserImplCopyWithImpl<$Res>
       image: freezed == image
           ? _value.image
           : image // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as dynamic,
       isCoach: freezed == isCoach
           ? _value.isCoach
           : isCoach // ignore: cast_nullable_to_non_nullable
@@ -1146,11 +1241,11 @@ class __$$UserImplCopyWithImpl<$Res>
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       updatedAt: freezed == updatedAt
           ? _value.updatedAt
           : updatedAt // ignore: cast_nullable_to_non_nullable
-              as String?,
+              as DateTime?,
       agoraChatToken: freezed == agoraChatToken
           ? _value.agoraChatToken
           : agoraChatToken // ignore: cast_nullable_to_non_nullable
@@ -1167,57 +1262,57 @@ class __$$UserImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$UserImpl implements _User {
   const _$UserImpl(
-      {@JsonKey(name: 'id') this.id,
-      @JsonKey(name: 'full_name') this.fullName,
-      @JsonKey(name: 'slug') this.slug,
-      @JsonKey(name: 'email') this.email,
-      @JsonKey(name: 'phone_number') this.phoneNumber,
-      @JsonKey(name: 'occupation') this.occupation,
-      @JsonKey(name: 'image') this.image,
-      @JsonKey(name: 'is_coach') this.isCoach,
-      @JsonKey(name: 'created_at') this.createdAt,
-      @JsonKey(name: 'updated_at') this.updatedAt,
-      @JsonKey(name: 'agora_chat_token') this.agoraChatToken,
-      @JsonKey(name: 'agora_user_token') this.agoraUserToken});
+      {@JsonKey(name: "id") this.id,
+      @JsonKey(name: "full_name") this.fullName,
+      @JsonKey(name: "slug") this.slug,
+      @JsonKey(name: "email") this.email,
+      @JsonKey(name: "phone_number") this.phoneNumber,
+      @JsonKey(name: "occupation") this.occupation,
+      @JsonKey(name: "image") this.image,
+      @JsonKey(name: "is_coach") this.isCoach,
+      @JsonKey(name: "created_at") this.createdAt,
+      @JsonKey(name: "updated_at") this.updatedAt,
+      @JsonKey(name: "agora_chat_token") this.agoraChatToken,
+      @JsonKey(name: "agora_user_token") this.agoraUserToken});
 
   factory _$UserImpl.fromJson(Map<String, dynamic> json) =>
       _$$UserImplFromJson(json);
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   final int? id;
   @override
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   final String? fullName;
   @override
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   final String? slug;
   @override
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   final String? email;
   @override
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   final String? phoneNumber;
   @override
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   final String? occupation;
   @override
-  @JsonKey(name: 'image')
-  final String? image;
+  @JsonKey(name: "image")
+  final dynamic image;
   @override
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "is_coach")
   final bool? isCoach;
   @override
-  @JsonKey(name: 'created_at')
-  final String? createdAt;
+  @JsonKey(name: "created_at")
+  final DateTime? createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  final String? updatedAt;
+  @JsonKey(name: "updated_at")
+  final DateTime? updatedAt;
   @override
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "agora_chat_token")
   final String? agoraChatToken;
   @override
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   final String? agoraUserToken;
 
   @override
@@ -1239,7 +1334,7 @@ class _$UserImpl implements _User {
                 other.phoneNumber == phoneNumber) &&
             (identical(other.occupation, occupation) ||
                 other.occupation == occupation) &&
-            (identical(other.image, image) || other.image == image) &&
+            const DeepCollectionEquality().equals(other.image, image) &&
             (identical(other.isCoach, isCoach) || other.isCoach == isCoach) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
@@ -1261,7 +1356,7 @@ class _$UserImpl implements _User {
       email,
       phoneNumber,
       occupation,
-      image,
+      const DeepCollectionEquality().hash(image),
       isCoach,
       createdAt,
       updatedAt,
@@ -1286,57 +1381,57 @@ class _$UserImpl implements _User {
 
 abstract class _User implements User {
   const factory _User(
-          {@JsonKey(name: 'id') final int? id,
-          @JsonKey(name: 'full_name') final String? fullName,
-          @JsonKey(name: 'slug') final String? slug,
-          @JsonKey(name: 'email') final String? email,
-          @JsonKey(name: 'phone_number') final String? phoneNumber,
-          @JsonKey(name: 'occupation') final String? occupation,
-          @JsonKey(name: 'image') final String? image,
-          @JsonKey(name: 'is_coach') final bool? isCoach,
-          @JsonKey(name: 'created_at') final String? createdAt,
-          @JsonKey(name: 'updated_at') final String? updatedAt,
-          @JsonKey(name: 'agora_chat_token') final String? agoraChatToken,
-          @JsonKey(name: 'agora_user_token') final String? agoraUserToken}) =
+          {@JsonKey(name: "id") final int? id,
+          @JsonKey(name: "full_name") final String? fullName,
+          @JsonKey(name: "slug") final String? slug,
+          @JsonKey(name: "email") final String? email,
+          @JsonKey(name: "phone_number") final String? phoneNumber,
+          @JsonKey(name: "occupation") final String? occupation,
+          @JsonKey(name: "image") final dynamic image,
+          @JsonKey(name: "is_coach") final bool? isCoach,
+          @JsonKey(name: "created_at") final DateTime? createdAt,
+          @JsonKey(name: "updated_at") final DateTime? updatedAt,
+          @JsonKey(name: "agora_chat_token") final String? agoraChatToken,
+          @JsonKey(name: "agora_user_token") final String? agoraUserToken}) =
       _$UserImpl;
 
   factory _User.fromJson(Map<String, dynamic> json) = _$UserImpl.fromJson;
 
   @override
-  @JsonKey(name: 'id')
+  @JsonKey(name: "id")
   int? get id;
   @override
-  @JsonKey(name: 'full_name')
+  @JsonKey(name: "full_name")
   String? get fullName;
   @override
-  @JsonKey(name: 'slug')
+  @JsonKey(name: "slug")
   String? get slug;
   @override
-  @JsonKey(name: 'email')
+  @JsonKey(name: "email")
   String? get email;
   @override
-  @JsonKey(name: 'phone_number')
+  @JsonKey(name: "phone_number")
   String? get phoneNumber;
   @override
-  @JsonKey(name: 'occupation')
+  @JsonKey(name: "occupation")
   String? get occupation;
   @override
-  @JsonKey(name: 'image')
-  String? get image;
+  @JsonKey(name: "image")
+  dynamic get image;
   @override
-  @JsonKey(name: 'is_coach')
+  @JsonKey(name: "is_coach")
   bool? get isCoach;
   @override
-  @JsonKey(name: 'created_at')
-  String? get createdAt;
+  @JsonKey(name: "created_at")
+  DateTime? get createdAt;
   @override
-  @JsonKey(name: 'updated_at')
-  String? get updatedAt;
+  @JsonKey(name: "updated_at")
+  DateTime? get updatedAt;
   @override
-  @JsonKey(name: 'agora_chat_token')
+  @JsonKey(name: "agora_chat_token")
   String? get agoraChatToken;
   @override
-  @JsonKey(name: 'agora_user_token')
+  @JsonKey(name: "agora_user_token")
   String? get agoraUserToken;
 
   /// Create a copy of User
@@ -1344,5 +1439,228 @@ abstract class _User implements User {
   @override
   @JsonKey(includeFromJson: false, includeToJson: false)
   _$$UserImplCopyWith<_$UserImpl> get copyWith =>
+      throw _privateConstructorUsedError;
+}
+
+Meta _$MetaFromJson(Map<String, dynamic> json) {
+  return _Meta.fromJson(json);
+}
+
+/// @nodoc
+mixin _$Meta {
+  @JsonKey(name: "current_page")
+  int? get currentPage => throw _privateConstructorUsedError;
+  @JsonKey(name: "total")
+  int? get total => throw _privateConstructorUsedError;
+  @JsonKey(name: "per_page")
+  int? get perPage => throw _privateConstructorUsedError;
+  @JsonKey(name: "last_page")
+  int? get lastPage => throw _privateConstructorUsedError;
+
+  /// Serializes this Meta to a JSON map.
+  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
+
+  /// Create a copy of Meta
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  $MetaCopyWith<Meta> get copyWith => throw _privateConstructorUsedError;
+}
+
+/// @nodoc
+abstract class $MetaCopyWith<$Res> {
+  factory $MetaCopyWith(Meta value, $Res Function(Meta) then) =
+      _$MetaCopyWithImpl<$Res, Meta>;
+  @useResult
+  $Res call(
+      {@JsonKey(name: "current_page") int? currentPage,
+      @JsonKey(name: "total") int? total,
+      @JsonKey(name: "per_page") int? perPage,
+      @JsonKey(name: "last_page") int? lastPage});
+}
+
+/// @nodoc
+class _$MetaCopyWithImpl<$Res, $Val extends Meta>
+    implements $MetaCopyWith<$Res> {
+  _$MetaCopyWithImpl(this._value, this._then);
+
+  // ignore: unused_field
+  final $Val _value;
+  // ignore: unused_field
+  final $Res Function($Val) _then;
+
+  /// Create a copy of Meta
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = freezed,
+    Object? total = freezed,
+    Object? perPage = freezed,
+    Object? lastPage = freezed,
+  }) {
+    return _then(_value.copyWith(
+      currentPage: freezed == currentPage
+          ? _value.currentPage
+          : currentPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      total: freezed == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int?,
+      perPage: freezed == perPage
+          ? _value.perPage
+          : perPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPage: freezed == lastPage
+          ? _value.lastPage
+          : lastPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ) as $Val);
+  }
+}
+
+/// @nodoc
+abstract class _$$MetaImplCopyWith<$Res> implements $MetaCopyWith<$Res> {
+  factory _$$MetaImplCopyWith(
+          _$MetaImpl value, $Res Function(_$MetaImpl) then) =
+      __$$MetaImplCopyWithImpl<$Res>;
+  @override
+  @useResult
+  $Res call(
+      {@JsonKey(name: "current_page") int? currentPage,
+      @JsonKey(name: "total") int? total,
+      @JsonKey(name: "per_page") int? perPage,
+      @JsonKey(name: "last_page") int? lastPage});
+}
+
+/// @nodoc
+class __$$MetaImplCopyWithImpl<$Res>
+    extends _$MetaCopyWithImpl<$Res, _$MetaImpl>
+    implements _$$MetaImplCopyWith<$Res> {
+  __$$MetaImplCopyWithImpl(_$MetaImpl _value, $Res Function(_$MetaImpl) _then)
+      : super(_value, _then);
+
+  /// Create a copy of Meta
+  /// with the given fields replaced by the non-null parameter values.
+  @pragma('vm:prefer-inline')
+  @override
+  $Res call({
+    Object? currentPage = freezed,
+    Object? total = freezed,
+    Object? perPage = freezed,
+    Object? lastPage = freezed,
+  }) {
+    return _then(_$MetaImpl(
+      currentPage: freezed == currentPage
+          ? _value.currentPage
+          : currentPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      total: freezed == total
+          ? _value.total
+          : total // ignore: cast_nullable_to_non_nullable
+              as int?,
+      perPage: freezed == perPage
+          ? _value.perPage
+          : perPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+      lastPage: freezed == lastPage
+          ? _value.lastPage
+          : lastPage // ignore: cast_nullable_to_non_nullable
+              as int?,
+    ));
+  }
+}
+
+/// @nodoc
+@JsonSerializable()
+class _$MetaImpl implements _Meta {
+  const _$MetaImpl(
+      {@JsonKey(name: "current_page") this.currentPage,
+      @JsonKey(name: "total") this.total,
+      @JsonKey(name: "per_page") this.perPage,
+      @JsonKey(name: "last_page") this.lastPage});
+
+  factory _$MetaImpl.fromJson(Map<String, dynamic> json) =>
+      _$$MetaImplFromJson(json);
+
+  @override
+  @JsonKey(name: "current_page")
+  final int? currentPage;
+  @override
+  @JsonKey(name: "total")
+  final int? total;
+  @override
+  @JsonKey(name: "per_page")
+  final int? perPage;
+  @override
+  @JsonKey(name: "last_page")
+  final int? lastPage;
+
+  @override
+  String toString() {
+    return 'Meta(currentPage: $currentPage, total: $total, perPage: $perPage, lastPage: $lastPage)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return identical(this, other) ||
+        (other.runtimeType == runtimeType &&
+            other is _$MetaImpl &&
+            (identical(other.currentPage, currentPage) ||
+                other.currentPage == currentPage) &&
+            (identical(other.total, total) || other.total == total) &&
+            (identical(other.perPage, perPage) || other.perPage == perPage) &&
+            (identical(other.lastPage, lastPage) ||
+                other.lastPage == lastPage));
+  }
+
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  int get hashCode =>
+      Object.hash(runtimeType, currentPage, total, perPage, lastPage);
+
+  /// Create a copy of Meta
+  /// with the given fields replaced by the non-null parameter values.
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  @override
+  @pragma('vm:prefer-inline')
+  _$$MetaImplCopyWith<_$MetaImpl> get copyWith =>
+      __$$MetaImplCopyWithImpl<_$MetaImpl>(this, _$identity);
+
+  @override
+  Map<String, dynamic> toJson() {
+    return _$$MetaImplToJson(
+      this,
+    );
+  }
+}
+
+abstract class _Meta implements Meta {
+  const factory _Meta(
+      {@JsonKey(name: "current_page") final int? currentPage,
+      @JsonKey(name: "total") final int? total,
+      @JsonKey(name: "per_page") final int? perPage,
+      @JsonKey(name: "last_page") final int? lastPage}) = _$MetaImpl;
+
+  factory _Meta.fromJson(Map<String, dynamic> json) = _$MetaImpl.fromJson;
+
+  @override
+  @JsonKey(name: "current_page")
+  int? get currentPage;
+  @override
+  @JsonKey(name: "total")
+  int? get total;
+  @override
+  @JsonKey(name: "per_page")
+  int? get perPage;
+  @override
+  @JsonKey(name: "last_page")
+  int? get lastPage;
+
+  /// Create a copy of Meta
+  /// with the given fields replaced by the non-null parameter values.
+  @override
+  @JsonKey(includeFromJson: false, includeToJson: false)
+  _$$MetaImplCopyWith<_$MetaImpl> get copyWith =>
       throw _privateConstructorUsedError;
 }

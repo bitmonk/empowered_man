@@ -1,4 +1,3 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';
@@ -122,6 +121,22 @@ class MainDrawer extends GetView<MainController> {
                           DrawerItemEnum.chat,
                     ),
                     DrawerTile(
+                      onTap: () {
+                        FeedPageInitializer.destroy();
+                        FeedPageInitializer.initialize();
+                        TribeGroupInitializer.destroy();
+                        TribeGroupInitializer.initialize();
+                        // final deepLinkService = DeepLinkService();
+                        // deepLinkService.init();
+                        Navigator.pop(context);
+                        Get.to(() => const TribeScreen());
+                      },
+                      title: 'Tribe',
+                      image: Assets.images.tribe.path,
+                      isSelected: controller.selectedDrawerItem.value ==
+                          DrawerItemEnum.tribe,
+                    ),
+                    DrawerTile(
                       onTap: () async {
                         Navigator.pop(context);
 
@@ -224,22 +239,6 @@ class MainDrawer extends GetView<MainController> {
                       isSelected: controller.selectedDrawerItem.value ==
                           DrawerItemEnum.settings,
                     ),
-                    DrawerTile(
-                      onTap: () {
-                        FeedPageInitializer.destroy();
-                        FeedPageInitializer.initialize();
-                        TribeGroupInitializer.destroy();
-                        TribeGroupInitializer.initialize();
-                        // final deepLinkService = DeepLinkService();
-                        // deepLinkService.init();
-                        Navigator.pop(context);
-                        Get.to(() => const TribeScreen());
-                      },
-                      title: 'Tribe',
-                      image: Assets.images.tribe.path,
-                      isSelected: controller.selectedDrawerItem.value ==
-                          DrawerItemEnum.tribe,
-                    ),
                     const Padding(
                       padding: EdgeInsets.symmetric(vertical: 20),
                       child: AppDivider(
@@ -253,7 +252,7 @@ class MainDrawer extends GetView<MainController> {
                         final deviceId = await getUniqueDeviceId();
                         controller.logout(deviceId);
 
-                        await ChatClient.getInstance.logout();
+                        // await ChatClient.getInstance.logout();
                         await Get.find<AppSharedPref>().removeAll();
                         Get.offAllNamed(AppRoutes.landingScreen);
                       },

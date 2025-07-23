@@ -29,10 +29,12 @@ class _TribeScreenState extends State<TribeScreen> {
         name: group.name ?? '',
         image: group.image ?? '',
         memberCount: group.memberCount ?? 0,
-        lastActivity: 'Recent',
+        lastActivity: group.latestPostTime ?? 'No activity',
         pinned: true,
         locked: _isGroupLocked(group),
         createdByYou: _isCreatedByCurrentUser(group),
+        isAdmin: group.isAdmin ?? false,
+        accessType: group.accessType.toString(),
       );
     }).toList();
   }
@@ -44,9 +46,11 @@ class _TribeScreenState extends State<TribeScreen> {
         name: group.name ?? '',
         image: group.image ?? '',
         memberCount: group.memberCount ?? 0,
-        lastActivity: 'Recent',
+        lastActivity: group.latestPostTime ?? 'No activity',
         locked: _isGroupLocked(group),
         createdByYou: _isCreatedByCurrentUser(group),
+        isAdmin: group.isAdmin ?? false,
+        accessType: group.accessType.toString(),
       );
     }).toList();
   }
@@ -186,7 +190,9 @@ class _TribeScreenState extends State<TribeScreen> {
                   Column(
                     children: [
                       GestureDetector(
-                        onTap: () => Get.to(() => const FeedPostsScreen()),
+                        onTap: () => Get.to(
+                          () => const FeedPostsScreen(),
+                        ),
                         child: Row(
                           children: [
                             Assets.images.file.svg(width: 30, height: 30),
@@ -238,7 +244,7 @@ class _TribeScreenState extends State<TribeScreen> {
                       ] else ...[
                         ..._getPinnedGroups(),
                       ],
-                      const SizedBox(height: 8),
+                      const SizedBox(height: 16),
                       GestureDetector(
                         onTap: () {
                           controller.showManagePinGroupSheet(context);
@@ -404,13 +410,15 @@ class _TribeScreenState extends State<TribeScreen> {
     required String image,
     required int memberCount,
     required String lastActivity,
+    required bool isAdmin,
+    required String accessType,
     bool pinned = false,
     bool locked = false,
     bool createdByYou = false,
   }) {
     return GestureDetector(
       onTap: () {
-        controller.navigateToFeedPage(groupId);
+        controller.navigateToFeedPage(groupId, isAdmin, accessType);
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 8),

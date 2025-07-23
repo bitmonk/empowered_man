@@ -1,3 +1,4 @@
+import 'package:empowered/features/tribe/data/model/media.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 
 part 'saved_posts_model.freezed.dart';
@@ -79,15 +80,4 @@ class CreatedBy with _$CreatedBy {
 
   factory CreatedBy.fromJson(Map<String, dynamic> json) =>
       _$CreatedByFromJson(json);
-}
-
-@freezed
-class Media with _$Media {
-  const factory Media({
-    @JsonKey(name: 'images') List<String>? images,
-    @JsonKey(name: 'videos') List<dynamic>? videos,
-    @JsonKey(name: 'documents') List<String>? documents,
-  }) = _Media;
-
-  factory Media.fromJson(Map<String, dynamic> json) => _$MediaFromJson(json);
 }

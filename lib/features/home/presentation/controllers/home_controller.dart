@@ -1,8 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
+import 'package:empowered/features/habits/presentation/controllers/habit_controller.dart';
 import 'package:empowered/features/home/data/model/daily_mit_list_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_habit_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_level_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_power_streak_model.dart';
+import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/home/data/model/my_monthly_model.dart';
 import 'package:empowered/features/home/data/source/home_remote_source.dart';
 
@@ -18,6 +20,43 @@ class HomeController extends GetxController {
     dailyMITlists();
     dashboardLevel();
     dashboardHabit();
+    getAMReflectionStatus();
+    getPMReflectionStatus();
+  }
+
+  Rx<TheStates> amCompletedState = TheStates.initial.obs;
+  RxnBool isAmCompleted = RxnBool();
+
+  Future<void> getAMReflectionStatus() async {
+    amCompletedState.value = TheStates.loading;
+    final result = await remoteSource.getReflectionStatusByType('am');
+    result.fold(
+      (l) {
+        amCompletedState.value = TheStates.error;
+      },
+      (r) {
+        isAmCompleted.value = r;
+        amCompletedState.value = TheStates.success;
+      },
+    );
+  }
+
+  Rx<TheStates> pmCompletedState = TheStates.initial.obs;
+  RxnBool isPmCompleted = RxnBool();
+
+  Future<void> getPMReflectionStatus() async {
+    pmCompletedState.value = TheStates.loading;
+    final result = await remoteSource.getReflectionStatusByType('pm');
+    result.fold(
+      (l) {
+        myMonthlyError.value = l.message;
+        pmCompletedState.value = TheStates.error;
+      },
+      (r) {
+        isPmCompleted.value = r;
+        pmCompletedState.value = TheStates.success;
+      },
+    );
   }
 
   // Reactive state for selected tab index
@@ -140,6 +179,7 @@ class HomeController extends GetxController {
       (r) {
         updateDashboardHabitData.value = r;
         dashboardHabit();
+        Get.find<HabitController>().getHabit();
         updateDashboardHabitState.value = TheStates.success;
       },
     );
@@ -158,8 +198,29 @@ class HomeController extends GetxController {
         dashboardPowerStreakState.value = TheStates.error;
       },
       (r) {
-        dashboardPowerStreakData.value = r.data ?? const DashboardPowerStreakData();
+        dashboardPowerStreakData.value =
+            r.data ?? const DashboardPowerStreakData();
         dashboardPowerStreakState.value = TheStates.success;
+      },
+    );
+  }
+
+  // --- MyMemory State Management ---
+  Rx<TheStates> myMemoryState = TheStates.initial.obs;
+  Rxn<MyMemoryModel> myMemoryData = Rxn<MyMemoryModel>();
+  RxnString myMemoryError = RxnString();
+
+  Future<void> getMyMemory() async {
+    myMemoryState.value = TheStates.loading;
+    final result = await remoteSource.getMyMemory();
+    result.fold(
+      (l) {
+        myMemoryError.value = l.message;
+        myMemoryState.value = TheStates.error;
+      },
+      (r) {
+        myMemoryData.value = r;
+        myMemoryState.value = TheStates.success;
       },
     );
   }

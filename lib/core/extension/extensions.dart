@@ -33,6 +33,7 @@ extension ThemeContext on BuildContext {
   void hideKeyboard() {
     SystemChannels.textInput.invokeMethod('TextInput.hide');
     FocusScope.of(this).unfocus();
+    FocusManager.instance.primaryFocus?.unfocus();
   }
 
   String getInitials(String name) {

@@ -56,7 +56,7 @@ class TribeGroupRemoteSource {
         AppEndpoints.createGroup,
         queryParameters: {
           if (search != null) 'search': search,
-          'show_post': showPost,
+          'show_group': showPost,
         },
       );
       return right(GroupListModel.fromJson(response));
@@ -244,11 +244,19 @@ class TribeGroupRemoteSource {
 
   Future<Either<AppError, FeedPostsModel>> getGroupPostById({
     required String groupId,
+    int page = 1,
+    int limit = 10,
     CancelToken? cancelToken,
   }) async {
     try {
-      final response =
-          await _client.get('${AppEndpoints.getGroupPosts}$groupId');
+      final response = await _client.get(
+        '${AppEndpoints.getGroupPosts}$groupId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(FeedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -281,11 +289,19 @@ class TribeGroupRemoteSource {
 
   Future<Either<AppError, GroupMediaModel>> getGroupMedia({
     required String groupId,
+    int page = 1,
+    int limit = 20,
     CancelToken? cancelToken,
   }) async {
     try {
-      final response =
-          await _client.get('${AppEndpoints.getGroupMedia}$groupId');
+      final response = await _client.get(
+        '${AppEndpoints.getGroupMedia}$groupId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(GroupMediaModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -313,13 +329,38 @@ class TribeGroupRemoteSource {
     }
   }
 
-  Future<Either<AppError, SavedPostsModel>> getSavedPosts({
+  Future<Either<AppError, String>> deleteGroup({
     required String groupId,
     CancelToken? cancelToken,
   }) async {
     try {
       final response =
-          await _client.get('${AppEndpoints.getSavedPosts}$groupId');
+          await _client.delete('${AppEndpoints.deleteGroup}$groupId');
+      return right(response['message']);
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, SavedPostsModel>> getSavedPosts({
+    required String groupId,
+    int page = 1,
+    int limit = 10,
+    CancelToken? cancelToken,
+  }) async {
+    try {
+      final response = await _client.get(
+        '${AppEndpoints.getSavedPosts}$groupId',
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(SavedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -331,10 +372,19 @@ class TribeGroupRemoteSource {
   }
 
   Future<Either<AppError, FeedSavedPostsModel>> getFeedSavedPosts({
+    int page = 1,
+    int limit = 10,
     CancelToken? cancelToken,
   }) async {
     try {
-      final response = await _client.get(AppEndpoints.getFeedSavedPost);
+      final response = await _client.get(
+        AppEndpoints.getFeedSavedPost,
+        queryParameters: {
+          'page': page,
+          'per_page': limit,
+        },
+        cancelToken: cancelToken,
+      );
       return right(FeedSavedPostsModel.fromJson(response));
     } catch (e) {
       if (e is ApiErrorResponse) {

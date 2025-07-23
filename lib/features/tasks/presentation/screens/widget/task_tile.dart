@@ -64,12 +64,16 @@ class _TaskTileState extends State<TaskTile> {
                               builder: (context) => Transform.translate(
                                 offset: const Offset(-60, 0),
                                 child: TaskMenuDialog(
-                                    task: widget.task,
-                                    currentLevel: widget.task.level.toString(),
-                                    completed: widget.task.status
-                                            .toString()
-                                            .toLowerCase() ==
-                                        'completed',),
+                                  task: widget.task,
+                                  currentLevel: widget.task.completionStatus ==
+                                          null
+                                      ? widget.task.level.toString()
+                                      : widget.task.completionStatus.toString(),
+                                  completed: widget.task.status
+                                          .toString()
+                                          .toLowerCase() ==
+                                      'completed',
+                                ),
                               ),
                             );
                             // } else {

@@ -39,8 +39,9 @@ class _JournalChatScreenState extends State<JournalChatScreen> {
 
   void _initializeController() {
     controller.chatController.clear();
-    controller..resetEditMode()
-    ..getJournalWithQuestionsAndAnswers();
+    controller
+      ..resetEditMode()
+      ..getJournalWithQuestionsAndAnswers();
   }
 
   void _onFocusChange() {
@@ -520,7 +521,7 @@ class JournalThankYouWidget extends StatelessWidget {
 //     required this.onContinuePressed,
 //     super.key,
 //   });
-  
+
 //   final VoidCallback onContinuePressed;
 
 //   @override

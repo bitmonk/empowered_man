@@ -7,6 +7,7 @@ import 'package:empowered/features/home/data/model/daily_mit_list_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_habit_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_level_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_power_streak_model.dart';
+import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/home/data/model/my_monthly_model.dart';
 import 'package:intl/intl.dart';
 
@@ -22,6 +23,23 @@ class HomeRemoteSource {
 
       return right(
         MyMonthlyModel.fromJson(res),
+      );
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, bool>> getReflectionStatusByType(String type) async {
+    try {
+      var res = await _client.get(AppEndpoints.getReflectionStatusByType,
+          queryParameters: {'reflection_type': type},);
+
+      return right(
+        res['is_completed'],
       );
     } catch (e) {
       if (e is ApiErrorResponse) {
@@ -123,6 +141,22 @@ class HomeRemoteSource {
       );
 
       return right(DashboardPowerStreakModel.fromJson(res));
+    } catch (e) {
+      if (e is ApiErrorResponse) {
+        return left(e);
+      } else {
+        return left(InternalAppError(message: e.toString()));
+      }
+    }
+  }
+
+  Future<Either<AppError, MyMemoryModel>> getMyMemory() async {
+    try {
+      var res = await _client.get(
+        AppEndpoints.getMyMemory,
+      );
+
+      return right(MyMemoryModel.fromJson(res));
     } catch (e) {
       if (e is ApiErrorResponse) {
         return left(e);

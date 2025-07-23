@@ -464,6 +464,10 @@ mixin _$Comment {
   int? get likesCount => throw _privateConstructorUsedError;
   @JsonKey(name: "comments_count")
   int? get commentsCount => throw _privateConstructorUsedError;
+  @JsonKey(name: "liked_by_current_user")
+  bool? get likedByCurrentUser => throw _privateConstructorUsedError;
+  @JsonKey(name: "replys")
+  List<Comment>? get replys => throw _privateConstructorUsedError;
   @JsonKey(name: "created_at")
   DateTime? get createdAt => throw _privateConstructorUsedError;
   @JsonKey(name: "updated_at")
@@ -490,6 +494,8 @@ abstract class $CommentCopyWith<$Res> {
       @JsonKey(name: "user") User? user,
       @JsonKey(name: "likes_count") int? likesCount,
       @JsonKey(name: "comments_count") int? commentsCount,
+      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
+      @JsonKey(name: "replys") List<Comment>? replys,
       @JsonKey(name: "created_at") DateTime? createdAt,
       @JsonKey(name: "updated_at") DateTime? updatedAt});
 
@@ -517,6 +523,8 @@ class _$CommentCopyWithImpl<$Res, $Val extends Comment>
     Object? user = freezed,
     Object? likesCount = freezed,
     Object? commentsCount = freezed,
+    Object? likedByCurrentUser = freezed,
+    Object? replys = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -545,6 +553,14 @@ class _$CommentCopyWithImpl<$Res, $Val extends Comment>
           ? _value.commentsCount
           : commentsCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      likedByCurrentUser: freezed == likedByCurrentUser
+          ? _value.likedByCurrentUser
+          : likedByCurrentUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      replys: freezed == replys
+          ? _value.replys
+          : replys // ignore: cast_nullable_to_non_nullable
+              as List<Comment>?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -585,6 +601,8 @@ abstract class _$$CommentImplCopyWith<$Res> implements $CommentCopyWith<$Res> {
       @JsonKey(name: "user") User? user,
       @JsonKey(name: "likes_count") int? likesCount,
       @JsonKey(name: "comments_count") int? commentsCount,
+      @JsonKey(name: "liked_by_current_user") bool? likedByCurrentUser,
+      @JsonKey(name: "replys") List<Comment>? replys,
       @JsonKey(name: "created_at") DateTime? createdAt,
       @JsonKey(name: "updated_at") DateTime? updatedAt});
 
@@ -611,6 +629,8 @@ class __$$CommentImplCopyWithImpl<$Res>
     Object? user = freezed,
     Object? likesCount = freezed,
     Object? commentsCount = freezed,
+    Object? likedByCurrentUser = freezed,
+    Object? replys = freezed,
     Object? createdAt = freezed,
     Object? updatedAt = freezed,
   }) {
@@ -639,6 +659,14 @@ class __$$CommentImplCopyWithImpl<$Res>
           ? _value.commentsCount
           : commentsCount // ignore: cast_nullable_to_non_nullable
               as int?,
+      likedByCurrentUser: freezed == likedByCurrentUser
+          ? _value.likedByCurrentUser
+          : likedByCurrentUser // ignore: cast_nullable_to_non_nullable
+              as bool?,
+      replys: freezed == replys
+          ? _value._replys
+          : replys // ignore: cast_nullable_to_non_nullable
+              as List<Comment>?,
       createdAt: freezed == createdAt
           ? _value.createdAt
           : createdAt // ignore: cast_nullable_to_non_nullable
@@ -661,8 +689,11 @@ class _$CommentImpl implements _Comment {
       @JsonKey(name: "user") this.user,
       @JsonKey(name: "likes_count") this.likesCount,
       @JsonKey(name: "comments_count") this.commentsCount,
+      @JsonKey(name: "liked_by_current_user") this.likedByCurrentUser,
+      @JsonKey(name: "replys") final List<Comment>? replys,
       @JsonKey(name: "created_at") this.createdAt,
-      @JsonKey(name: "updated_at") this.updatedAt});
+      @JsonKey(name: "updated_at") this.updatedAt})
+      : _replys = replys;
 
   factory _$CommentImpl.fromJson(Map<String, dynamic> json) =>
       _$$CommentImplFromJson(json);
@@ -686,6 +717,20 @@ class _$CommentImpl implements _Comment {
   @JsonKey(name: "comments_count")
   final int? commentsCount;
   @override
+  @JsonKey(name: "liked_by_current_user")
+  final bool? likedByCurrentUser;
+  final List<Comment>? _replys;
+  @override
+  @JsonKey(name: "replys")
+  List<Comment>? get replys {
+    final value = _replys;
+    if (value == null) return null;
+    if (_replys is EqualUnmodifiableListView) return _replys;
+    // ignore: implicit_dynamic_type
+    return EqualUnmodifiableListView(value);
+  }
+
+  @override
   @JsonKey(name: "created_at")
   final DateTime? createdAt;
   @override
@@ -694,7 +739,7 @@ class _$CommentImpl implements _Comment {
 
   @override
   String toString() {
-    return 'Comment(id: $id, text: $text, userId: $userId, user: $user, likesCount: $likesCount, commentsCount: $commentsCount, createdAt: $createdAt, updatedAt: $updatedAt)';
+    return 'Comment(id: $id, text: $text, userId: $userId, user: $user, likesCount: $likesCount, commentsCount: $commentsCount, likedByCurrentUser: $likedByCurrentUser, replys: $replys, createdAt: $createdAt, updatedAt: $updatedAt)';
   }
 
   @override
@@ -710,6 +755,9 @@ class _$CommentImpl implements _Comment {
                 other.likesCount == likesCount) &&
             (identical(other.commentsCount, commentsCount) ||
                 other.commentsCount == commentsCount) &&
+            (identical(other.likedByCurrentUser, likedByCurrentUser) ||
+                other.likedByCurrentUser == likedByCurrentUser) &&
+            const DeepCollectionEquality().equals(other._replys, _replys) &&
             (identical(other.createdAt, createdAt) ||
                 other.createdAt == createdAt) &&
             (identical(other.updatedAt, updatedAt) ||
@@ -718,8 +766,18 @@ class _$CommentImpl implements _Comment {
 
   @JsonKey(includeFromJson: false, includeToJson: false)
   @override
-  int get hashCode => Object.hash(runtimeType, id, text, userId, user,
-      likesCount, commentsCount, createdAt, updatedAt);
+  int get hashCode => Object.hash(
+      runtimeType,
+      id,
+      text,
+      userId,
+      user,
+      likesCount,
+      commentsCount,
+      likedByCurrentUser,
+      const DeepCollectionEquality().hash(_replys),
+      createdAt,
+      updatedAt);
 
   /// Create a copy of Comment
   /// with the given fields replaced by the non-null parameter values.
@@ -745,6 +803,8 @@ abstract class _Comment implements Comment {
       @JsonKey(name: "user") final User? user,
       @JsonKey(name: "likes_count") final int? likesCount,
       @JsonKey(name: "comments_count") final int? commentsCount,
+      @JsonKey(name: "liked_by_current_user") final bool? likedByCurrentUser,
+      @JsonKey(name: "replys") final List<Comment>? replys,
       @JsonKey(name: "created_at") final DateTime? createdAt,
       @JsonKey(name: "updated_at") final DateTime? updatedAt}) = _$CommentImpl;
 
@@ -768,6 +828,12 @@ abstract class _Comment implements Comment {
   @override
   @JsonKey(name: "comments_count")
   int? get commentsCount;
+  @override
+  @JsonKey(name: "liked_by_current_user")
+  bool? get likedByCurrentUser;
+  @override
+  @JsonKey(name: "replys")
+  List<Comment>? get replys;
   @override
   @JsonKey(name: "created_at")
   DateTime? get createdAt;

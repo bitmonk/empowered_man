@@ -1,0 +1,2 @@
+/Users/upasanakhatiwada/Desktop/empoweredman-mobile/android/app/.cxx/RelWithDebInfo/3t405w4x/arm64-v8a/CMakeFiles/edit_cache.dir
+/Users/upasanakhatiwada/Desktop/empoweredman-mobile/android/app/.cxx/RelWithDebInfo/3t405w4x/arm64-v8a/CMakeFiles/rebuild_cache.dir

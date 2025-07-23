@@ -29,7 +29,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
   }
 
   Future<void> _pickImageFromGallery(
-      TribeGroupController tribeController) async {
+      TribeGroupController tribeController,) async {
     final picker = ImagePicker();
     try {
       final image = await picker.pickImage(
@@ -106,6 +106,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                 labelText: 'Group Name',
                 controller: tribeController.groupNameController,
                 hintText: 'Enter Group Name',
+                maxLength: 40,
                 floatingLabelBehavior: FloatingLabelBehavior.always,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
@@ -142,6 +143,7 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
               const VerticalSpacing(12),
               OutlinedButton.icon(
                 onPressed: () {
+                  context.hideKeyboard();
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,
@@ -204,16 +206,27 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                                             Assets.images.profilePic.image(
                                                 width: 30,
                                                 height: 30,
-                                                fit: BoxFit.cover),
+                                                fit: BoxFit.cover,),
                                   )
                                 : Assets.images.profilePic.image(
-                                    width: 30, height: 30, fit: BoxFit.cover),
+                                    width: 30, height: 30, fit: BoxFit.cover,),
                           ),
                           const HorizontalSpacing(8),
                           Text(
                             member.fullName ?? 'Unknown',
                             style: const TextStyle(
-                                color: Colors.white, fontSize: 14),
+                                color: Colors.white, fontSize: 14,),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.close,
+                                color: Colors.red, size: 18,),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            onPressed: () {
+                              setState(() {
+                                members.remove(memberId);
+                              });
+                            },
                           ),
                         ],
                       );
@@ -356,7 +369,8 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                             ? null
                             : () async {
                                 if (_validateForm(tribeController)) {
-                                  await tribeController.createGroup(
+                                  final success =
+                                      await tribeController.createGroup(
                                     groupName: tribeController
                                         .groupNameController.text,
                                     about: tribeController
@@ -369,8 +383,8 @@ class _CreateTribeGroupState extends State<CreateTribeGroup> {
                                             : tribeController.groupImagePath,
                                     membersId: members,
                                   );
-                                  if (tribeController.createGroupState.value ==
-                                      TheStates.success) {
+                                  if (success) {
+                                    print('fine');
                                     tribeController
                                       ..clearGroupForm()
                                       ..clearGroupImage();
