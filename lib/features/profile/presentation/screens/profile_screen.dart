@@ -331,7 +331,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       await _logoutController.logout(deviceId);
 
                                   if (result) {
-                                    await ChatClient.getInstance.logout();
+                                    // await ChatClient.getInstance.logout();
                                     await Get.find<AppSharedPref>().removeAll();
                                     Get.offAllNamed(AppRoutes.landingScreen);
                                   }

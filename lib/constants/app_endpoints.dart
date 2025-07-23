@@ -1,5 +1,5 @@
 class AppEndpoints {
-  static const String baseUrl = 'http://52.65.99.170/api';
+  static const String baseUrl = 'http://3.27.90.50/api';
   static const String login = '/login';
   static const String logout = '/user/logout';
   static const String signUp = '/register';
