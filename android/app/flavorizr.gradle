@@ -14,7 +14,7 @@ android {
         }
         production {
             dimension "flavor-type"
-            applicationId "com.trainerize.empowered"
+            applicationId "com.trainerize.tonibody.empoweredman"
             resValue "string", "app_name", "Empowered Man"
         }
     }

@@ -15,7 +15,7 @@
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		47F661DD1B6D0FCC2ED3A847 /* apiRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */; };
 		56D6887D6CE48F5AF4CF24B2 /* apiDebug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 323404CABB16041368404E54 /* apiDebug.xcconfig */; };
-		5878CCB22E2F90F50076471B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 5878CCB12E2F90F50076471B /* GoogleService-Info.plist */; };
+		588323462E3087720047D641 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 588323452E3087720047D641 /* GoogleService-Info.plist */; };
 		5C2C5C24FBBB81CA090784AC /* productionRelease.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */; };
 		6444BEB0280BCFE0895ACB43 /* diProfile.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */; };
 		6600EB182258AC54993EC2A8 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA11BC4D80C1C031FCD39116 /* Pods_Runner.framework */; };
@@ -75,7 +75,7 @@
 		3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = productionDebug.xcconfig; path = Flutter/productionDebug.xcconfig; sourceTree = "<group>"; };
 		3EA33418EA6D2430C0F9B277 /* Pods-RunnerTests.release-di.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release-di.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release-di.xcconfig"; sourceTree = "<group>"; };
 		494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = apiProfile.xcconfig; path = Flutter/apiProfile.xcconfig; sourceTree = "<group>"; };
-		5878CCB12E2F90F50076471B /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		588323452E3087720047D641 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		64A7EA15023DB76E6221CDB4 /* productionLaunchScreen.storyboard */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.storyboard; name = productionLaunchScreen.storyboard; path = Runner/productionLaunchScreen.storyboard; sourceTree = "<group>"; };
 		6F2C1BE98E8B8929D10D1EEE /* Pods-RunnerTests.debug-api.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.debug-api.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.debug-api.xcconfig"; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -218,7 +218,7 @@
 		97C146F01CF9000F007C117D /* Runner */ = {
 			isa = PBXGroup;
 			children = (
-				5878CCB12E2F90F50076471B /* GoogleService-Info.plist */,
+				588323452E3087720047D641 /* GoogleService-Info.plist */,
 				2D6CCCEF2D9BDB1E0042A37C /* Runner.entitlements */,
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
@@ -349,7 +349,7 @@
 				47F661DD1B6D0FCC2ED3A847 /* apiRelease.xcconfig in Resources */,
 				7737694CAFCC8B70BAFFD219 /* diLaunchScreen.storyboard in Resources */,
 				9630DDED797EAF0296B197E6 /* apiLaunchScreen.storyboard in Resources */,
-				5878CCB22E2F90F50076471B /* GoogleService-Info.plist in Resources */,
+				588323462E3087720047D641 /* GoogleService-Info.plist in Resources */,
 				2FD8E4696AD32028882234EA /* productionDebug.xcconfig in Resources */,
 				ACA2F6FB748FE7DFFB0D7F06 /* productionProfile.xcconfig in Resources */,
 				5C2C5C24FBBB81CA090784AC /* productionRelease.xcconfig in Resources */,
@@ -390,9 +390,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-resources-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -460,9 +464,13 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
+			inputPaths = (
+			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -524,7 +532,7 @@
 			baseConfigurationReference = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -595,6 +603,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-api";
@@ -603,7 +613,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -661,13 +671,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -779,7 +790,7 @@
 			baseConfigurationReference = 3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -841,7 +852,7 @@
 				);
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.empowered;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
 				SDKROOT = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
@@ -853,6 +864,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 8190CDBA2A98B37C0358437E /* diRelease.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-di";
@@ -861,6 +874,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 323404CABB16041368404E54 /* apiDebug.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-api";
@@ -870,7 +885,7 @@
 			baseConfigurationReference = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -925,7 +940,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.empowered;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -965,6 +980,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-di";
@@ -973,6 +990,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3D8FE3B2EA2B8680CDA3C730 /* productionDebug.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Debug-production";
@@ -982,7 +1002,7 @@
 			baseConfigurationReference = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1054,8 +1074,8 @@
 			baseConfigurationReference = 494C07C9B12F5E9A12FACE25 /* apiProfile.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1123,6 +1143,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-production";
@@ -1131,6 +1154,9 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3A7E2AF07CC5EBB80B72950C /* productionRelease.xcconfig */;
 			buildSettings = {
+				DEVELOPMENT_TEAM = 947XP46Q46;
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-production";
@@ -1256,13 +1282,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1282,13 +1309,14 @@
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
 				DEVELOPMENT_TEAM = 9UBUKGL69H;
 				ENABLE_BITCODE = NO;
+				FLUTTER_BUILD_NAME = 1.0.0;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "empowered man";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.1;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_BUNDLE_IDENTIFIER = com.empoweredman.empoweredman;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1302,8 +1330,8 @@
 			baseConfigurationReference = ED1766C03F0B2A09BE002AED /* productionProfile.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1357,7 +1385,7 @@
 					"$(PROJECT_DIR)/Flutter",
 				);
 				MTL_ENABLE_DEBUG_INFO = NO;
-				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.empowered;
+				PRODUCT_BUNDLE_IDENTIFIER = com.trainerize.tonibody.empoweredman;
 				SDKROOT = iphoneos;
 				SUPPORTED_PLATFORMS = iphoneos;
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -1372,8 +1400,8 @@
 			baseConfigurationReference = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
-				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
 				CLANG_CXX_LIBRARY = "libc++";
@@ -1442,7 +1470,7 @@
 			baseConfigurationReference = 323404CABB16041368404E54 /* apiDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
@@ -1516,6 +1544,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = ECB9CA71933484F80F91EE1A /* apiRelease.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Release-api";
@@ -1524,6 +1554,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = 3403E96530C6C961ED443E69 /* diProfile.xcconfig */;
 			buildSettings = {
+				FLUTTER_BUILD_NAME = 1.0.0;
+				MARKETING_VERSION = 1.0.0;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = "Profile-di";
@@ -1533,7 +1565,7 @@
 			baseConfigurationReference = E53744AA6E23202E8AD4EF83 /* diDebug.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
-				ASSETCATALOG_COMPILER_APPICON_NAME = "$(ASSET_PREFIX)AppIcon";
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = AppIcon;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
