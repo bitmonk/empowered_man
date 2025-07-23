@@ -54,7 +54,8 @@ class CreatePostScreen extends StatelessWidget {
                                 }
                                 if (text.isEmpty) {
                                   AppUtils.showErrorSnackbar(
-                                      message: 'Please add some text to post',);
+                                    message: 'Please add some text to post',
+                                  );
                                   return;
                                 }
                                 Navigator.pop(context);
@@ -108,16 +109,16 @@ class PostBody extends StatelessWidget {
                         height: 40,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
+                            const Icon(
+                          Icons.account_circle,
+                          size: 40,
+                          color: Colors.white54,
                         ),
                       )
-                    : Assets.images.leaderProfile.image(
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
+                    : const Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: Colors.white54,
                       ),
               ),
               const SizedBox(width: 12),
@@ -345,7 +346,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
   @override
   Widget build(BuildContext context) {
     final options = [
-      _Option(icon: Icons.photo, label: 'Photo/video', color: Colors.green),
+      _Option(icon: Icons.photo, label: 'Photo', color: Colors.green),
+      _Option(icon: Icons.videocam, label: 'Video', color: Colors.blue),
       _Option(
         icon: Icons.file_present,
         label: 'Attachment',
@@ -359,7 +361,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
       if (_isUploading || !_canSelectMedia('image')) {
         if (!_canSelectMedia('image')) {
           AppUtils.showErrorSnackbar(
-              message: 'Cannot add photos when a PDF is selected',);
+            message: 'Cannot add photos when a PDF is selected',
+          );
         }
         return;
       }
@@ -385,7 +388,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     void showPhotoVideoPicker(BuildContext context) {
       if (!_canSelectMedia('image') || !_canSelectMedia('video')) {
         AppUtils.showErrorSnackbar(
-            message: 'Cannot add photos or videos when a PDF is selected',);
+          message: 'Cannot add photos or videos when a PDF is selected',
+        );
         return;
       }
       showModalBottomSheet(
@@ -423,35 +427,41 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     }
 
     return Container(
-      height: MediaQuery.of(context).size.height * 0.3,
       decoration: const BoxDecoration(
         color: Color(0xFF242526),
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
-      child: ListView.builder(
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        itemCount: options.length,
-        itemBuilder: (_, index) {
-          final item = options[index];
-          return ListTile(
-            leading: Icon(item.icon, color: item.color),
-            title:
-                Text(item.label, style: const TextStyle(color: Colors.white)),
-            onTap: () {
-              if (_isUploading) return;
-              switch (item.label) {
-                case 'Photo/video':
-                  showPhotoVideoPicker(context);
-                case 'Attachment':
-                  _pickPDF(context);
-                case 'Camera':
-                  _takePicture(context);
-                case 'GIF':
-                  _pickGIF(context);
-              }
-            },
-          );
-        },
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const SizedBox(height: 16),
+          ...options.map((item) => ListTile(
+                leading: Icon(item.icon, color: item.color),
+                title: Text(item.label,
+                    style: const TextStyle(color: Colors.white)),
+                onTap: () {
+                  if (_isUploading) return;
+                  switch (item.label) {
+                    case 'Photo':
+                      pickImage(context);
+                      break;
+                    case 'Video':
+                      _pickVideo(context);
+                      break;
+                    case 'Attachment':
+                      _pickPDF(context);
+                      break;
+                    case 'Camera':
+                      _takePicture(context);
+                      break;
+                    case 'GIF':
+                      _pickGIF(context);
+                      break;
+                  }
+                },
+              )),
+          const SizedBox(height: 16),
+        ],
       ),
     );
   }
@@ -460,7 +470,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     if (_isUploading || !_canSelectMedia('video')) {
       if (!_canSelectMedia('video')) {
         AppUtils.showErrorSnackbar(
-            message: 'Cannot add videos when a PDF is selected',);
+          message: 'Cannot add videos when a PDF is selected',
+        );
       }
       return;
     }
@@ -494,7 +505,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     if (_isUploading || !_canSelectMedia('image')) {
       if (!_canSelectMedia('image')) {
         AppUtils.showErrorSnackbar(
-            message: 'Cannot add photos when a PDF is selected',);
+          message: 'Cannot add photos when a PDF is selected',
+        );
       }
       return;
     }
@@ -520,7 +532,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     if (_isUploading || !_canSelectMedia('pdf')) {
       if (!_canSelectMedia('pdf')) {
         AppUtils.showErrorSnackbar(
-            message: 'Cannot add PDF when other media types are selected',);
+          message: 'Cannot add PDF when other media types are selected',
+        );
       }
       return;
     }
@@ -535,7 +548,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
         if (pdfPath != null) {
           if (!pdfPath.toLowerCase().endsWith('.pdf')) {
             AppUtils.showErrorSnackbar(
-                message: 'Only PDF files are allowed for attachments',);
+              message: 'Only PDF files are allowed for attachments',
+            );
             return;
           }
           final file = File(pdfPath);
@@ -558,7 +572,8 @@ class _PostOptionsSheetState extends State<PostOptionsSheet> {
     if (_isUploading || !_canSelectMedia('gif')) {
       if (!_canSelectMedia('gif')) {
         AppUtils.showErrorSnackbar(
-            message: 'Cannot add GIF when a PDF is selected',);
+          message: 'Cannot add GIF when a PDF is selected',
+        );
       }
       return;
     }

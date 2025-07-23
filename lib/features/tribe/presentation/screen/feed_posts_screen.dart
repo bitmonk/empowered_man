@@ -62,6 +62,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
+          surfaceTintColor: AppColors.bgMedium,
           backgroundColor: AppColors.bgMedium,
           elevation: 0,
           leading: IconButton(
@@ -124,12 +125,13 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   final posts = controller.posts;
                   for (final post in posts) {
                     await controller.getPostComments(
-                        postId: post.id?.toString() ?? '',);
+                      postId: post.id?.toString() ?? '',
+                    );
                   }
                 } else if (index == 1) {
                   // Handle 'Media' tab (index 1)
-                  await controller.getFeedMedia(
-                      ); // Always reset and load first page
+                  await controller
+                      .getFeedMedia(); // Always reset and load first page
                 } else if (index == 2) {
                   // Handle 'Saved' tab (index 2)
                   tribeController.getFeedSavedPost().then((_) async {
@@ -369,10 +371,12 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
       }
 
       final formattedMediaList = mediaItems
-          .map((item) => {
-                'url': item.url,
-                'type': item.type,
-              },)
+          .map(
+            (item) => {
+              'url': item.url,
+              'type': item.type,
+            },
+          )
           .toList();
 
       return NotificationListener<ScrollNotification>(

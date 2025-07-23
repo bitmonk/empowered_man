@@ -50,6 +50,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(70),
         child: AppBar(
+          surfaceTintColor: AppColors.bgMedium,
           backgroundColor: AppColors.bgMedium,
           elevation: 0,
           leading: IconButton(
@@ -63,15 +64,22 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                   tribeController.groupDetailModel.value.data?.about;
               return Row(
                 children: [
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundImage: groupDetails?.image != null
-                        ? NetworkImage(groupDetails!.image!)
-                        : Assets.images.chatUserPicOne.provider(),
-                    onBackgroundImageError: groupDetails?.image != null
-                        ? (_, __) => Assets.images.chatUserPicOne.provider()
-                        : null,
-                  ),
+                  if (groupDetails?.image != null)
+                    CircleAvatar(
+                      radius: 18,
+                      backgroundImage: NetworkImage(groupDetails!.image!),
+                      onBackgroundImageError: (_, __) => null,
+                    )
+                  else
+                    const CircleAvatar(
+                      // radius: 18,
+                      backgroundColor: Colors.white24,
+                      child: Icon(
+                        Icons.group,
+                        color: Colors.white54,
+                        size: 28,
+                      ),
+                    ),
                   const SizedBox(width: 12),
                   Expanded(
                     child: Column(
@@ -88,7 +96,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                           maxLines: 1,
                         ),
                         Text(
-                          groupDetails?.accessType ?? 'Open Discussion Group',
+                          '${groupDetails?.accessType} Group',
                           style: const TextStyle(
                             color: Colors.white54,
                             fontSize: 12,
@@ -162,9 +170,7 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
           const SizedBox(height: 12),
           Expanded(child: _buildTabContent(controller)),
           VerticalSpacing(
-            Platform.isAndroid
-                ? MediaQuery.of(context).viewPadding.bottom + 16
-                : 0,
+            Platform.isAndroid ? context.devicePaddingBottom : 0,
           ),
         ],
       ),
@@ -186,7 +192,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                     tribeController.groupPostModel.value.data?.posts ?? [];
                 for (final post in posts) {
                   await controller.getPostComments(
-                      postId: post.id?.toString() ?? '',);
+                    postId: post.id?.toString() ?? '',
+                  );
                 }
                 setState(() {}); // Force widget rebuild to reflect updated data
               }
@@ -352,7 +359,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                 tribeController.groupPostModel.value.data?.posts ?? [];
             for (final post in posts) {
               await controller.getPostComments(
-                  postId: post.id?.toString() ?? '',);
+                postId: post.id?.toString() ?? '',
+              );
             }
             setState(() {}); // Force widget rebuild to reflect updated likes
           },
@@ -420,17 +428,16 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                       height: 40,
                       width: 40,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Assets.images.leaderProfile.image(
-                        height: 40,
-                        width: 40,
-                        fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: Colors.white54,
                       ),
                     )
-                  : Assets.images.leaderProfile.image(
-                      height: 40,
-                      width: 40,
-                      fit: BoxFit.cover,
+                  : const Icon(
+                      Icons.account_circle,
+                      size: 40,
+                      color: Colors.white54,
                     ),
             ),
             const SizedBox(width: 12),
@@ -551,7 +558,8 @@ class _FeedPageScreenState extends State<FeedPageScreen> {
                 tribeController.savedPostsModel.value.data?.savedPosts ?? [];
             for (final post in savedPosts) {
               await controller.getPostComments(
-                  postId: post.id?.toString() ?? '',);
+                postId: post.id?.toString() ?? '',
+              );
             }
           },
           child: ListView.builder(

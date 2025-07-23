@@ -142,8 +142,12 @@ class _CommentScreenState extends State<CommentScreen> {
     }
   }
 
-  void _startReply(String commentId, String userName, String content,
-      {String? parentId,}) {
+  void _startReply(
+    String commentId,
+    String userName,
+    String content, {
+    String? parentId,
+  }) {
     setState(() {
       replyingToCommentId = commentId;
       replyingToUserName = userName;
@@ -345,16 +349,16 @@ class _CommentScreenState extends State<CommentScreen> {
                         height: 32,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          width: 32,
-                          height: 32,
-                          fit: BoxFit.cover,
+                            const Icon(
+                          Icons.account_circle,
+                          size: 32,
+                          color: Colors.white54,
                         ),
                       )
-                    : Assets.images.leaderProfile.image(
-                        width: 32,
-                        height: 32,
-                        fit: BoxFit.cover,
+                    : const Icon(
+                        Icons.account_circle,
+                        size: 32,
+                        color: Colors.white54,
                       ),
               ),
               const SizedBox(width: 8),
@@ -677,16 +681,16 @@ class _CommentScreenState extends State<CommentScreen> {
                         height: 40,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          width: 40,
-                          height: 40,
-                          fit: BoxFit.cover,
+                            const Icon(
+                          Icons.account_circle,
+                          size: 40,
+                          color: Colors.white54,
                         ),
                       )
-                    : Assets.images.leaderProfile.image(
-                        width: 40,
-                        height: 40,
-                        fit: BoxFit.cover,
+                    : const Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: Colors.white54,
                       ),
               ),
               const SizedBox(width: 12),
@@ -715,38 +719,40 @@ class _CommentScreenState extends State<CommentScreen> {
                 ),
               ),
               const SizedBox(width: 12),
-              Obx(() => GestureDetector(
-                    onTap: (_isSending.value ||
+              Obx(
+                () => GestureDetector(
+                  onTap: (_isSending.value ||
+                          controller.commentState.value == TheStates.loading ||
+                          controller.getRepliesState.value == TheStates.loading)
+                      ? null
+                      : _sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: const BoxDecoration(
+                      color: Colors.blue,
+                      shape: BoxShape.circle,
+                    ),
+                    child: _isSending.value ||
                             controller.commentState.value ==
                                 TheStates.loading ||
                             controller.getRepliesState.value ==
-                                TheStates.loading)
-                        ? null
-                        : _sendMessage,
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: const BoxDecoration(
-                        color: Colors.blue,
-                        shape: BoxShape.circle,
-                      ),
-                      child: _isSending.value ||
-                              controller.commentState.value ==
-                                  TheStates.loading ||
-                              controller.getRepliesState.value ==
-                                  TheStates.loading
-                          ? const SizedBox(
-                              width: 18,
-                              height: 18,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.white,),
-                            )
-                          : const Icon(
-                              Icons.send,
+                                TheStates.loading
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
                               color: Colors.white,
-                              size: 20,
                             ),
-                    ),
-                  ),),
+                          )
+                        : const Icon(
+                            Icons.send,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                  ),
+                ),
+              ),
             ],
           ),
         ],
@@ -844,8 +850,10 @@ class _CommentScreenState extends State<CommentScreen> {
                     value: 'hide',
                     child: Row(
                       children: [
-                        Icon(Icons.visibility_off_outlined,
-                            color: Colors.white,),
+                        Icon(
+                          Icons.visibility_off_outlined,
+                          color: Colors.white,
+                        ),
                         SizedBox(width: 8),
                         Text(
                           'Hide Post',
@@ -926,7 +934,8 @@ class _CommentScreenState extends State<CommentScreen> {
               GestureDetector(
                 onTap: () {
                   final post = controller.posts.firstWhereOrNull(
-                      (p) => p.id?.toString() == widget.postId,);
+                    (p) => p.id?.toString() == widget.postId,
+                  );
                   if (post != null) {
                     controller.sharePost(post);
                   }
@@ -1015,7 +1024,9 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _openMediaViewer(
-      List<Map<String, dynamic>> mediaList, int initialIndex,) {
+    List<Map<String, dynamic>> mediaList,
+    int initialIndex,
+  ) {
     Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
@@ -1113,8 +1124,11 @@ class _CommentScreenState extends State<CommentScreen> {
                     return const ColoredBox(
                       color: Colors.black,
                       child: Center(
-                        child: Icon(Icons.videocam,
-                            color: Colors.white38, size: 48,),
+                        child: Icon(
+                          Icons.videocam,
+                          color: Colors.white38,
+                          size: 48,
+                        ),
                       ),
                     );
                   }
@@ -1155,7 +1169,8 @@ class _CommentScreenState extends State<CommentScreen> {
           hasMore && replies.length < (comment.commentsCount ?? 0);
 
       print(
-          'Comment $commentId: hasReplies=$hasReplies, repliesCount=${replies.length}, hasMore=$hasMore, effectiveHasMore=$effectiveHasMore',);
+        'Comment $commentId: hasReplies=$hasReplies, repliesCount=${replies.length}, hasMore=$hasMore, effectiveHasMore=$effectiveHasMore',
+      );
 
       return Container(
         margin: const EdgeInsets.only(bottom: 16),
@@ -1203,7 +1218,8 @@ class _CommentScreenState extends State<CommentScreen> {
                       final nextPage =
                           (controller.replyCurrentPage[commentId] ?? 1) + 1;
                       print(
-                          'Loading more replies for comment $commentId, page $nextPage',);
+                        'Loading more replies for comment $commentId, page $nextPage',
+                      );
                       await controller.getCommentRepliesPaginated(
                         commentId: commentId,
                         page: nextPage,
@@ -1263,17 +1279,16 @@ class _CommentScreenState extends State<CommentScreen> {
                       height: 32,
                       width: 32,
                       fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) =>
-                          Assets.images.leaderProfile.image(
-                        height: 32,
-                        width: 32,
-                        fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) => const Icon(
+                        Icons.account_circle,
+                        size: 32,
+                        color: Colors.white54,
                       ),
                     )
-                  : Assets.images.leaderProfile.image(
-                      height: 32,
-                      width: 32,
-                      fit: BoxFit.cover,
+                  : const Icon(
+                      Icons.account_circle,
+                      size: 32,
+                      color: Colors.white54,
                     ),
             ),
             const SizedBox(width: 8),
@@ -1283,19 +1298,17 @@ class _CommentScreenState extends State<CommentScreen> {
                 children: [
                   Row(
                     children: [
-                      Expanded(
-                        child: Text(
-                          comment.user?.fullName ?? 'Unknown',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 14,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                      Text(
+                        comment.user?.fullName ?? 'Unknown',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 14,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: 10),
                       Text(
                         comment.createdAt != null
                             ? DateFormat.jm()
@@ -1389,17 +1402,28 @@ class _CommentScreenState extends State<CommentScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      GestureDetector(
-                        onTap: () => _startReply(
-                          commentId,
-                          comment.user?.fullName ?? 'Unknown',
-                          commentText,
-                        ),
-                        child: Assets.images.comment.svg(
-                          height: 16,
-                          width: 16,
-                          fit: BoxFit.cover,
-                        ),
+                      Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _startReply(
+                              commentId,
+                              comment.user?.fullName ?? 'Unknown',
+                              commentText,
+                            ),
+                            child: Assets.images.comment.svg(
+                              height: 16,
+                              width: 16,
+                              fit: BoxFit.cover,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            _formatCount(comment.replys?.length ?? 0) == '0'
+                                ? ''
+                                : _formatCount(comment.replys?.length ?? 0),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
                       ),
                     ],
                   ),
@@ -1458,16 +1482,16 @@ class _CommentScreenState extends State<CommentScreen> {
                             width: 28,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) =>
-                                Assets.images.leaderProfile.image(
-                              height: 28,
-                              width: 28,
-                              fit: BoxFit.cover,
+                                const Icon(
+                              Icons.account_circle,
+                              size: 28,
+                              color: Colors.white54,
                             ),
                           )
-                        : Assets.images.leaderProfile.image(
-                            height: 28,
-                            width: 28,
-                            fit: BoxFit.cover,
+                        : const Icon(
+                            Icons.account_circle,
+                            size: 28,
+                            color: Colors.white54,
                           ),
                   ),
                   const SizedBox(width: 8),
@@ -1477,19 +1501,17 @@ class _CommentScreenState extends State<CommentScreen> {
                       children: [
                         Row(
                           children: [
-                            Expanded(
-                              child: Text(
-                                reply.user?.fullName ?? 'Unknown',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 13,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                            Text(
+                              reply.user?.fullName ?? 'Unknown',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
                               ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: 10),
                             Text(
                               reply.createdAt != null
                                   ? DateFormat.jm()
@@ -1563,18 +1585,29 @@ class _CommentScreenState extends State<CommentScreen> {
                               ),
                             ),
                             const SizedBox(width: 16),
-                            GestureDetector(
-                              onTap: () => _startReply(
-                                reply.id.toString(),
-                                reply.user?.fullName ?? 'Unknown',
-                                reply.text ?? '',
-                                parentId: parentCommentId,
-                              ),
-                              child: Assets.images.comment.svg(
-                                height: 16,
-                                width: 16,
-                                fit: BoxFit.cover,
-                              ),
+                            Row(
+                              children: [
+                                GestureDetector(
+                                  onTap: () => _startReply(
+                                    reply.id.toString(),
+                                    reply.user?.fullName ?? 'Unknown',
+                                    reply.text ?? '',
+                                    parentId: parentCommentId,
+                                  ),
+                                  child: Assets.images.comment.svg(
+                                    height: 16,
+                                    width: 16,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  _formatCount(nestedReplies.length ?? 0) == '0'
+                                      ? ''
+                                      : _formatCount(nestedReplies.length ?? 0),
+                                  style: const TextStyle(color: Colors.white),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -1616,7 +1649,8 @@ class _CommentScreenState extends State<CommentScreen> {
               if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
                 const SizedBox(height: 8),
                 ...nestedReplies.reversed.map(
-                    (nestedReply) => _buildNestedReply(nestedReply, replyId),),
+                  (nestedReply) => _buildNestedReply(nestedReply, replyId),
+                ),
                 if (hasMore)
                   Padding(
                     padding: const EdgeInsets.only(
@@ -1656,13 +1690,18 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildNestedReply(
-      comment_replies.Comment nestedReply, String parentReplyId,) {
+    comment_replies.Comment nestedReply,
+    String parentReplyId,
+  ) {
     final replyId = nestedReply.id.toString();
 
     return GestureDetector(
       onLongPress: () {
-        _showNestedReplyOptions(context, nestedReply,
-            parentReplyId: parentReplyId,);
+        _showNestedReplyOptions(
+          context,
+          nestedReply,
+          parentReplyId: parentReplyId,
+        );
       },
       child: Obx(() {
         // Use local like state if present, else fallback to likedByCurrentUser
@@ -1684,16 +1723,16 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 24,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
-                            Assets.images.leaderProfile.image(
-                          height: 24,
-                          width: 24,
-                          fit: BoxFit.cover,
+                            const Icon(
+                          Icons.account_circle,
+                          size: 24,
+                          color: Colors.white54,
                         ),
                       )
-                    : Assets.images.leaderProfile.image(
-                        height: 24,
-                        width: 24,
-                        fit: BoxFit.cover,
+                    : const Icon(
+                        Icons.account_circle,
+                        size: 24,
+                        color: Colors.white54,
                       ),
               ),
               const SizedBox(width: 8),
@@ -1703,19 +1742,17 @@ class _CommentScreenState extends State<CommentScreen> {
                   children: [
                     Row(
                       children: [
-                        Expanded(
-                          child: Text(
-                            nestedReply.user?.fullName ?? 'Unknown',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 12,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                        Text(
+                          nestedReply.user?.fullName ?? 'Unknown',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
                           ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        const SizedBox(width: 8),
+                        const SizedBox(width: 10),
                         Text(
                           nestedReply.createdAt != null
                               ? DateFormat.jm()
@@ -1852,7 +1889,9 @@ class _CommentScreenState extends State<CommentScreen> {
             ),
             const SizedBox(width: 4),
             Text(
-              _formatCount(widget.commentsCount),
+              _formatCount(widget.commentsCount) == '0'
+                  ? ''
+                  : _formatCount(widget.commentsCount),
               style: const TextStyle(color: Colors.white),
             ),
           ],
@@ -1860,11 +1899,11 @@ class _CommentScreenState extends State<CommentScreen> {
         const SizedBox(width: 16),
         GestureDetector(
           onTap: () {
-            final post = controller.posts
-                .firstWhereOrNull((p) => p.id?.toString() == widget.postId);
-            if (post != null) {
-              controller.sharePost(post);
-            }
+            // final post = controller.posts
+            //     .firstWhereOrNull((p) => p.id?.toString() == widget.postId);
+            // if (post != null) {
+            //   controller.sharePost(post);
+            // }
           },
           child: Assets.images.sharePop.image(
             height: 20,
@@ -1911,8 +1950,11 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   // Add this method to show edit/delete popup for replies
-  void _showReplyOptions(BuildContext context, comment_replies.Comment reply,
-      {required String parentCommentId,}) {
+  void _showReplyOptions(
+    BuildContext context,
+    comment_replies.Comment reply, {
+    required String parentCommentId,
+  }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgMedium,
@@ -1926,8 +1968,10 @@ class _CommentScreenState extends State<CommentScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit, color: AppColors.primary500),
-                title: const Text('Edit',
-                    style: TextStyle(color: AppColors.white),),
+                title: const Text(
+                  'Edit',
+                  style: TextStyle(color: AppColors.white),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _showEditReplyDialog(reply, parentCommentId: parentCommentId);
@@ -1950,10 +1994,11 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   // Stub methods for reply edit/delete (implement as needed)
-  void _showEditReplyDialog(comment_replies.Comment reply,
-      {required String parentCommentId,}) {
-    final editController =
-        TextEditingController(text: reply.text ?? '');
+  void _showEditReplyDialog(
+    comment_replies.Comment reply, {
+    required String parentCommentId,
+  }) {
+    final editController = TextEditingController(text: reply.text ?? '');
     showDialog(
       context: Get.context!,
       builder: (context) {
@@ -1979,8 +2024,10 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
@@ -2006,7 +2053,9 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Save', style: TextStyle(color: Colors.white)),
               ),
@@ -2017,8 +2066,10 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  void _confirmDeleteReply(comment_replies.Comment reply,
-      {required String parentCommentId,}) {
+  void _confirmDeleteReply(
+    comment_replies.Comment reply, {
+    required String parentCommentId,
+  }) {
     showDialog(
       context: Get.context!,
       barrierDismissible: false,
@@ -2028,8 +2079,10 @@ class _CommentScreenState extends State<CommentScreen> {
               controller.deleteReplyState.value == TheStates.loading;
           return AlertDialog(
             backgroundColor: AppColors.feedContainer,
-            title: const Text('Delete Reply',
-                style: TextStyle(color: Colors.white),),
+            title: const Text(
+              'Delete Reply',
+              style: TextStyle(color: Colors.white),
+            ),
             content: const Text(
               'Are you sure you want to delete this reply? This action cannot be undone.',
               style: TextStyle(color: Colors.white70),
@@ -2037,15 +2090,19 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
                     ? null
                     : () async {
                         await controller.deleteReply(
-                            reply.id.toString(), parentCommentId,);
+                          reply.id.toString(),
+                          parentCommentId,
+                        );
                         if (controller.deleteReplyState.value ==
                             TheStates.success) {
                           Navigator.pop(context);
@@ -2059,10 +2116,14 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Delete',
-                        style: TextStyle(color: Colors.white),),
+                    : const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ],
           );
@@ -2073,7 +2134,9 @@ class _CommentScreenState extends State<CommentScreen> {
 
   // Add this method to show edit/delete popup for comments
   void _showCommentOptions(
-      BuildContext context, post_comments.Comment comment,) {
+    BuildContext context,
+    post_comments.Comment comment,
+  ) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgMedium,
@@ -2087,8 +2150,10 @@ class _CommentScreenState extends State<CommentScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit, color: AppColors.primary500),
-                title: const Text('Edit',
-                    style: TextStyle(color: AppColors.white),),
+                title: const Text(
+                  'Edit',
+                  style: TextStyle(color: AppColors.white),
+                ),
                 onTap: () {
                   Navigator.pop(context);
                   _showEditCommentDialog(comment);
@@ -2112,8 +2177,7 @@ class _CommentScreenState extends State<CommentScreen> {
 
   // Stub methods for comment edit/delete (implement as needed)
   void _showEditCommentDialog(post_comments.Comment comment) {
-    final editController =
-        TextEditingController(text: comment.text ?? '');
+    final editController = TextEditingController(text: comment.text ?? '');
     showDialog(
       context: Get.context!, // Use Get.context! to access the current context
       builder: (context) {
@@ -2122,8 +2186,10 @@ class _CommentScreenState extends State<CommentScreen> {
               controller.editCommentState.value == TheStates.loading;
           return AlertDialog(
             backgroundColor: AppColors.feedContainer,
-            title: const Text('Edit Comment',
-                style: TextStyle(color: Colors.white),),
+            title: const Text(
+              'Edit Comment',
+              style: TextStyle(color: Colors.white),
+            ),
             content: TextField(
               controller: editController,
               maxLines: null,
@@ -2139,8 +2205,10 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
@@ -2166,7 +2234,9 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Save', style: TextStyle(color: Colors.white)),
               ),
@@ -2187,8 +2257,10 @@ class _CommentScreenState extends State<CommentScreen> {
               controller.deleteCommentState.value == TheStates.loading;
           return AlertDialog(
             backgroundColor: AppColors.feedContainer,
-            title: const Text('Delete Comment',
-                style: TextStyle(color: Colors.white),),
+            title: const Text(
+              'Delete Comment',
+              style: TextStyle(color: Colors.white),
+            ),
             content: const Text(
               'Are you sure you want to delete this comment? This action cannot be undone.',
               style: TextStyle(color: Colors.white70),
@@ -2196,8 +2268,10 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
@@ -2209,7 +2283,8 @@ class _CommentScreenState extends State<CommentScreen> {
                           Navigator.pop(context);
                           // Refresh comments after delete
                           await controller.getPostComments(
-                              postId: widget.postId,);
+                            postId: widget.postId,
+                          );
                         }
                       },
                 style: ElevatedButton.styleFrom(
@@ -2220,10 +2295,14 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Delete',
-                        style: TextStyle(color: Colors.white),),
+                    : const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ],
           );
@@ -2233,8 +2312,10 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _showNestedReplyOptions(
-      BuildContext context, comment_replies.Comment nestedReply,
-      {required String parentReplyId,}) {
+    BuildContext context,
+    comment_replies.Comment nestedReply, {
+    required String parentReplyId,
+  }) {
     showModalBottomSheet(
       context: context,
       backgroundColor: AppColors.bgMedium,
@@ -2248,12 +2329,16 @@ class _CommentScreenState extends State<CommentScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.edit, color: AppColors.primary500),
-                title: const Text('Edit',
-                    style: TextStyle(color: AppColors.white),),
+                title: const Text(
+                  'Edit',
+                  style: TextStyle(color: AppColors.white),
+                ),
                 onTap: () {
                   Navigator.pop(context);
-                  _showEditNestedReplyDialog(nestedReply,
-                      parentReplyId: parentReplyId,);
+                  _showEditNestedReplyDialog(
+                    nestedReply,
+                    parentReplyId: parentReplyId,
+                  );
                 },
               ),
               ListTile(
@@ -2262,8 +2347,10 @@ class _CommentScreenState extends State<CommentScreen> {
                     const Text('Delete', style: TextStyle(color: Colors.red)),
                 onTap: () {
                   Navigator.pop(context);
-                  _confirmDeleteNestedReply(nestedReply,
-                      parentReplyId: parentReplyId,);
+                  _confirmDeleteNestedReply(
+                    nestedReply,
+                    parentReplyId: parentReplyId,
+                  );
                 },
               ),
             ],
@@ -2273,10 +2360,11 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  void _showEditNestedReplyDialog(comment_replies.Comment nestedReply,
-      {required String parentReplyId,}) {
-    final editController =
-        TextEditingController(text: nestedReply.text ?? '');
+  void _showEditNestedReplyDialog(
+    comment_replies.Comment nestedReply, {
+    required String parentReplyId,
+  }) {
+    final editController = TextEditingController(text: nestedReply.text ?? '');
     showDialog(
       context: Get.context!,
       builder: (context) {
@@ -2302,8 +2390,10 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
@@ -2331,7 +2421,9 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
                     : const Text('Save', style: TextStyle(color: Colors.white)),
               ),
@@ -2342,8 +2434,10 @@ class _CommentScreenState extends State<CommentScreen> {
     );
   }
 
-  void _confirmDeleteNestedReply(comment_replies.Comment nestedReply,
-      {required String parentReplyId,}) {
+  void _confirmDeleteNestedReply(
+    comment_replies.Comment nestedReply, {
+    required String parentReplyId,
+  }) {
     showDialog(
       context: Get.context!,
       barrierDismissible: false,
@@ -2353,8 +2447,10 @@ class _CommentScreenState extends State<CommentScreen> {
               controller.deleteNestedReplyState.value == TheStates.loading;
           return AlertDialog(
             backgroundColor: AppColors.feedContainer,
-            title: const Text('Delete Reply',
-                style: TextStyle(color: Colors.white),),
+            title: const Text(
+              'Delete Reply',
+              style: TextStyle(color: Colors.white),
+            ),
             content: const Text(
               'Are you sure you want to delete this reply? This action cannot be undone.',
               style: TextStyle(color: Colors.white70),
@@ -2362,15 +2458,19 @@ class _CommentScreenState extends State<CommentScreen> {
             actions: [
               TextButton(
                 onPressed: isLoading ? null : () => Navigator.pop(context),
-                child: const Text('Cancel',
-                    style: TextStyle(color: Colors.white70),),
+                child: const Text(
+                  'Cancel',
+                  style: TextStyle(color: Colors.white70),
+                ),
               ),
               ElevatedButton(
                 onPressed: isLoading
                     ? null
                     : () async {
                         await controller.deleteNestedReply(
-                            nestedReply.id.toString(), parentReplyId,);
+                          nestedReply.id.toString(),
+                          parentReplyId,
+                        );
                         if (controller.deleteNestedReplyState.value ==
                             TheStates.success) {
                           Navigator.pop(context);
@@ -2384,10 +2484,14 @@ class _CommentScreenState extends State<CommentScreen> {
                         width: 18,
                         height: 18,
                         child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.white,),
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
                       )
-                    : const Text('Delete',
-                        style: TextStyle(color: Colors.white),),
+                    : const Text(
+                        'Delete',
+                        style: TextStyle(color: Colors.white),
+                      ),
               ),
             ],
           );

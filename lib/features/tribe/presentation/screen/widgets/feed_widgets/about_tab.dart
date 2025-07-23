@@ -196,16 +196,22 @@ class _AboutTabState extends State<AboutTab> {
                           );
                         },
                         contentPadding: EdgeInsets.zero,
-                        leading: CircleAvatar(
-                          backgroundImage: member.user?.image != null
-                              ? NetworkImage(member.user!.image!)
-                              : Assets.images.chatUserPicOne.provider(),
-                          radius: 20,
-                          onBackgroundImageError: member.user?.image != null
-                              ? (_, __) =>
-                                  Assets.images.chatUserPicOne.provider()
-                              : null,
-                        ),
+                        leading: member.user?.image != null
+                            ? CircleAvatar(
+                                backgroundImage:
+                                    NetworkImage(member.user!.image!),
+                                radius: 20,
+                                onBackgroundImageError: (_, __) {},
+                              )
+                            : const CircleAvatar(
+                                radius: 20,
+                                backgroundColor: Colors.grey,
+                                child: Icon(
+                                  Icons.account_circle,
+                                  color: Colors.white54,
+                                  size: 40,
+                                ),
+                              ),
                         title: Text(
                           member.user?.fullName ?? 'Unknown',
                           style: const TextStyle(color: Colors.white),

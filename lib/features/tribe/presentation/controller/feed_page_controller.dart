@@ -253,7 +253,8 @@ class FeedPageController extends GetxController {
             final existing = feedMediaModel.value.data?.medias ?? [];
             final newMedia = r.data?.medias ?? [];
             print(
-                '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}',);
+              '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}',
+            );
             final allMedia = [...existing, ...newMedia];
             final updatedModel = r.copyWith(
               data: r.data?.copyWith(medias: allMedia),
@@ -275,7 +276,8 @@ class FeedPageController extends GetxController {
             currentFeedMediaPage.value = parseInt(meta.currentPage, page);
             lastFeedMediaPage.value = parseInt(meta.lastPage, page);
             print(
-                '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}',);
+              '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}',
+            );
           } else {
             currentFeedMediaPage.value = page;
             lastFeedMediaPage.value = page;
@@ -293,7 +295,8 @@ class FeedPageController extends GetxController {
 
   Future<void> fetchNextFeedMediaPage() async {
     print(
-        '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}',);
+      '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}',
+    );
     if (isLoadingMoreFeedMedia.value) return;
     if (currentFeedMediaPage.value >= lastFeedMediaPage.value) return;
     await getFeedMedia(page: currentFeedMediaPage.value + 1, append: true);
@@ -373,7 +376,8 @@ class FeedPageController extends GetxController {
 
   Future<void> getCommentReplies({required String commentId}) async {
     await getCommentRepliesPaginated(
-        commentId: commentId,);
+      commentId: commentId,
+    );
   }
 
   Future<void> getCommentRepliesPaginated({
@@ -567,7 +571,7 @@ class FeedPageController extends GetxController {
           AppUtils.showErrorSnackbar(message: error.message);
         },
         (message) {
-          AppUtils.showSnackbar(message: message);
+          // AppUtils.showSnackbar(message: message);
           // Defer the refresh to avoid build conflicts
           // Future.microtask(() => getPostComments(postId: postId));
         },
@@ -701,7 +705,9 @@ class FeedPageController extends GetxController {
   }
 
   Future<void> deleteNestedReply(
-      String nestedReplyId, String parentReplyId,) async {
+    String nestedReplyId,
+    String parentReplyId,
+  ) async {
     try {
       deleteNestedReplyState.value = TheStates.loading;
       final result = await remoteSource.deleteComment(commentId: nestedReplyId);

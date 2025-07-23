@@ -9,6 +9,7 @@ import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widget
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
+import 'package:timeago/timeago.dart' as timeago;
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -68,11 +69,14 @@ class _FeedPostState extends State<FeedPost> {
   @override
   Widget build(BuildContext context) {
     print(
-        'SavedPost media:  >>>>>>>>>>>>>>>>>>>>> ${widget.post.media?.toJson()}',);
+      'SavedPost media:  >>>>>>>>>>>>>>>>>>>>> ${widget.post.media?.toJson()}',
+    );
     print(
-        'SavedPost images: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.images}',);
+      'SavedPost images: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.images}',
+    );
     print(
-        'SavedPost videos: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.videos}',);
+      'SavedPost videos: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.videos}',
+    );
     final content = widget.post.text ?? '';
     final textToShow = _expanded || content.length < 100
         ? content
@@ -102,17 +106,16 @@ class _FeedPostState extends State<FeedPost> {
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                        errorWidget: (context, url, error) =>
-                            Assets.images.leaderProfile.image(
-                          height: 40,
-                          width: 40,
-                          fit: BoxFit.cover,
+                        errorWidget: (context, url, error) => const Icon(
+                          Icons.account_circle,
+                          size: 40,
+                          color: Colors.white54,
                         ),
                       )
-                    : Assets.images.leaderProfile.image(
-                        height: 40,
-                        width: 40,
-                        fit: BoxFit.cover,
+                    : const Icon(
+                        Icons.account_circle,
+                        size: 40,
+                        color: Colors.white54,
                       ),
               ),
               const SizedBox(width: 8),
@@ -125,7 +128,9 @@ class _FeedPostState extends State<FeedPost> {
                       style: const TextStyle(color: Colors.white),
                     ),
                     Text(
-                      formatDateTime(widget.post.createdAt),
+                      widget.post.createdAt != null
+                          ? timeago.format(widget.post.createdAt!.toLocal())
+                          : 'N/A',
                       style: const TextStyle(color: Colors.grey, fontSize: 12),
                     ),
                   ],
@@ -234,14 +239,15 @@ class _FeedPostState extends State<FeedPost> {
                         .svg(height: 24, width: 24, fit: BoxFit.cover),
                     const SizedBox(width: 4),
                     Text(
-                      _formatCount(widget.post.commentsCount,
-                          // controller
-                          //     .commentsModel[widget.post.id?.toString()]
-                          //     ?.data
-                          //     ?.comments
-                          //     ?.length ??
-                          // 0,
-                          ),
+                      _formatCount(
+                        widget.post.commentsCount,
+                        // controller
+                        //     .commentsModel[widget.post.id?.toString()]
+                        //     ?.data
+                        //     ?.comments
+                        //     ?.length ??
+                        // 0,
+                      ),
                       style: const TextStyle(color: Colors.white),
                     ),
                   ],
@@ -250,9 +256,9 @@ class _FeedPostState extends State<FeedPost> {
               const SizedBox(width: 16),
               Obx(
                 () => GestureDetector(
-                  onTap: controller.isSharing.value
-                      ? null
-                      : () => controller.sharePost(widget.post),
+                  // onTap: controller.isSharing.value
+                  //     ? null
+                  //     : () => controller.sharePost(widget.post),
                   child: controller.isSharing.value
                       ? const SizedBox(
                           height: 20,
@@ -340,9 +346,11 @@ class _FeedPostState extends State<FeedPost> {
     var allMedia = <Map<String, dynamic>>[];
     if (media is Media) {
       print(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media runtimeType: \n  \t${media.runtimeType}',);
+        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media runtimeType: \n  \t${media.runtimeType}',
+      );
       print(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media.images: \n  \t${media.images}',);
+        '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media.images: \n  \t${media.images}',
+      );
       allMedia = [
         ...(media.images?.map(
               (url) => {
@@ -358,14 +366,17 @@ class _FeedPostState extends State<FeedPost> {
     } else if (media is List) {
       allMedia = media
           .whereType<String>()
-          .map((url) => {
-                'url': url,
-                'type': _getMediaType(url),
-              },)
+          .map(
+            (url) => {
+              'url': url,
+              'type': _getMediaType(url),
+            },
+          )
           .toList();
     }
     print(
-        '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia',);
+      '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia',
+    );
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
@@ -458,7 +469,9 @@ class _FeedPostState extends State<FeedPost> {
   }
 
   void _openMediaViewer(
-      List<Map<String, dynamic>> mediaList, int initialIndex,) {
+    List<Map<String, dynamic>> mediaList,
+    int initialIndex,
+  ) {
     Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
@@ -563,8 +576,11 @@ class _FeedPostState extends State<FeedPost> {
                     return const ColoredBox(
                       color: Colors.black,
                       child: Center(
-                        child: Icon(Icons.videocam,
-                            color: Colors.white38, size: 48,),
+                        child: Icon(
+                          Icons.videocam,
+                          color: Colors.white38,
+                          size: 48,
+                        ),
                       ),
                     );
                   }
@@ -638,7 +654,8 @@ class _FeedPostState extends State<FeedPost> {
       AlertDialog(
         title: const Text('Delete Post'),
         content: const Text(
-            'Are you sure you want to delete this post? This action cannot be undone.',),
+          'Are you sure you want to delete this post? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -663,10 +680,12 @@ class _FeedPostState extends State<FeedPost> {
     final media = widget.post.media;
     if (media is Media) {
       allMedia = [
-        ...(media.images?.map((url) => {
-                  'url': url,
-                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image',
-                },) ??
+        ...(media.images?.map(
+              (url) => {
+                'url': url,
+                'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image',
+              },
+            ) ??
             []),
         ...(media.documents?.map((url) => {'url': url, 'type': 'document'}) ??
             []),
@@ -675,10 +694,12 @@ class _FeedPostState extends State<FeedPost> {
     } else if (media is List) {
       allMedia = media
           .whereType<String>()
-          .map((url) => {
-                'url': url,
-                'type': _getMediaType(url),
-              },)
+          .map(
+            (url) => {
+              'url': url,
+              'type': _getMediaType(url),
+            },
+          )
           .toList();
     }
 
