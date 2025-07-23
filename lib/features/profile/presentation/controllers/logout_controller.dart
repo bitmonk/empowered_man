@@ -1,4 +1,3 @@
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:dio/dio.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/features/profile/data/model/user_profile_model.dart';

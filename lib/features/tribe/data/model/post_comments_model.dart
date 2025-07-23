@@ -1,5 +1,4 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
-import 'dart:convert';
 
 part 'post_comments_model.freezed.dart';
 part 'post_comments_model.g.dart';

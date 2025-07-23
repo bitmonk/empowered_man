@@ -1,16 +1,14 @@
+import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/tribe/data/model/feed_posts_model.dart';
 import 'package:empowered/features/tribe/data/model/media.dart';
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
+import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/comment_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
 import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
-import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 
 class FeedPost extends StatefulWidget {
   const FeedPost({
@@ -70,11 +68,11 @@ class _FeedPostState extends State<FeedPost> {
   @override
   Widget build(BuildContext context) {
     print(
-        'SavedPost media:  >>>>>>>>>>>>>>>>>>>>> ${widget.post.media?.toJson()}');
+        'SavedPost media:  >>>>>>>>>>>>>>>>>>>>> ${widget.post.media?.toJson()}',);
     print(
-        'SavedPost images: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.images}');
+        'SavedPost images: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.images}',);
     print(
-        'SavedPost videos: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.videos}');
+        'SavedPost videos: >>>>>>>>>>>>>>>>>>>>>${widget.post.media?.videos}',);
     final content = widget.post.text ?? '';
     final textToShow = _expanded || content.length < 100
         ? content
@@ -236,7 +234,7 @@ class _FeedPostState extends State<FeedPost> {
                         .svg(height: 24, width: 24, fit: BoxFit.cover),
                     const SizedBox(width: 4),
                     Text(
-                      _formatCount(widget.post.commentsCount
+                      _formatCount(widget.post.commentsCount,
                           // controller
                           //     .commentsModel[widget.post.id?.toString()]
                           //     ?.data
@@ -339,17 +337,17 @@ class _FeedPostState extends State<FeedPost> {
       return const SizedBox.shrink();
     }
 
-    List<Map<String, dynamic>> allMedia = [];
+    var allMedia = <Map<String, dynamic>>[];
     if (media is Media) {
       print(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media runtimeType: \n  \t${media.runtimeType.toString()}');
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media runtimeType: \n  \t${media.runtimeType}',);
       print(
-          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media.images: \n  \t${media.images.toString()}');
+          '>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>FeedPost _buildMedia media.images: \n  \t${media.images}',);
       allMedia = [
         ...(media.images?.map(
               (url) => {
                 'url': url,
-                'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
+                'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image',
               },
             ) ??
             []),
@@ -363,11 +361,11 @@ class _FeedPostState extends State<FeedPost> {
           .map((url) => {
                 'url': url,
                 'type': _getMediaType(url),
-              })
+              },)
           .toList();
     }
     print(
-        '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia');
+        '---------------------->>>>>>>>>>>>>>>>>>>>>>>  FeedPost _buildMedia allMedia: $allMedia',);
 
     if (allMedia.isEmpty) return const SizedBox.shrink();
 
@@ -460,7 +458,7 @@ class _FeedPostState extends State<FeedPost> {
   }
 
   void _openMediaViewer(
-      List<Map<String, dynamic>> mediaList, int initialIndex) {
+      List<Map<String, dynamic>> mediaList, int initialIndex,) {
     Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
@@ -494,14 +492,11 @@ class _FeedPostState extends State<FeedPost> {
                 ),
               ),
             ),
-            // Use high quality for images
-            memCacheHeight: null,
-            memCacheWidth: null,
           ),
         );
       case 'gif':
         // Debug print to check the GIF URL
-        print('GIF URL: ' + url);
+        print('GIF URL: $url');
         return ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Image.network(
@@ -543,15 +538,14 @@ class _FeedPostState extends State<FeedPost> {
               FutureBuilder<Uint8List?>(
                 future: VideoThumbnail.thumbnailData(
                   video: url,
-                  imageFormat: ImageFormat.PNG,
                   maxWidth: 400,
                   quality: 60,
                 ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: CircularProgressIndicator(
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
@@ -566,11 +560,11 @@ class _FeedPostState extends State<FeedPost> {
                       height: double.infinity,
                     );
                   } else {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: Icon(Icons.videocam,
-                            color: Colors.white38, size: 48),
+                            color: Colors.white38, size: 48,),
                       ),
                     );
                   }
@@ -610,13 +604,10 @@ class _FeedPostState extends State<FeedPost> {
     switch (action) {
       case 'save':
         _handleSaveToggle();
-        break;
       case 'hide':
         _showHideConfirmation();
-        break;
       case 'delete':
         _showDeleteConfirmation();
-        break;
     }
   }
 
@@ -647,7 +638,7 @@ class _FeedPostState extends State<FeedPost> {
       AlertDialog(
         title: const Text('Delete Post'),
         content: const Text(
-            'Are you sure you want to delete this post? This action cannot be undone.'),
+            'Are you sure you want to delete this post? This action cannot be undone.',),
         actions: [
           TextButton(
             onPressed: () => Get.back(),
@@ -668,14 +659,14 @@ class _FeedPostState extends State<FeedPost> {
   }
 
   void _navigateToComments() {
-    List<Map<String, dynamic>> allMedia = [];
+    var allMedia = <Map<String, dynamic>>[];
     final media = widget.post.media;
     if (media is Media) {
       allMedia = [
         ...(media.images?.map((url) => {
                   'url': url,
-                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image'
-                }) ??
+                  'type': url.toLowerCase().endsWith('.gif') ? 'gif' : 'image',
+                },) ??
             []),
         ...(media.documents?.map((url) => {'url': url, 'type': 'document'}) ??
             []),
@@ -687,7 +678,7 @@ class _FeedPostState extends State<FeedPost> {
           .map((url) => {
                 'url': url,
                 'type': _getMediaType(url),
-              })
+              },)
           .toList();
     }
 

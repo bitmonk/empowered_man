@@ -9,9 +9,9 @@ import 'package:empowered/features/tribe/data/model/group_list_model.dart';
 import 'package:empowered/features/tribe/data/model/group_media_model.dart';
 import 'package:empowered/features/tribe/data/model/saved_posts_model.dart';
 import 'package:empowered/features/tribe/data/source/tribe_group_remote_source.dart';
+import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/feed_page_screen.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/tribe_widget/manage_pin_group_sheet.dart';
-import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 
 class TribeGroupController extends GetxController {
   TribeGroupController({required this.remoteSource});
@@ -189,7 +189,7 @@ class TribeGroupController extends GetxController {
       return currentGroups
           .where((group) =>
               group.isPinned == true &&
-              (group.accessType?.toLowerCase() == 'admin_only'))
+              (group.accessType?.toLowerCase() == 'admin_only'),)
           .toList();
     }
     return currentGroups.where((group) => group.isPinned == true).toList();
@@ -200,7 +200,7 @@ class TribeGroupController extends GetxController {
       return currentGroups
           .where((group) =>
               group.isPinned != true &&
-              (group.accessType?.toLowerCase() == 'admin_only'))
+              (group.accessType?.toLowerCase() == 'admin_only'),)
           .toList();
     }
     return currentGroups.where((group) => group.isPinned != true).toList();
@@ -581,7 +581,7 @@ class TribeGroupController extends GetxController {
   }
 
   void navigateToFeedPage(String groupId, bool isAdmin, String accessType) {
-    final FeedPageController feedPageController =
+    final feedPageController =
         Get.find<FeedPageController>();
     feedPageController.currentTabIndex.value = 0; // Reset to posts tab
     Get.to(

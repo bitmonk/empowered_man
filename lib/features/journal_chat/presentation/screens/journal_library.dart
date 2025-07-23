@@ -185,7 +185,7 @@ class _JournalLibraryState extends State<JournalLibrary> {
                           isInitialLoad: true,
                         );
                       },
-                      child: Icon(
+                      child: const Icon(
                         Icons.restore_outlined,
                         color: AppColors.textFieldGrey,
                       ),

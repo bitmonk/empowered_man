@@ -369,7 +369,7 @@ class _CustomiseGroupState extends State<CustomiseGroup> {
                               : (tribeController.groupDetailModel.value.data
                                       ?.about?.members
                                       ?.map((member) =>
-                                          member.user?.id.toString() ?? '')
+                                          member.user?.id.toString() ?? '',)
                                       .toList() ??
                                   []);
                           tribeController

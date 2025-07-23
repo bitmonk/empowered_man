@@ -1,6 +1,5 @@
 import 'dart:io';
 
-import 'package:agora_chat_sdk/agora_chat_sdk.dart';
 import 'package:empowered/core/device_info/device_info.dart';
 import 'package:empowered/core/extension/extensions.dart';
 import 'package:empowered/core/preferences/shared_pref.dart';

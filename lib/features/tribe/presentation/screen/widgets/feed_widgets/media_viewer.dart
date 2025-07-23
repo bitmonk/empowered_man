@@ -1,14 +1,12 @@
-import 'package:empowered/core/extension/extensions.dart';
-import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:video_player/video_player.dart';
+import 'package:empowered/core/extension/extensions.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:get/get.dart';
+import 'package:video_player/video_player.dart';
 
 class MediaViewer extends StatefulWidget {
+  const MediaViewer({required this.mediaList, required this.initialIndex, super.key});
   final List<Map<String, dynamic>> mediaList;
   final int initialIndex;
-  const MediaViewer({required this.mediaList, required this.initialIndex});
 
   @override
   State<MediaViewer> createState() => _MediaViewerState();
@@ -122,12 +120,12 @@ class _MediaViewerState extends State<MediaViewer> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         const Icon(Icons.picture_as_pdf,
-                            color: Colors.white, size: 80),
+                            color: Colors.white, size: 80,),
                         const SizedBox(height: 16),
                         Text(
                           url.split('/').last,
                           style: const TextStyle(
-                              color: Colors.white, fontSize: 18),
+                              color: Colors.white, fontSize: 18,),
                           overflow: TextOverflow.ellipsis,
                           textAlign: TextAlign.center,
                         ),
@@ -154,8 +152,8 @@ class _MediaViewerState extends State<MediaViewer> {
 }
 
 class _VideoPlayerWidget extends StatefulWidget {
+  const _VideoPlayerWidget({required this.url, super.key});
   final String url;
-  const _VideoPlayerWidget({required this.url, Key? key}) : super(key: key);
 
   @override
   State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();

@@ -4,8 +4,8 @@ import 'package:empowered/features/home/data/model/daily_mit_list_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_habit_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_level_model.dart';
 import 'package:empowered/features/home/data/model/dashboard_power_streak_model.dart';
-import 'package:empowered/features/home/data/model/my_monthly_model.dart';
 import 'package:empowered/features/home/data/model/my_memory_model.dart';
+import 'package:empowered/features/home/data/model/my_monthly_model.dart';
 import 'package:empowered/features/home/data/source/home_remote_source.dart';
 
 class HomeController extends GetxController {

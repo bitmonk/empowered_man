@@ -49,7 +49,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
 
   void _onSavedScroll() {
     if (!_savedScrollController.hasClients) return;
-    final threshold = 200.0;
+    const threshold = 200.0;
     if (_savedScrollController.position.extentAfter < threshold) {
       tribeController.fetchNextSavedPostsPage();
     }
@@ -124,13 +124,12 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   final posts = controller.posts;
                   for (final post in posts) {
                     await controller.getPostComments(
-                        postId: post.id?.toString() ?? '');
+                        postId: post.id?.toString() ?? '',);
                   }
                 } else if (index == 1) {
                   // Handle 'Media' tab (index 1)
                   await controller.getFeedMedia(
-                      page: 1,
-                      append: false); // Always reset and load first page
+                      ); // Always reset and load first page
                 } else if (index == 2) {
                   // Handle 'Saved' tab (index 2)
                   tribeController.getFeedSavedPost().then((_) async {
@@ -210,7 +209,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
             },
           ),
           if (isLoading)
-            Container(
+            ColoredBox(
               color: Colors.black.withOpacity(0.3),
               child: const Center(
                 child: CircularProgressIndicator(
@@ -315,9 +314,9 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
     return Obx(() {
       final mediaModel = controller.feedMediaModel.value;
       final state = controller.feedMediaState.value;
-      final isLoadingMore = controller.isLoadingMoreFeedMedia?.value ?? false;
-      final hasMore = (controller.currentFeedMediaPage?.value ?? 1) <
-          (controller.lastFeedMediaPage?.value ?? 1);
+      final isLoadingMore = controller.isLoadingMoreFeedMedia.value ?? false;
+      final hasMore = (controller.currentFeedMediaPage.value ?? 1) <
+          (controller.lastFeedMediaPage.value ?? 1);
 
       if (state == TheStates.loading &&
           (mediaModel.data?.medias?.isEmpty ?? true)) {
@@ -373,7 +372,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
           .map((item) => {
                 'url': item.url,
                 'type': item.type,
-              })
+              },)
           .toList();
 
       return NotificationListener<ScrollNotification>(
@@ -388,7 +387,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
         },
         child: RefreshIndicator(
           onRefresh: () async {
-            await controller.getFeedMedia(page: 1, append: false);
+            await controller.getFeedMedia();
           },
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -415,7 +414,7 @@ class _FeedPostsScreenState extends State<FeedPostsScreen> {
                   if (index == formattedMediaList.length && isLoadingMore) {
                     return const Center(
                       child: Padding(
-                        padding: EdgeInsets.all(8.0),
+                        padding: EdgeInsets.all(8),
                         child: CircularProgressIndicator(
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),

@@ -11,7 +11,6 @@ import 'package:empowered/features/tribe/data/model/feed_saved_posts_model.dart'
 import 'package:empowered/features/tribe/data/model/post_comments_model.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:mime_type/mime_type.dart';
-import 'package:dio/dio.dart';
 
 class FeedPageRemoteSource {
   const FeedPageRemoteSource(this._client);

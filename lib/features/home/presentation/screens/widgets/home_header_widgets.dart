@@ -68,7 +68,7 @@ class HomeHeaderWidgets extends StatelessWidget {
                             fullName?.split(' ').first ?? '',
                             style: AppTextStyles.textBodyB3.copyWith(
                                 color: AppColors.white,
-                                overflow: TextOverflow.ellipsis),
+                                overflow: TextOverflow.ellipsis,),
                             maxLines: 1,
                           );
                         },

@@ -12,12 +12,12 @@ import 'package:empowered/features/tribe/presentation/controller/tribe_group_con
 import 'package:share_plus/share_plus.dart';
 
 class FeedPageController extends GetxController {
+  FeedPageController({required this.remoteSource});
   // Pagination state for replies and nested replies
   final RxMap<String, int> replyCurrentPage = <String, int>{}.obs;
   final RxMap<String, bool> isLoadingMoreReplies = <String, bool>{}.obs;
   final RxMap<String, bool> hasMoreReplies = <String, bool>{}.obs;
   final int repliesPerPage = 5;
-  FeedPageController({required this.remoteSource});
 
   final FeedPageRemoteSource remoteSource;
 
@@ -253,7 +253,7 @@ class FeedPageController extends GetxController {
             final existing = feedMediaModel.value.data?.medias ?? [];
             final newMedia = r.data?.medias ?? [];
             print(
-                '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}');
+                '[DEBUG] Appending media: existing=${existing.length}, new=${newMedia.length}',);
             final allMedia = [...existing, ...newMedia];
             final updatedModel = r.copyWith(
               data: r.data?.copyWith(medias: allMedia),
@@ -266,16 +266,16 @@ class FeedPageController extends GetxController {
           // Update pagination
           final meta = r.data?.meta;
           if (meta != null) {
-            int _parseInt(dynamic v, int fallback) {
+            int parseInt(dynamic v, int fallback) {
               if (v is int) return v;
               if (v is String) return int.tryParse(v) ?? fallback;
               return fallback;
             }
 
-            currentFeedMediaPage.value = _parseInt(meta.currentPage, page);
-            lastFeedMediaPage.value = _parseInt(meta.lastPage, page);
+            currentFeedMediaPage.value = parseInt(meta.currentPage, page);
+            lastFeedMediaPage.value = parseInt(meta.lastPage, page);
             print(
-                '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}');
+                '[DEBUG] meta: currentPage=${meta.currentPage}, lastPage=${meta.lastPage}',);
           } else {
             currentFeedMediaPage.value = page;
             lastFeedMediaPage.value = page;
@@ -293,7 +293,7 @@ class FeedPageController extends GetxController {
 
   Future<void> fetchNextFeedMediaPage() async {
     print(
-        '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}');
+        '[DEBUG] fetchNextFeedMediaPage: current=${currentFeedMediaPage.value}, last=${lastFeedMediaPage.value}, isLoadingMore=${isLoadingMoreFeedMedia.value}',);
     if (isLoadingMoreFeedMedia.value) return;
     if (currentFeedMediaPage.value >= lastFeedMediaPage.value) return;
     await getFeedMedia(page: currentFeedMediaPage.value + 1, append: true);
@@ -364,14 +364,16 @@ class FeedPageController extends GetxController {
   // Fetch next page of comments for a post
   Future<void> fetchNextCommentsPage(String postId) async {
     if (isLoadingMoreComments[postId] == true ||
-        hasMoreComments[postId] == false) return;
+        hasMoreComments[postId] == false) {
+      return;
+    }
     isLoadingMoreComments[postId] = true;
     await getPostComments(postId: postId, append: true);
   }
 
   Future<void> getCommentReplies({required String commentId}) async {
     await getCommentRepliesPaginated(
-        commentId: commentId, page: 1, append: false);
+        commentId: commentId,);
   }
 
   Future<void> getCommentRepliesPaginated({
@@ -699,7 +701,7 @@ class FeedPageController extends GetxController {
   }
 
   Future<void> deleteNestedReply(
-      String nestedReplyId, String parentReplyId) async {
+      String nestedReplyId, String parentReplyId,) async {
     try {
       deleteNestedReplyState.value = TheStates.loading;
       final result = await remoteSource.deleteComment(commentId: nestedReplyId);

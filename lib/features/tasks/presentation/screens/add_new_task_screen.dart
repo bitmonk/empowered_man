@@ -314,7 +314,7 @@ class _AddNewTaskScreenState extends State<AddNewTaskScreen> {
                       ),
                     ],
                   ),
-                  VerticalSpacing(30),
+                  const VerticalSpacing(30),
                 ],
               ),
             ),

@@ -241,7 +241,7 @@ class AppUtils {
                       const Text('Uploading...',
                           style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              color: Colors.white)),
+                              color: Colors.white,),),
                       const SizedBox(height: 8),
                       Row(
                         children: [
@@ -260,7 +260,7 @@ class AppUtils {
                             '${(progress.value * 100).toStringAsFixed(0)}%',
                             style: const TextStyle(
                                 color: Colors.white,
-                                fontWeight: FontWeight.w500),
+                                fontWeight: FontWeight.w500,),
                           ),
                         ],
                       ),
@@ -269,7 +269,7 @@ class AppUtils {
                 ),
               ),
             ),
-          )),
+          ),),
     );
     Overlay.of(context).insert(_progressOverlayEntry!);
   }

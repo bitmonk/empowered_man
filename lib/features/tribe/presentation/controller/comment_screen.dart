@@ -1,17 +1,15 @@
-import 'package:video_thumbnail/video_thumbnail.dart';
 import 'dart:typed_data';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/profile/presentation/controllers/profile_controller.dart';
-import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
-    as post_comments;
 import 'package:empowered/features/tribe/data/model/comment_replies_model.dart'
     as comment_replies;
+import 'package:empowered/features/tribe/data/model/post_comments_model.dart'
+    as post_comments;
 import 'package:empowered/features/tribe/presentation/controller/feed_page_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
 import 'package:intl/intl.dart';
-import 'package:get/get.dart';
-import 'package:flutter/material.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class CommentScreen extends StatefulWidget {
   const CommentScreen({
@@ -61,7 +59,7 @@ class _CommentScreenState extends State<CommentScreen> {
     controller.getPostComments(postId: widget.postId).then((_) {
       final comments =
           controller.commentsModel[widget.postId]?.data?.comments ?? [];
-      for (var comment in comments) {
+      for (final comment in comments) {
         final commentId = comment.id.toString();
         commentLikeCounts[commentId] = comment.likesCount ?? 0;
         commentLikeStates[commentId] = (comment.likesCount ?? 0) > 0;
@@ -79,7 +77,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _startReply(String commentId, String userName, String content,
-      {String? parentId}) {
+      {String? parentId,}) {
     setState(() {
       replyingToCommentId = commentId;
       replyingToUserName = userName;
@@ -111,7 +109,7 @@ class _CommentScreenState extends State<CommentScreen> {
         customReply: _inputController.text.trim(),
       )
           .then((_) async {
-        String targetId = parentReplyId ?? replyingToCommentId!;
+        var targetId = parentReplyId ?? replyingToCommentId!;
         controller.repliesModel.remove(targetId);
         controller.repliesModel.refresh();
         await controller.getPostComments(postId: widget.postId);
@@ -380,7 +378,7 @@ class _CommentScreenState extends State<CommentScreen> {
                     child: Row(
                       children: [
                         Icon(Icons.visibility_off_outlined,
-                            color: Colors.white),
+                            color: Colors.white,),
                         SizedBox(width: 8),
                         Text(
                           'Hide Post',
@@ -461,7 +459,7 @@ class _CommentScreenState extends State<CommentScreen> {
               GestureDetector(
                 onTap: () {
                   final post = controller.posts.firstWhereOrNull(
-                      (p) => p.id?.toString() == widget.postId);
+                      (p) => p.id?.toString() == widget.postId,);
                   if (post != null) {
                     controller.sharePost(post);
                   }
@@ -512,7 +510,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _openMediaViewer(
-      List<Map<String, dynamic>> mediaList, int initialIndex) {
+      List<Map<String, dynamic>> mediaList, int initialIndex,) {
     Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
@@ -583,15 +581,14 @@ class _CommentScreenState extends State<CommentScreen> {
               FutureBuilder<Uint8List?>(
                 future: VideoThumbnail.thumbnailData(
                   video: url,
-                  imageFormat: ImageFormat.PNG,
                   maxWidth: 400,
                   quality: 60,
                 ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: CircularProgressIndicator(
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
@@ -606,11 +603,11 @@ class _CommentScreenState extends State<CommentScreen> {
                       height: double.infinity,
                     );
                   } else {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: Icon(Icons.videocam,
-                            color: Colors.white38, size: 48),
+                            color: Colors.white38, size: 48,),
                       ),
                     );
                   }
@@ -655,7 +652,7 @@ class _CommentScreenState extends State<CommentScreen> {
             if (hasReplies) ...[
               const SizedBox(height: 8),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 40),
                 child: GestureDetector(
                   onTap: () => _toggleReplies(commentId, isRepliesExpanded),
                   child: isLoadingReplies
@@ -838,7 +835,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   void _showCommentOptions(
-      BuildContext context, post_comments.Comment comment) {
+      BuildContext context, post_comments.Comment comment,) {
     showModalBottomSheet(
       context: context,
       shape: const RoundedRectangleBorder(
@@ -901,7 +898,7 @@ class _CommentScreenState extends State<CommentScreen> {
       final isLoadingNestedReplies =
           controller.loadingReplies.contains(replyId);
       return Container(
-        margin: const EdgeInsets.only(left: 40.0, bottom: 12),
+        margin: const EdgeInsets.only(left: 40, bottom: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1025,7 +1022,7 @@ class _CommentScreenState extends State<CommentScreen> {
             if (hasNestedReplies) ...[
               const SizedBox(height: 8),
               Padding(
-                padding: const EdgeInsets.only(left: 40.0),
+                padding: const EdgeInsets.only(left: 40),
                 child: GestureDetector(
                   onTap: () =>
                       _toggleNestedReplies(replyId, isNestedRepliesExpanded),
@@ -1055,7 +1052,7 @@ class _CommentScreenState extends State<CommentScreen> {
             if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
               const SizedBox(height: 8),
               ...nestedReplies.map(
-                  (nestedReply) => _buildNestedReply(nestedReply, replyId)),
+                  (nestedReply) => _buildNestedReply(nestedReply, replyId),),
             ],
           ],
         ),
@@ -1064,7 +1061,7 @@ class _CommentScreenState extends State<CommentScreen> {
   }
 
   Widget _buildNestedReply(
-      comment_replies.Comment nestedReply, String parentReplyId) {
+      comment_replies.Comment nestedReply, String parentReplyId,) {
     final replyId = nestedReply.id.toString();
     if (!commentLikeCounts.containsKey(replyId)) {
       commentLikeCounts[replyId] = nestedReply.likesCount ?? 0;
@@ -1075,7 +1072,7 @@ class _CommentScreenState extends State<CommentScreen> {
       final isLiked = commentLikeStates[replyId] ?? false;
       final likeCount = commentLikeCounts[replyId] ?? 0;
       return Container(
-        margin: const EdgeInsets.only(left: 80.0, bottom: 12),
+        margin: const EdgeInsets.only(left: 80, bottom: 12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

@@ -1,12 +1,10 @@
 import 'package:empowered/core/extension/extensions.dart';
-import 'package:empowered/features/home/presentation/screens/widgets/full_memory_sheet.dart';
+import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/home/presentation/controllers/home_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_bindings.dart';
-import 'package:get/get.dart';
-import 'package:intl/intl.dart';
-import 'package:empowered/features/home/data/model/my_memory_model.dart';
 import 'package:empowered/features/journal_chat/presentation/controllers/journal_chat_controller.dart';
 import 'package:empowered/features/journal_chat/presentation/screens/journal_chat_screen.dart';
+import 'package:intl/intl.dart';
 
 class MyMemoryBottomSheet extends StatelessWidget {
   const MyMemoryBottomSheet({super.key});

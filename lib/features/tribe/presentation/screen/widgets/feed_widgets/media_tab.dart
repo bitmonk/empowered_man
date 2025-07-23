@@ -1,11 +1,12 @@
+import 'dart:typed_data';
+
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:empowered/enum/the_states.dart';
 import 'package:empowered/features/tribe/presentation/controller/tribe_group_controller.dart';
 import 'package:empowered/features/tribe/presentation/screen/widgets/feed_widgets/media_viewer.dart';
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:video_thumbnail/video_thumbnail.dart';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:video_thumbnail/video_thumbnail.dart';
 
 class MediaTab extends StatefulWidget {
   const MediaTab({required this.groupId, super.key});
@@ -54,7 +55,6 @@ class _MediaTabState extends State<MediaTab> {
         crossAxisCount: 3,
         crossAxisSpacing: 8,
         mainAxisSpacing: 8,
-        childAspectRatio: 1,
       ),
       itemCount: mediaList.length,
       itemBuilder: (context, index) {
@@ -67,7 +67,7 @@ class _MediaTabState extends State<MediaTab> {
   }
 
   void _openMediaViewer(
-      List<Map<String, dynamic>> mediaList, int initialIndex) {
+      List<Map<String, dynamic>> mediaList, int initialIndex,) {
     Get.to(() => MediaViewer(mediaList: mediaList, initialIndex: initialIndex));
   }
 
@@ -138,15 +138,14 @@ class _MediaTabState extends State<MediaTab> {
               FutureBuilder<Uint8List?>(
                 future: VideoThumbnail.thumbnailData(
                   video: url,
-                  imageFormat: ImageFormat.PNG,
                   maxWidth: 400,
                   quality: 60,
                 ),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: CircularProgressIndicator(
                           valueColor:
                               AlwaysStoppedAnimation<Color>(Colors.white),
@@ -161,11 +160,11 @@ class _MediaTabState extends State<MediaTab> {
                       height: double.infinity,
                     );
                   } else {
-                    return Container(
+                    return const ColoredBox(
                       color: Colors.black,
-                      child: const Center(
+                      child: Center(
                         child: Icon(Icons.videocam,
-                            color: Colors.white38, size: 48),
+                            color: Colors.white38, size: 48,),
                       ),
                     );
                   }
@@ -232,7 +231,7 @@ class _MediaTabState extends State<MediaTab> {
           .map((media) => {
                 'url': media.url,
                 'type': _getMediaType(media.url!),
-              })
+              },)
           .toList();
 
       return NotificationListener<ScrollNotification>(
@@ -247,8 +246,7 @@ class _MediaTabState extends State<MediaTab> {
         },
         child: RefreshIndicator(
           onRefresh: () async {
-            await controller.loadGroupMedia(widget.groupId,
-                page: 1, append: false);
+            await controller.loadGroupMedia(widget.groupId,);
           },
           child: ListView(
             padding: const EdgeInsets.all(16),
@@ -277,7 +275,6 @@ class _MediaTabState extends State<MediaTab> {
                     crossAxisCount: 3,
                     crossAxisSpacing: 8,
                     mainAxisSpacing: 8,
-                    childAspectRatio: 1,
                   ),
                   itemCount:
                       formattedMediaList.length + (isLoadingMore ? 1 : 0),
@@ -285,7 +282,7 @@ class _MediaTabState extends State<MediaTab> {
                     if (index == formattedMediaList.length && isLoadingMore) {
                       return const Center(
                         child: Padding(
-                          padding: EdgeInsets.all(8.0),
+                          padding: EdgeInsets.all(8),
                           child: CircularProgressIndicator(
                             valueColor:
                                 AlwaysStoppedAnimation<Color>(Colors.white),
@@ -293,8 +290,9 @@ class _MediaTabState extends State<MediaTab> {
                         ),
                       );
                     }
-                    if (index < 0 || index >= formattedMediaList.length)
+                    if (index < 0 || index >= formattedMediaList.length) {
                       return const SizedBox.shrink();
+                    }
                     return GestureDetector(
                       onTap: () => _openMediaViewer(formattedMediaList, index),
                       child: _buildSingleMedia(formattedMediaList[index]),

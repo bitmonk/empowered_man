@@ -79,7 +79,7 @@ class TribeGroupController extends GetxController {
 
   Rx<TheStates> groupMediaState = TheStates.initial.obs;
   Future<void> loadGroupMedia(String groupId,
-      {int page = 1, bool append = false}) async {
+      {int page = 1, bool append = false,}) async {
     try {
       if (!append) groupMediaState.value = TheStates.loading;
       if (!append) currentGroupMediaPage.value = 1;
@@ -135,7 +135,7 @@ class TribeGroupController extends GetxController {
     if (isLoadingMoreGroupMedia.value) return;
     if (currentGroupMediaPage.value >= lastGroupMediaPage.value) return;
     await loadGroupMedia(groupId,
-        page: currentGroupMediaPage.value + 1, append: true);
+        page: currentGroupMediaPage.value + 1, append: true,);
   }
 
   late TextEditingController groupNameController;
@@ -268,7 +268,7 @@ class TribeGroupController extends GetxController {
     return currentGroups.where((group) => group.isPinned != true).toList();
   }
 
-  Future<void> createGroup({
+  Future<bool> createGroup({
     required String groupName,
     required String about,
     required String accessType,
@@ -283,7 +283,7 @@ class TribeGroupController extends GetxController {
       AppUtils.showErrorSnackbar(
         message: nameError ?? descError ?? accessTypeError ?? 'Invalid input',
       );
-      return;
+      return false;
     }
 
     try {
@@ -295,10 +295,11 @@ class TribeGroupController extends GetxController {
         imagePath: imagePath,
         membersId: membersId,
       );
-      result.fold(
+      return result.fold(
         (error) {
           createGroupState.value = TheStates.error;
           AppUtils.showErrorSnackbar(message: error.message);
+          return false;
         },
         (response) async {
           createGroupState.value = TheStates.success;
@@ -307,11 +308,13 @@ class TribeGroupController extends GetxController {
           );
           await refreshGroups();
           clearGroupForm();
+          return true;
         },
       );
     } catch (e) {
       createGroupState.value = TheStates.error;
       AppUtils.showErrorSnackbar(message: 'Failed to create group: $e');
+      return false;
     } finally {
       createGroupState.value = TheStates.initial;
     }
@@ -388,7 +391,7 @@ class TribeGroupController extends GetxController {
 
   Rx<TheStates> postDetailState = TheStates.initial.obs;
   Future<void> loadPostDetails(String groupId,
-      {int page = 1, bool append = false}) async {
+      {int page = 1, bool append = false,}) async {
     try {
       if (!append) postDetailState.value = TheStates.loading;
       if (!append) currentGroupFeedPage.value = 1;
@@ -445,7 +448,7 @@ class TribeGroupController extends GetxController {
     if (isLoadingMoreGroupPosts.value) return;
     if (currentGroupFeedPage.value >= lastGroupFeedPage.value) return;
     await loadPostDetails(groupId,
-        page: currentGroupFeedPage.value + 1, append: true);
+        page: currentGroupFeedPage.value + 1, append: true,);
   }
 
   Rx<TheStates> userPostState = TheStates.initial.obs;
@@ -476,7 +479,7 @@ class TribeGroupController extends GetxController {
   }
 
   Future<void> getSavedPosts(String groupId,
-      {int page = 1, bool append = false, CancelToken? cancelToken}) async {
+      {int page = 1, bool append = false, CancelToken? cancelToken,}) async {
     try {
       if (!append) savedPostState.value = TheStates.loading;
       if (!append) currentSavedPage.value = 1;
@@ -534,12 +537,12 @@ class TribeGroupController extends GetxController {
     if (isLoadingMoreSaved.value) return;
     if (currentSavedPage.value >= lastSavedPage.value) return;
     await getSavedPosts(groupId,
-        page: currentSavedPage.value + 1, append: true);
+        page: currentSavedPage.value + 1, append: true,);
   }
 
   Rx<TheStates> getFeedSavedPostState = TheStates.initial.obs;
   Future<void> getFeedSavedPost(
-      {int page = 1, bool append = false, CancelToken? cancelToken}) async {
+      {int page = 1, bool append = false, CancelToken? cancelToken,}) async {
     if (isLoadingMoreSaved.value) return;
     if (append) isLoadingMoreSaved.value = true;
     try {
