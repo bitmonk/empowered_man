@@ -1209,39 +1209,56 @@ class _CommentScreenState extends State<CommentScreen> {
             ],
             if (isRepliesExpanded && replies.isNotEmpty) ...[
               const SizedBox(height: 8),
-              ...replies.reversed.map((reply) => _buildReply(reply, commentId)),
+              // Display replies in chronological order (remove .reversed)
+              ...replies.map((reply) => _buildReply(reply, commentId)),
               if (effectiveHasMore)
                 Padding(
                   padding: const EdgeInsets.only(left: 40, top: 8),
-                  child: TextButton(
-                    onPressed: () async {
-                      final nextPage =
-                          (controller.replyCurrentPage[commentId] ?? 1) + 1;
-                      print(
-                        'Loading more replies for comment $commentId, page $nextPage',
-                      );
-                      await controller.getCommentRepliesPaginated(
-                        commentId: commentId,
-                        page: nextPage,
-                        append: true,
-                      );
-                      final newReplies = controller
-                              .repliesModel[commentId]?.repliesData?.comments ??
-                          [];
-                      _updateLikeDataForComments(newReplies);
-                    },
-                    style: TextButton.styleFrom(
-                      foregroundColor: Colors.blue,
-                    ),
-                    child: const Text(
-                      'View More Replies',
-                      style: TextStyle(
-                        color: Colors.blue,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w500,
+                  child: Obx(() {
+                    final isLoading =
+                        controller.isLoadingMoreReplies[commentId] ?? false;
+                    return TextButton(
+                      onPressed: isLoading
+                          ? null
+                          : () async {
+                              final nextPage =
+                                  (controller.replyCurrentPage[commentId] ??
+                                          1) +
+                                      1;
+                              print(
+                                'Loading more replies for comment $commentId, page $nextPage',
+                              );
+                              await controller.getCommentRepliesPaginated(
+                                commentId: commentId,
+                                page: nextPage,
+                                append: true,
+                              );
+                              final newReplies = controller
+                                      .repliesModel[commentId]
+                                      ?.repliesData
+                                      ?.comments ??
+                                  [];
+                              _updateLikeDataForComments(newReplies);
+                            },
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.blue,
                       ),
-                    ),
-                  ),
+                      child: isLoading
+                          ? const SizedBox(
+                              height: 16,
+                              width: 16,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text(
+                              'View More Replies',
+                              style: TextStyle(
+                                color: Colors.blue,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                    );
+                  }),
                 ),
             ],
           ],
@@ -1460,7 +1477,6 @@ class _CommentScreenState extends State<CommentScreen> {
         final isLoadingNestedReplies =
             controller.loadingReplies.contains(replyId);
         final hasMore = hasMoreNestedReplies[replyId] ?? false;
-        // Use local like state if present, else fallback to likedByCurrentUser
         final isLiked = commentLikeStates.containsKey(replyId)
             ? commentLikeStates[replyId]!
             : (reply.likedByCurrentUser ?? false);
@@ -1602,9 +1618,9 @@ class _CommentScreenState extends State<CommentScreen> {
                                 ),
                                 const SizedBox(width: 4),
                                 Text(
-                                  _formatCount(nestedReplies.length ?? 0) == '0'
+                                  _formatCount(nestedReplies.length) == '0'
                                       ? ''
-                                      : _formatCount(nestedReplies.length ?? 0),
+                                      : _formatCount(nestedReplies.length),
                                   style: const TextStyle(color: Colors.white),
                                 ),
                               ],
@@ -1648,14 +1664,13 @@ class _CommentScreenState extends State<CommentScreen> {
               ],
               if (isNestedRepliesExpanded && nestedReplies.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                ...nestedReplies.reversed.map(
+                // Display nested replies in chronological order (remove .reversed)
+                ...nestedReplies.map(
                   (nestedReply) => _buildNestedReply(nestedReply, replyId),
                 ),
                 if (hasMore)
                   Padding(
-                    padding: const EdgeInsets.only(
-                      left: 90,
-                    ),
+                    padding: const EdgeInsets.only(left: 90),
                     child: Obx(() {
                       final isLoading =
                           isLoadingMoreNestedReplies[replyId] ?? false;

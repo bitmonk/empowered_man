@@ -10,6 +10,8 @@ import 'package:flutter_widget_from_html/flutter_widget_from_html.dart';
 import 'package:intl/intl.dart';
 
 class MyMemoryBottomSheet extends StatelessWidget {
+
+  const MyMemoryBottomSheet({super.key});
   List<String> extractTextList(dynamic list) {
     if (list == null) return [];
     return List<String>.from(
@@ -21,8 +23,6 @@ class MyMemoryBottomSheet extends StatelessWidget {
       }),
     ).where((e) => e.isNotEmpty).toList();
   }
-
-  const MyMemoryBottomSheet({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -186,22 +186,22 @@ class MyMemoryBottomSheet extends StatelessWidget {
                             // Set selectedEmotion to avoid null access in UI
                             chatController.selectedEmotion.value = EmotionName(
                               id: int.tryParse(
-                                  journalId), // Convert journalId to int
+                                  journalId,), // Convert journalId to int
                               emotionName: emotionName,
                             );
                             await chatController
                                 .getJournalWithQuestionsAndAnswersById(
-                                    journalId);
+                                    journalId,);
                             JournalChatInitializer.destroy();
                             JournalChatInitializer.initialize();
                             JournalEmotionNameInitializer.destroy();
                             JournalEmotionNameInitializer.initialize();
                             Navigator.pop(context);
                             Get.to(
-                                () => JournalChatScreen(journalId: journalId));
+                                () => JournalChatScreen(journalId: journalId),);
                           } else {
                             AppUtils.showErrorSnackbar(
-                                message: 'Unable to load journal');
+                                message: 'Unable to load journal',);
                           }
                         },
                         child: Container(

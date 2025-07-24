@@ -4,12 +4,12 @@ import 'package:flutter/material.dart';
 class AppProfileAvatar extends StatelessWidget {
 
   const AppProfileAvatar({
-    Key? key,
+    super.key,
     this.imageUrl,
     this.size = 40,
     this.border,
     this.backgroundColor,
-  }) : super(key: key);
+  });
   final String? imageUrl;
   final double size;
   final BoxBorder? border;

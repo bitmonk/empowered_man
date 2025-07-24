@@ -174,12 +174,12 @@ class _FeedPostState extends State<FeedPost> {
                               : Icons.visibility_off_outlined,
                           color: Colors.white,
                         ),
-                        SizedBox(width: 8),
+                        const SizedBox(width: 8),
                         Text(
                           widget.post.isHidden == true
                               ? 'Unhide Post'
                               : 'Hide Post',
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ],
                     ),
@@ -631,17 +631,14 @@ class _FeedPostState extends State<FeedPost> {
     switch (action) {
       case 'save':
         _handleSaveToggle();
-        break;
       case 'hide':
         if (widget.post.isHidden == true) {
           _showUnhideConfirmation();
         } else {
           _showHideConfirmation();
         }
-        break;
       case 'delete':
         _showDeleteConfirmation();
-        break;
     }
   }
 
@@ -666,7 +663,7 @@ class _FeedPostState extends State<FeedPost> {
                   tribeController.groupPostModel.value.data?.posts ?? [];
               for (final post in posts) {
                 await controller.getPostComments(
-                    postId: post.id?.toString() ?? '');
+                    postId: post.id?.toString() ?? '',);
               }
             },
             child: const Text('Hide'),

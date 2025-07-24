@@ -375,6 +375,11 @@ class FeedPageController extends GetxController {
   }
 
   Future<void> getCommentReplies({required String commentId}) async {
+    // Reset pagination for this comment
+    replyCurrentPage[commentId] = 1;
+    hasMoreReplies[commentId] = true;
+    // Clear existing replies to ensure fresh data
+    repliesModel.remove(commentId);
     await getCommentRepliesPaginated(
       commentId: commentId,
     );
@@ -403,23 +408,33 @@ class FeedPageController extends GetxController {
         },
         (r) {
           getRepliesState.value = TheStates.success;
+          // Ensure replies are in chronological order
+          final newReplies = r.repliesData?.comments ?? [];
+          // If backend returns replies in reverse chronological order, reverse them here
+          // Uncomment the following line if needed:
+          // final orderedReplies = newReplies.reversed.toList();
+          final orderedReplies =
+              newReplies; // Use as-is if backend returns chronological order
+
           if (append && repliesModel.containsKey(commentId)) {
             // Merge new replies with existing
             final existing = repliesModel[commentId];
             final existingList = existing?.repliesData?.comments ?? [];
-            final newList = r.repliesData?.comments ?? [];
-            final merged = [...existingList, ...newList];
+            final merged = [...existingList, ...orderedReplies];
             final updatedRepliesData =
                 r.repliesData?.copyWith(comments: merged);
             repliesModel[commentId] =
                 r.copyWith(repliesData: updatedRepliesData);
           } else {
-            repliesModel[commentId] = r;
+            // Set new replies
+            repliesModel[commentId] = r.copyWith(
+                repliesData: r.repliesData?.copyWith(comments: orderedReplies),);
           }
           // Update pagination state
           replyCurrentPage[commentId] = page;
           final total = r.repliesData?.meta?.total ?? 0;
-          final loaded = r.repliesData?.comments?.length ?? 0;
+          final loaded =
+              repliesModel[commentId]?.repliesData?.comments?.length ?? 0;
           hasMoreReplies[commentId] = loaded < total;
           loadingReplies.remove(commentId);
           repliesModel.refresh();
